@@ -6,80 +6,35 @@ talosVersion: v1.6.5
 kubernetesVersion: v1.29.2
 
 clusterName: &cluster home-kubernetes
-endpoint: https://#{ bootstrap_controllers_vip }#:6443
+endpoint: https://10.0.80.99:6443
 clusterPodNets:
-  - "#{ bootstrap_pod_network.split(',')[0] }#"
+  - "10.69.0.0/16"
 clusterSvcNets:
-  - "#{ bootstrap_service_network.split(',')[0] }#"
+  - "10.96.0.0/16"
 additionalApiServerCertSans: &sans
-  - "#{ bootstrap_controllers_vip }#"
+  - "10.0.80.99"
   - 127.0.0.1 # KubePrism
-  #% for item in bootstrap_tls_sans %#
-  - "#{ item }#"
-  #% endfor %#
 additionalMachineCertSans: *sans
 cniConfig:
   name: none
 
 nodes:
-  #% for item in bootstrap_node_inventory %#
-  - hostname: "#{ item.name }#"
-    ipAddress: "#{ item.address }#"
-    #% if item.talos_disk.startswith('/') %#
-    installDisk: "#{ item.talos_disk }#"
-    #% else %#
-    installDiskSelector:
-      serial: "#{ item.talos_disk }#"
-    #% endif %#
-    #% if bootstrap_talos.secureboot.enabled %#
-    machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/#{ bootstrap_talos.schematic_id }#
-    #% else %#
-    talosImageURL: factory.talos.dev/installer/#{ bootstrap_talos.schematic_id }#
-    #% endif %#
-    controlPlane: #{ (item.controller) | string | lower }#
+  - hostname: "k8s-node-1"
+    ipAddress: "10.0.80.10"
+    installDisk: "/dev/sda"
+    talosImageURL: factory.talos.dev/installer/2d61dd07b20062062ea671b4d01873506103b67c0f7a4c3fb6cf4ee85585dcb8
+    controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
-        #% if bootstrap_talos.vlan %#
-        vlans:
-          - vlanId: #{ bootstrap_talos.vlan }#
-            addresses:
-              - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
-            mtu: 1500
-            routes:
-              - network: 0.0.0.0/0
-                #% if bootstrap_node_default_gateway %#
-                gateway: "#{ bootstrap_node_default_gateway }#"
-                #% else %#
-                gateway: "#{ bootstrap_node_network | nthhost(1) }#"
-                #% endif %#
-            #% if item.controller %#
-            vip:
-              ip: "#{ bootstrap_controllers_vip }#"
-            #% endif %#
-        #% else %#
         addresses:
-          - "#{ item.address }#/#{ bootstrap_node_network.split('/') | last }#"
+          - "10.0.80.10/21"
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            #% if bootstrap_node_default_gateway %#
-            gateway: "#{ bootstrap_node_default_gateway }#"
-            #% else %#
-            gateway: "#{ bootstrap_node_network | nthhost(1) }#"
-            #% endif %#
-        #% if item.controller %#
+            gateway: "10.0.87.1"
         vip:
-          ip: "#{ bootstrap_controllers_vip }#"
-        #% endif %#
-        #% endif %#
-    #% if bootstrap_talos.user_patches %#
-    patches:
-      - "@./patches/node_#{ item.name }#.yaml"
-    #% endif %#
-  #% endfor %#
+          ip: "10.0.80.99"
 
 patches:
   # Configure containerd
@@ -123,16 +78,13 @@ patches:
           rotate-server-certificates: true
         nodeIP:
           validSubnets:
-            - "#{ bootstrap_node_network }#"
+            - "10.0.80.0/21"
 
   # Force nameserver
   - |-
     machine:
       network:
         nameservers:
-          #% for item in bootstrap_dns_servers | default(['1.1.1.1', '1.0.0.1']) %#
-          - #{ item }#
-          #% endfor %#
 
   # Configure NTP
   - |-
@@ -170,26 +122,6 @@ patches:
         extraKernelArgs:
           - net.ifnames=0
 
-  #% if bootstrap_talos.secureboot.enabled and bootstrap_talos.secureboot.encrypt_disk_with_tpm %#
-  # Encrypt system disk with TPM
-  - |-
-    machine:
-      systemDiskEncryption:
-        ephemeral:
-          provider: luks2
-          keys:
-            - slot: 0
-              tpm: {}
-        state:
-          provider: luks2
-          keys:
-            - slot: 0
-              tpm: {}
-  #% endif %#
-  #% if bootstrap_talos.user_patches %#
-  # User specified global patches
-  - "@./patches/global.yaml"
-  #% endif %#
 
 controlPlane:
   patches:
@@ -213,7 +145,7 @@ controlPlane:
           extraArgs:
             listen-metrics-urls: http://0.0.0.0:2381
           advertisedSubnets:
-            - "#{ bootstrap_node_network }#"
+            - "10.0.80.0/21"
 
     # Disable default API server admission plugins.
     - |-
@@ -231,14 +163,4 @@ controlPlane:
             allowedKubernetesNamespaces:
               - system-upgrade
 
-    #% if bootstrap_talos.user_patches %#
-    # User specified controlPlane patches
-    - "@./patches/controlPlane.yaml"
-    #% endif %#
 
-#% if ((bootstrap_talos.user_patches) and (bootstrap_node_inventory | selectattr('controller', 'equalto', False) | list | length)) %#
-worker:
-  patches:
-    # User specified worker patches
-    - "@./patches/worker.yaml"
-#% endif %#
