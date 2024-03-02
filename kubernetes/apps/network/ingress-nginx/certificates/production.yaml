@@ -12,3 +12,7 @@ spec:
   dnsNames:
     - "${SECRET_DOMAIN}"
     - "*.${SECRET_DOMAIN}"
+    - "${SECRET_PUBLIC_DOMAIN}"
+    - "*.${SECRET_PUBLIC_DOMAIN}"
+    - "${SECRET_PLEX_DOMAIN}"
+    - "*.${SECRET_PLEX_DOMAIN}"

@@ -2,14 +2,36 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app external-dns
+  name: &internalApp external-dns-internal
   namespace: flux-system
 spec:
   targetNamespace: network
   commonMetadata:
     labels:
-      app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/network/external-dns/app
+      app.kubernetes.io/name: *internalApp
+  dependsOn:
+    - name: external-secrets
+  path: ./kubernetes/apps/network/external-dns/internal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-kubernetes
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &externalApp external-dns-external
+  namespace: flux-system
+spec:
+  targetNamespace: network
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *externalApp
+  path: ./kubernetes/apps/network/external-dns/external
   prune: true
   sourceRef:
     kind: GitRepository
