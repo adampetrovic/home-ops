@@ -22,7 +22,7 @@ nodes:
   - hostname: "k8s-node-1"
     ipAddress: "10.0.80.10"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/2d61dd07b20062062ea671b4d01873506103b67c0f7a4c3fb6cf4ee85585dcb8
+    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -38,7 +38,7 @@ nodes:
   - hostname: "k8s-node-2"
     ipAddress: "10.0.80.11"
     installDisk: "/dev/sda"
-    talosImageURL: factory.talos.dev/installer/2d61dd07b20062062ea671b4d01873506103b67c0f7a4c3fb6cf4ee85585dcb8
+    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -67,6 +67,18 @@ patches:
               discard_unpacked_layers = false
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
               discard_unpacked_layers = false
+        - op: overwrite
+            path: /etc/nfsmount.conf
+            permissions: 0o644
+            content: |
+              [ NFSMount_Global_Options ]
+              nfsvers=4.1
+              hard=True
+              noatime=True
+              nodiratime=True
+              rsize=131072
+              wsize=131072
+              nconnect=8
 
   # Disable search domain everywhere
   - |-
