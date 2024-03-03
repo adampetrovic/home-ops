@@ -35,6 +35,22 @@ nodes:
             gateway: "10.0.87.1"
         vip:
           ip: "10.0.80.99"
+  - hostname: "k8s-node-2"
+    ipAddress: "10.0.80.11"
+    installDisk: "/dev/sda"
+    talosImageURL: factory.talos.dev/installer/2d61dd07b20062062ea671b4d01873506103b67c0f7a4c3fb6cf4ee85585dcb8
+    controlPlane: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - "10.0.80.11/21"
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "10.0.87.1"
+        vip:
+          ip: "10.0.80.99"
 
 patches:
   # Configure containerd
