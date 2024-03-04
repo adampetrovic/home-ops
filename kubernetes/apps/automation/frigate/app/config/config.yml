@@ -1,0 +1,427 @@
+mqtt:
+  host: mosquitto.automation.svc.cluster.local
+  port: 1883
+  user: "{FRIGATE_MQTT_USERNAME}"
+  password: "{FRIGATE_MQTT_PASSWORD}"
+  topic_prefix: frigate
+
+database:
+  path: /data/frigate.db
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+# ffmpeg:
+#  hwaccel_args: preset-vaapi
+
+#ffmpeg:
+# hwaccel_args:
+#   - '-hwaccel'
+#   - vaapi
+#   - '-hwaccel_device'
+#   - /dev/dri/renderD128
+#   - '-hwaccel_output_format'
+#   - yuv420p
+
+ffmpeg:
+  hwaccel_args: preset-intel-qsv-h264
+
+rtmp:
+  enabled: False
+
+live:
+  height: 720
+  quality: 1
+
+birdseye:
+  enabled: True
+  mode: objects
+
+go2rtc:
+  streams:
+    # back_deck_main:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/101/
+    # back_deck_sub:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/103/
+    # front_balcony_main:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
+    # front_balcony_sub:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/103/
+    front_yard_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/101/
+    front_yard_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/103/
+    # side_walkway_main:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
+    # side_walkway_sub:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/103/
+    # utilities_main:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/101/
+    # utilities_sub:
+    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
+
+cameras:
+  # side_walkway:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/side_walkway_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/side_walkway_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   record:
+  #     enabled: true
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       retain:
+  #         default: 10
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - dog
+  #   zones:
+  #     walkway:
+  #       coordinates: 771,720,464,720,431,428,403,97,522,107
+  #       objects:
+  #         - person
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  # front_balcony:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/front_balcony_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/front_balcony_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 6
+  #   objects:
+  #     track:
+  #       - person
+  #       - car
+  #     filters:
+  #       car:
+  #         mask:
+  #           - 414,0,415,144,596,209,1065,389,590,547,812,720,0,720,0,0
+  #       person:
+  #         mask:
+  #           - 1280,0,1280,312,577,124,257,74,58,132,0,158,0,0
+  #   motion:
+  #     mask:
+  #       - 1280,0,1250,573,989,430,990,393,517,214,267,227,258,122,44,144,0,0
+  #   zones:
+  #     driveway:
+  #       coordinates: 984,428,1280,576,1280,720,834,720,650,580
+  #     front_door:
+  #       coordinates: 179,39,194,158,197,413,94,438,58,65
+  #     front_parking_space:
+  #       coordinates: 2604,899,2673,831,1842,531,1799,587
+  #   record:
+  #     enabled: True
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       pre_capture: 5
+  #       post_capture: 1
+  #       required_zones: ['front_door', 'driveway']
+  #       retain:
+  #         default: 14
+  #         mode: active_objects
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     required_zones: ['front_door', 'driveway']
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  #     required_zones: ['front_door', 'driveway', 'front_parking_space']
+  front_yard:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/front_yard_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/front_yard_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 6
+    objects:
+      track:
+        - person
+      filters:
+        person:
+          min_area: 4000
+          max_area: 50000
+          mask:
+            - 44,259,48,336,0,337,0,257
+            - 756,157,741,221,700,220,722,146
+            - 303,0,405,0,351,133,291,132
+    motion:
+      contour_area: 50
+      mask:
+        - 353,0,539,0,605,0,791,0,1280,0,1280,188,854,132,384,96,111,98,0,144,0,0,0,0
+    zones:
+      driveway:
+        coordinates: 1004,274,1197,418,1280,504,1256,584,829,266
+      front_grass:
+        coordinates: 556,321,629,317,979,720,867,720,560,720,0,720,0,356,75,347
+      walkway:
+        coordinates: 876,540,1016,720,1140,720,986,527,803,372,846,321,813,292,700,338,732,379
+      footpath:
+        coordinates: 323,69,1280,183,1280,221,963,227,767,229,359,245,0,240,0,91
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 1
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
+      required_zones: ['walkway', 'driveway', 'front_grass', 'footpath']
+  # garage:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/garage_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/garage_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - car
+  #       - dog
+  #     filters:
+  #       person:
+  #         mask:
+  #           - 1170,170,1064,531,967,488,1050,148
+  #   zones:
+  #     parking_space:
+  #       coordinates: 740,150,1024,223,805,515,373,323
+  #   record:
+  #     enabled: True
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       retain:
+  #         default: 14
+  #         mode: active_objects
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  # backyard:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/backyard_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/backyard_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - dog
+  #     filters:
+  #       person:
+  #         min_area: 5000
+  #         max_area: 75000
+  #   record:
+  #     enabled: True
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       retain:
+  #         default: 14
+  #         mode: active_objects
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  # back_deck:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/back_deck_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/back_deck_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - dog
+  #   record:
+  #     enabled: True
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       retain:
+  #         default: 14
+  #         mode: active_objects
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  # utilities:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/utilities_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/utilities_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - dog
+  #     filters:
+  #       person:
+  #         mask:
+  #           - 948,0,932,65,848,44,859,0
+  #   motion:
+  #     mask:
+  #       - 1280,0,1280,720,781,720,852,421,955,0
+  #       - 727,0,718,48,0,583,0,0
+  #   zones:
+  #     our_side:
+  #       coordinates: 763,720,270,720,827,89,924,116
+  #     neighbour_side:
+  #       coordinates: 263,720,777,112,624,77,0,720
+  #   record:
+  #     enabled: True
+  #     retain:
+  #       days: 7
+  #       mode: motion
+  #     events:
+  #       retain:
+  #         default: 14
+  #         mode: active_objects
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
+  #     required_zones: ['our_side']
+  # laundry:
+  #   ffmpeg:
+  #     inputs:
+  #       - path: rtsp://127.0.0.1:8554/laundry_main
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - record
+  #       - path: rtsp://127.0.0.1:8554/laundry_sub
+  #         input_args: preset-rtsp-restream
+  #         roles:
+  #           - detect
+  #   detect:
+  #     width: 1280
+  #     height: 720
+  #     fps: 5
+  #   objects:
+  #     track:
+  #       - person
+  #       - dog
+  #   snapshots:
+  #     enabled: True
+  #     timestamp: False
+  #     bounding_box: True
+  #     crop: False
+  #   mqtt:
+  #     enabled: True
+  #     timestamp: False
+  #     crop: True
