@@ -95,9 +95,7 @@ spec:
     ingress:
       main:
         enabled: true
-        className: nginx
-        annotations:
-          internal-dns.home.arpa/enabled: 'true'
+        className: internal
         hosts:
           - host: &host zigbee.${SECRET_DOMAIN}
             paths:
