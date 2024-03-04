@@ -13,17 +13,17 @@ detectors:
     type: edgetpu
     device: usb
 
-# ffmpeg:
-#  hwaccel_args: preset-vaapi
-
 ffmpeg:
- hwaccel_args:
-   - '-hwaccel'
-   - vaapi
-   - '-hwaccel_device'
-   - /dev/dri/renderD128
-   - '-hwaccel_output_format'
-   - yuv420p
+ hwaccel_args: preset-vaapi
+
+#ffmpeg:
+#  hwaccel_args:
+  #  - '-hwaccel'
+  #  - vaapi
+  #  - '-hwaccel_device'
+  #  - /dev/dri/renderD128
+  #  - '-hwaccel_output_format'
+  #  - yuv420p
 
 #ffmpeg:
 #  hwaccel_args: preset-intel-qsv-h264
@@ -45,10 +45,10 @@ go2rtc:
     #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/101/
     # back_deck_sub:
     #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/103/
-    # front_balcony_main:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
-    # front_balcony_sub:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/103/
+    front_balcony_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
+    front_balcony_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/103/
     front_yard_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/101/
     front_yard_sub:
@@ -104,65 +104,65 @@ cameras:
   #     enabled: True
   #     timestamp: False
   #     crop: True
-  # front_balcony:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/front_balcony_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/front_balcony_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 6
-  #   objects:
-  #     track:
-  #       - person
-  #       - car
-  #     filters:
-  #       car:
-  #         mask:
-  #           - 414,0,415,144,596,209,1065,389,590,547,812,720,0,720,0,0
-  #       person:
-  #         mask:
-  #           - 1280,0,1280,312,577,124,257,74,58,132,0,158,0,0
-  #   motion:
-  #     mask:
-  #       - 1280,0,1250,573,989,430,990,393,517,214,267,227,258,122,44,144,0,0
-  #   zones:
-  #     driveway:
-  #       coordinates: 984,428,1280,576,1280,720,834,720,650,580
-  #     front_door:
-  #       coordinates: 179,39,194,158,197,413,94,438,58,65
-  #     front_parking_space:
-  #       coordinates: 2604,899,2673,831,1842,531,1799,587
-  #   record:
-  #     enabled: True
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       pre_capture: 5
-  #       post_capture: 1
-  #       required_zones: ['front_door', 'driveway']
-  #       retain:
-  #         default: 14
-  #         mode: active_objects
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     required_zones: ['front_door', 'driveway']
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
-  #     required_zones: ['front_door', 'driveway', 'front_parking_space']
+  front_balcony:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/front_balcony_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/front_balcony_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 6
+    objects:
+      track:
+        - person
+        - car
+      filters:
+        car:
+          mask:
+            - 414,0,415,144,596,209,1065,389,590,547,812,720,0,720,0,0
+        person:
+          mask:
+            - 1280,0,1280,312,577,124,257,74,58,132,0,158,0,0
+    motion:
+      mask:
+        - 1280,0,1250,573,989,430,990,393,517,214,267,227,258,122,44,144,0,0
+    zones:
+      driveway:
+        coordinates: 984,428,1280,576,1280,720,834,720,650,580
+      front_door:
+        coordinates: 179,39,194,158,197,413,94,438,58,65
+      front_parking_space:
+        coordinates: 2604,899,2673,831,1842,531,1799,587
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 1
+        required_zones: ['front_door', 'driveway']
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      required_zones: ['front_door', 'driveway']
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
+      required_zones: ['front_door', 'driveway', 'front_parking_space']
   front_yard:
     ffmpeg:
       inputs:
