@@ -51,6 +51,38 @@ nodes:
             gateway: "10.0.87.1"
         vip:
           ip: "10.0.80.99"
+  - hostname: "k8s-node-3"
+    ipAddress: "10.0.80.12"
+    installDisk: "/dev/sda"
+    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    controlPlane: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - "10.0.80.12/21"
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "10.0.87.1"
+        vip:
+          ip: "10.0.80.99"
+  - hostname: "k8s-node-4"
+    ipAddress: "10.0.80.13"
+    installDisk: "/dev/sda"
+    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    controlPlane: true
+    networkInterfaces:
+      - interface: eth0
+        dhcp: false
+        addresses:
+          - "10.0.80.13/21"
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: "10.0.87.1"
+        vip:
+          ip: "10.0.80.99"
 
 patches:
   # Configure containerd
@@ -68,17 +100,17 @@ patches:
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
               discard_unpacked_layers = false
         - op: overwrite
-            path: /etc/nfsmount.conf
-            permissions: 0o644
-            content: |
-              [ NFSMount_Global_Options ]
-              nfsvers=4.1
-              hard=True
-              noatime=True
-              nodiratime=True
-              rsize=131072
-              wsize=131072
-              nconnect=8
+          path: /etc/nfsmount.conf
+          permissions: 0o644
+          content: |
+            [ NFSMount_Global_Options ]
+            nfsvers=4.1
+            hard=True
+            noatime=True
+            nodiratime=True
+            rsize=131072
+            wsize=131072
+            nconnect=8
 
   # Disable search domain everywhere
   - |-
@@ -152,6 +184,14 @@ patches:
         extraKernelArgs:
           - net.ifnames=0
 
+  # udev rules
+  - |-
+    machine:
+      udev:
+        rules:
+          - ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{authorized}=="0", ATTR{authorized}="1"
+          - SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="44", MODE="0660"
+          - KERNEL=="ttyACM[0-9]", GROUP="20", MODE="0660"
 
 controlPlane:
   patches:
