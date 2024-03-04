@@ -16,17 +16,17 @@ detectors:
 # ffmpeg:
 #  hwaccel_args: preset-vaapi
 
-#ffmpeg:
-# hwaccel_args:
-#   - '-hwaccel'
-#   - vaapi
-#   - '-hwaccel_device'
-#   - /dev/dri/renderD128
-#   - '-hwaccel_output_format'
-#   - yuv420p
-
 ffmpeg:
-  hwaccel_args: preset-intel-qsv-h264
+ hwaccel_args:
+   - '-hwaccel'
+   - vaapi
+   - '-hwaccel_device'
+   - /dev/dri/renderD128
+   - '-hwaccel_output_format'
+   - yuv420p
+
+#ffmpeg:
+#  hwaccel_args: preset-intel-qsv-h264
 
 rtmp:
   enabled: False
