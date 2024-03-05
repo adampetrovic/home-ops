@@ -1,0 +1,79 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &app teslamate
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16.2
+              pullPolicy: Always
+            envFrom:
+              - secretRef:
+                  name: teslamate-secret
+        containers:
+          main:
+            image:
+              repository: teslamate/teslamate
+              tag: 1.28.3
+            env:
+              TZ: ${TIMEZONE}
+              DISABLE_MQTT: "false"
+              MQTT_HOST: mosquitto.automation.svc.cluster.local
+            envFrom:
+              - secretRef:
+                  name: teslamate-secret
+
+    service:
+      main:
+        ports:
+          http:
+            port: 4000
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        hosts:
+          - host: "teslamate.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  name: main
+                  port: http
+    postgresql:
+      enabled: false
+    resources:
+      requests:
+        cpu: 18m
+        memory: 512Mi
+      limits:
+        memory: 512Mi
