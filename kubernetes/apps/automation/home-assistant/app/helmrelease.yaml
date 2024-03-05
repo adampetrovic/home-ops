@@ -1,0 +1,196 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &app home-assistant
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            enabled: false  # don't block homeassistant from starting if postgres is down
+            image: ghcr.io/onedr0p/postgres-init:16.1
+            imagePullPolicy: Always
+            envFrom:
+              - secretRef:
+                  name: home-assistant-secret
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/home-assistant
+              tag: 2024.2.3@sha256:4880575480641e0f83618de45c27dd75ff9d413f092523a75b7ec1e825d22b1b
+            env:
+              TZ: ${TIMEZONE}
+              POSTGRES_HOST: postgres-rw.database.svc.cluster.local
+              POSTGRES_DB: homeassistant
+              HASS_IP: &ip 10.0.81.4
+            envFrom: &envFrom
+              - secretRef:
+                  name: home-assistant-secret
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 305m
+                memory: 1005Mi
+              limits:
+                memory: 1638Mi
+          codeserver:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.21.1-39
+            env:
+              TZ: ${TIMEZONE}
+              GIT_AUTHOR_NAME: "Adam Petrovic"
+            envFrom: *envFrom
+            args:
+              - --auth
+              - "none"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --extensions-dir
+              - "/config/.vscode"
+              - /config
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1024Mi
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+    service:
+      main:
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: *ip
+        ports:
+          http:
+            enabled: true
+            port: 8123
+          homekit:
+            enabled: true
+            protocol: TCP
+            port: 21065
+      codeserver:
+        controller: main
+        ports:
+          http:
+            port: 8080
+
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "hass.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+
+      external:
+        enabled: true
+        className: external
+        hosts:
+          - host: &publicHost "hass.${SECRET_PUBLIC_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *publicHost
+
+      codeserver:
+        enabled: true
+        controller: main
+        className: internal
+        hosts:
+          - host: &codeHost "hass-code.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: codeserver
+                  port: http
+        tls:
+          - hosts:
+              - *codeHost
+
+    persistence:
+      deploy-key:
+        type: secret
+        name: home-assistant-secret
+        defaultMode: 420  # 644 (octal) in decimal
+        advancedMounts:
+          main:
+            codeserver:
+              - path: /home/coder/.ssh/id_rsa
+                subPath: GH_DEPLOY_KEY
+
+      dot-gitconfig:
+        enabled: true
+        type: secret
+        name: home-assistant-secret
+        advancedMounts:
+          main:
+            codeserver:
+              - path: /home/coder/.gitconfig
+                subPath: GIT_CONFIG
+        defaultMode: 0700
+
+      ssh-knownhosts:
+        enabled: true
+        type: secret
+        name: home-assistant-secret
+        advancedMounts:
+          main:
+            codeserver:
+              - path: /home/coder/.ssh/known_hosts
+                subPath: KNOWN_HOSTS
+        defaultMode: 0700
