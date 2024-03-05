@@ -16,18 +16,6 @@ detectors:
 ffmpeg:
  hwaccel_args: preset-vaapi
 
-#ffmpeg:
-#  hwaccel_args:
-  #  - '-hwaccel'
-  #  - vaapi
-  #  - '-hwaccel_device'
-  #  - /dev/dri/renderD128
-  #  - '-hwaccel_output_format'
-  #  - yuv420p
-
-#ffmpeg:
-#  hwaccel_args: preset-intel-qsv-h264
-
 rtmp:
   enabled: False
 
@@ -53,6 +41,10 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/101/
     front_yard_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/103/
+    garage_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/101/
+    garage_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/103/
     # side_walkway_main:
     #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
     # side_walkway_sub:
@@ -223,51 +215,51 @@ cameras:
       timestamp: False
       crop: True
       required_zones: ['walkway', 'driveway', 'front_grass', 'footpath']
-  # garage:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/garage_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/garage_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - car
-  #       - dog
-  #     filters:
-  #       person:
-  #         mask:
-  #           - 1170,170,1064,531,967,488,1050,148
-  #   zones:
-  #     parking_space:
-  #       coordinates: 740,150,1024,223,805,515,373,323
-  #   record:
-  #     enabled: True
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       retain:
-  #         default: 14
-  #         mode: active_objects
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
+  garage:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/garage_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/garage_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - car
+        - dog
+      filters:
+        person:
+          mask:
+            - 1170,170,1064,531,967,488,1050,148
+    zones:
+      parking_space:
+        coordinates: 740,150,1024,223,805,515,373,323
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
   # backyard:
   #   ffmpeg:
   #     inputs:
