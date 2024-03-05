@@ -43,8 +43,8 @@ spec:
               pullPolicy: IfNotPresent
             command: ["/bin/sh", "-c", "sleep 9999999999"]
             #command: ["/bin/sh", "-c", "cp /tmp/config/recyclarr.yml /config/recyclarr.yml"]
-            volumeMounts:
-              - { name: config, mountPath: /config }
+            # volumeMounts:
+            #   - { name: config, mountPath: /config }
         containers:
           main:
             image:
