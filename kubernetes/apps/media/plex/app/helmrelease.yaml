@@ -35,13 +35,6 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init:
-            image:
-              repository: public.ecr.aws/docker/library/busybox
-              tag: latest
-              pullPolicy: IfNotPresent
-            command: ["/bin/sh", "-c", "sleep 9999999999"]
         containers:
           main:
             image:
