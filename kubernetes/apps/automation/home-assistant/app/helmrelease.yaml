@@ -163,6 +163,9 @@ spec:
               - *codeHost
 
     persistence:
+      config:
+        enabled: true
+        existingClaim: home-assistant
       deploy-key:
         type: secret
         name: home-assistant-secret
