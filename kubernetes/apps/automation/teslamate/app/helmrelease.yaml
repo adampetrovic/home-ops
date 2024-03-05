@@ -62,13 +62,16 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: "teslamate.${SECRET_DOMAIN}"
+          - host: &host "teslamate.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
                 service:
                   name: main
                   port: http
+        tls:
+          - hosts:
+              - *host
     postgresql:
       enabled: false
     resources:
