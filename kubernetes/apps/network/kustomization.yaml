@@ -10,3 +10,4 @@ resources:
   - ./ingress-nginx/ks.yaml
   - ./k8s-gateway/ks.yaml
   - ./ntpd/ks.yaml
+  - ./smtp-relay/ks.yaml
