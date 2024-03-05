@@ -60,7 +60,7 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: ntpd.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.81.4
+          io.cilium/lb-ipam-ips: 10.0.81.5
         externalTrafficPolicy: Cluster
         ports:
           http:
