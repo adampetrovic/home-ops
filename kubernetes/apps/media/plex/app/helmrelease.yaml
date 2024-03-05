@@ -35,15 +35,15 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-        # initContainers:
-        #   01-init-config:
-        #     image:
-        #       repository: public.ecr.aws/docker/library/busybox
-        #       tag: latest
-        #       pullPolicy: IfNotPresent
-        #     command: ["/bin/sh", "-c", "sleep 9999999999"]
-        #     volumeMounts:
-        #       - { name: config, mountPath: /config }
+        initContainers:
+          01-init-config:
+            image:
+              repository: public.ecr.aws/docker/library/busybox
+              tag: latest
+              pullPolicy: IfNotPresent
+            command: ["/bin/sh", "-c", "sleep 9999999999"]
+            volumeMounts:
+              - { name: config, mountPath: /config }
         containers:
           main:
             image:
