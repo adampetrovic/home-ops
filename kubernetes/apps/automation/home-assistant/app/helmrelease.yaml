@@ -136,6 +136,8 @@ spec:
       external:
         enabled: true
         className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
         hosts:
           - host: &publicHost "hass.${SECRET_PUBLIC_DOMAIN}"
             paths:
