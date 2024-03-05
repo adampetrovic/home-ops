@@ -35,16 +35,6 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          01-init-config:
-            image:
-              repository: public.ecr.aws/docker/library/busybox
-              tag: latest
-              pullPolicy: IfNotPresent
-            command: ["/bin/sh", "-c", "sleep 9999999999"]
-            #command: ["/bin/sh", "-c", "cp /tmp/config/recyclarr.yml /config/recyclarr.yml"]
-            # volumeMounts:
-            #   - { name: config, mountPath: /config }
         containers:
           main:
             image:
@@ -92,7 +82,7 @@ spec:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
           securityContext:
-            runAsUser: 568
+            runAsUser: 0
             runAsGroup: 568
             fsGroup: 568
             runAsNonRoot: true
@@ -127,6 +117,8 @@ spec:
       config:
         enabled: true
         existingClaim: plex
+        globalMounts:
+          - path: /config/Library/Application Support/Plex Media Server
 
       # Separate PVC for cache to avoid backing up cache files
       plex-cache:
