@@ -1,0 +1,94 @@
+---
+session:
+  redis:
+    high_availability:
+      sentinel_name: redis-master
+      nodes:
+        - host: redis-node-0.redis-headless.database.svc.cluster.local
+          port: 26379
+        - host: redis-node-1.redis-headless.database.svc.cluster.local
+          port: 26379
+        - host: redis-node-2.redis-headless.database.svc.cluster.local
+          port: 26379
+
+access_control:
+  default_policy: deny
+  networks:
+    - name: internal
+      networks: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+  rules:
+    - domain:
+        - "qb.${SECRET_DOMAIN}"
+        - "radarr.${SECRET_DOMAIN}"
+        - "radarr4k.${SECRET_DOMAIN}"
+      policy: bypass
+      resources: ["^/api([?/].*)?$"]
+    - domain:
+        - "qb.${SECRET_DOMAIN}"
+      policy: bypass
+      resources: ["^/api([?/].*)?$"]
+    - domain: ["paperless.${SECRET_DOMAIN}"]
+      policy: two_factor
+      subject:
+        - 'group:users'
+    - domain: ["echo-server.${SECRET_DOMAIN}"]
+      policy: one_factor
+      subject:
+        - 'group:users'
+    - domain: ["*.${SECRET_DOMAIN}"]
+      policy: one_factor
+      subject:
+        - 'group:admin'
+
+identity_providers:
+  oidc:
+    cors:
+      endpoints: ["authorization", "token", "revocation", "introspection"]
+      allowed_origins_from_client_redirect_uris: true
+    clients:
+      - id: grafana
+        description: Grafana
+        secret: "${GRAFANA_OAUTH_CLIENT_SECRET_HASH}"
+        public: false
+        authorization_policy: two_factor
+        pre_configured_consent_duration: 1y
+        scopes: ["openid", "profile", "groups", "email"]
+        redirect_uris: ["https://grafana.${SECRET_DOMAIN}/login/generic_oauth"]
+        userinfo_signed_response_alg: none
+      - id: miniflux
+        description: Miniflux
+        secret: "${MINIFLUX_OAUTH_CLIENT_SECRET_HASH}"
+        public: false
+        authorization_policy: two_factor
+        pre_configured_consent_duration: 1y
+        scopes: ["openid", "profile", "groups", "email"]
+        redirect_uris:
+          - "https://miniflux.${SECRET_DOMAIN}/oauth2/oidc/callback"
+        userinfo_signed_response_alg: none
+      - id: weave-gitops
+        description: Weave GitOps
+        secret: "${WEAVE_OAUTH_CLIENT_SECRET_HASH}"
+        public: false
+        authorization_policy: two_factor
+        pre_configured_consent_duration: 1y
+        scopes: ["openid", "profile", "groups", "email", "offline_access"]
+        redirect_uris: ["https://gitops.${SECRET_DOMAIN}/oauth2/callback"]
+        userinfo_signed_response_alg: none
+      - id: memos
+        description: Memos
+        secret: "${MEMOS_OAUTH_CLIENT_SECRET_HASH}"
+        public: false
+        authorization_policy: two_factor
+        pre_configured_consent_duration: 1y
+        scopes: ["openid", "profile", "groups", "email"]
+        redirect_uris: ["https://memos.${SECRET_DOMAIN}/auth/callback"]
+        userinfo_signed_response_alg: none
+      - id: gitea
+        description: Gitea
+        secret: "${GITEA_OAUTH_CLIENT_SECRET_HASH}"
+        public: false
+        authorization_policy: two_factor
+        consent_mode: implicit
+        scopes: ["openid", "profile", "groups", "email"]
+        redirect_uris: ["https://gitea.${SECRET_DOMAIN}/user/oauth2/authelia/callback"]
+        userinfo_signed_response_alg: none
