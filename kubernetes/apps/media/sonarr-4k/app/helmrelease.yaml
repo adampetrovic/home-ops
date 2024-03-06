@@ -1,9 +1,8 @@
-# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: sonarr-4k
-  namespace: media
 spec:
   interval: 30m
   chart:
@@ -26,28 +25,20 @@ spec:
   uninstall:
     keepHistory: false
   dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
   values:
-    defaultPodOptions:
-      securityContext:
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [100]
-      nodeSelector:
-        node-role.kubernetes.io/worker: 'true'
     controllers:
       main:
-        type: statefulset
         annotations:
           reloader.stakater.com/auto: 'true'
         containers:
           main:
             image:
               repository: ghcr.io/onedr0p/sonarr-develop
-              tag: 
+              tag:
                 4.0.1.1168@sha256:5ea8846eb99054ec31f412a5af3c87fc5d359c0a0de5571636831530ce8d6348
             envFrom:
               - secretRef:
@@ -79,14 +70,13 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
-        statefulset:
-          volumeClaimTemplates:
-            - name: config
-              accessMode: ReadWriteOnce
-              size: 15Gi
-              storageClass: longhorn-backup
-              globalMounts:
-                - path: /config
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
     service:
       main:
         ports:
@@ -95,8 +85,8 @@ spec:
     ingress:
       main:
         enabled: true
+        className: internal
         annotations:
-          internal-dns.home.arpa/enabled: 'true'
           nginx.ingress.kubernetes.io/configuration-snippet: |
             proxy_set_header Accept-Encoding "";
             sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.devbu.io/css/base/sonarr/nord.css"></head>';
@@ -112,17 +102,19 @@ spec:
         tls:
           - hosts:
               - *host
-        className: nginx
     persistence:
-      movies:
+      config:
         enabled: true
-        existingClaim: nfs-tv-4k-pvc
-        readOnly: false
+        existingClaim: sonarr-4k
+      tv:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv-4k
         globalMounts:
           - path: /tv
       downloads:
-        enabled: true
-        existingClaim: nfs-downloads-pvc
-        readOnly: false
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
         globalMounts:
           - path: /downloads
