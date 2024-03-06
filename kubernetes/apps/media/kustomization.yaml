@@ -10,3 +10,4 @@ resources:
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml
   - ./stash/ks.yaml
+  - ./unpackerr/ks.yaml
