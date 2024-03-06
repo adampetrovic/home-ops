@@ -95,8 +95,8 @@ spec:
         enabled: true
         existingClaim: qbittorrent
       downloads:
-        enabled: true
-        existingClaim: nfs-downloads-pvc
-        readOnly: false
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
         globalMounts:
           - path: /downloads
