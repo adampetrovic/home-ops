@@ -4,10 +4,11 @@
     "config:recommended",
     "docker:enableMajor",
     ":disableRateLimiting",
-    ":dependencyDashboard",
     ":semanticCommits",
-    ":automergeBranch"
+    ":automergeBranch",
+    "github>adampetrovic/home-ops//.github/renovate/packageRules.json5"
   ],
+  "timezone": "Australia/Sydney",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
