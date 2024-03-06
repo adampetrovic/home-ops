@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./plex/ks.yaml
+  - ./prowlarr/ks.yaml
   - ./tautulli/ks.yaml
   - ./sonarr/ks.yaml
   - ./removed-media-app/ks.yaml
