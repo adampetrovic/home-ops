@@ -31,8 +31,6 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [100]
-      nodeSelector:
-        node-role.kubernetes.io/worker: 'true'
     controllers:
       main:
         containers:
