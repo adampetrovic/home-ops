@@ -1,0 +1,151 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: qbtools
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: qbittorrent
+      namespace: media
+  values:
+    controllers:
+      main:
+        enabled: false
+      tagging:
+        type: cronjob
+        cronjob: &cronJobSpec
+          schedule: "@hourly"
+          timeZone: ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+        initContainers:
+          tagging:
+            image: &image
+              repository: ghcr.io/buroa/qbtools
+              tag: v0.14.0@sha256:6008628a0005b8ed09d84d8e1110b4c84d1eba95aab59204377280883f65502b
+            env: &env
+              TZ: ${TIMEZONE}
+            args: [
+              "tagging",
+              "--added-on",
+              "--expired",
+              "--last-activity",
+              "--sites",
+              "--unregistered",
+              "--server", "qbittorrent.media.svc.cluster.local",
+              "--port", "80",
+              "--config", "/config/config.yaml"
+            ]
+            resources: &resources
+              requests:
+                cpu: 25m
+              limits:
+                memory: 256M
+        containers:
+          unregistered:
+            image: *image
+            env: *env
+            args: [
+              "prune",
+              "--exclude-category", "manual",
+              "--include-tag", "unregistered",
+              # "--dry-run",
+              "--server", "qbittorrent.media.svc.cluster.local",
+              "--port", "80"
+            ]
+            resources: *resources
+          expired:
+            image: *image
+            env: *env
+            args: [
+              "prune",
+              "--exclude-category", "manual",
+              "--include-tag", "expired", # defined in config.yaml
+              "--include-tag", "added:7d",
+              # "--dry-run",
+              "--server", "qbittorrent.media.svc.cluster.local",
+              "--port", "80"
+            ]
+            resources: *resources
+        pod:
+          restartPolicy: OnFailure
+          securityContext: &securityContext
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      orphaned:
+        type: cronjob
+        cronjob:
+          <<: *cronJobSpec
+          schedule: "@daily"
+        containers:
+          main:
+            image: *image
+            env: *env
+            args: [
+              "orphaned",
+              "--exclude-pattern", "*_unpackerred*",
+              "--exclude-pattern", "*/manual/*",
+              # "--dry-run",
+              "--server", "qbittorrent.media.svc.cluster.local",
+              "--port", "80"
+            ]
+            resources: *resources
+        pod:
+          restartPolicy: OnFailure
+          securityContext: *securityContext
+      reannounce:
+        containers:
+          main:
+            image: *image
+            env: *env
+            args: [
+              "reannounce",
+              "--process-seeding",
+              "--server", "qbittorrent.media.svc.cluster.local",
+              "--port", "80"
+            ]
+            resources: *resources
+        pod:
+          securityContext: *securityContext
+    service:
+      main:
+        enabled: false
+    persistence:
+      config-file:
+        type: configMap
+        name: qbtools-configmap
+        advancedMounts:
+          tagging:
+            tagging:
+              - path: /config/config.yaml
+                subPath: config.yaml
+                readOnly: true
+      downloads:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
+        globalMounts:
+          - path: /downloads
