@@ -6,10 +6,9 @@
     ":disableRateLimiting",
     ":semanticCommits",
     ":automergeBranch",
+    ":timezone(Australia/Sydney)",
     "github>adampetrovic/home-ops//.github/renovate/packageRules.json5"
   ],
-  "timezone": "Australia/Sydney",
-  "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dashboard 🤖",
   "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
   "rebaseWhen": "conflicted",
@@ -94,93 +93,91 @@
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(container)!: "
+      "commitMessagePrefix": "feat(container)!: ",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
+
     },
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["minor"],
       "semanticCommitType": "feat",
-      "semanticCommitScope": "container"
+      "semanticCommitScope": "container",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
+
     },
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["patch"],
       "semanticCommitType": "fix",
-      "semanticCommitScope": "container"
+      "semanticCommitScope": "container",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
       "semanticCommitType": "chore",
-      "semanticCommitScope": "container"
+      "semanticCommitScope": "container",
+      "commitMessageExtra": "( {{currentDigestShort}} → {{newDigestShort}} )"
     },
     {
       "matchDatasources": ["helm"],
       "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(helm)!: "
+      "commitMessagePrefix": "feat(helm)!: ",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["helm"],
       "matchUpdateTypes": ["minor"],
       "semanticCommitType": "feat",
-      "semanticCommitScope": "helm"
+      "semanticCommitScope": "helm",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["helm"],
       "matchUpdateTypes": ["patch"],
       "semanticCommitType": "fix",
-      "semanticCommitScope": "helm"
-    },
-    {
-      "matchDatasources": ["galaxy", "galaxy-collection"],
-      "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(ansible)!: "
-    },
-    {
-      "matchDatasources": ["galaxy", "galaxy-collection"],
-      "matchUpdateTypes": ["minor"],
-      "semanticCommitType": "feat",
-      "semanticCommitScope": "ansible"
-    },
-    {
-      "matchDatasources": ["galaxy", "galaxy-collection"],
-      "matchUpdateTypes": ["patch"],
-      "semanticCommitType": "fix",
-      "semanticCommitScope": "ansible"
+      "semanticCommitScope": "helm",
+      "commitMessageExtra": " ( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["github-releases", "github-tags"],
       "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(github-release)!: "
+      "commitMessagePrefix": "feat(github-release)!: ",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["github-releases", "github-tags"],
       "matchUpdateTypes": ["minor"],
       "semanticCommitType": "feat",
-      "semanticCommitScope": "github-release"
+      "semanticCommitScope": "github-release",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchDatasources": ["github-releases", "github-tags"],
       "matchUpdateTypes": ["patch"],
       "semanticCommitType": "fix",
-      "semanticCommitScope": "github-release"
+      "semanticCommitScope": "github-release",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["major"],
-      "commitMessagePrefix": "feat(github-action)!: "
+      "commitMessagePrefix": "feat(github-action)!: ",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor"],
       "semanticCommitType": "feat",
-      "semanticCommitScope": "github-action"
+      "semanticCommitScope": "github-action",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     {
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["patch"],
       "semanticCommitType": "fix",
-      "semanticCommitScope": "github-action"
+      "semanticCommitScope": "github-action",
+      "commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
     },
     // labels
     {
