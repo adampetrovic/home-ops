@@ -5,6 +5,7 @@ resources:
   - ./namespace.yaml
   - ./plex/ks.yaml
   - ./prowlarr/ks.yaml
+  - ./qbittorrent/ks.yaml
   - ./tautulli/ks.yaml
   - ./sonarr/ks.yaml
   - ./stash/ks.yaml
