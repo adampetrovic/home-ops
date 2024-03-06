@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sonarr-4k-gatus
+  namespace: media
+  labels:
+    gatus.io/enabled: "true"
+data:
+  config.yaml: |
+    endpoints:
+      - name: sonarr-4k
+        group: media
+        url: "http://sonarr-4k.media.svc.cluster.local/ping"
+        interval: 1m
+        conditions:
+          - "[STATUS] == 200"
+          - "[BODY].status == OK"
+        alerts:
+          - type: telegram
