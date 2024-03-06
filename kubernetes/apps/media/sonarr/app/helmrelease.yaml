@@ -106,15 +106,15 @@ spec:
       config:
         enabled: true
         existingClaim: sonarr
-      movies:
-        enabled: true
-        existingClaim: nfs-tv-pvc
-        readOnly: false
+      tv:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv
         globalMounts:
           - path: /tv
       downloads:
-        enabled: true
-        existingClaim: nfs-downloads-pvc
-        readOnly: false
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
         globalMounts:
           - path: /downloads
