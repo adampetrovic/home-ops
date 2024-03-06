@@ -1,0 +1,128 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.devbu.io/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: sonarr-4k
+  namespace: media
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: longhorn
+      namespace: longhorn-system
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [100]
+      nodeSelector:
+        node-role.kubernetes.io/worker: 'true'
+    controllers:
+      main:
+        type: statefulset
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/sonarr-develop
+              tag: 
+                4.0.1.1168@sha256:5ea8846eb99054ec31f412a5af3c87fc5d359c0a0de5571636831530ce8d6348
+            envFrom:
+              - secretRef:
+                  name: sonarr-4k-secret
+            env:
+              TZ: ${TIMEZONE}
+              SONARR__INSTANCE_NAME: Sonarr 4K
+              SONARR__PORT: &port 80
+              SONARR__APPLICATION_URL: https://sonarr4k.${SECRET_DOMAIN}
+              SONARR__LOG_LEVEL: info
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
+              limits:
+                memory: 500Mi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+        statefulset:
+          volumeClaimTemplates:
+            - name: config
+              accessMode: ReadWriteOnce
+              size: 15Gi
+              storageClass: longhorn-backup
+              globalMounts:
+                - path: /config
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: true
+        annotations:
+          internal-dns.home.arpa/enabled: 'true'
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.devbu.io/css/base/sonarr/nord.css"></head>';
+            sub_filter_once on;
+        hosts:
+          - host: &host sonarr4k.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+        className: nginx
+    persistence:
+      movies:
+        enabled: true
+        existingClaim: nfs-tv-4k-pvc
+        readOnly: false
+        globalMounts:
+          - path: /tv
+      downloads:
+        enabled: true
+        existingClaim: nfs-downloads-pvc
+        readOnly: false
+        globalMounts:
+          - path: /downloads

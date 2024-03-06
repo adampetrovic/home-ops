@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: radarr-4k
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [100]
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        initContainers:
+          01-init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: '16.2'
+            imagePullPolicy: IfNotPresent
+            envFrom: &envFrom
+              - secretRef:
+                  name: radarr-4k-secret
+        containers:
+          main:
+            image:
+              repository: ghcr.io/onedr0p/radarr-develop
+              tag:
+                5.3.6.8612@sha256:ef3154aaecf3ffa52e68f5109bca912df5f53c36079fa430e29bad791d091cd8
+            envFrom: *envFrom
+            env:
+              TZ: ${TIMEZONE}
+              RADARR__INSTANCE_NAME: Radarr 4K
+              RADARR__PORT: &port 80
+              RADARR__APPLICATION_URL: https://radarr4k.${SECRET_DOMAIN}
+              RADARR__LOG_LEVEL: info
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
+              limits:
+                memory: 500Mi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        annotations:
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            proxy_set_header Accept-Encoding "";
+            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.devbu.io/css/base/radarr/nord.css"></head>';
+            sub_filter_once on;
+        hosts:
+          - host: &host radarr4k.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+    persistence:
+      config:
+        enabled:
+        existingClaim: radarr-4k
+      downloads:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
+        globalMounts:
+          - path: /downloads
+      movies:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/movies-4k
+        globalMounts:
+          - path: /movies

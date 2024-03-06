@@ -8,6 +8,7 @@ resources:
   - ./qbittorrent/ks.yaml
   - ./tautulli/ks.yaml
   - ./radarr/ks.yaml
+  - ./radarr-4k/ks.yaml
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml
   - ./stash/ks.yaml
