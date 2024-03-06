@@ -30,13 +30,6 @@ spec:
     - name: volsync
       namespace: volsync-system
   values:
-    defaultPodOptions:
-      securityContext:
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [100]
     controllers:
       main:
         annotations:
@@ -83,6 +76,14 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+
     service:
       main:
         ports:
