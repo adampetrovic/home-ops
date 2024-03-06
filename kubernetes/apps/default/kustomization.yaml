@@ -5,3 +5,4 @@ resources:
   - ./namespace.yaml
   - ./babybuddy/ks.yaml
   - ./miniflux/ks.yaml
+  - ./paperless-ngx/ks.yaml
