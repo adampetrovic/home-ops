@@ -10,3 +10,4 @@ resources:
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml
   - ./removed-media-app/ks.yaml
+  - ./unpackerr/ks.yaml

@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: unpackerr
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [100]
+      nodeSelector:
+        node-role.kubernetes.io/worker: 'true'
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        containers:
+          main:
+            image:
+              repository: docker.io/golift/unpackerr
+              tag: unstable
+            envFrom:
+              - secretRef:
+                  name: unpackerr-secret
+            env:
+              TZ: ${TIMEZONE}
+              UN_WEBSERVER_METRICS: 'true'
+              UN_SONARR_0_URL: http://sonarr.media.svc.cluster.local
+              UN_SONARR_0_PATHS_0: /downloads/complete/qbt/tv
+              UN_SONARR_1_URL: http://sonarr-4k.media.svc.cluster.local
+              UN_SONARR_1_PATHS_0: /downloads/complete/qbt/tv-4k
+              UN_RADARR_0_URL: http://radarr.media.svc.cluster.local
+              UN_RADARR_0_PATHS_0: /downloads/complete/qbt/movies
+              UN_RADARR_1_URL: http://radarr-4k.media.svc.cluster.local
+              UN_RADARR_1_PATHS_0: /downloads/complete/qbt/movies-4k
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
+    service:
+      main:
+        enabled: false
+    persistence:
+      downloads:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
+        globalMounts:
+          - path: /downloads
+    serviceMonitor:
+      main:
+        enabled: true
