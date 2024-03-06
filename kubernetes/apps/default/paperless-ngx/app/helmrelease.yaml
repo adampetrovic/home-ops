@@ -59,7 +59,7 @@ spec:
             envFrom: *envFrom
             env:
               USERMAP_UID: 568
-              USERMAP_GID: 568
+              USERMAP_GID: 100
               PAPERLESS_TIME_ZONE: ${TIMEZONE}
               PAPERLESS_PORT: &port 80
               PAPERLESS_REDIS: redis://localhost:6379
