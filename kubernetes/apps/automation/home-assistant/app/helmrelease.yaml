@@ -47,7 +47,7 @@ spec:
               TZ: ${TIMEZONE}
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
-              HASS_IP: *ip
+              HASS_IP: 10.0.81.4
             envFrom: &envFrom
               - secretRef:
                   name: home-assistant-secret
@@ -103,7 +103,7 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: &ip 10.0.81.4
+          io.cilium/lb-ipam-ips: 10.0.81.4
         ports:
           http:
             enabled: true
