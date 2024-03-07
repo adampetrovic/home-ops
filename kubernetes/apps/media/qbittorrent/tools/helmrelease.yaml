@@ -81,7 +81,8 @@ spec:
               "prune",
               "--exclude-category", "manual",
               "--include-tag", "expired", # defined in config.yaml
-              "--include-tag", "added:7d",
+              "--include-tag", "added:30d",
+              #"--include-tag", "added:7d",
               # "--dry-run",
               "--server", "qbittorrent.media.svc.cluster.local",
               "--port", "80"
