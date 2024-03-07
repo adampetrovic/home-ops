@@ -1,0 +1,71 @@
+---
+global:
+  resolve_timeout: 5m
+route:
+  group_by: ["alertname", "job"]
+  group_interval: 10m
+  group_wait: 1m
+  receiver: telegram
+  repeat_interval: 12h
+  routes:
+    - receiver: "null"
+      matchers:
+        - alertname =~ "InfoInhibitor|Watchdog"
+      continue: false
+    - receiver: telegram
+      continue: true
+      matchers:
+        - severity = "critical"
+inhibit_rules:
+  - equal: ["alertname", "namespace"]
+    source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "warning"
+receivers:
+  - name: "null"
+  - name: telegram
+    telegram_configs:
+      - send_resolved: true
+        chat_id: {{ .TELEGRAM_CHAT_ID }}
+        bot_token: {{ .TELEGRAM_BOT_TOKEN }}
+        parse_mode: "Markdown"
+        message: >-
+          {{ "{{" }} define "__alert_severity_prefix_title" {{ "-}}" }}
+            {{ "{{-" }} if eq .Status "firing" {{ "-}}" }}
+              {{ "{{" }} if eq .CommonLabels.severity "info" {{ "-}}" }}
+                ℹ️
+              {{ "{{" }} else if eq .CommonLabels.severity "warning" {{ "-}}" }}
+                ⚠️
+              {{ "{{" }} else if eq .CommonLabels.severity "critical" {{ "-}}" }}
+                🔴
+              {{ "{{" }} else {{ "-}}" }}
+                🔴
+              {{ "{{-" }} end {{ "-}}" }}
+            {{ "{{" }} else {{ "-}}" }}
+            ✅
+            {{ "{{-" }} end {{ "}}" }}
+          {{ "{{-" }} end {{ "}}" }}
+
+          {{ "{{" }} define "__alert_severity_title" {{ "-}}" }}
+            **{{ "{{-" }} .Status | toUpper {{ "-}}" }}
+            {{ "{{" }} if eq .Status "firing" {{ "}}" }}:{{ "{{" }} .Alerts.Firing | len {{ "}}" }}{{ "{{-" }} end {{ "}}" }}
+            {{ "{{" }} template "__alert_severity_prefix_title" . {{ "}}" }} {{ "{{" }} .CommonLabels.alertname {{ "}}" }}**
+          {{ "{{-" }} end {{ "}}" }}
+          {{ "{{" }} define "__alert_severity_text" {{ "-}}" }}
+            {{ "{{-" }} $alertsLen := (len .Alerts) {{ "-}}" }}
+            {{ "{{" }} range .Alerts {{ "}}" }}
+              {{ "{{-" }} if .Annotations.summary {{ "}}" }}
+                *{{ "{{" }} .Annotations.summary {{ "}}" }}*
+              {{ "{{-" }} end {{ "}}" }}
+              {{ "{{-" }} if .Annotations.description {{ "}}" }}
+                *{{ "{{" }} .Annotations.description {{ "}}" }}*
+              {{ "{{-" }} end {{ "}}" }}
+              {{ "{{-" }} if le $alertsLen 10 {{ "}}" }}
+                [Prometheus Link]({{ "{{" }} .GeneratorURL {{ "}}" }})
+              {{ "{{-" }} end {{ "}}" }}
+            {{ "{{" }} end {{ "}}" }}
+          {{ "{{-" }} end {{ "}}" }}
+
+          {{ "{{" }} template "__alert_severity_title" . {{ "}}" }}
+          {{ "{{" }} template "__alert_severity_text" . {{ "}}" }}
