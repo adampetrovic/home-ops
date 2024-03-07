@@ -107,7 +107,6 @@ spec:
         path: /volume2/stash/media
         globalMounts:
           - path: /media
-            readOnly: true
       cache:
         enabled: true
         type: emptyDir
