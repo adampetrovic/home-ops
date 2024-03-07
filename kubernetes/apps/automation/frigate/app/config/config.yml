@@ -29,10 +29,10 @@ birdseye:
 
 go2rtc:
   streams:
-    # back_deck_main:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/101/
-    # back_deck_sub:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/103/
+    back_deck_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/101/
+    back_deck_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/103/
     front_balcony_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
     front_balcony_sub:
@@ -45,57 +45,57 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/101/
     garage_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/103/
-    # side_walkway_main:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
-    # side_walkway_sub:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/103/
-    # utilities_main:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/101/
-    # utilities_sub:
-    #   - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
+    side_walkway_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
+    side_walkway_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/103/
+    utilities_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/101/
+    utilities_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
 
 cameras:
-  # side_walkway:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/side_walkway_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/side_walkway_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   record:
-  #     enabled: true
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       retain:
-  #         default: 10
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - dog
-  #   zones:
-  #     walkway:
-  #       coordinates: 771,720,464,720,431,428,403,97,522,107
-  #       objects:
-  #         - person
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
+  side_walkway:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/side_walkway_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/side_walkway_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    record:
+      enabled: true
+      retain:
+        days: 7
+        mode: motion
+      events:
+        retain:
+          default: 10
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+    zones:
+      walkway:
+        coordinates: 771,720,464,720,431,428,403,97,522,107
+        objects:
+          - person
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
   front_balcony:
     ffmpeg:
       inputs:
@@ -260,160 +260,160 @@ cameras:
       enabled: True
       timestamp: False
       crop: True
-  # backyard:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/backyard_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/backyard_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - dog
-  #     filters:
-  #       person:
-  #         min_area: 5000
-  #         max_area: 75000
-  #   record:
-  #     enabled: True
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       retain:
-  #         default: 14
-  #         mode: active_objects
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
-  # back_deck:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/back_deck_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/back_deck_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - dog
-  #   record:
-  #     enabled: True
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       retain:
-  #         default: 14
-  #         mode: active_objects
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
-  # utilities:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/utilities_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/utilities_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - dog
-  #     filters:
-  #       person:
-  #         mask:
-  #           - 948,0,932,65,848,44,859,0
-  #   motion:
-  #     mask:
-  #       - 1280,0,1280,720,781,720,852,421,955,0
-  #       - 727,0,718,48,0,583,0,0
-  #   zones:
-  #     our_side:
-  #       coordinates: 763,720,270,720,827,89,924,116
-  #     neighbour_side:
-  #       coordinates: 263,720,777,112,624,77,0,720
-  #   record:
-  #     enabled: True
-  #     retain:
-  #       days: 7
-  #       mode: motion
-  #     events:
-  #       retain:
-  #         default: 14
-  #         mode: active_objects
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
-  #     required_zones: ['our_side']
-  # laundry:
-  #   ffmpeg:
-  #     inputs:
-  #       - path: rtsp://127.0.0.1:8554/laundry_main
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - record
-  #       - path: rtsp://127.0.0.1:8554/laundry_sub
-  #         input_args: preset-rtsp-restream
-  #         roles:
-  #           - detect
-  #   detect:
-  #     width: 1280
-  #     height: 720
-  #     fps: 5
-  #   objects:
-  #     track:
-  #       - person
-  #       - dog
-  #   snapshots:
-  #     enabled: True
-  #     timestamp: False
-  #     bounding_box: True
-  #     crop: False
-  #   mqtt:
-  #     enabled: True
-  #     timestamp: False
-  #     crop: True
+  backyard:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/backyard_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/backyard_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+      filters:
+        person:
+          min_area: 5000
+          max_area: 75000
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
+  back_deck:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/back_deck_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/back_deck_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
+  utilities:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/utilities_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/utilities_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+      filters:
+        person:
+          mask:
+            - 948,0,932,65,848,44,859,0
+    motion:
+      mask:
+        - 1280,0,1280,720,781,720,852,421,955,0
+        - 727,0,718,48,0,583,0,0
+    zones:
+      our_side:
+        coordinates: 763,720,270,720,827,89,924,116
+      neighbour_side:
+        coordinates: 263,720,777,112,624,77,0,720
+    record:
+      enabled: True
+      retain:
+        days: 7
+        mode: motion
+      events:
+        retain:
+          default: 14
+          mode: active_objects
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
+      required_zones: ['our_side']
+  laundry:
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/laundry_main
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://127.0.0.1:8554/laundry_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    objects:
+      track:
+        - person
+        - dog
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
