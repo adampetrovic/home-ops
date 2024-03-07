@@ -33,6 +33,10 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/101/
     back_deck_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACK_DECK_IP}:554/Streaming/Channels/103/
+    backyard_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACKYARD_IP}:554/Streaming/Channels/101/
+    backyard_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_BACKYARD_IP}:554/Streaming/Channels/103/
     front_balcony_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
     front_balcony_sub:
@@ -45,6 +49,10 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/101/
     garage_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_GARAGE_IP}:554/Streaming/Channels/103/
+    laundry_main:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_LAUNDRY_IP}:554/Streaming/Channels/101/
+    laundry_sub:
+      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_LAUNDRY_IP}:554/Streaming/Channels/103/
     side_walkway_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
     side_walkway_sub:
