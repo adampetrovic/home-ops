@@ -12,14 +12,12 @@ vars:
   # Files
   AGE_FILE: "{{.ROOT_DIR}}/age.key"
   BOOTSTRAP_CONFIG_FILE: "{{.ROOT_DIR}}/config.yaml"
-  KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   MAKEJINJA_CONFIG_FILE: "{{.ROOT_DIR}}/makejinja.toml"
   PIP_REQUIREMENTS_FILE: "{{.ROOT_DIR}}/requirements.txt"
   # Binaries
   PYTHON_BIN: python3
 
 env:
-  KUBECONFIG: "{{.KUBECONFIG_FILE}}"
   PYTHONDONTWRITEBYTECODE: "1"
   SOPS_AGE_KEY_FILE: "{{.AGE_FILE}}"
   VIRTUAL_ENV: "{{.ROOT_DIR}}/.venv"
