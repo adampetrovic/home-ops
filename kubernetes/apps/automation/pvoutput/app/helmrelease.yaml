@@ -37,7 +37,7 @@ spec:
           main:
             image:
               repository: ghcr.io/adampetrovic/pvoutput-tariff
-              tag: 1.0.3@sha256:1df6713261dc3058ae04e29103499930165e5a25297198a577ae4b6d76989de5
+              tag: 1.0.4@sha256:f018a5c03ca7bccaf34ec07c8b3d24d47cb1c22514696a0de01ffbb76107ec3c
             env:
               TZ: ${TIMEZONE}
             envFrom:
