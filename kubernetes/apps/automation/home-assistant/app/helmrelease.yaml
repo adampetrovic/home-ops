@@ -33,7 +33,7 @@ spec:
         initContainers:
           init-db:
             enabled: false  # don't block homeassistant from starting if postgres is down
-            image: ghcr.io/onedr0p/postgres-init:16.1
+            image: ghcr.io/onedr0p/postgres-init:16.2
             imagePullPolicy: Always
             envFrom:
               - secretRef:
