@@ -1,0 +1,18 @@
+app:
+    base_url: https://services.mywellness.com
+    app_id: ec1d38d7-d359-48d0-a60c-d8c0b8fb9df9
+    app_domain: au.com.fernwoodfitness
+
+classes:
+    - name: Reformer Pilates
+      day: Monday
+      start_time: '06:45'
+    - name: Reformer Pilates
+      day: Tuesday
+      start_time: '07:00'
+    - name: Reformer Pilates
+      day: Thursday
+      start_time: '07:00'
+    - name: Reformer Pilates
+      day: Friday
+      start_time: '06:45'
