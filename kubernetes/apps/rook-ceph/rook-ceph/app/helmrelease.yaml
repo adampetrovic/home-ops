@@ -29,18 +29,6 @@ spec:
       namespace: volsync-system
   values:
     csi:
-      # See https://github.com/rook/rook/issues/13458
-      # fixes Lost connection to unix:///csi/csi-provisioner.sock,
-      # can remove this once it becomes the default. Should happen in the next
-      # release of rook
-      provisioner:
-        image: registry.k8s.io/sig-storage/csi-provisioner:v4.0.0
-      snapshotter:
-        image: registry.k8s.io/sig-storage/csi-snapshotter:v7.0.1
-      attacher:
-        image: registry.k8s.io/sig-storage/csi-attacher:v4.5.0
-      resizer:
-        image: registry.k8s.io/sig-storage/csi-resizer:v1.10.0
       cephFSKernelMountOptions: ms_mode=prefer-crc
       enableLiveness: true
       serviceMonitor:
