@@ -8,81 +8,81 @@ kubernetesVersion: v1.29.2
 clusterName: &cluster home-kubernetes
 endpoint: https://10.0.80.99:6443
 clusterPodNets:
-  - "10.69.0.0/16"
+  - 10.69.0.0/16
 clusterSvcNets:
-  - "10.96.0.0/16"
+  - 10.96.0.0/16
 additionalApiServerCertSans: &sans
-  - "10.0.80.99"
+  - 10.0.80.99
   - 127.0.0.1 # KubePrism
 additionalMachineCertSans: *sans
 cniConfig:
   name: none
 
 nodes:
-  - hostname: "k8s-node-1"
-    ipAddress: "10.0.80.10"
-    installDisk: "/dev/sda"
+  - hostname: k8s-node-1
+    ipAddress: 10.0.80.10
+    installDisk: /dev/sda
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
         addresses:
-          - "10.0.80.10/21"
+          - 10.0.80.10/21
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "10.0.87.1"
+            gateway: 10.0.87.1
         vip:
-          ip: "10.0.80.99"
-  - hostname: "k8s-node-2"
-    ipAddress: "10.0.80.11"
-    installDisk: "/dev/sda"
+          ip: 10.0.80.99
+  - hostname: k8s-node-2
+    ipAddress: 10.0.80.11
+    installDisk: /dev/sda
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
         addresses:
-          - "10.0.80.11/21"
+          - 10.0.80.11/21
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "10.0.87.1"
+            gateway: 10.0.87.1
         vip:
-          ip: "10.0.80.99"
-  - hostname: "k8s-node-3"
-    ipAddress: "10.0.80.12"
-    installDisk: "/dev/sda"
+          ip: 10.0.80.99
+  - hostname: k8s-node-3
+    ipAddress: 10.0.80.12
+    installDisk: /dev/sda
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
         addresses:
-          - "10.0.80.12/21"
+          - 10.0.80.12/21
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "10.0.87.1"
+            gateway: 10.0.87.1
         vip:
-          ip: "10.0.80.99"
-  - hostname: "k8s-node-4"
-    ipAddress: "10.0.80.13"
-    installDisk: "/dev/sda"
+          ip: 10.0.80.99
+  - hostname: k8s-node-4
+    ipAddress: 10.0.80.13
+    installDisk: /dev/sda
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
       - interface: eth0
         dhcp: false
         addresses:
-          - "10.0.80.13/21"
+          - 10.0.80.13/21
         mtu: 1500
         routes:
           - network: 0.0.0.0/0
-            gateway: "10.0.87.1"
+            gateway: 10.0.87.1
         vip:
-          ip: "10.0.80.99"
+          ip: 10.0.80.99
 
 patches:
   # Configure containerd
@@ -99,18 +99,6 @@ patches:
               discard_unpacked_layers = false
             [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
               discard_unpacked_layers = false
-        - op: overwrite
-          path: /etc/nfsmount.conf
-          permissions: 0o644
-          content: |
-            [ NFSMount_Global_Options ]
-            nfsvers=4.1
-            hard=True
-            noatime=True
-            nodiratime=True
-            rsize=131072
-            wsize=131072
-            nconnect=8
 
   # Disable search domain everywhere
   - |-
