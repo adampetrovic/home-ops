@@ -20,5 +20,5 @@ spec:
   timeout: 5m
   postBuild:
     substitute:
-      APP: influxdb2
+      APP: *app
       VOLSYNC_CAPACITY: 10Gi
