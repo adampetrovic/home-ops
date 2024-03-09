@@ -7,6 +7,9 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: automation
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   dependsOn:
     - name: external-secrets-stores
   path: ./kubernetes/apps/automation/home-assistant/app
