@@ -6,6 +6,9 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: media
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   path: ./kubernetes/apps/media/overseerr/app
   prune: true
   sourceRef:

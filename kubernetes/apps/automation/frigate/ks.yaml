@@ -6,6 +6,9 @@ metadata:
   namespace: flux-system
 spec:
   targetNamespace: automation
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   path: ./kubernetes/apps/automation/frigate/app
   prune: true
   sourceRef:
