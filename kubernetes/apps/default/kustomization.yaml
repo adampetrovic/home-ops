@@ -4,6 +4,5 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./babybuddy/ks.yaml
-  - ./influxdb/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
