@@ -2,12 +2,12 @@
 apiVersion: "k8s.cni.cncf.io/v1"
 kind: NetworkAttachmentDefinition
 metadata:
-  name: multus-iot
+  name: multus-talos
 spec:
   config: |-
     {
       "cniVersion": "0.3.1",
-      "name": "multus-iot",
+      "name": "multus-talos",
       "plugins": [
         {
           "type": "macvlan",
@@ -19,7 +19,7 @@ spec:
           "ipam": {
             "type": "static",
             "routes": [
-              { "dst": "10.0.20.0/22", "gw": "10.0.20.1" }
+              { "dst": "10.0.80.0/21", "gw": "10.0.87.1" }
             ]
           }
         }
