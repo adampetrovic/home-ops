@@ -99,11 +99,6 @@ spec:
                 "name":"multus-talos",
                 "namespace": "network",
                 "ips": ["10.0.82.1/21"]
-              },
-              {
-                "name":"multus-iot",
-                "namespace": "network",
-                "ips": ["10.0.20.2/22"]
               }]
           securityContext:
             runAsUser: 568
