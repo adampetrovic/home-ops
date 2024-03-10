@@ -35,12 +35,6 @@ nodes:
             gateway: 10.0.87.1
         vip:
           ip: 10.0.80.99
-        vlans:
-          - vlanId: 20  # iot
-            dhcp: false
-            addresses:
-              - 10.0.20.10/22
-            mtu: 1500
   - hostname: k8s-node-2
     ipAddress: 10.0.80.11
     installDisk: /dev/sda
@@ -57,12 +51,6 @@ nodes:
             gateway: 10.0.87.1
         vip:
           ip: 10.0.80.99
-        vlans:
-          - vlanId: 20  # iot
-            dhcp: false
-            addresses:
-              - 10.0.20.11/22
-            mtu: 1500
   - hostname: k8s-node-3
     ipAddress: 10.0.80.12
     installDisk: /dev/sda
@@ -79,12 +67,6 @@ nodes:
             gateway: 10.0.87.1
         vip:
           ip: 10.0.80.99
-        vlans:
-          - vlanId: 20  # iot
-            dhcp: false
-            addresses:
-              - 10.0.20.12/22
-            mtu: 1500
   - hostname: k8s-node-4
     ipAddress: 10.0.80.13
     installDisk: /dev/sda
@@ -101,14 +83,6 @@ nodes:
             gateway: 10.0.87.1
         vip:
           ip: 10.0.80.99
-        vlans:
-          - vlanId: 20  # iot
-            dhcp: false
-            addresses:
-              - 10.0.20.13/22
-            mtu: 1500
-
-
 patches:
   # Configure containerd
   - |-
