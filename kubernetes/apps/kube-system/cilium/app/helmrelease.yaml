@@ -42,6 +42,8 @@ spec:
     #   - eno0
     endpointRoutes:
       enabled: true
+    cni:
+      exclusive: false # Needed to allow Cilium to work with Multus
     hubble:
       enabled: true
       metrics:
