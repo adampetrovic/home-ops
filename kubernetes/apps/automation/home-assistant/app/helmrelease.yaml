@@ -93,6 +93,13 @@ spec:
               limits:
                 memory: 1024Mi
         pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |
+              [{
+                "name":"multus-talos",
+                "namespace": "network",
+                "ips": ["10.0.82.1/21"]
+              }]
           securityContext:
             runAsUser: 568
             runAsGroup: 568
