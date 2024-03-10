@@ -57,7 +57,9 @@ spec:
                 memory: 250Mi
     service:
       main:
-        enabled: false
+        ports:
+          http:
+            port: 9130
     serviceMonitor:
       main:
         enabled: true
