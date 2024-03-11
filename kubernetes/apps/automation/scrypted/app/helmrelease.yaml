@@ -42,9 +42,9 @@ spec:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
               [{
-                "name":"multus-talos",
+                "name":"multus-trusted",
                 "namespace": "network",
-                "ips": ["10.0.82.2/21"]
+                "ips": ["10.0.10.10/21"]
               }]
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
