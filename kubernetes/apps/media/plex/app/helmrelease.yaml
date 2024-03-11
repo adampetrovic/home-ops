@@ -164,9 +164,3 @@ spec:
         globalMounts:
           - path: /music
             readOnly: true
-      backup:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/backup
-        globalMounts:
-          - path: /backup
