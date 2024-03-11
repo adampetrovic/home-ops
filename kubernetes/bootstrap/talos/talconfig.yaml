@@ -26,15 +26,15 @@ nodes:
     controlPlane: true
     networkInterfaces:
       - interface: eth0
-        dhcp: false
-        addresses:
-          - 10.0.80.10/21
-        mtu: 1500
-        routes:
-          - network: 0.0.0.0/0
-            gateway: 10.0.87.1
+        dhcp: true
         vip:
           ip: 10.0.80.99
+        vlans:
+          - vlanId: 10
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
   - hostname: k8s-node-2
     ipAddress: 10.0.80.11
     installDisk: /dev/sda
@@ -42,15 +42,15 @@ nodes:
     controlPlane: true
     networkInterfaces:
       - interface: eth0
-        dhcp: false
-        addresses:
-          - 10.0.80.11/21
-        mtu: 1500
-        routes:
-          - network: 0.0.0.0/0
-            gateway: 10.0.87.1
+        dhcp: true
         vip:
           ip: 10.0.80.99
+        vlans:
+          - vlanId: 10
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
   - hostname: k8s-node-3
     ipAddress: 10.0.80.12
     installDisk: /dev/sda
@@ -58,15 +58,15 @@ nodes:
     controlPlane: true
     networkInterfaces:
       - interface: eth0
-        dhcp: false
-        addresses:
-          - 10.0.80.12/21
-        mtu: 1500
-        routes:
-          - network: 0.0.0.0/0
-            gateway: 10.0.87.1
+        dhcp: true
         vip:
           ip: 10.0.80.99
+        vlans:
+          - vlanId: 10
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
   - hostname: k8s-node-4
     ipAddress: 10.0.80.13
     installDisk: /dev/sda
@@ -74,15 +74,15 @@ nodes:
     controlPlane: true
     networkInterfaces:
       - interface: eth0
-        dhcp: false
-        addresses:
-          - 10.0.80.13/21
-        mtu: 1500
-        routes:
-          - network: 0.0.0.0/0
-            gateway: 10.0.87.1
+        dhcp: true
         vip:
           ip: 10.0.80.99
+        vlans:
+          - vlanId: 10
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
 patches:
   # Configure containerd
   - |-
