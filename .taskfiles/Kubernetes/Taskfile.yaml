@@ -30,6 +30,15 @@ tasks:
     preconditions:
       - { msg: "Missing kubeconform script", sh: "test -f {{.KUBECONFORM_SCRIPT}}" }
 
+  delete-failed-pods:
+    desc: Deletes pods with a fucked status
+    summary: |
+      Args:
+        cluster: Cluster to run command against (required)
+    cmds:
+      - for: ["Evicted", "Failed", "Succeeded"]
+        cmd: kubectl delete pods --field-selector status.phase={{.ITEM}} -A --ignore-not-found=true
+
   .reset:
     internal: true
     cmd: rm -rf {{.KUBERNETES_DIR}}
