@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: stashgram
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
+  values:
+    controllers:
+      main:
+        type: cronjob
+        cronjob: &cronJobSpec
+          schedule: "*/60 * * * *"  # every hour
+          timeZone: ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
+        containers:
+          main:
+            image:
+              repository: ghcr.io/adampetrovic/stashgram
+              tag: 1.0.2@sha256:dce833e1ca3398209ef945a91d98fb74674706bbb631f52dc2450b0dde1f9ce2
+            imagePullSecrets:
+              - name: ghcr-container-registry
+            env:
+              TZ: ${TIMEZONE}
+              STASHGRAM_FILE: "/config/session.json"
+              STASHGRAM_MEDIA_PATH: "/media"
+            envFrom:
+              - secretRef:
+                  name: stashgram-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 50Mi
+              limits:
+                memory: 100Mi
+        pod:
+          restartPolicy: OnFailure
+          securityContext: &securityContext
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+    service:
+      main:
+        enabled: false
+    persistence:
+      config:
+        enabled: true
+        existingClaim: stashgram
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/stash/media
+        globalMounts:
+          - path: /media
+
