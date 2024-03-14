@@ -27,6 +27,9 @@ spec:
     - name: volsync
       namespace: volsync-system
   values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-token-secret
     controllers:
       main:
         type: cronjob
@@ -41,8 +44,6 @@ spec:
             image:
               repository: ghcr.io/adampetrovic/stashgram
               tag: 1.0.2@sha256:dce833e1ca3398209ef945a91d98fb74674706bbb631f52dc2450b0dde1f9ce2
-            imagePullSecrets:
-              - name: ghcr-token-secret
             env:
               TZ: ${TIMEZONE}
               STASHGRAM_FILE: "/config/session.json"
