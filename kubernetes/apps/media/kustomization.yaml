@@ -17,4 +17,5 @@ resources:
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
   - ./removed-media-app/ks.yaml
+  - ./removed-media-appgram/ks.yaml
   - ./unpackerr/ks.yaml
