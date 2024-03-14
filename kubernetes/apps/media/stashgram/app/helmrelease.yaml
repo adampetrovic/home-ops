@@ -43,7 +43,7 @@ spec:
           main:
             image:
               repository: ghcr.io/adampetrovic/stashgram
-              tag: latest@sha256:4b4416d40e8928f92bd560d0fe4acdd0bd96854f3686f33afc952f23abca0403
+              tag: latest@sha256:c6ce18ef729b0936dc8d7a78c8579afa5d875dbd9c4a86838170bcf865b4293a
             env:
               TZ: ${TIMEZONE}
               STASHGRAM_FILE: "/config/session.json"
