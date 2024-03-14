@@ -17,4 +17,5 @@ resources:
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
   - ./stash/ks.yaml
+  - ./stashgram/ks.yaml
   - ./unpackerr/ks.yaml

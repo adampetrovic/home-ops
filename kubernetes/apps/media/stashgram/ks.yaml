@@ -8,11 +8,11 @@ metadata:
 spec:
   dependsOn:
     - name: external-secrets-stores
-  targetNamespace: automation
+  targetNamespace: media
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  path: ./kubernetes/apps/automation/stashgram
+  path: ./kubernetes/apps/media/stashgram
   prune: true
   sourceRef:
     kind: GitRepository
