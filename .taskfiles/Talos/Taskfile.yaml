@@ -4,52 +4,33 @@ version: "3"
 
 vars:
   TALOS_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos"
-  TALHELPER_SECRET_FILE: "{{.TALOS_DIR}}/talsecret.sops.yaml"
-  TALHELPER_CONFIG_FILE: "{{.TALOS_DIR}}/talconfig.yaml"
-
-env:
-  TALOSCONFIG: "{{.TALOS_DIR}}/clusterconfig/talosconfig"
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+  TALOS_VERSION: v1.6.6
+  TALOS_SCHEMATIC_ID: 5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+  KUBERNETES_VERSION: v1.29.2
+  TALOS_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/Talos/scripts"
 
 tasks:
+  testtask:
+    cmds:
+      - echo 'hi'
+      - echo '{{.TALOS_DIR}}'
 
   bootstrap:
     desc: Bootstrap the Talos cluster
     dir: "{{.TALOS_DIR}}"
     cmds:
-      - task: bootstrap-gensecret
-      - task: bootstrap-genconfig
       - task: bootstrap-apply
       - task: bootstrap-install
       - task: fetch-kubeconfig
       - task: bootstrap-apps
       - talosctl health --server=false
 
-  bootstrap-gensecret:
-    desc: Generate the Talos secrets
-    dir: "{{.TALOS_DIR}}"
-    cmds:
-      - talhelper gensecret > {{.TALHELPER_SECRET_FILE}}
-      - task: :sops:.encrypt-file
-        vars:
-          file: "{{.TALHELPER_SECRET_FILE}}"
-    preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
-    status:
-      - test -f "{{.TALHELPER_SECRET_FILE}}"
-
-  bootstrap-genconfig:
-    desc: Generate the Talos configs
-    dir: "{{.TALOS_DIR}}"
-    cmd: talhelper genconfig
-    preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
-
   bootstrap-apply:
     desc: Apply the Talos config on a node
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand apply --extra-flags=--insecure | bash
-    preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
 
   bootstrap-install:
     desc: Install the Talos cluster
@@ -58,8 +39,6 @@ tasks:
       - echo "Installing Talos... ignore the errors and be patient"
       - until talhelper gencommand bootstrap | bash; do sleep 10; done
       - sleep 10
-    preconditions:
-      - { msg: "Missing talhelper config file", sh: "test -f {{.TALHELPER_CONFIG_FILE}}" }
 
   bootstrap-apps:
     desc: Bootstrap core apps needed for Talos
@@ -71,13 +50,38 @@ tasks:
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
 
-  upgrade-talos:
-    desc: Upgrade talos on a node
-    cmd: talosctl --nodes {{.node}} upgrade --image {{.image}} --preserve=true --reboot-mode=default
+  upgrade:
+    desc: Upgrade Talos on a node
+    cmd: bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "{{.node}}" "{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" "{{.rollout}}"
+    vars:
+      rollout: '{{.rollout | default "false"}}'
     requires:
-      vars: ["node", "image"]
+      vars: ["node"]
     preconditions:
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+      - test -f {{.TALOS_DIR}} || test -f $HOME/.talos/config
+      - talosctl config info >/dev/null 2>&1
+      - talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1
+
+  upgrade-rollout:
+    desc: Rollout Talos upgrade on all nodes
+    cmds:
+      - flux suspend kustomization --all
+      - kubectl cnpg maintenance set --reusePVC --all-namespaces
+      - for: { var: nodes, split: "," }
+        task: upgrade
+        vars:
+          node: "{{.ITEM}}"
+          rollout: "true"
+      - kubectl cnpg maintenance unset --reusePVC --all-namespaces
+      - flux resume kustomization --all
+      - task: :kubernetes:delete-failed-pods
+    vars:
+      nodes:
+        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
+    preconditions:
+      - test -f {{.TALOSCONFIG}}
+      - talosctl config info >/dev/null 2>&1
+      - talosctl --nodes {{.nodes}} get machineconfig >/dev/null 2>&1
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
