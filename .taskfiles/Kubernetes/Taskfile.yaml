@@ -32,9 +32,6 @@ tasks:
 
   delete-failed-pods:
     desc: Deletes pods with a fucked status
-    summary: |
-      Args:
-        cluster: Cluster to run command against (required)
     cmds:
       - for: ["Evicted", "Failed", "Succeeded"]
         cmd: kubectl delete pods --field-selector status.phase={{.ITEM}} -A --ignore-not-found=true
