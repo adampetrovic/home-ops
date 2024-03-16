@@ -57,6 +57,8 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_LAUNDRY_IP}:554/Streaming/Channels/101/
     laundry_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_LAUNDRY_IP}:554/Streaming/Channels/103/
+    livingroom_main:
+      - rtsp://{FRIGATE_LIVING_ROOM_IP}:554/live0
     side_walkway_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_SIDE_WALKWAY_IP}:554/Streaming/Channels/101/
     side_walkway_sub:
