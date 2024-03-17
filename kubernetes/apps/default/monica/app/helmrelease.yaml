@@ -52,11 +52,11 @@ spec:
               MAIL_HOST: smtp.${SECRET_DOMAIN}
               MAIL_PORT: 25
             resources:
-              limits: &resources
-                memory: 128Mi
               requests:
-                memory: 512Mi
+                memory: 128Mi
                 cpu: 10m
+              limits:
+                memory: 512Mi
     service:
       main:
         ports:
