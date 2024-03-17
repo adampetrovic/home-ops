@@ -5,5 +5,5 @@ resources:
   - ./namespace.yaml
   - ./babybuddy/ks.yaml
   - ./miniflux/ks.yaml
-  - ./monica/ks.yaml
+  #- ./monica/ks.yaml
   - ./paperless-ngx/ks.yaml
