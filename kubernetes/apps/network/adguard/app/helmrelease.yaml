@@ -80,7 +80,7 @@ spec:
       work:
         enabled: true
         name: adguard-work
-        storageClass: rook-ceph
+        storageClass: ceph-block
         accessMode: ReadWriteOnce
         size: 2Gi
         globalMounts:
