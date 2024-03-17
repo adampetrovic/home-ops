@@ -9,7 +9,7 @@ spec:
   targetNamespace: network
   dependsOn:
     - name: cert-manager
-  path: ./kubernetes/apps/networking/adguard/app
+  path: ./kubernetes/apps/network/adguard/app
   prune: true
   sourceRef:
     kind: GitRepository
