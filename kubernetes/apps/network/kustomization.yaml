@@ -3,6 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./namespace.yaml
+  - ./adguard/ks.yaml
   - ./cloudflare-ddns/ks.yaml
   - ./cloudflared/ks.yaml
   - ./echo-server/ks.yaml
