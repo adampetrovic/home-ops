@@ -1,0 +1,95 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: adguard-home
+spec:
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 1h
+  driftDetection:
+    mode: enabled
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: adguard/adguardhome
+              tag: v0.107.44@sha256:049ef6c019a629b33db2ef957665b257fbd5761970a1517a309807fb128befb1
+              pullPolicy: IfNotPresent
+            env:
+              TZ: ${TIMEZONE}
+            probes:
+              liveness: &probe
+                type: HTTP
+                path: /login.html
+              readiness: *probe
+              startup: *probe
+
+    service:
+      main:
+        ports:
+          http:
+            port: 80
+      dns:
+        controller: main
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: dns.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: 10.0.81.10
+        ports:
+          dns-https:
+            port: 443
+            protocol: TCP
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+          tls-tcp:
+            port: 853
+            protocol: TCP
+
+    ingress:
+      main:
+        enabled: true
+        className: nginx
+        annotations:
+          internal-dns.home.arpa/enabled: "true"
+        hosts:
+          - host: &host "adguard.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+    persistence:
+      config:
+        enabled: true
+        existingClaim: adguard
+      work:
+        enabled: true
+        name: adguard-work
+        storageClass: rook-ceph
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /opt/adguardhome/work
+            subPath: work
+      tls:
+        enabled: true
+        type: secret
+        name: tls-adguard
+        globalMounts:
+          - path: /opt/adguardhome/ssl/certs/
+            readOnly: true

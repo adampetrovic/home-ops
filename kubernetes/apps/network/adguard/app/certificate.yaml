@@ -1,0 +1,16 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: adguard
+spec:
+  secretName: tls-adguard
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: dns.${SECRET_DOMAIN}
+  dnsNames:
+    - dns.${SECRET_DOMAIN}
+    - adguard.${SECRET_DOMAIN}
+  privateKey:
+    rotationPolicy: Always
