@@ -75,6 +75,9 @@ spec:
       config:
         enabled: true
         existingClaim: adguard
+        globalMounts:
+          - path: /opt/adguardhome/conf
+            subPath: conf
       work:
         enabled: true
         name: adguard-work
