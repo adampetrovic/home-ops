@@ -69,6 +69,12 @@ spec:
         path: /volume2/k8s/immich
         globalMounts:
           - path: /usr/src/app/upload
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/photos
+        globalMounts:
+          - path: /media
       geocoding-dump:
         type: emptyDir
         globalMounts:
