@@ -6,7 +6,7 @@ metadata:
   name: &app postgres
 spec:
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgresql:14.8-4
+  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:14.11
   primaryUpdateStrategy: unsupervised
   storage:
     size: 40Gi
@@ -18,6 +18,8 @@ spec:
     parameters:
       max_connections: "600"
       shared_buffers: 512MB
+    shared_preload_libraries:
+      - "vectors.so"
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
