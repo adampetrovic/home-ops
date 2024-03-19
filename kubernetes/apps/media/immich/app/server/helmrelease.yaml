@@ -82,7 +82,7 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: photos.${SECRET_DOMAIN_NAME}
+          - host: photos.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
