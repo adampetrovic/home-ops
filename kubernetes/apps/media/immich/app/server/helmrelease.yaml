@@ -101,7 +101,7 @@ spec:
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/photos
         globalMounts:
-          - path: /media
+          - path: /usr/src/app/external
       geocoding-dump:
         type: emptyDir
         globalMounts:
