@@ -42,7 +42,7 @@ spec:
             runAsGroup: 568
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups: [100]
+            supplementalGroups: [44, 100]
           topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
