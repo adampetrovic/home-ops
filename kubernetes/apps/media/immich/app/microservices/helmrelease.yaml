@@ -72,7 +72,7 @@ spec:
       media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/photos
+        path: /volume2/photos/shared
         globalMounts:
           - path: /usr/src/app/external
       geocoding-dump:
