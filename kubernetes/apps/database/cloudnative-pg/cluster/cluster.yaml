@@ -25,10 +25,9 @@ spec:
     reusePVC: true
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "250m"
+      cpu: 250m
     limits:
-      memory: "4Gi"
+      memory: 6Gi
   monitoring:
     enablePodMonitor: true
     # Ref: https://github.com/cloudnative-pg/cloudnative-pg/issues/2501
