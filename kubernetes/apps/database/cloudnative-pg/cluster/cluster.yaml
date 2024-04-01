@@ -44,7 +44,7 @@ spec:
       endpointURL: https://s3.petrovic.network
       # serverName needs to be incremented
       # when recovering from a previous cluster
-      serverName: &currentCluster postgres-v14
+      serverName: &currentCluster postgres-v15
       s3Credentials:
         accessKeyId:
           name: cloudnative-pg-secret
@@ -56,7 +56,7 @@ spec:
     recovery:
       # previousCluster needs to be set to
       # the previous cluster when recovering
-      source: &previousCluster postgres-v11
+      source: &previousCluster postgres-v14
   externalClusters:
     - name: *previousCluster
       barmanObjectStore:
