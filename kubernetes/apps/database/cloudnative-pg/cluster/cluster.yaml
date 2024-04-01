@@ -27,7 +27,7 @@ spec:
     requests:
       cpu: 250m
     limits:
-      memory: 6Gi
+      memory: 10Gi
   monitoring:
     enablePodMonitor: true
     # Ref: https://github.com/cloudnative-pg/cloudnative-pg/issues/2501
