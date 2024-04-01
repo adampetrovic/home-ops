@@ -14,7 +14,7 @@ if [ "${ROLLOUT}" != "true" ]; then
     echo "Suspending Flux Kustomizations ..."
     flux suspend kustomization --all
     echo "Setting CNPG maintenance mode ..."
-    kubectl cnpg maintenance set --reusePVC --all-namespaces
+    kubectl cnpg maintenance set postgres --reusePVC -n database
 fi
 
 echo "Upgrading Talos on node ${NODE} ..."
