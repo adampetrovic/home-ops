@@ -169,6 +169,17 @@ spec:
               prometheusType: Thanos
               timeInterval: 1m
             isDefault: true
+          - name: InfluxDB
+            type: influxdb
+            uid: influxdb
+            access: proxy
+            url: http://influxdb.observability.svc.cluster.local:8086
+            jsonData:
+              version: SQL
+              metadata:
+                - database: default
+            secureJsonData:
+              httpHeaderValue1: "Token $GRAFANA_INFLUXDB_TOKEN"
           - name: Loki
             type: loki
             uid: loki
