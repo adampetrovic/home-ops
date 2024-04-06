@@ -175,11 +175,12 @@ spec:
             access: proxy
             url: http://influxdb.observability.svc.cluster.local:8086
             jsonData:
-              version: SQL
-              metadata:
-                - database: default
+              version: Flux
+              organization: $INFLUXDB_ORG_ID
+              defaultBucket: default
+              tlsSkipVerify: true
             secureJsonData:
-              httpHeaderValue1: "Token $GRAFANA_INFLUXDB_TOKEN"
+              token: $GRAFANA_INFLUXDB_TOKEN
           - name: Loki
             type: loki
             uid: loki
