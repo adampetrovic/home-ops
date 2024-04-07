@@ -32,9 +32,21 @@ spec:
     master:
       persistence:
         enabled: false
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          memory: 1024Mi
     replica:
       persistence:
         enabled: false
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          memory: 1024Mi
     sentinel:
       enabled: true
       masterSet: redis-master
@@ -43,6 +55,12 @@ spec:
         failureThreshold: 2
       persistence:
         enabled: false
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          memory: 1024Mi
     metrics:
       enabled: true
       serviceMonitor:
