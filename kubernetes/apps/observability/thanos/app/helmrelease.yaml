@@ -113,6 +113,12 @@ spec:
         enabled: true
         storageClass: openebs-hostpath
         size: 10Gi
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          memory: 2048Mi
       networkPolicy:
         enabled: false
     storegateway:
