@@ -37,7 +37,7 @@ spec:
           main:
             image:
               repository: influxdb
-              tag: 2.7.5
+              tag: 2.7.6
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3G
               TZ: ${TIMEZONE}
