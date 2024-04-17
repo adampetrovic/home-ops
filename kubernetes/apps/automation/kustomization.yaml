@@ -11,5 +11,6 @@ resources:
   - ./mosquitto/ks.yaml
   - ./pvoutput/ks.yaml
   - ./scrypted/ks.yaml
+  - ./tesla-proxy/ks.yaml
   - ./teslamate/ks.yaml
   - ./zigbee2mqtt/ks.yaml
