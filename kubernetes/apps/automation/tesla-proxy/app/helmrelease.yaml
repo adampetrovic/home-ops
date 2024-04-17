@@ -100,8 +100,9 @@ spec:
         enabled: true
         type: secret
         name: tesla-proxy-tls
-        mountpath: /config/tls
-        readOnly: true
+        globalMounts:
+          - path: /config/tls
+            readOnly: true
       tesla-public-key:
         type: secret
         name: tesla-proxy-secret
