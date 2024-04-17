@@ -36,7 +36,7 @@ spec:
         containers:
           main:
             image:
-              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
               tag: v1.0.7@sha256:6b26a66a26238921df42eb96702c43bed74c278d279120ac81417a9dcfde424a
               pullPolicy: Always
             env:
@@ -49,7 +49,7 @@ spec:
                   name: tesla-proxy-secret
           keyserver:
             image:
-              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
               tag: v1.0.7@sha256:6b26a66a26238921df42eb96702c43bed74c278d279120ac81417a9dcfde424a
               pullPolicy: Always
             env:
