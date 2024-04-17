@@ -37,7 +37,7 @@ spec:
           main:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy
-              tag: latest
+              tag: v1.0.7@sha256:6b26a66a26238921df42eb96702c43bed74c278d279120ac81417a9dcfde424a
               pullPolicy: Always
             env:
               TZ: ${TIMEZONE}
@@ -50,7 +50,7 @@ spec:
           keyserver:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy
-              tag: latest
+              tag: v1.0.7@sha256:6b26a66a26238921df42eb96702c43bed74c278d279120ac81417a9dcfde424a
               pullPolicy: Always
             env:
               SERVER_MODE: 1
