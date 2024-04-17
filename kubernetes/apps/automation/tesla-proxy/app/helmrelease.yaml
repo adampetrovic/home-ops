@@ -38,6 +38,7 @@ spec:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy
               tag: 1.0.2
+              pullPolicy: Always
             env:
               TZ: ${TIMEZONE}
               DOMAIN: tesla.${SECRET_PUBLIC_DOMAIN}
@@ -50,6 +51,7 @@ spec:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy
               tag: 1.0.2
+              pullPolicy: Always
             env:
               SERVER_MODE: 1
     service:
