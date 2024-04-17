@@ -1,0 +1,116 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &app tesla-proxy
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              tag: 1.0.2
+            env:
+              TZ: ${TIMEZONE}
+              DOMAIN: tesla.${SECRET_PUBLIC_DOMAIN}
+              REGION: "North America, Asia-Pacific"
+              SERVER_MODE: 2
+            envFrom:
+              - secretRef:
+                  name: tesla-proxy-secret
+          keyserver:
+            image:
+              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              tag: 1.0.2
+            env:
+              SERVER_MODE: 1
+    service:
+      main:
+        ports:
+          http:
+            port: 8099
+      keyserver:
+        ports:
+          http:
+            port: 8098
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "tesla.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  name: main
+                  port: http
+        tls:
+          - secretName: tesla-proxy-tls
+            hosts:
+              - *host
+      keyserver:
+        enabled: true
+        className: external
+        hosts:
+          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
+            paths:
+              - path: /.well-known/appspecific/com.tesla.3p.public-key.pem
+                pathType: Prefix
+                service:
+                  name: keyserver
+                  port: http
+        tls:
+          - secretName: tesla-proxy-tls
+            hosts:
+              - *publicHost
+    persistence:
+      tls:
+        enabled: true
+        type: secret
+        name: tesla-proxy-tls
+        mountpath: /config/tls
+        readOnly: true
+      tesla-public-key:
+        type: secret
+        name: tesla-proxy-secret
+        defaultMode: 420  # 644 (octal) in decimal
+        advancedMounts:
+          main:
+            keyserver:
+              - path: /config/tesla/com.tesla.3p.public-key.pem
+                subPath: PUBLIC_KEY_PEM
+      tesla-private-key:
+        type: secret
+        name: tesla-proxy-secret
+        defaultMode: 420  # 644 (octal) in decimal
+        advancedMounts:
+          main:
+            main:
+              - path: /config/tesla/com.tesla.3p.private-key.pem
+                subPath: PRIVATE_KEY_PEM
