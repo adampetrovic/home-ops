@@ -40,10 +40,7 @@ spec:
               tag: v1.0.7@sha256:6b26a66a26238921df42eb96702c43bed74c278d279120ac81417a9dcfde424a
               pullPolicy: Always
             env:
-              TZ: ${TIMEZONE}
-              DOMAIN: tesla.${SECRET_PUBLIC_DOMAIN}
-              REGION: "North America, Asia-Pacific"
-              SERVER_MODE: 2
+              SERVER_MODE: 3
             envFrom:
               - secretRef:
                   name: tesla-proxy-secret
@@ -67,11 +64,9 @@ spec:
     ingress:
       main:
         enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
+        className: internal
         hosts:
-          - host: &host "tesla.${SECRET_PUBLIC_DOMAIN}"
+          - host: &host "tesla.${SECRET_DOMAIN}"
             paths:
               - path: /
                 pathType: Prefix
