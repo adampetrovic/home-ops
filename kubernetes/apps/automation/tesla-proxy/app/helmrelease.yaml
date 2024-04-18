@@ -44,6 +44,13 @@ spec:
             envFrom:
               - secretRef:
                   name: tesla-proxy-secret
+            probes: &probes
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
           setup:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
@@ -56,6 +63,7 @@ spec:
             envFrom:
               - secretRef:
                   name: tesla-proxy-secret
+            probes: *probes
           keyserver:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
@@ -63,6 +71,7 @@ spec:
               pullPolicy: Always
             env:
               SERVER_MODE: 1
+            probes: *probes
     service:
       main:
         type: LoadBalancer
