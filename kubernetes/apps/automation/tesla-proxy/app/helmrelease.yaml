@@ -52,6 +52,7 @@ spec:
               startup:
                 enabled: false
           setup:
+            enabled: false
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
               tag: v1.0.9@sha256:c26b0958dab5d10643b2b10c0cfe5e6a9e0567e211ff4694bacb6e8e4debbeee
@@ -92,23 +93,23 @@ spec:
           http:
             port: 8098
     ingress:
-      setup:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  name: setup
-                  port: http
-        tls:
-          - secretName: tesla-proxy-tls
-            hosts:
-              - *publicHost
+      # setup:
+      #   enabled: true
+      #   className: external
+      #   annotations:
+      #     external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
+      #   hosts:
+      #     - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
+      #       paths:
+      #         - path: /
+      #           pathType: Prefix
+      #           service:
+      #             name: setup
+      #             port: http
+      #   tls:
+      #     - secretName: tesla-proxy-tls
+      #       hosts:
+      #         - *publicHost
       keyserver:
         enabled: true
         className: external
