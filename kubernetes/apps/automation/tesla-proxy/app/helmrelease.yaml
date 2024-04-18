@@ -52,7 +52,7 @@ spec:
               startup:
                 enabled: false
           setup:
-            enabled: false
+            enabled: true
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
               tag: v1.0.9@sha256:c26b0958dab5d10643b2b10c0cfe5e6a9e0567e211ff4694bacb6e8e4debbeee
