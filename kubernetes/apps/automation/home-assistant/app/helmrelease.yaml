@@ -175,6 +175,7 @@ spec:
       config:
         enabled: true
         existingClaim: home-assistant
+
       deploy-key:
         type: secret
         name: home-assistant-secret
@@ -206,3 +207,11 @@ spec:
               - path: /home/coder/.ssh/known_hosts
                 subPath: KNOWN_HOSTS
         defaultMode: 0700
+
+      tesla-proxy-tls:
+        enabled: true
+        type: secret
+        name: tesla-proxy-tls
+        globalMounts:
+          - path: /config/tesla-proxy
+            readOnly: true
