@@ -41,14 +41,25 @@ spec:
               pullPolicy: Always
             env:
               SERVER_MODE: 3
-
+            envFrom:
+              - secretRef:
+                  name: tesla-proxy-secret
+          setup:
+            image:
+              repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
+              tag: v1.0.9@sha256:c26b0958dab5d10643b2b10c0cfe5e6a9e0567e211ff4694bacb6e8e4debbeee
+              pullPolicy: Always
+            env:
+              DOMAIN: tesla.${SECRET_PUBLIC_DOMAIN}
+              SERVER_MODE: 2
+              REGION: North America, Asia-Pacific
             envFrom:
               - secretRef:
                   name: tesla-proxy-secret
           keyserver:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy-docker
-              tag: v1.0.8@sha256:feb3cdfffd56ce78df0064d5f36cf3b37166d0356331d0745e01b4086ea2ad86
+              tag: v1.0.9@sha256:c26b0958dab5d10643b2b10c0cfe5e6a9e0567e211ff4694bacb6e8e4debbeee
               pullPolicy: Always
             env:
               SERVER_MODE: 1
@@ -61,14 +72,34 @@ spec:
         ports:
           http:
             port: 8099
+      setup:
+        controller: main
+        ports:
+          http:
+            port: 8097
       keyserver:
         controller: main
         ports:
           http:
             port: 8098
     ingress:
-      main:
-        enabled: false
+      setup:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
+        hosts:
+          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  name: setup
+                  port: http
+        tls:
+          - secretName: tesla-proxy-tls
+            hosts:
+              - *publicHost
       keyserver:
         enabled: true
         className: external
