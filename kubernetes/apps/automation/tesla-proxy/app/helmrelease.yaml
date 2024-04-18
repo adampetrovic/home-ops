@@ -54,6 +54,10 @@ spec:
               SERVER_MODE: 1
     service:
       main:
+        type: LoadBalancer
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: tesla.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: 10.0.81.11
         ports:
           http:
             port: 8099
@@ -64,20 +68,7 @@ spec:
             port: 8098
     ingress:
       main:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "tesla.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  name: main
-                  port: http
-        tls:
-          - secretName: tesla-proxy-tls
-            hosts:
-              - *host
+        enabled: false
       keyserver:
         enabled: true
         className: external
