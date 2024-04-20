@@ -111,7 +111,7 @@ spec:
               - *host
     persistence:
       config:
-        enabled:
+        enabled: true
         existingClaim: radarr-4k
       downloads:
         type: nfs
