@@ -15,7 +15,10 @@
     {
       "description": ["Immich Group"],
       "groupName": "Immich",
-      "matchPackagePatterns": ["immich"],
+      "matchPackagePatterns": [
+        "immich-app/immich-server",
+        "immich-app/immich-machine-learning"
+      ],
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["minor", "patch"],
       "group": {
