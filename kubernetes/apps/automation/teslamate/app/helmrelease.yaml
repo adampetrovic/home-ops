@@ -51,6 +51,21 @@ spec:
             envFrom:
               - secretRef:
                   name: teslamate-secret
+          agile:
+            image:
+              repository: mattjeanes/teslamateagile
+              tag: v1.14.0@sha256:00792f90342f542b8507ba63e3463bd73f32c61974b0e5e9ef9d15e6e23cf005
+            env:
+              TeslaMate__UpdateIntervalSeconds: 3600
+              TeslaMate__GeofenceId: 4
+              TeslaMate__EnergyProvider: HomeAssistant
+              TeslaMate__LookbackDays: 7
+              HomeAssistant__BaseUrl: http://home-assistant.automation.svc.cluster.local:8123
+              HomeAssistant__EntityId: sensor.energy_price
+            envFrom:
+              - secretRef:
+                  name: teslamate-secret
+
 
     service:
       main:
