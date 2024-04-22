@@ -6,6 +6,7 @@ resources:
   - ./ghcr-token-secret.yaml
 
   # manifests
+  - ./esphome/ks.yaml
   - ./fernwood-booker/ks.yaml
   - ./frigate/ks.yaml
   - ./home-assistant/ks.yaml

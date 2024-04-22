@@ -1,0 +1,72 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: esphome
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: esphome/esphome
+              tag: 2023.12.9
+            env:
+              ESPHOME_DASHBOARD_USE_PING: true
+            resources:
+              requests:
+                cpu: 407m
+                memory: 932Mi
+              limits:
+                memory: 932Mi
+    service:
+      main:
+        ports:
+          http:
+            port: 6052
+    ingress:
+      main:
+        enabled: true
+        hosts:
+          - host: &host esphome.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  name: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+    persistence:
+      config:
+        enabled: true
+        existingClaim: frigate
+      cache:
+        enabled: true
+        type: emptyDir
+        mountPath: /config/.esphome
