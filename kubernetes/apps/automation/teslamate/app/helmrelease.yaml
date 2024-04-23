@@ -60,6 +60,10 @@ spec:
               TeslaMate__GeofenceId: 4
               TeslaMate__EnergyProvider: HomeAssistant
               TeslaMate__LookbackDays: 7
+              TeslaMate__Phases: 3
+              Logging__LogLevel__Default: Debug
+              Logging__Console__FormatterName: simple
+              Logging__Console__FormatterOptions__TimestampFormat: "yyyy-MM-dd HH:mm:ss.fff"
               HomeAssistant__BaseUrl: http://home-assistant.automation.svc.cluster.local:8123
               HomeAssistant__EntityId: sensor.energy_price
             envFrom:
