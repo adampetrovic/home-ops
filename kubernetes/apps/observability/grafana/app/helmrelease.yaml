@@ -136,6 +136,14 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/teslamate-folder
+          - name: "teslamate-custom"
+            orgId: 1
+            folder: TeslamateCustom
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/teslamate-custom-folder
           - name: thanos
             orgId: 1
             folder: Thanos
@@ -333,12 +341,16 @@ spec:
           revision: 3
           datasource: Prometheus
       teslamate:
+        battery-health-lfp:
+          url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/battery-health-lfp.json
         battery-health:
           url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/battery-health.json
         charge-level:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charge-level.json
         charges:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charges.json
+        charging-stats-lfp:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charging-stats-lfp.json
         charging-stats:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/charging-stats.json
         drive-stats:
@@ -351,6 +363,8 @@ spec:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/locations.json
         mileage:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/mileage.json
+        overview-lfp:
+          url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/overview-lfp.json
         overview:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/overview.json
         projected-range:
@@ -373,6 +387,35 @@ spec:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/charge-details.json
         drive-details:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/drive-details.json
+      teslamate-custom:
+        battery-health:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/BatteryHealth.json
+        browse-charges:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/BrowseCharges.json
+        charging-cost-stats:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/ChargingCostsStats.json
+        charging-curve-stats:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/ChargingCurveStats.json
+        continuous-trips:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/ContinuousTrips.json
+        current-charge-view:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/CurrentChargeView.json
+        current-drive-view:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/CurrentDriveView.json
+        current-state:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/CurrentState.json
+        dc-charging-curves-by-carrier:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/DCChargingCurvesByCarrier.json
+        database-dashboard-info:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/DatabaseDashboadInfo.json
+        incomplete-data:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/IncompleteData.json
+        mileaage-stats:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/MileageStats.json
+        speed-rates:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/SpeedRates.json
+        tracking-drives:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/TrackingDrives.json
       thanos:
         thanos-bucket-replicate:
           url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/thanos/dashboards/bucket-replicate.json
