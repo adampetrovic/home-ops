@@ -4,8 +4,8 @@ groups:
     rules:
       - alert: ZigbeeMQTTUnreachable
         expr: |
-          sum(count_over_time({app="zigbee2mqtt"} |~ "(?i)not connected to mqtt server"[2m])) > 0
-        for: 2m
+          sum(count_over_time({app="zigbee2mqtt"} |~ "(?i)not connected to mqtt server"[5m])) > 0
+        for: 1m
         labels:
           severity: critical
           category: logs
@@ -17,8 +17,8 @@ groups:
     rules:
       - alert: TeslaMateExpiredTokens
         expr: |
-          sum(count_over_time({app="teslamate"} |~ "(?i)Error / not_signed_in"[2m])) > 0
-        for: 2m
+          sum(count_over_time({app="teslamate"} |~ "(?i)Error / not_signed_in"[5m])) > 0
+        for: 1m
         labels:
           severity: critical
           category: logs
