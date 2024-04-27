@@ -37,6 +37,7 @@ spec:
               TZ: ${TIMEZONE}
               PORT: &port 5000
               USE_X_SETTINGS: 1
+              BASE_URL: &host changedetection.${SECRET_DOMAIN}
               PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/?stealth=1&--disable-web-security=true&--user-data-dir=~/browserless-cache-123
           browser:
             image:
@@ -65,7 +66,7 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: &host "changedetection.${SECRET_DOMAIN}"
+          - host: *host
             paths:
               - path: /
                 service:
