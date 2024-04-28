@@ -65,7 +65,7 @@ spec:
               Logging__Console__FormatterName: simple
               Logging__Console__FormatterOptions__TimestampFormat: "yyyy-MM-dd HH:mm:ss.fff"
               HomeAssistant__BaseUrl: http://home-assistant.automation.svc.cluster.local:8123
-              HomeAssistant__EntityId: sensor.energy_price
+              HomeAssistant__EntityId: sensor.dynamic_grid_price
             envFrom:
               - secretRef:
                   name: teslamate-secret
