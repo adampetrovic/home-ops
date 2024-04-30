@@ -6,6 +6,7 @@ resources:
   - ./ghcr-token-secret.yaml
 
   # manifests
+  - ./ersatztv/ks.yaml
   - ./immich/ks.yaml
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
