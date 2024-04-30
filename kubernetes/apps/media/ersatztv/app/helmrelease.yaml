@@ -57,9 +57,9 @@ spec:
             resources:
               requests:
                 cpu: 11m
-                memory: 300M
+                memory: 1Gi
               limits:
-                memory: 1.2G
+                memory: 4Gi
                 gpu.intel.com/i915: 1
             securityContext:
               allowPrivilegeEscalation: false
