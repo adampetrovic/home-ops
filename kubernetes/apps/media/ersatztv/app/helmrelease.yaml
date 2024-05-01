@@ -59,7 +59,7 @@ spec:
                 cpu: 11m
                 memory: 1Gi
               limits:
-                memory: 4Gi
+                memory: 8Gi
                 gpu.intel.com/i915: 1
             securityContext:
               allowPrivilegeEscalation: false
