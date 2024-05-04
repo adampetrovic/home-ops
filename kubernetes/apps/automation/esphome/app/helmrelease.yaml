@@ -38,6 +38,8 @@ spec:
               tag: 2024.4.2
             env:
               ESPHOME_DASHBOARD_USE_PING: true
+              PLATFORMIO_CORE_DIR: .plattformio
+              PLATFORMIO_GLOBALLIB_DIR: .plattformioLibs
             resources:
               requests:
                 cpu: 407m
