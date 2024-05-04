@@ -44,11 +44,43 @@ spec:
                 memory: 2Gi
               limits:
                 memory: 2Gi
+          codeserver:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.23.1-39
+            env:
+              TZ: ${TIMEZONE}
+              GIT_AUTHOR_NAME: "Adam Petrovic"
+            args:
+              - --auth
+              - "none"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --extensions-dir
+              - "/config/.vscode"
+              - /config
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 500Mi
     service:
       main:
         ports:
           http:
             port: 6052
+      codeserver:
+        controller: main
+        ports:
+          http:
+            port: 8080
     ingress:
       main:
         enabled: true
@@ -62,10 +94,24 @@ spec:
         tls:
           - hosts:
               - *host
+      codeserver:
+        enabled: true
+        controller: main
+        className: internal
+        hosts:
+          - host: &codeHost "esphome-code.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: codeserver
+                  port: http
+        tls:
+          - hosts:
+              - *codeHost
     persistence:
       config:
         enabled: true
-        existingClaim: frigate
+        existingClaim: esphome
       cache:
         enabled: true
         type: emptyDir
