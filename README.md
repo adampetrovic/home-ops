@@ -74,13 +74,11 @@ graph TD;
   id8>Kustomization: authelia] -->|Depends on| id5>Kustomization: postgres-cluster];
   id9(HelmRelease: authelia) -->|Depends on| id7(HelmRelease: lldap);
 ```
+---
 
-### Networking
+## Networking
 
 The Talos nodes in my cluster, by default, are located on VLAN 80 (10.0.80.10-10.0.80.14) in my network. They also get an additional network interface located on my trusted VLAN (VLAN 10). This additional interface is used by [Multus](https://github.com/k8snetworkplumbingwg/multus-cni) to expose additional interfaces in certain apps like HomeAssistant. See [example](https://github.com/adampetrovic/home-ops/blob/main/kubernetes/apps/automation/home-assistant/app/helmrelease.yaml#L97-L102).
-
-
----
 
 ## ☁️ Cloud Dependencies
 
