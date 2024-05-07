@@ -1,4 +1,4 @@
-ee<div align="center">
+<div align="center">
 
 <img src="https://raw.githubusercontent.com/adampetrovic/home-ops/main/docs/assets/logo.png" align="center" width="144px" height="144px"/>
 
