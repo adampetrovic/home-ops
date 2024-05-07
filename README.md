@@ -105,9 +105,8 @@ Outside the `external-dns` instance mentioned above another instance is deployed
 
 | Device                      | Count | OS Disk Size | Data Disk Size               | Ram  | Operating System | Purpose                 |
 |-----------------------------|-------|--------------|------------------------------|------|------------------|-------------------------|
-| Intel NUC12WSHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Node         |
-| Intel NUC11PAHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Workers      |
-| Intel NUC11PAHi7            | 3     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Workers      |
+| Intel NUC12WSHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Nodes        |
+| Intel NUC11PAHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Nodes        |
 | Synology RS1219+            | 1     | -            | 6x 16TB Seagate Exos         | 4GB  | Synology DSM     | NAS - NFS Share         |
 | Synology DVA1622            | 1     | -            | 2x 4TB Seagate Skyhawk       | 4GB  | Synology DSM     | NVR - Cameras           |
 | Unifi UXG-Pro               | 1     | -            | -                            | -    | -                | Router / Gateway        |
