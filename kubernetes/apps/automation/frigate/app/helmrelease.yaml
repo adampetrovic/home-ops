@@ -68,11 +68,11 @@ spec:
               privileged: true
             resources:
               requests:
-                cpu: 1313m
-                memory: 2Gi
+                cpu: 1581m
+                memory: 4982Mi
               limits:
                 gpu.intel.com/i915: "1"
-                memory: 8Gi
+                memory: 4982Mi
         pod:
           affinity:
             podAntiAffinity:

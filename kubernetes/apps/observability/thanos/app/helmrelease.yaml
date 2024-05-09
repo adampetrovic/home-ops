@@ -129,6 +129,12 @@ spec:
         enabled: true
         storageClass: openebs-hostpath
         size: 10Gi
+      resources:
+        requests:
+          cpu: 50m
+          memory: 512Mi
+        limits:
+          memory: 512Mi
       networkPolicy:
         enabled: false
     ruler:
