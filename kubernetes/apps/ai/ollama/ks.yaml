@@ -1,0 +1,34 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ollama
+  namespace: flux-system
+spec:
+  targetNamespace: ai
+  interval: 10m
+  path: "./kubernetes/apps/ai/ollama/backend"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-cluster
+  wait: true
+  dependsOn:
+    - name: external-secrets-stores
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ollama-web-ui
+  namespace: flux-system
+spec:
+  targetNamespace: ai
+  interval: 10m
+  path: "./kubernetes/apps/ai/ollama/frontend"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: home-cluster
+  wait: true
+  dependsOn:
+    - name: ollama
