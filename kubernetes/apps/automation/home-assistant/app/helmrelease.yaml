@@ -176,6 +176,13 @@ spec:
         enabled: true
         existingClaim: home-assistant
 
+      music:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/music
+        globalMounts:
+          - path: /music
+
       deploy-key:
         type: secret
         name: home-assistant-secret
