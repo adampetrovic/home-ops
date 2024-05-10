@@ -60,13 +60,6 @@ spec:
         pod:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
-          securityContext:
-              runAsUser: 568
-              runAsGroup: 568
-              fsGroup: 568
-              runAsNonRoot: true
-              fsGroupChangePolicy: OnRootMismatch
-              supplementalGroups: [44, 100]
     service:
       main:
         ports:
