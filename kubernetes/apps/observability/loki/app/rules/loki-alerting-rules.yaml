@@ -77,6 +77,16 @@ groups:
         annotations:
           app: "{{ $labels.app }}"
           summary: "{{ $labels.app }} is unable to connect to postgres"
+      - alert: HomeAssistantUnableParseConfig
+        expr: |
+          sum by (app) (count_over_time({app="home-assistant"} |~ "(?i)Failed to parse configuration.yaml"[1m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: logs
+        annotations:
+          app: "{{ $labels.app }}"
+          summary: "{{ $labels.app }} is unable to parse it's configuration"
 
   - name: cross-seed
     rules:
