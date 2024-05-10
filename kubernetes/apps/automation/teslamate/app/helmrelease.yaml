@@ -51,6 +51,12 @@ spec:
             envFrom:
               - secretRef:
                   name: teslamate-secret
+            resources:
+              requests:
+                cpu: 18m
+                memory: 338Mi
+              limits:
+                memory: 338Mi
           agile:
             image:
               repository: mattjeanes/teslamateagile
