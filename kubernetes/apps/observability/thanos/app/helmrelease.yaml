@@ -94,6 +94,12 @@ spec:
       dnsDiscovery:
         sidecarsService: kube-prometheus-stack-thanos-discovery
         sidecarsNamespace: observability
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          memory: 2048Mi
       networkPolicy:
         enabled: false
     bucketweb:
