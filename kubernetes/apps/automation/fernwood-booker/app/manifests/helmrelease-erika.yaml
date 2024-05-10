@@ -33,7 +33,7 @@ spec:
           main:
             image:
               repository: ghcr.io/adampetrovic/fernwood-booker
-              tag: 1.0.3@sha256:4caa6296a88f15bf5251dcf08eee60fb72c90f7d98d9467c036a6829b20c8385
+              tag: 1.0.4@sha256:38c1d547f486f17d4fe4f29590c3c7a676fc25f88b7a9d4912ea71c47f3dfa6e
             envFrom:
               - secretRef:
                   name: fernwood-booker-secret-erika
