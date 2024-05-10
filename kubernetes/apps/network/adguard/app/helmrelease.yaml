@@ -83,7 +83,7 @@ spec:
         name: adguard-work
         storageClass: ceph-block
         accessMode: ReadWriteOnce
-        size: 2Gi
+        size: 5Gi
         globalMounts:
           - path: /opt/adguardhome/work
             subPath: work
