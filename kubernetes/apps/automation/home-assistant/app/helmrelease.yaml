@@ -60,8 +60,8 @@ spec:
                 enabled: false
             resources:
               requests:
-                cpu: 70m
-                memory: 1005Mi
+                cpu: 95m
+                memory: 970Mi
               limits:
                 memory: 1638Mi
           codeserver:
@@ -89,9 +89,10 @@ spec:
                 enabled: false
             resources:
               requests:
-                cpu: 10m
+                cpu: 152m
+                memory: 1079Mi
               limits:
-                memory: 2048Mi
+                memory: 1079Mi
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
