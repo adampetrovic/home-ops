@@ -97,9 +97,9 @@ spec:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
               [{
-                "name":"multus-talos",
+                "name":"multus-trusted",
                 "namespace": "network",
-                "ips": ["10.0.82.1/21"]
+                "ips": ["10.0.10.99/21"]
               }]
           securityContext:
             runAsUser: 568
