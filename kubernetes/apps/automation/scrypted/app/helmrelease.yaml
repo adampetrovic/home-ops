@@ -32,7 +32,7 @@ spec:
           main:
             image:
               repository: ghcr.io/koush/scrypted
-              tag: 20-jammy-full-v0.94.5
+              tag: latest@sha256:9b65f6c4f23ad7e499a11f758d8368cdf35af9cad2a270daf4faf63cd9906333
             resources:
               requests:
                 gpu.intel.com/i915: 1
