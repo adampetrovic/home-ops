@@ -46,7 +46,7 @@ spec:
                 cpu: 25m
                 memory: 413Mi
               limits:
-                memory: 413Mi
+                memory: 1536Mi
             probes:
               liveness: &probes
                 enabled: true
