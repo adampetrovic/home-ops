@@ -92,7 +92,7 @@ spec:
                 cpu: 152m
                 memory: 1Gi
               limits:
-                memory: 2Gi
+                memory: 3Gi
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
