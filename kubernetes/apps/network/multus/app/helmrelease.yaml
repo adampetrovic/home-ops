@@ -29,6 +29,8 @@ spec:
         config: /etc/cni/net.d
         bin: /opt/cni/bin
 
+      logLevel: error
+
     resources:
       requests:
         cpu: 5m
