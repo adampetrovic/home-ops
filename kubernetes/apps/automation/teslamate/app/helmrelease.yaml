@@ -43,7 +43,7 @@ spec:
           main:
             image:
               repository: teslamate/teslamate
-              tag: 1.28.5
+              tag: 1.29.1
             env:
               TZ: ${TIMEZONE}
               DISABLE_MQTT: "false"
