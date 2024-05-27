@@ -32,7 +32,7 @@ spec:
           main:
             image:
               repository: cturra/ntp
-              tag: latest@sha256:a994e41fae58e1ea9f9accfc8912f462001dbc697a9906c656b4ed30823eae2f
+              tag: latest@sha256:d3c6ee33aff355befe003a9025a923c5d033094c29a1d9ee451e409b41c73f86
               pullPolicy: Always
             env:
               TZ: ${TZ}
