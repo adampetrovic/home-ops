@@ -55,7 +55,7 @@ spec:
           main:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.8.6
+              tag: 2.9.0
             envFrom: *envFrom
             env:
               USERMAP_UID: 568
