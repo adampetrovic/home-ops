@@ -24,13 +24,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    defaultPodOptions:
-      securityContext:
-        runAsUser: 1028
-        runAsGroup: 100
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [1000]
     controllers:
       main:
         annotations:
@@ -119,8 +112,9 @@ spec:
               - *api-host
     persistence:
       config:
-        enabled: true
-        existingClaim: nfs-minio-pvc
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/k8s/minio
         globalMounts:
           - path: /data
     serviceMonitor:
