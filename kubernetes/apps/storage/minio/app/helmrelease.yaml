@@ -116,7 +116,7 @@ spec:
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/k8s/minio
         globalMounts:
-          - path: /data
+          - path: /data-nfs
     serviceMonitor:
       main:
         enabled: true
