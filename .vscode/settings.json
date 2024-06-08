@@ -13,7 +13,7 @@
         "./ansible/**/inventory/**/*.yaml": "yaml",
         "./kubernetes/**/*.sops.toml": "plaintext"
     },
-    "sops.defaults.ageKeyFile": "age.key",
+    "sops.defaults.ageKeyFile": "/Users/adam/.config/sops/age/keys.txt",
     "yaml.schemas": {
         "ansible": "./ansible/*.yaml",
         "Kubernetes": "./kubernetes/*.yaml"
