@@ -23,13 +23,14 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: rollback
   uninstall:
     keepHistory: false
   values:
     controllers:
-      main:
+      changedetection:
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/dgtlmoon/changedetection.io
               tag: "0.45.23@sha256:b1175272d6afdbbfc1e2b3317bf34c29978a7461d49b29d452e3e8f41036a7ec"
@@ -56,8 +57,8 @@ spec:
               - {name: DEFAULT_BLOCK_ADS, value: "true"}
               - {name: DEFAULT_STEALTH, value: "true"}
     service:
-      main:
-        controller: main
+      app:
+        controller: changedetection
         ports:
           http:
             port: *port
@@ -70,16 +71,15 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
               - *host
     persistence:
       config:
-        enabled: true
         existingClaim: changedetection
         advancedMounts:
-          main:
-            main:
+          changedetection:
+            app:
               - path: /datastore

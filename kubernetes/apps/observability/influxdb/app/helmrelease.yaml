@@ -1,13 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app influxdb
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -21,6 +23,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -30,11 +33,11 @@ spec:
       namespace: volsync-system
   values:
     controllers:
-      main:
+      influxdb:
         annotations:
           reloader.stakater.com/auto: 'true'
         containers:
-          main:
+          app:
             image:
               repository: influxdb
               tag: 2.7.6
@@ -61,8 +64,9 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
-      main:
+      app:
         type: LoadBalancer
+        controller: influxdb
         annotations:
           external-dns.alpha.kubernetes.io/hostname: influx-direct.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.81.9
@@ -71,7 +75,7 @@ spec:
           http:
             port: 8086
     ingress:
-      main:
+      app:
         enabled: true
         className: internal
         hosts:
@@ -80,7 +84,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
