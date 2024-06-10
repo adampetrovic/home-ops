@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/helmrelease-helm-v2beta2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,23 +23,25 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   values:
     controllers:
-      main:
+      homeassistant:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
           init-db:
             enabled: false  # don't block homeassistant from starting if postgres is down
-            image: ghcr.io/onedr0p/postgres-init:16.3
-            imagePullPolicy: Always
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16.3
             envFrom:
               - secretRef:
                   name: home-assistant-secret
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/onedr0p/home-assistant
               tag: 2024.6.1@sha256:abcff59b10e53ca8cc311afb44f9bfd180ef22b332aeee1daff2d08ddf9c17b6
@@ -107,7 +109,8 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
-      main:
+      app:
+        controller: homeassistant
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
@@ -121,13 +124,13 @@ spec:
             protocol: TCP
             port: 21065
       codeserver:
-        controller: main
+        controller: homeassistant
         ports:
           http:
             port: 8080
 
     ingress:
-      main:
+      app:
         enabled: true
         className: internal
         hosts:
@@ -135,7 +138,7 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
@@ -151,7 +154,7 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
@@ -159,14 +162,13 @@ spec:
 
       codeserver:
         enabled: true
-        controller: main
         className: internal
         hosts:
           - host: &codeHost "hass-code.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
-                  name: codeserver
+                  identifier: codeserver
                   port: http
         tls:
           - hosts:
@@ -189,7 +191,7 @@ spec:
         name: home-assistant-secret
         defaultMode: 420  # 644 (octal) in decimal
         advancedMounts:
-          main:
+          homeassistant:
             codeserver:
               - path: /home/coder/.ssh/id_rsa
                 subPath: GH_DEPLOY_KEY
@@ -199,7 +201,7 @@ spec:
         type: secret
         name: home-assistant-secret
         advancedMounts:
-          main:
+          homeassistant:
             codeserver:
               - path: /home/coder/.gitconfig
                 subPath: GIT_CONFIG
@@ -210,7 +212,7 @@ spec:
         type: secret
         name: home-assistant-secret
         advancedMounts:
-          main:
+          homeassistant:
             codeserver:
               - path: /home/coder/.ssh/known_hosts
                 subPath: KNOWN_HOSTS

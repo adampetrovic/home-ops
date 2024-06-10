@@ -1,5 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -21,16 +21,17 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   values:
     controllers:
-      main:
+      onepassword-connect:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          main:
+          app:
             image:
               repository: docker.io/1password/connect-api
               tag: 1.7.2@sha256:6aa94cf713f99c0fa58c12ffdd1b160404b4c13a7f501a73a791aa84b608c5a1
@@ -109,8 +110,8 @@ spec:
                   initialDelaySeconds: 15
               startup:
                 enabled: false
-              securityContext: *securityContext
-              resources: *resources
+            securityContext: *securityContext
+            resources: *resources
         pod:
           securityContext:
             runAsUser: 999
@@ -118,8 +119,16 @@ spec:
             runAsNonRoot: true
             fsGroup: 999
             fsGroupChangePolicy: OnRootMismatch
+
+    service:
+      app:
+        controller: onepassword-connect
+        ports:
+          http:
+            port: *apiPort
+
     ingress:
-      main:
+      app:
         enabled: true
         className: internal
         hosts:
@@ -127,7 +136,7 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
@@ -138,8 +147,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: *configDir
-    service:
-      main:
-        ports:
-          http:
-            port: *apiPort

@@ -1,14 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: cloudflared
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -20,17 +21,18 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   values:
     controllers:
-      main:
+      cloudflared:
         replicas: 2
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          main:
+          app:
             image:
               repository: docker.io/cloudflare/cloudflared
               tag: 2024.6.0
@@ -79,13 +81,21 @@ spec:
             runAsGroup: 65534
             runAsNonRoot: true
     service:
-      main:
+      app:
+        controller: cloudflared
         ports:
           http:
             port: *port
     serviceMonitor:
-      main:
+      app:
         enabled: true
+        serviceName: cloudflared
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
     persistence:
       config:
         enabled: true

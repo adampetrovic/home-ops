@@ -1,5 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,13 +23,14 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   values:
     controllers:
-      main:
+      scrypted:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/koush/scrypted
               tag: latest@sha256:2509242b9f128b21d6ad9e0786b69d7de5b6f424e46b6de55ff435326c8df2ea
@@ -49,7 +50,8 @@ spec:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
     service:
-      main:
+      app:
+        controller: scrypted
         ports:
           http:
             port: 11080
@@ -65,7 +67,7 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
@@ -75,8 +77,8 @@ spec:
         enabled: true
         existingClaim: scrypted
         advancedMounts:
-          main:
-            main:
+          scrypted:
+            app:
               - path: /server/volume
       cache:
         type: emptyDir

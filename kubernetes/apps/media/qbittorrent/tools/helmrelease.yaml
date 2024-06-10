@@ -1,15 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: qbtools
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -21,6 +21,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -28,8 +29,6 @@ spec:
       namespace: media
   values:
     controllers:
-      main:
-        enabled: false
       tagging:
         type: cronjob
         cronjob: &cronJobSpec
@@ -101,7 +100,7 @@ spec:
           <<: *cronJobSpec
           schedule: "@daily"
         containers:
-          main:
+          orphaned:
             image: *image
             env: *env
             args: [
@@ -117,7 +116,7 @@ spec:
           securityContext: *securityContext
       reannounce:
         containers:
-          main:
+          reannounce:
             image: *image
             env: *env
             args: [
@@ -129,9 +128,6 @@ spec:
             resources: *resources
         pod:
           securityContext: *securityContext
-    service:
-      main:
-        enabled: false
     persistence:
       config-file:
         type: configMap

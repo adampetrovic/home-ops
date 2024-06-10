@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -8,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -22,6 +23,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -37,11 +39,11 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
     controllers:
-      main:
+      zigbee2mqtt:
         annotations:
           reloader.stakater.com/auto: 'true'
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/koenkk/zigbee2mqtt
               tag: 1.37.1
@@ -94,7 +96,8 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
-      main:
+      app:
+        controller: zigbee2mqtt
         ports:
           http:
             port: *port
@@ -108,7 +111,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:

@@ -1,5 +1,5 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,6 +23,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -30,7 +31,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      main:
+      mosquitto:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -38,11 +39,11 @@ spec:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
               tag: 2.0.18
-            pullPolicy: IfNotPresent
+              pullPolicy: IfNotPresent
             command: ["/bin/sh", "-c"]
             args: ["cp /tmp/secret/* /mosquitto/external_config/ && mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd"]
         containers:
-          main:
+          app:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
               tag: 2.0.18
@@ -62,9 +63,11 @@ spec:
             runAsNonRoot: true
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
+
     service:
-      main:
+      app:
         type: LoadBalancer
+        controller: mosquitto
         annotations:
           external-dns.alpha.kubernetes.io/hostname: mqtt.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.81.1
@@ -83,8 +86,8 @@ spec:
         type: configMap
         name: mosquitto-configmap # overriden by kustomizeconfig
         advancedMounts:
-          main:
-            main:
+          mosquitto:
+            app:
               - path: /mosquitto/config/mosquitto.conf
                 subPath: mosquitto.conf
       secret-file:
@@ -92,10 +95,9 @@ spec:
         type: secret
         name: mosquitto-secret
         advancedMounts:
-          main:
+          mosquitto:
             01-init-config:
               - path: /tmp/secret
-
       external-config:
         enabled: true
         type: emptyDir

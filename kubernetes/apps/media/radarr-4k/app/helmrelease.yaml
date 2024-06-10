@@ -1,4 +1,5 @@
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -8,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -22,6 +23,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -38,7 +40,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [100]
     controllers:
-      main:
+      radarr-4k:
         annotations:
           reloader.stakater.com/auto: 'true'
         initContainers:
@@ -46,12 +48,12 @@ spec:
             image:
               repository: ghcr.io/onedr0p/postgres-init
               tag: '16.3'
-            imagePullPolicy: IfNotPresent
+              pullPolicy: IfNotPresent
             envFrom: &envFrom
               - secretRef:
                   name: radarr-4k-secret
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/onedr0p/radarr-develop
               tag:
@@ -85,7 +87,8 @@ spec:
               startup:
                 enabled: false
     service:
-      main:
+      app:
+        controller: radarr-4k
         ports:
           http:
             port: *port
@@ -104,7 +107,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
