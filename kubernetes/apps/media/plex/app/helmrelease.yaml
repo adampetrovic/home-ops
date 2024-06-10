@@ -135,32 +135,32 @@ spec:
         path: /volume2/movies
         globalMounts:
           - path: /movies
-            readOnly: true
+            readOnly: false
       movies-4k:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/movies-4k
         globalMounts:
           - path: /movies-4k
-            readOnly: true
+            readOnly: false
       tv:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/tv
         globalMounts:
           - path: /tv
-            readOnly: true
+            readOnly: false
       tv-4k:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/tv-4k
         globalMounts:
           - path: /tv-4k
-            readOnly: true
+            readOnly: false
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/music
         globalMounts:
           - path: /music
-            readOnly: true
+            readOnly: false
