@@ -1,15 +1,16 @@
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app authelia
   namespace: security
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,6 +24,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -38,7 +40,7 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
     controllers:
-      main:
+      authelia:
         replicas: 2
         strategy: RollingUpdate
         annotations:
@@ -48,12 +50,12 @@ spec:
             image:
               repository: ghcr.io/onedr0p/postgres-init
               tag: '16.3'
-            imagePullPolicy: IfNotPresent
+              pullPolicy: IfNotPresent
             envFrom: &envFrom
               - secretRef:
                   name: authelia-secret
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/authelia/authelia
               tag: 4.38.7@sha256:1bfa7206c144f8cd184743a7ed629f4a02d2dceb50e7260588373fe6de4cd959
@@ -116,7 +118,8 @@ spec:
                 enabled: false
             args: [--config, /config/configuration.yml, --config.experimental.filters, expand-env]
     service:
-      main:
+      app:
+        controller: authelia
         ports:
           http:
             port: *port
@@ -124,7 +127,7 @@ spec:
             enabled: true
             port: 8080
     ingress:
-      main:
+      app:
         enabled: true
         className: internal
         annotations:
@@ -139,7 +142,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
@@ -149,14 +152,15 @@ spec:
         enabled: true
         type: configMap
         name: authelia-configmap
-        readOnly: false
         globalMounts:
           - path: /config/configuration.yml
             subPath: configuration.yml
+            readOnly: false
     enableServiceLinks: false
     serviceMonitor:
-      main:
+      app:
         enabled: true
+        serviceName: authelia
         endpoints:
           - port: metrics
             scheme: http

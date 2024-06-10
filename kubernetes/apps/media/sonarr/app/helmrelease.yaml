@@ -1,14 +1,15 @@
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta1.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: sonarr
 spec:
-  interval: 30m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -22,6 +23,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -31,11 +33,11 @@ spec:
       namespace: volsync-system
   values:
     controllers:
-      main:
+      sonarr:
         annotations:
           reloader.stakater.com/auto: 'true'
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/onedr0p/sonarr-develop
               tag:
@@ -78,12 +80,13 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
     service:
-      main:
+      app:
+        controller: sonarr
         ports:
           http:
             port: *port
     ingress:
-      main:
+      app:
         enabled: true
         className: internal
         annotations:
@@ -97,7 +100,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:

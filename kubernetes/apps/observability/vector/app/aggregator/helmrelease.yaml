@@ -1,16 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: &app vector-aggregator
 spec:
-  interval: 30m
-  timeout: 15m
+  interval: 15m
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -22,9 +21,10 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   values:
     controllers:
-      main:
+      vector-aggregator:
         replicas: 2
         strategy: RollingUpdate
         annotations:
@@ -42,7 +42,7 @@ spec:
               - secretRef:
                   name: vector-aggregator-secret
         containers:
-          main:
+          app:
             image:
               repository: docker.io/timberio/vector
               tag: 0.38.0-alpine@sha256:0f40a5bc6df18de0f4855ee6a801449f1b78fa60b3c5001c530896abc64b18b2
@@ -56,8 +56,9 @@ spec:
                 matchLabels:
                   app.kubernetes.io/name: *app
     service:
-      main:
+      app:
         type: LoadBalancer
+        controller: vector-aggregator
         annotations:
           external-dns.alpha.kubernetes.io/hostname: vector.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.81.8

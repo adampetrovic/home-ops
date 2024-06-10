@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -8,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -21,6 +22,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: uninstall
   uninstall:
     keepHistory: false
   dependsOn:
@@ -30,9 +32,9 @@ spec:
       namespace: volsync-system
   values:
     controllers:
-      main:
+      esphome:
         containers:
-          main:
+          app:
             image:
               repository: esphome/esphome
               tag: 2024.5.5
@@ -80,38 +82,38 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
-      main:
+      app:
+        controller: esphome
         ports:
           http:
             port: 6052
       codeserver:
-        controller: main
+        controller: esphome
         ports:
           http:
             port: 8080
     ingress:
-      main:
+      app:
         enabled: true
         hosts:
           - host: &host esphome.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
               - *host
       codeserver:
         enabled: true
-        controller: main
         className: internal
         hosts:
           - host: &codeHost "esphome-code.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
-                  name: codeserver
+                  identifier: codeserver
                   port: http
         tls:
           - hosts:
@@ -123,4 +125,5 @@ spec:
       cache:
         enabled: true
         type: emptyDir
-        mountPath: /config/.esphome
+        globalMounts:
+          - path: /config/.esphome

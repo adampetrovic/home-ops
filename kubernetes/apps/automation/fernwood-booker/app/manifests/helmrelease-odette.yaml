@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.1.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -22,15 +22,16 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: rollback
   uninstall:
     keepHistory: false
   values:
     controllers:
-      main:
+      fernwood:
         annotations:
           configmap.reloader.stakater.com/reload: 'fernwood-configmap-odette'
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/adampetrovic/fernwood-booker
               tag: 1.0.4@sha256:38c1d547f486f17d4fe4f29590c3c7a676fc25f88b7a9d4912ea71c47f3dfa6e
@@ -47,14 +48,14 @@ spec:
               limits:
                 memory: 250Mi
     service:
-      main:
+      app:
         enabled: false
+        controller: fernwood
     persistence:
       config-file:
         enabled: true
         type: configMap
         name: fernwood-configmap-odette
-        readOnly: true
         globalMounts:
           - path: /config/config-odette.yaml
             subPath: config-odette.yaml
