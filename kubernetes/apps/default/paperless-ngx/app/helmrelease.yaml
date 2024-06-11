@@ -21,7 +21,7 @@ spec:
   upgrade:
     remediation:
       retries: 5
-      strategy: uninstall
+      strategy: rollback
   values:
     controllers:
       paperless-ngx:
