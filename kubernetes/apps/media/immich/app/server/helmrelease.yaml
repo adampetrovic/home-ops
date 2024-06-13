@@ -84,7 +84,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: immich
+                  identifier: app
                   port: http
         tls:
           - hosts:
