@@ -23,7 +23,9 @@ access_control:
         - "radarr4k.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
-    - domain: ["paperless.${SECRET_DOMAIN}"]
+    - domain:
+        - "paperless.${SECRET_DOMAIN}"
+        - "memos.${SECRET_DOMAIN}"
       policy: two_factor
       subject:
         - 'group:users'
