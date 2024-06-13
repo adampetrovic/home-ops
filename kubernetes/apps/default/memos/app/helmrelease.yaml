@@ -77,12 +77,15 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: "memos.${SECRET_DOMAIN}"
+          - host: &host "memos.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
+        tls:
+          - hosts:
+              - *host
     persistence:
       data:
         existingClaim: *app
