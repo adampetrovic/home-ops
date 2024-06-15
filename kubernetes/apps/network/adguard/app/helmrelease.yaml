@@ -46,6 +46,7 @@ spec:
 
     service:
       app:
+        nameOverride: adguard
         controller: adguard
         ports:
           http:
