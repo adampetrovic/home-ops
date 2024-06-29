@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: ghcr.io/koush/scrypted
-              tag: latest@sha256:2509242b9f128b21d6ad9e0786b69d7de5b6f424e46b6de55ff435326c8df2ea
+              tag: latest@sha256:662aecf24afca6116c0f1c84599b4cdee87458337bd9c880da2d78beee1e1f46
             resources:
               requests:
                 gpu.intel.com/i915: 1
