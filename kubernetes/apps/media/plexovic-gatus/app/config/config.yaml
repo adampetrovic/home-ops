@@ -15,6 +15,15 @@ connectivity:
     target: 1.1.1.1:53
     interval: 1m
 endpoints:
+  - name: Plex Requests
+    url: https://requests.plexovic.com
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: false
+    conditions:
+      - "[STATUS] == 200"
+
   # plex
   - name: Plex - Healthcheck
     group: plex
@@ -35,3 +44,54 @@ endpoints:
         hide-url: true
     conditions:
       - "[CONNECTED] == true"
+
+  # downloaders
+  - name: Sonarr - TV Downloader
+    group: automations
+    url: http://sonarr.media.svc.cluster.local
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Radarr - Movies Downloader
+    group: automations
+    url: http://radarr.media.svc.cluster.local
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Prowlarr - Search Provider
+    group: automations
+    url: http://prowlarr.media.svc.cluster.local
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: QBT - Torrent Downloader
+    group: downloaders
+    url: http://qbittorrent.media.svc.cluster.local
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: SabNZBd - Torrent Downloader
+    group: downloaders
+    url: http://sabnzbd.media.svc.cluster.local
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
