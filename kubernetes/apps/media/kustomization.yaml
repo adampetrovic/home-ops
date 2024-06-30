@@ -11,6 +11,7 @@ resources:
   - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
+  - ./plexovic-gatus/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./tautulli/ks.yaml
