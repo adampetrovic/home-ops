@@ -24,7 +24,6 @@ endpoints:
       insecure: true
     conditions:
       - "[STATUS] == 200"
-
   - name: Plex is Active
     group: plex
     url: https://plex.petrovic.network/connections??X-Plex-Token=${PLEX_TOKEN}
