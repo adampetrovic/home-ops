@@ -24,3 +24,19 @@ endpoints:
       insecure: true
     conditions:
       - "[STATUS] == 200"
+
+  - name: Plex is Active
+    group: plex
+    url: https://plex.petrovic.network/connections??X-Plex-Token=${PLEX_TOKEN}
+    interval: 1m
+    client:
+      dns-resolver: tcp://1.1.1.1:53
+      insecure: true
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: redis
+    url: "tcp://plex.media.svc.cluster.local:32400"
+    interval: 30s
+    conditions:
+      - "[CONNECTED] == true"
