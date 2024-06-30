@@ -15,6 +15,7 @@ connectivity:
     target: 1.1.1.1:53
     interval: 1m
 endpoints:
+  # plex
   - name: Plex - Healthcheck
     group: plex
     url: https://plex.petrovic.network/connections?X-Plex-Token=${PLEX_TOKEN}
@@ -25,16 +26,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  # plex
-  - name: Plex - Port Check
-    group: plex
-    url: tcp://plex.media.svc.cluster.local:32400
-    interval: 1m
-    ui:
-        hide-hostname: true
-        hide-url: true
-    conditions:
-      - "[STATUS] == 200"
   - name: Plex - Port Check
     group: plex
     url: tcp://plex.media.svc.cluster.local:32400
