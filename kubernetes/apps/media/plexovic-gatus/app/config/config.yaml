@@ -12,7 +12,7 @@ ui:
   header: Plexovic Status
 connectivity:
   checker:
-    target: 192.168.8.1:53
+    target: 1.1.1.1:53
     interval: 1m
 endpoints:
   - name: status
@@ -29,14 +29,8 @@ endpoints:
     group: plex
     url: https://plex.petrovic.network/connections??X-Plex-Token=${PLEX_TOKEN}
     interval: 1m
-    client:
-      dns-resolver: tcp://1.1.1.1:53
-      insecure: true
+    ui:
+        hide-hostname: true
+        hide-url: true
     conditions:
       - "[STATUS] == 200"
-
-  - name: redis
-    url: "tcp://plex.media.svc.cluster.local:32400"
-    interval: 30s
-    conditions:
-      - "[CONNECTED] == true"
