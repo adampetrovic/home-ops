@@ -15,21 +15,32 @@ connectivity:
     target: 1.1.1.1:53
     interval: 1m
 endpoints:
-  - name: status
-    group: external
-    url: https://status.${SECRET_PLEX_DOMAIN}
-    interval: 1m
-    client:
-      dns-resolver: tcp://1.1.1.1:53
-      insecure: true
-    conditions:
-      - "[STATUS] == 200"
-  - name: Plex is Active
+  - name: Plex - Healthcheck
     group: plex
-    url: https://plex.petrovic.network/connections??X-Plex-Token=${PLEX_TOKEN}
+    url: https://plex.petrovic.network/connections?X-Plex-Token=${PLEX_TOKEN}
     interval: 1m
     ui:
         hide-hostname: true
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+
+  # plex
+  - name: Plex - Port Check
+    group: plex
+    url: tcp://plex.media.svc.cluster.local:32400
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[STATUS] == 200"
+  - name: Plex - Port Check
+    group: plex
+    url: tcp://plex.media.svc.cluster.local:32400
+    interval: 1m
+    ui:
+        hide-hostname: true
+        hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
