@@ -61,7 +61,7 @@ spec:
           agile:
             image:
               repository: mattjeanes/teslamateagile
-              tag: v1.14.0@sha256:00792f90342f542b8507ba63e3463bd73f32c61974b0e5e9ef9d15e6e23cf005
+              tag: v1.15.0@sha256:a44df47c2a948022fe10f0cfc0ff6bae470b3c4e759e9d8729f43359c5799186
             env:
               TeslaMate__UpdateIntervalSeconds: 300
               TeslaMate__GeofenceId: 4
