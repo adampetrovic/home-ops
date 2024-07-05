@@ -19,6 +19,3 @@ classes:
     - name: Reformer Pilates
       day: Saturday
       start_time: '07:30'
-    - name: Reformer Pilates
-      day: Saturday
-      start_time: '08:15'
