@@ -49,9 +49,6 @@ spec:
               TZ: ${TIMEZONE}
               DISABLE_MQTT: "false"
               MQTT_HOST: mosquitto.automation.svc.cluster.local
-              TESLA_API_HOST: https://tesla-proxy-app.automation.svc.cluster.local:8099
-              TESLA_AUTH_HOST: https://auth.tesla.com
-              TESLA_AUTH_PATH: /oauth2/v3
             envFrom:
               - secretRef:
                   name: teslamate-secret
