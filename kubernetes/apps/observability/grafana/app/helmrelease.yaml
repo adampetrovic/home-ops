@@ -383,8 +383,8 @@ spec:
         drive-details:
           url: https://raw.githubusercontent.com/adriankumpf/teslamate/master/grafana/dashboards/internal/drive-details.json
       teslamate-custom:
-        browse-charges:
-          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/BrowseCharges.json
+        amortization-tracker:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/AmortizationTracker.json
         charging-cost-stats:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/ChargingCostsStats.json
         charging-curve-stats:
@@ -405,6 +405,8 @@ spec:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/IncompleteData.json
         mileaage-stats:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/MileageStats.json
+        range-degradation:
+          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/RangeDegradation.json
         speed-rates:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/SpeedRates.json
         tracking-drives:
