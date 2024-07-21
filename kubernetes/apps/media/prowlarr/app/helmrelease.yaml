@@ -44,7 +44,7 @@ spec:
           pod:
             image:
               repository: ghcr.io/onedr0p/prowlarr-develop
-              tag: 1.18.0.4543@sha256:3b7016455028840cae468f1227560e84926c47d1d30b4f73c269704b3f97362f
+              tag: 1.21.1.4631@sha256:8c66ee4dac0bae54ff008c747c70e968be4681a56d75116e5161cd1dc9888437
             envFrom: *envFrom
             env:
               TZ: ${TIMEZONE}
