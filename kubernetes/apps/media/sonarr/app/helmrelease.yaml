@@ -41,7 +41,7 @@ spec:
             image:
               repository: ghcr.io/onedr0p/sonarr-develop
               tag:
-                4.0.8.1902@sha256:717e5ad40303f4f8eba15d9476a86a7c7c9fe3003ec6d6b4c5fab37d19f6fff0
+                4.0.8.1988@sha256:d8404510500ffe8ed804ac37bc5a56040228eb632458d6771d9c7dab40f6f61a
             envFrom:
               - secretRef:
                   name: sonarr-secret
