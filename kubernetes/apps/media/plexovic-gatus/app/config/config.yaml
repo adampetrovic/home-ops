@@ -14,6 +14,10 @@ connectivity:
   checker:
     target: 1.1.1.1:53
     interval: 1m
+alerting:
+  telegram:
+    token: ${TELEGRAM_BOT_TOKEN}
+    id: ${TELEGRAM_CHAT_ID}
 endpoints:
   - name: Plex Requests
     url: https://requests.plexovic.com
@@ -23,6 +27,9 @@ endpoints:
         hide-url: false
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   # plex
   - name: Plex - Healthcheck
@@ -34,6 +41,9 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   - name: Plex - Port Check
     group: plex
@@ -44,6 +54,9 @@ endpoints:
         hide-url: true
     conditions:
       - "[CONNECTED] == true"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   # downloaders
   - name: Sonarr - TV Downloader
@@ -58,6 +71,9 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "len([BODY]) == 0"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   - name: Radarr - Movies Downloader
     group: automations
@@ -71,6 +87,9 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "len([BODY]) == 0"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   - name: Prowlarr - Search Provider
     group: automations
@@ -84,6 +103,9 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "len([BODY]) == 0"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   - name: QBT - Torrent Downloader
     group: downloaders
@@ -94,6 +116,9 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
 
   - name: SabNZBd - Torrent Downloader
     group: downloaders
@@ -104,3 +129,6 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
