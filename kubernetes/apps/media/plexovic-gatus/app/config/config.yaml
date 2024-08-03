@@ -57,6 +57,7 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+      - "len([BODY]) == 0"
 
   - name: Radarr - Movies Downloader
     group: automations
@@ -69,6 +70,7 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+      - "len([BODY]) == 0"
 
   - name: Prowlarr - Search Provider
     group: automations
