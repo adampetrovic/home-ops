@@ -48,17 +48,21 @@ endpoints:
   # downloaders
   - name: Sonarr - TV Downloader
     group: automations
-    url: http://sonarr.media.svc.cluster.local
+    url: http://sonarr.media.svc.cluster.local/api/v3/health
     interval: 1m
     ui:
         hide-hostname: true
         hide-url: true
+    headers:
+      X-Api-Key: ${SONARR_API_KEY}
     conditions:
       - "[STATUS] == 200"
 
   - name: Radarr - Movies Downloader
     group: automations
-    url: http://radarr.media.svc.cluster.local
+    url: http://radarr.media.svc.cluster.local/api/v3/health
+    headers:
+      X-Api-Key: ${RADARR_API_KEY}
     interval: 1m
     ui:
         hide-hostname: true
