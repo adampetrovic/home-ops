@@ -74,13 +74,16 @@ endpoints:
 
   - name: Prowlarr - Search Provider
     group: automations
-    url: http://prowlarr.media.svc.cluster.local
+    url: http://prowlarr.media.svc.cluster.local/api/v3/health
+    headers:
+      X-Api-Key: ${PROWLARR_API_KEY}
     interval: 1m
     ui:
         hide-hostname: true
         hide-url: true
     conditions:
       - "[STATUS] == 200"
+      - "len([BODY]) == 0"
 
   - name: QBT - Torrent Downloader
     group: downloaders
