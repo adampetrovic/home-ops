@@ -74,7 +74,7 @@ endpoints:
 
   - name: Prowlarr - Search Provider
     group: automations
-    url: http://prowlarr.media.svc.cluster.local/api/v3/health
+    url: http://prowlarr.media.svc.cluster.local/api/v1/health
     headers:
       X-Api-Key: ${PROWLARR_API_KEY}
     interval: 1m
