@@ -120,7 +120,6 @@ spec:
         globalMounts:
           - path: /config/config.yml
             subPath: config.yml
-            readOnly: true
       cache:
         enabled: true
         type: emptyDir
