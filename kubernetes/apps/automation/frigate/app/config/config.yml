@@ -1,8 +1,8 @@
 mqtt:
   host: mosquitto.automation.svc.cluster.local
   port: 1883
-  user: "{FRIGATE_MQTT_USERNAME}"
-  password: "{FRIGATE_MQTT_PASSWORD}"
+  user: '{FRIGATE_MQTT_USERNAME}'
+  password: '{FRIGATE_MQTT_PASSWORD}'
   topic_prefix: frigate
 
 database:
@@ -15,9 +15,6 @@ detectors:
 
 ffmpeg:
  hwaccel_args: preset-vaapi
-
-rtmp:
-  enabled: False
 
 live:
   height: 720
@@ -101,6 +98,17 @@ cameras:
         coordinates: 771,720,464,720,431,428,403,97,522,107
         objects:
           - person
+    review:
+      alerts:
+        labels:
+          - person
+        required_zones:
+          - walkway
+      detections:
+        labels:
+          - person
+        required_zones:
+          - walkway
     snapshots:
       enabled: True
       timestamp: False
@@ -146,6 +154,14 @@ cameras:
         coordinates: 179,39,194,158,197,413,94,438,58,65
       front_parking_space:
         coordinates: 2604,899,2673,831,1842,531,1799,587
+    review:
+      alerts:
+        labels:
+          - person
+          - car
+        required_zones:
+          - front_door
+          - driveway
     record:
       enabled: True
       retain:
@@ -154,7 +170,6 @@ cameras:
       events:
         pre_capture: 5
         post_capture: 1
-        required_zones: ['front_door', 'driveway']
         retain:
           default: 14
           mode: active_objects
@@ -162,13 +177,18 @@ cameras:
       enabled: True
       timestamp: False
       bounding_box: True
-      required_zones: ['front_door', 'driveway']
+      required_zones:
+        - front_door
+        - driveway
       crop: False
     mqtt:
       enabled: True
       timestamp: False
       crop: True
-      required_zones: ['front_door', 'driveway', 'front_parking_space']
+      required_zones:
+        - front_door
+        - driveway
+        - front_parking_space
   front_yard:
     ffmpeg:
       inputs:
@@ -208,6 +228,18 @@ cameras:
         coordinates: 876,540,1016,720,1140,720,986,527,803,372,846,321,813,292,700,338,732,379
       footpath:
         coordinates: 323,69,1280,183,1280,221,963,227,767,229,359,245,0,240,0,91
+    review:
+      alerts:
+        labels:
+          - person
+        required_zones:
+          - walkway
+          - footpath
+      detections:
+        labels:
+          - car
+        required_zones:
+          - driveway
     record:
       enabled: True
       retain:
@@ -228,7 +260,11 @@ cameras:
       enabled: True
       timestamp: False
       crop: True
-      required_zones: ['walkway', 'driveway', 'front_grass', 'footpath']
+      required_zones:
+        - walkway
+        - driveway
+        - front_grass
+        - footpath
   garage:
     ffmpeg:
       inputs:
@@ -265,6 +301,15 @@ cameras:
         retain:
           default: 14
           mode: active_objects
+    review:
+      alerts:
+        labels:
+          - person
+          - dog
+      detections:
+        labels:
+          - person
+          - dog
     snapshots:
       enabled: True
       timestamp: False
@@ -402,7 +447,8 @@ cameras:
       enabled: True
       timestamp: False
       crop: True
-      required_zones: ['our_side']
+      required_zones:
+        - our_side
   laundry:
     ffmpeg:
       inputs:
