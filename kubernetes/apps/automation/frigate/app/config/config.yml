@@ -137,6 +137,7 @@ cameras:
       track:
         - person
         - car
+        - motorcycle
       filters:
         car:
           mask:
@@ -162,6 +163,14 @@ cameras:
         required_zones:
           - front_door
           - driveway
+      detections:
+        labels:
+          - person
+          - car
+        required_zones:
+          - front_door
+          - driveway
+
     record:
       enabled: True
       retain:
