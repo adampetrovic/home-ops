@@ -147,7 +147,7 @@ cameras:
             - 1280,0,1280,312,577,124,257,74,58,132,0,158,0,0
     motion:
       mask:
-        - 1280,0,1250,573,989,430,990,393,517,214,267,227,258,122,44,144,0,0
+        - 1,0,1,0.796,0.773,0.597,0.773,0.546,0.404,0.297,0.209,0.315,0.202,0.169,0.034,0.2,0,0
     zones:
       driveway:
         coordinates: 984,428,1280,576,1280,720,834,720,650,580
@@ -160,6 +160,7 @@ cameras:
         labels:
           - person
           - car
+          - motorcycle
         required_zones:
           - front_door
           - driveway
@@ -167,6 +168,7 @@ cameras:
         labels:
           - person
           - car
+          - motorcycle
         required_zones:
           - front_door
           - driveway
