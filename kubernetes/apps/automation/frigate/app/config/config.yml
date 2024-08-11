@@ -153,7 +153,9 @@ cameras:
       driveway:
         coordinates: 984,428,1280,576,1280,720,834,720,650,580
       front_door:
-        coordinates: 179,39,194,158,197,413,94,438,58,65
+        coordinates: 0.14,0.054,0.152,0.219,0.154,0.574,0.073,0.608,0.045,0.09
+        objects:
+          - person
       front_parking_space:
         coordinates: 2604,899,2673,831,1842,531,1799,587
     review:
