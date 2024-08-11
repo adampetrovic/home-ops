@@ -65,6 +65,13 @@ go2rtc:
     utilities_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
 
+camera_groups:
+  front:
+    icon: LuTreePine
+    cameras:
+      - front_balcony
+      - front_yard
+
 cameras:
   side_walkway:
     ffmpeg:
