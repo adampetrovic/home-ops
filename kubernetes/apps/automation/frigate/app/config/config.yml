@@ -5,6 +5,9 @@ mqtt:
   password: '{FRIGATE_MQTT_PASSWORD}'
   topic_prefix: frigate
 
+model:
+  path: plus://3f72b9cd811800911d732963e19e88a8
+
 database:
   path: /data/frigate.db
 
