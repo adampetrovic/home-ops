@@ -45,7 +45,7 @@ spec:
               [{
                 "name":"multus-trusted",
                 "namespace": "network",
-                "ips": ["10.0.10.100/21"]
+                "ips": ["10.0.10.100/23"]
               }]
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
