@@ -68,6 +68,26 @@ go2rtc:
     utilities_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
 
+objects:
+  filters:
+    dog:
+      min_score: .8
+      threshold: .9
+    cat:
+      min_score: .65
+      threshold: .8
+    face:
+      min_score: .7
+    package:
+      min_score: .65
+      threshold: .9
+    person:
+      min_score: .65
+      threshold: .85
+    car:
+      min_score: .65
+      threshold: .85
+
 camera_groups:
   front:
     icon: LuTreePine
