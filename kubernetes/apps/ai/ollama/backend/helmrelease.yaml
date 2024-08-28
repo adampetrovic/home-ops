@@ -39,6 +39,7 @@ spec:
               LIBVA_DRIVER_NAME: i965
               OLLAMA_HOST: 0.0.0.0
               OLLAMA_ORIGINS: "*"
+              OLLAMA_MODELS: /models
             resources:
               requests:
                 cpu: 200m
@@ -68,3 +69,17 @@ spec:
         ports:
           http:
             port: &port 11434
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: ollama
+        globalMounts:
+          - path: /root/.ollama
+
+      models:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/k8s/ollama/models
+        globalMounts:
+          - path: /models
