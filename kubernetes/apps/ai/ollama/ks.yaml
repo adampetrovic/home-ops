@@ -12,6 +12,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   wait: true
   dependsOn:
     - name: external-secrets-stores
