@@ -47,6 +47,33 @@
       "separateMinorPatch": true
     },
     {
+      "description": ["Paperless Group"],
+      "groupName": "Paperless",
+      "matchPackagePatterns": [
+        "paperless-ngx/paperless-ngx",
+        "thecodingmachine/gotenberg"
+      ],
+      "matchDatasources": ["docker"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    {
+      "description": ["Homeassistant Group"],
+      "groupName": "Homeassistant",
+      "matchPackagePatterns": [
+        "coder/code-server",
+        "onedr0p/home-assistant",
+        "esphome/esphome"
+      ],
+      "matchDatasources": ["docker"],
+      "group": {
+        "commitMessageTopic": "{{{groupName}}} group"
+      },
+      "separateMinorPatch": true
+    },
+    {
       "description": ["Talos Group"],
       "groupName": "Talos",
       "matchPackagePatterns": [
