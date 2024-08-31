@@ -37,16 +37,11 @@ spec:
         containers:
           app:
             image:
-              repository: tesla/vehicle-command
-              tag: latest
+              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              tag: 1.0.10@sha256:2c2e722cd213623dac4e115448cc77aba9a7bed71f5022316aec38ad1245b6d7
               pullPolicy: Always
             env:
-              TESLA_HTTP_PROXY_TLS_CERT: /config/tls/tls.crt
-              TESLA_HTTP_PROXY_TLS_KEY: /config/tls/tls.key
-              TESLA_HTTP_PROXY_HOST: 0.0.0.0
-              TESLA_HTTP_PROXY_PORT: 8099
-              TESLA_HTTP_PROXY_TIMEOUT: 10s
-              TESLA_VERBOSE: true
+              SERVER_MODE: 3
             envFrom:
               - secretRef:
                   name: tesla-proxy-secret
@@ -57,6 +52,20 @@ spec:
                 enabled: false
               startup:
                 enabled: false
+          setup:
+            enabled: false
+            image:
+              repository: ghcr.io/adampetrovic/tesla-http-proxy
+              tag: 1.0.10@sha256:2c2e722cd213623dac4e115448cc77aba9a7bed71f5022316aec38ad1245b6d7
+              pullPolicy: Always
+            env:
+              DOMAIN: tesla.${SECRET_PUBLIC_DOMAIN}
+              SERVER_MODE: 2
+              REGION: North America, Asia-Pacific
+            envFrom:
+              - secretRef:
+                  name: tesla-proxy-secret
+            probes: *probes
           keyserver:
             image:
               repository: ghcr.io/adampetrovic/tesla-http-proxy
@@ -75,12 +84,35 @@ spec:
         ports:
           http:
             port: 8099
+      setup:
+        enabled: false
+        controller: tesla-proxy
+        ports:
+          http:
+            port: 8097
       keyserver:
         controller: tesla-proxy
         ports:
           http:
             port: 8098
     ingress:
+      setup:
+        enabled: false
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
+        hosts:
+          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: setup
+                  port: http
+        tls:
+          - secretName: tesla-proxy-tls
+            hosts:
+              - *publicHost
       keyserver:
         enabled: true
         className: external
