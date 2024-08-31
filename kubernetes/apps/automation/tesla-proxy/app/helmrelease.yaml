@@ -46,6 +46,7 @@ spec:
               TESLA_HTTP_PROXY_HOST: 0.0.0.0
               TESLA_HTTP_PROXY_PORT: 8099
               TESLA_HTTP_PROXY_TIMEOUT: 10s
+              TESLA_KEY_FILE: /config/tesla/com.tesla.3p.private-key.pem
               TESLA_VERBOSE: true
             envFrom:
               - secretRef:
