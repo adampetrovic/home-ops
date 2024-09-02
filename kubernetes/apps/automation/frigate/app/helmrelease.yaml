@@ -73,7 +73,7 @@ spec:
                 memory: 4982Mi
               limits:
                 gpu.intel.com/i915: "1"
-                memory: 4982Mi
+                memory: 8Gi
         pod:
           affinity:
             podAntiAffinity:
