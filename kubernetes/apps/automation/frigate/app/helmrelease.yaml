@@ -70,10 +70,10 @@ spec:
             resources:
               requests:
                 cpu: 1581m
-                memory: 4982Mi
+                memory: 8Gi
               limits:
                 gpu.intel.com/i915: "1"
-                memory: 8Gi
+                memory: 16Gi
         pod:
           affinity:
             podAntiAffinity:
