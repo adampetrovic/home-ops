@@ -96,6 +96,7 @@ camera_groups:
   front:
     icon: LuTreePine
     cameras:
+      - birdseye
       - front_balcony
       - front_yard
 
