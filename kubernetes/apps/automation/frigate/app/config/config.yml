@@ -128,6 +128,10 @@ cameras:
         coordinates: 771,720,464,720,431,428,403,97,522,107
         objects:
           - person
+      neighbour_side:
+        coordinates: 0.453,0.109,0.759,1,1,1,0.732,0.459,0.766,0.25,0.608,0.056
+        objects:
+          - person
     review:
       alerts:
         labels:
@@ -138,7 +142,7 @@ cameras:
         labels:
           - person
         required_zones:
-          - walkway
+          - neighbour_side
     snapshots:
       enabled: True
       timestamp: False
@@ -189,8 +193,6 @@ cameras:
         coordinates: 0.14,0.054,0.152,0.219,0.154,0.574,0.073,0.608,0.045,0.09
         objects:
           - person
-      front_parking_space:
-        coordinates: 2604,899,2673,831,1842,531,1799,587
     review:
       alerts:
         labels:
@@ -200,16 +202,6 @@ cameras:
         required_zones:
           - front_door
           - driveway
-      detections:
-        labels:
-          - person
-          - car
-          - motorcycle
-        required_zones:
-          - front_door
-          - driveway
-          - front_parking_space
-
     record:
       enabled: True
       retain:
@@ -283,12 +275,13 @@ cameras:
           - person
         required_zones:
           - walkway
-          - footpath
+          - driveway
+          - front_grass
       detections:
         labels:
-          - car
+          - person
         required_zones:
-          - driveway
+          - footpath
     record:
       enabled: True
       retain:
@@ -351,10 +344,6 @@ cameras:
           default: 14
           mode: active_objects
     review:
-      alerts:
-        labels:
-          - person
-          - dog
       detections:
         labels:
           - person
@@ -405,6 +394,11 @@ cameras:
         retain:
           default: 14
           mode: active_objects
+    review:
+      detections:
+        labels:
+          - person
+          - dog
     snapshots:
       enabled: True
       timestamp: False
@@ -442,6 +436,11 @@ cameras:
         retain:
           default: 14
           mode: active_objects
+    review:
+      detections:
+        labels:
+          - person
+          - dog
     snapshots:
       enabled: True
       timestamp: False
@@ -492,6 +491,19 @@ cameras:
         retain:
           default: 14
           mode: active_objects
+    review:
+      alerts:
+        labels:
+          - person
+          - dog
+        required_zones:
+          - our_side
+      detections:
+        labels:
+          - person
+          - dog
+        required_zones:
+          - neighbour_side
     snapshots:
       enabled: True
       timestamp: False
