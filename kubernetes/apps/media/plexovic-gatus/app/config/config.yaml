@@ -109,7 +109,7 @@ endpoints:
 
   - name: QBT - Torrent Downloader
     group: downloaders
-    url: http://qbittorrent.media.svc.cluster.local
+    url: http://qbittorrent.media.svc.cluster.local/api/v2/app/version
     interval: 1m
     ui:
         hide-hostname: true
@@ -122,7 +122,7 @@ endpoints:
 
   - name: SabNZBd - Torrent Downloader
     group: downloaders
-    url: http://sabnzbd.media.svc.cluster.local
+    url: http://sabnzbd.media.svc.cluster.local/api?mode=version
     interval: 1m
     ui:
         hide-hostname: true
