@@ -237,11 +237,14 @@ cameras:
       alerts:
         labels:
           - person
-          - car
           - motorcycle
         required_zones:
           - front_door
           - driveway
+      detections:
+        labels:
+          - person
+
     record:
       enabled: True
       retain:
@@ -476,6 +479,8 @@ cameras:
           default: 14
           mode: active_objects
     review:
+      alerts:
+        labels: []
       detections:
         labels:
           - person
