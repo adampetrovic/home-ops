@@ -466,6 +466,8 @@ spec:
           gnetId: 11313
           revision: 9
           datasource: Prometheus
+        unifi-uxg:
+          url: https://raw.githubusercontent.com/adampetrovic/unifi-dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
         unifi-usw:
           # renovate: depName="UniFi-Poller: USW Insights - Prometheus"
           gnetId: 11312
