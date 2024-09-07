@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: &name node-exporter
+spec:
+  staticConfigs:
+    - targets:
+        - ${SECRET_NFS_DOMAIN}:9100
+  metricsPath: /metrics
+  relabelings:
+    - action: replace
+      targetLabel: job
+      replacement: *name
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: synology
+spec:
+  staticConfigs:
+    - targets:
+        - ${SECRET_NFS_IP}
+  params:
+    auth: [synology]
+    module: [if_mib, synology]
+  metricsPath: /snmp
+  relabelings:
+    - action: replace
+      sourceLabels: [__address__]
+      targetLabel: __param_target
+    - action: replace
+      sourceLabels: [__param_target]
+      targetLabel: instance
+    - action: replace
+      targetLabel: __address__
+      replacement: ${SECRET_NFS_DOMAIN}:9116
