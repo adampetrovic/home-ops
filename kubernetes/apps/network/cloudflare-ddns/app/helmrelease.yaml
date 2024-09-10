@@ -35,8 +35,8 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/onedr0p/kubernetes-kubectl
-              tag: 1.29.2@sha256:6324f99979877f3ded7647f4efa4df6d73f11bb9d8302dc81ab4a5d38e406867
+              repository: ghcr.io/onedr0p/kubanetics
+              tag: 2024.9.0@sha256:cada76abf7338f1c1262ae247ee71fc9d5c7e4302d60ec8ee6fe36609f1152d2
             envFrom:
               - secretRef:
                   name: cloudflare-ddns-secret
