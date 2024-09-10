@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/fernwood-booker
-              tag: 1.0.4@sha256:38c1d547f486f17d4fe4f29590c3c7a676fc25f88b7a9d4912ea71c47f3dfa6e
+              tag: 1.0.5@sha256:b2a3a0c8f6974a4da72f296a342eeccd0b888c25480f411cb0ce4aca0d88a2b8
             envFrom:
               - secretRef:
                   name: fernwood-booker-secret-nicole
