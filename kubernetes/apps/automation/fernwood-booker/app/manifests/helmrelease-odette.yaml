@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/fernwood-booker
-              tag: 1.0.5@sha256:b2a3a0c8f6974a4da72f296a342eeccd0b888c25480f411cb0ce4aca0d88a2b8
+              tag: 1.0.6@sha256:eb49e7f83da999045e191145d96fb88f793706874f4c524ff91dd160d52419cd
             envFrom:
               - secretRef:
                   name: fernwood-booker-secret-odette
