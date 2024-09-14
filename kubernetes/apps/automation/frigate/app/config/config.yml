@@ -438,6 +438,8 @@ cameras:
           default: 14
           mode: active_objects
     review:
+      alerts:
+        labels: []
       detections:
         labels:
           - person
