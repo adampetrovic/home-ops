@@ -78,7 +78,7 @@ spec:
       app:
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        className: internal
+        className: external
         hosts:
           - host: &host filebrowser.${SECRET_PUBLIC_DOMAIN}
             paths:
