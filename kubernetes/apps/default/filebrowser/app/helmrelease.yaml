@@ -37,6 +37,7 @@ spec:
               FB_DATABASE: /config/filebrowser.db
               FB_ROOT: /media
               FB_LOG: stdout
+              FB_AUTH_METHOD: json
             probes:
               liveness: &probes
                 enabled: true
