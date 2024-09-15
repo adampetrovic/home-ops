@@ -80,12 +80,15 @@ spec:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
         className: internal
         hosts:
-          - host: "filebrowser.${SECRET_PUBLIC_DOMAIN}"
+          - host: &host filebrowser.${SECRET_PUBLIC_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
+        tls:
+          - hosts:
+              - *host
     persistence:
       config:
         existingClaim: filebrowser
