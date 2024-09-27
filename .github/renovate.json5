@@ -62,6 +62,14 @@
       "ignoreTests": true,
       "matchUpdateTypes": ["minor", "patch"]
     },
+    {
+      "description": ["Auto-merge container digests / patch updates for trusted containers"],
+      "matchDatasources": ["docker"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["digest", "patch"],
+      "matchPackagePatterns": ["ghcr.io/onedr0p"]
+    },
     // groups
     {
       "description": ["Flux Group"],
