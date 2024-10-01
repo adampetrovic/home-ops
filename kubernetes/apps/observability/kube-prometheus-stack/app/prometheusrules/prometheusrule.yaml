@@ -26,17 +26,4 @@ spec:
           expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
           labels:
             severity: critical
-    - name: nas
-      rules:
-        - alert: NASStorageAbove80Percent
-          annotations:
-            summary: NAS Volume 2 has reached 80% usage ({{ $value }}%).
-          expr: (raidTotalSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'}-raidFreeSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'})/raidTotalSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'})*100) > 80
-          labels:
-            severity: warning
-        - alert: NASStorageAbove90Percent
-          annotations:
-            summary: NAS Volume 2 has reached 90% usage ({{ $value }}%).
-          expr: (raidTotalSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'}-raidFreeSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'})/raidTotalSize{job=~'scrapeConfig/observability/synology',instance=~'10.0.10.3',raidName=~'Volume 2'})*100) > 90
-          labels:
-            severity: warning
+
