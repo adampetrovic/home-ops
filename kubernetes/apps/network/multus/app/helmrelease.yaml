@@ -19,7 +19,6 @@ spec:
     image:
       repository: ghcr.io/k8snetworkplumbingwg/multus-cni
       tag: v4.1.0-thick
-
     cni:
       image:
         repository: ghcr.io/angelnu/cni-plugins

@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
+    - name: rook-ceph-cluster
+    - name: volsync
   path: ./kubernetes/apps/media/ersatztv/app
   prune: true
   sourceRef:

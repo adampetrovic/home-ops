@@ -40,7 +40,7 @@ tasks:
     cmds:
       - envsubst < <(cat {{.ROOK_TEMPLATES_DIR}}/WipeDiskJob.tmpl.yaml) | kubectl apply -f -
       - bash {{.ROOK_SCRIPTS_DIR}}/wait-for-job.sh {{.job}} default
-      - kubectl -n default wait job/{{.job}} --for condition=complete --timeout=1m
+      - kubectl -n default wait job/{{.job}} --for condition=complete --timeout=5m
       - kubectl -n default logs job/{{.job}}
       - kubectl -n default delete job {{.job}}
     env: *env
@@ -61,12 +61,12 @@ tasks:
     cmds:
       - envsubst < <(cat {{.ROOK_TEMPLATES_DIR}}/WipeDataJob.tmpl.yaml) | kubectl apply -f -
       - bash {{.ROOK_SCRIPTS_DIR}}/wait-for-job.sh {{.job}} default
-      - kubectl -n default wait job/{{.job}} --for condition=complete --timeout=1m
+      - kubectl -n default wait job/{{.job}} --for condition=complete --timeout=5m
       - kubectl -n default logs job/{{.job}}
       - kubectl -n default delete job {{.job}}
     env: *env
     requires:
-      vars: ["cluster", "node"]
+      vars: ["node"]
     vars:
       job: wipe-data-{{.node}}
     preconditions:
