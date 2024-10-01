@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-talosVersion: v1.8.0
+talosVersion: v1.7.6
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.31.1
+kubernetesVersion: v1.30.1
 
 clusterName: &cluster home-kubernetes
 endpoint: https://10.0.80.99:6443
@@ -21,7 +21,8 @@ cniConfig:
 nodes:
   - hostname: k8s-node-1
     ipAddress: 10.0.80.10
-    installDisk: /dev/sda
+    installDiskSelector:
+      type: ssd
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
@@ -37,7 +38,8 @@ nodes:
               routeMetric: 4096
   - hostname: k8s-node-2
     ipAddress: 10.0.80.11
-    installDisk: /dev/sda
+    installDiskSelector:
+      type: ssd
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
@@ -53,7 +55,8 @@ nodes:
               routeMetric: 4096
   - hostname: k8s-node-3
     ipAddress: 10.0.80.12
-    installDisk: /dev/sda
+    installDiskSelector:
+      type: ssd
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:
@@ -69,7 +72,8 @@ nodes:
               routeMetric: 4096
   - hostname: k8s-node-4
     ipAddress: 10.0.80.13
-    installDisk: /dev/sda
+    installDiskSelector:
+      type: ssd
     talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
     controlPlane: true
     networkInterfaces:

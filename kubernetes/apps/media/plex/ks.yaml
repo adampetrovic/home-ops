@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: external-secrets-stores
+    - name: rook-ceph-cluster
+    - name: volsync
   path: ./kubernetes/apps/media/plex/app
   prune: true
   sourceRef:
@@ -39,6 +41,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: external-secrets-stores
+    - name: plex
+    - name: rook-ceph-cluster
   interval: 10m
   path: ./kubernetes/apps/media/plex/plex-image-cleanup
   prune: true
@@ -46,9 +52,6 @@ spec:
     kind: GitRepository
     name: home-kubernetes
   wait: false
-  dependsOn:
-    - name: external-secrets-stores
-    - name: plex
   postBuild:
     substitute:
       APP: *app

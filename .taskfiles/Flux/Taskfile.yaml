@@ -14,15 +14,15 @@ tasks:
   bootstrap:
     desc: Bootstrap Flux into a Kubernetes cluster
     cmds:
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
+      - kubectl apply --server-side --filename https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/{{.PROMETHEUS_OPERATOR_VERSION}}/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/bootstrap/flux
       - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.CLUSTER_SECRET_SOPS_FILE}} | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.CLUSTER_SETTINGS_FILE}}
-      - kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
+      - sops --decrypt {{.CLUSTER_SECRET_SOPS_FILE}} | kubectl apply --server-side --filename -
+      - kubectl apply --server-side --filename {{.CLUSTER_SETTINGS_FILE}}
+      - kubectl apply --server-side --kustomize {{.KUBERNETES_DIR}}/flux/config
     preconditions:
       - { msg: "Missing kubeconfig", sh: "test -f {{.KUBECONFIG_FILE}}" }
       - { msg: "Missing Sops Age key file", sh: "test -f {{.AGE_FILE}}" }

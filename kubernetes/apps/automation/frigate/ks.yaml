@@ -21,6 +21,8 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: node-feature-discovery
+    - name: rook-ceph-cluster
+    - name: volsync
   postBuild:
     substitute:
       APP: *app
