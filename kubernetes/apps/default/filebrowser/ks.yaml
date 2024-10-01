@@ -10,6 +10,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: rook-ceph-cluster
   path: ./kubernetes/apps/default/filebrowser/app
   prune: true
   sourceRef:

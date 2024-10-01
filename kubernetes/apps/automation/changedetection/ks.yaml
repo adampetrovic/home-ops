@@ -17,6 +17,7 @@ spec:
     name: home-kubernetes
   dependsOn:
     - name: external-secrets-stores
+    - name: rook-ceph-cluster
     - name: volsync
   wait: false # no flux ks dependents
   interval: 30m

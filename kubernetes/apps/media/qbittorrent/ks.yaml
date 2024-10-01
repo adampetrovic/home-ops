@@ -10,6 +10,10 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: external-secrets-stores
+    - name: rook-ceph-cluster
+    - name: volsync
   path: ./kubernetes/apps/media/qbittorrent/app
   prune: true
   sourceRef:
@@ -39,6 +43,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: qbittorrent
   path: ./kubernetes/apps/media/qbittorrent/tools
   prune: true
   sourceRef:

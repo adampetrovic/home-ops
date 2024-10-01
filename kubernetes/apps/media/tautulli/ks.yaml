@@ -7,6 +7,10 @@ metadata:
 spec:
   targetNamespace: media
   path: ./kubernetes/apps/media/tautulli/app
+  dependsOn:
+    - name: external-secrets-stores
+    - name: rook-ceph-cluster
+    - name: volsync
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
