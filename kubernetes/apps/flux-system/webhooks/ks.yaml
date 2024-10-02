@@ -9,6 +9,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cloudflared
   path: ./kubernetes/apps/flux-system/webhooks/app
   prune: true
   sourceRef:

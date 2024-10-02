@@ -14,6 +14,7 @@ spec:
     - name: external-secrets-stores
     - name: rook-ceph-cluster
     - name: volsync
+    - name: multus-config
   path: ./kubernetes/apps/automation/home-assistant/app
   prune: true
   sourceRef:
