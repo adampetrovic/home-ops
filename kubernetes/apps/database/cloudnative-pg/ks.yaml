@@ -14,6 +14,7 @@ spec:
   prune: true
   dependsOn:
     - name: external-secrets-stores
+    - name: openebs
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
