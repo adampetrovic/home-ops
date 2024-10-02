@@ -20,7 +20,7 @@ alerting:
     id: ${TELEGRAM_CHAT_ID}
 endpoints:
   - name: Plex Requests
-    url: https://requests.plexovic.com
+    url: https://requests.${SECRET_PLEX_DOMAIN}
     interval: 1m
     ui:
         hide-hostname: true
@@ -34,7 +34,7 @@ endpoints:
   # plex
   - name: Plex - Healthcheck
     group: plex
-    url: https://plex.petrovic.network/connections?X-Plex-Token=${PLEX_TOKEN}
+    url: http://plex.media.svc.cluster.local:32400/connections?X-Plex-Token=${PLEX_TOKEN}
     interval: 1m
     ui:
         hide-hostname: true
