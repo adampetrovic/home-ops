@@ -76,11 +76,6 @@ spec:
             port: 1883
 
     persistence:
-      config:
-        enabled: true
-        existingClaim: mosquitto
-        globalMounts:
-          - path: /data
       config-file:
         enabled: true
         type: configMap
