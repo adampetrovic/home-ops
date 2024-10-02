@@ -41,7 +41,7 @@ spec:
         compression: bzip2
         maxParallel: 8
       destinationPath: s3://cloudnative-pg/
-      endpointURL: https://s3.petrovic.network
+      endpointURL: https://s3.${SECRET_DOMAIN}
       # serverName needs to be incremented
       # when recovering from a previous cluster
       serverName: &currentCluster postgres-v16
