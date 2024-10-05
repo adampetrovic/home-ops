@@ -63,9 +63,9 @@ spec:
             resources:
               requests:
                 cpu: 95m
-                memory: 2Gi
+                memory: 1Gi
               limits:
-                memory: 16Gi
+                memory: Gi
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
@@ -94,7 +94,7 @@ spec:
                 cpu: 152m
                 memory: 1Gi
               limits:
-                memory: 6Gi
+                memory: 3Gi
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
