@@ -48,3 +48,5 @@ spec:
       fsGroup: 568
     retain:
       daily: 7
+      weekly: 1
+      monthly: 1

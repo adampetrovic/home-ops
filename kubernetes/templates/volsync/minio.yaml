@@ -50,6 +50,7 @@ spec:
       hourly: 24
       daily: 7
       weekly: 5
+      monthly: 6
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationdestination_v1alpha1.json
 apiVersion: volsync.backube/v1alpha1
