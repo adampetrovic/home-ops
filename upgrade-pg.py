@@ -42,23 +42,23 @@ from time import sleep
 
 def kubectl_get(kind, name):
     '''Return Kubernetes manifest for cluster'''
-    r = run(['kubectl', 'get', kind, name, '-o', 'json'], check=True, capture_output=True)
+    r = run(['kubectl', 'get', kind, name, '-o', 'json', '-n', 'database'], check=True, capture_output=True)
     return json.loads(r.stdout)
 
 def kubectl_create(manifest):
     '''Create Kubernetes resource from manifest'''
-    run(['kubectl', 'create', '-f', '-'], check=True, input=manifest, text=True, capture_output=True)
+    run(['kubectl', 'create', '-f', '-', '-n', 'database'], check=True, input=manifest, text=True, capture_output=True)
 
 def kubectl_delete(kind, name):
     '''Delete Kubernets resource'''
-    run(['kubectl', 'delete', kind, name], check=True)
+    run(['kubectl', 'delete', kind, name, '-n', 'database'], check=True)
 
 def kubectl_wait_cluster_ready(name, reverse=False):
     '''Wait until the cloudnative-pg cluster is ready'''
     ready_instances = 0
     while (not reverse and ready_instances == 0) or (reverse and ready_instances > 0):
         sleep(5)
-        r = run(['kubectl', 'get', 'cluster', name, '-o', 'go-template={{ .status.readyInstances }}'], check=True, capture_output=True)
+        r = run(['kubectl', 'get', 'cluster', name, '-o', 'go-template={{ .status.readyInstances }}', '-n', 'database'], check=True, capture_output=True)
         s = r.stdout.decode().strip()
         if s and s != '<no value>': ready_instances = int(s)
 
