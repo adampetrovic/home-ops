@@ -15,10 +15,10 @@ classes:
       start_time: '17:30'
     - name: Reformer Pilates
       day: Wednesday
-      start_time: '16:45'
+      start_time: '07:30'
     - name: Reformer Pilates
       day: Thursday
-      start_time: '18:30'
+      start_time: '07:15'
     - name: Reformer Pilates
       day: Friday
       start_time: '09:15'
