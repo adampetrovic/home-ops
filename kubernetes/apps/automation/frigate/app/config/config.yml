@@ -74,11 +74,11 @@ go2rtc:
 objects:
   filters:
     dog:
-      min_score: .8
-      threshold: .9
+      min_score: .65
+      threshold: .90
     cat:
       min_score: .65
-      threshold: .8
+      threshold: .90
     face:
       min_score: .7
     package:
@@ -86,10 +86,10 @@ objects:
       threshold: .9
     person:
       min_score: .65
-      threshold: .85
+      threshold: .90
     car:
       min_score: .65
-      threshold: .85
+      threshold: .90
 
 camera_groups:
   front:
