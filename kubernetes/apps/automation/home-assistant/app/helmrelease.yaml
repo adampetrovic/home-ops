@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: ghcr.io/onedr0p/home-assistant
-              tag: 2024.9.3@sha256:2f3371405f9b20008520ebb0b30dc676924acfe04d7aaece282a1ee89c0d91ce
+              tag: 2024.10.2@sha256:697edc9de392e2f3506584899df7754cf26e59b4e86861932e0219b6e8aab03e
             env:
               TZ: ${TIMEZONE}
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
