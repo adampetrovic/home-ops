@@ -48,7 +48,7 @@ spec:
             image:
               repository: ghcr.io/lldap/lldap
               tag:
-                latest-alpine@sha256:ffcd02d33cc2911789f64b1e5c30b963fb9219e1f4b291b113b043a9218c755a
+                latest-alpine@sha256:2c5fb9065449b83999dc1924d92385e82bfab6eb01db5a760777d5a233f910dd
             envFrom: *envFrom
             env:
               TZ: Australia/Sydney
