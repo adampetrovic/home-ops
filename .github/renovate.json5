@@ -68,6 +68,7 @@
       "automerge": true,
       "automergeType": "branch",
       "matchUpdateTypes": ["digest", "patch"],
+      "ignoreTests": true,
       "matchPackagePatterns": ["ghcr.io/onedr0p"]
     },
     // groups
