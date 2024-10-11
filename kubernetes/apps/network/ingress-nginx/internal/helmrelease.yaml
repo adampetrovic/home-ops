@@ -50,6 +50,8 @@ spec:
         hsts-max-age: 31449600
         keep-alive-requests: 10000
         keep-alive: 120
+        hide-headers: Server,X-Powered-By
+        force-ssl-redirect: "true"
         log-format-escape-json: "true"
         log-format-upstream: >
           {"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x_forwarded_for": "$proxy_add_x_forwarded_for",
@@ -60,6 +62,7 @@ spec:
         proxy-body-size: 0
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
+        use-forwarded-headers: "true"
       metrics:
         enabled: true
         serviceMonitor:
