@@ -22,9 +22,11 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  dependsOn:
-    - name: cloudflared
-      namespace: network
+  valuesFrom:
+    - targetPath: controller.maxmindLicenseKey
+      kind: Secret
+      name: nginx-external-maxmind-secret
+      valuesKey: MAXMIND_LICENSE_KEY
   values:
     fullnameOverride: ingress-nginx-external
     controller:
@@ -62,6 +64,7 @@ spec:
         proxy-body-size: 0
         proxy-buffer-size: 16k
         ssl-protocols: TLSv1.3 TLSv1.2
+        use-geoip2: true
       metrics:
         enabled: true
         serviceMonitor:
