@@ -120,12 +120,34 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /config/log
-      media:
+      movies:
         type: nfs
-        server: expanse.internal
-        path: /eros/Media
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/movies
         globalMounts:
-          - path: /media
+          - path: /movies
+            readOnly: false
+      movies-4k:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/movies-4k
+        globalMounts:
+          - path: /movies-4k
+            readOnly: false
+      tv:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv
+        globalMounts:
+          - path: /tv
+            readOnly: false
+      tv-4k:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv-4k
+        globalMounts:
+          - path: /tv-4k
+            readOnly: false
       scripts:
         type: configMap
         name: bazarr-scripts
