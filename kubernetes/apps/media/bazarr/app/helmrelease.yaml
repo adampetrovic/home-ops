@@ -98,7 +98,7 @@ spec:
       app:
         className: internal
         hosts:
-          - host: bazarr.${SECRET_DOMAIN}
+          - host: &host bazarr.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
