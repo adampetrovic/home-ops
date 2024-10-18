@@ -53,7 +53,7 @@ spec:
                 memory: 750Mi
               limits:
                 gpu.intel.com/i915: 1
-                memory: 2Gi
+                memory: 8Gi
             lifecycle:
               postStart:
                 exec:
