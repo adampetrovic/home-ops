@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: ghcr.io/jorenn92/maintainerr
-              tag: main
+              tag: main@sha256:a2b82115476e21066764788fd6734555c9261a4f299dfb2ec59f2da3b8d32392
             env:
               DEBUG: true
             resources:
