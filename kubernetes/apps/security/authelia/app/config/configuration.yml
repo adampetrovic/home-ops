@@ -10,6 +10,11 @@ session:
           port: 26379
         - host: redis-node-2.redis-headless.database.svc.cluster.local
           port: 26379
+  cookies:
+    - name: "${SECRET_PUBLIC_DOMAIN}_session"
+      domain: "${SECRET_PUBLIC_DOMAIN}"
+      authelia_url: "https://auth.${SECRET_PUBLIC_DOMAIN}"
+      default_redirection_url: "https://${SECRET_PUBLIC_DOMAIN}"
 
 access_control:
   default_policy: deny
