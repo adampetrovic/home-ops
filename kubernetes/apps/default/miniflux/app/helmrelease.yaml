@@ -59,7 +59,7 @@ spec:
               - secretRef:
                   name: miniflux-secret
             env:
-              BASE_URL: https://miniflux.${SECRET_DOMAIN}
+              BASE_URL: https://miniflux.${SECRET_PUBLIC_DOMAIN}
               CREATE_ADMIN: '1'
               DEBUG: 1
               LOG_DATE_TIME: '1'
@@ -69,7 +69,7 @@ spec:
               OAUTH2_USER_CREATION: '1'
               OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.${SECRET_PUBLIC_DOMAIN}
               OAUTH2_PROVIDER: oidc
-              OAUTH2_REDIRECT_URL: https://miniflux.${SECRET_DOMAIN}/oauth2/oidc/callback
+              OAUTH2_REDIRECT_URL: https://miniflux.${SECRET_PUBLIC_DOMAIN}/oauth2/oidc/callback
               POLLING_SCHEDULER: round_robin
               POLLING_FREQUENCY: 60
               RUN_MIGRATIONS: 1
@@ -102,22 +102,6 @@ spec:
             port: *port
     ingress:
       app:
-        enabled: true
-        className: internal
-        annotations:
-          nginx.ingress.kubernetes.io/proxy-connect-timeout: '300'
-        hosts:
-          - host: &host miniflux.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
-      secondary:
         enabled: true
         className: external
         annotations:

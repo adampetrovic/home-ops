@@ -47,6 +47,10 @@ access_control:
       policy: one_factor
       subject:
         - 'group:admin'
+    - domain: ["*.${SECRET_PUBLIC_DOMAIN}"]
+      policy: two_factor
+      subject:
+        - 'group:admin'
 
 identity_providers:
   oidc:
@@ -71,16 +75,7 @@ identity_providers:
         pre_configured_consent_duration: 1y
         scopes: ["openid", "profile", "groups", "email"]
         redirect_uris:
-          - "https://miniflux.${SECRET_DOMAIN}/oauth2/oidc/callback"
-        userinfo_signed_response_alg: none
-      - id: weave-gitops
-        description: Weave GitOps
-        secret: "${WEAVE_OAUTH_CLIENT_SECRET_HASH}"
-        public: false
-        authorization_policy: two_factor
-        pre_configured_consent_duration: 1y
-        scopes: ["openid", "profile", "groups", "email", "offline_access"]
-        redirect_uris: ["https://gitops.${SECRET_DOMAIN}/oauth2/callback"]
+          - "https://miniflux.${SECRET_PUBLIC_DOMAIN}/oauth2/oidc/callback"
         userinfo_signed_response_alg: none
       - id: memos
         description: Memos
