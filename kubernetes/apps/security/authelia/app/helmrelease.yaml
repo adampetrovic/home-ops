@@ -85,15 +85,13 @@ spec:
               AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <authelia@${SECRET_DOMAIN}>
               AUTHELIA_SERVER_DISABLE_HEALTHCHECK: 'true'
               AUTHELIA_SERVER_PORT: &port 80
-              AUTHELIA_SESSION_DOMAIN: ${SECRET_DOMAIN}
-              AUTHELIA_SESSION_NAME: authelia-home-ops
               AUTHELIA_SESSION_REDIS_DATABASE_INDEX: 14
               AUTHELIA_SESSION_REDIS_HOST: redis.database.svc.cluster.local
               AUTHELIA_TELEMETRY_METRICS_ADDRESS: tcp://0.0.0.0:8080
               AUTHELIA_TELEMETRY_METRICS_ENABLED: 'true'
               AUTHELIA_THEME: dark
               AUTHELIA_TOTP_ISSUER: authelia.com
-              AUTHELIA_WEBAUTHN_DISABLE: 'true'
+              AUTHELIA_WEBAUTHN_DISABLE: 'false'
               SECRET_DOMAIN: ${SECRET_DOMAIN}
               SECRET_PUBLIC_DOMAIN: ${SECRET_PUBLIC_DOMAIN}
             resources:
