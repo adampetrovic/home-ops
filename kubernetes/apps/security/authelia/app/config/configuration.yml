@@ -10,6 +10,7 @@ session:
           port: 26379
         - host: redis-node-2.redis-headless.database.svc.cluster.local
           port: 26379
+  same_site: lax
   cookies:
     - name: "${SECRET_PUBLIC_DOMAIN}_session"
       domain: "${SECRET_PUBLIC_DOMAIN}"
