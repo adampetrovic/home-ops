@@ -77,7 +77,7 @@ spec:
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USERS_FILTER: (&({username_attribute}={input})(objectClass=person))
               AUTHELIA_AUTHENTICATION_BACKEND_PASSWORD_RESET_DISABLE: 'true'
               AUTHELIA_AUTHENTICATION_BACKEND_REFRESH_INTERVAL: 1m
-              AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.${SECRET_DOMAIN}
+              AUTHELIA_DEFAULT_REDIRECTION_URL: https://auth.${SECRET_PUBLIC_DOMAIN}
               AUTHELIA_DUO_API_DISABLE: 'true'
               AUTHELIA_LOG_LEVEL: debug
               AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: 'true'
@@ -129,15 +129,16 @@ spec:
     ingress:
       app:
         enabled: true
-        className: internal
+        className: external
         annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
           nginx.ingress.kubernetes.io/configuration-snippet: |
             add_header Cache-Control "no-store";
             add_header Pragma "no-cache";
             add_header X-Frame-Options "SAMEORIGIN";
             add_header X-XSS-Protection "1; mode=block";
         hosts:
-          - host: &host auth.${SECRET_DOMAIN}
+          - host: &host auth.${SECRET_PUBLIC_DOMAIN}
             paths:
               - path: /
                 pathType: Prefix
