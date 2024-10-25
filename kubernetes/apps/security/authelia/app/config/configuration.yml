@@ -12,6 +12,10 @@ session:
           port: 26379
   same_site: lax
   cookies:
+    - name: "${SECRET_DOMAIN}_session"
+      domain: "${SECRET_DOMAIN}"
+      authelia_url: "https://auth.${SECRET_DOMAIN}"
+      default_redirection_url: "https://${SECRET_DOMAIN}"
     - name: "${SECRET_PUBLIC_DOMAIN}_session"
       domain: "${SECRET_PUBLIC_DOMAIN}"
       authelia_url: "https://auth.${SECRET_PUBLIC_DOMAIN}"
