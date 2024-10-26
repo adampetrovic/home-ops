@@ -5,6 +5,7 @@ resources:
   - ./namespace.yaml
 
   - ./filebrowser/ks.yaml
+  - ./mealie/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
