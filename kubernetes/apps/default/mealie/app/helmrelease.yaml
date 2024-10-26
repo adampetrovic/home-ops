@@ -98,11 +98,5 @@ spec:
         existingClaim: mealie
         globalMounts:
           - path: /app/data
-      backups:
-        type: nfs
-        server: "${NFS_SERVER_ADDR}"
-        path: "${NFS_SERVER_BACKUP_DIR}/mealie"
-        globalMounts:
-          - path: /app/data/backups
       tmp:
         type: emptyDir
