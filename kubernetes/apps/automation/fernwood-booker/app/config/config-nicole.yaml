@@ -6,6 +6,9 @@ app:
 classes:
     - name: Reformer Pilates
       day: Monday
+      start_time: '06:45'
+    - name: Reformer Pilates
+      day: Monday
       start_time: '07:30'
     - name: Reformer Pilates
       day: Tuesday
