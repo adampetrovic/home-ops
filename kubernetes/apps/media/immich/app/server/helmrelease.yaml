@@ -78,9 +78,11 @@ spec:
     ingress:
       app:
         enabled: true
-        className: internal
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
         hosts:
-          - host: &host photos.${SECRET_DOMAIN}
+          - host: &host photos.${SECRET_PUBLIC_DOMAIN}
             paths:
               - path: /
                 service:
