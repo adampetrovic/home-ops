@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app gdb
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-token-secret
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+    controllers:
+      gdb:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        initContainers:
+          01-init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: '16.3'
+              pullPolicy: IfNotPresent
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/gdb
+              tag: 1.0.1@sha256:002e0673570234e010027bef0e1a0870d56946c2752218b90248a0aafa497bc1
+              pullPolicy: Always
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            resources:
+              requests:
+                cpu: 223m
+                memory: 100Mi
+              limits:
+                memory: 256Mi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthcheck
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+    service:
+      app:
+        controller: gdb
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host gdb.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
