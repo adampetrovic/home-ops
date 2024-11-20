@@ -36,7 +36,7 @@ spec:
             enabled: false  # don't block homeassistant from starting if postgres is down
             image:
               repository: ghcr.io/onedr0p/postgres-init
-              tag: 16.3
+              tag: 16.5
             envFrom:
               - secretRef:
                   name: home-assistant-secret
