@@ -73,7 +73,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /healthcheck
+                    path: /api/v1/healthcheck
                     port: &port 8080
                   initialDelaySeconds: 0
                   periodSeconds: 10
