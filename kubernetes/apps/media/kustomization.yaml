@@ -9,7 +9,6 @@ resources:
   - ./bazarr/ks.yaml
   - ./ersatztv/ks.yaml
   - ./immich/ks.yaml
-  - ./maintainerr/ks.yaml
   - ./overseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
