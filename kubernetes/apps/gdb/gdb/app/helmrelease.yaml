@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb
-              tag: 1.0.5@sha256:4d0bc7557eb64fa19a49d2c689cb1e603858da4489fe1af3fca2eb8527d2b28b
+              tag: 1.0.6@sha256:a4d40cf569ce01dc3acee8589bef7deb069eaeee1cf42cbfbd2ac6e7efdadfb7
               pullPolicy: Always
             envFrom:
               - secretRef:
