@@ -4,5 +4,5 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./ghcr-token-secret.yaml
-
   - ./gdb/ks.yaml
+  
