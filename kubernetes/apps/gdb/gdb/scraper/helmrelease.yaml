@@ -46,7 +46,7 @@ spec:
               - secretRef:
                   name: gdb-secret
             args: [
-              "latest",
+              "scrapy", "latest",
               "-a", "output_dir=/export",
               "-L", "INFO",
             ]
