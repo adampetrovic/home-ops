@@ -34,8 +34,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: gdb
     - name: external-secrets-stores
-    - name: openebs
   path: ./kubernetes/apps/gdb/gdb/scraper
   prune: true
   sourceRef:
