@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gdb-scraper
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-token-secret
+    controllers:
+      tagging:
+        type: cronjob
+        cronjob:
+          schedule: "@weekly"
+          timeZone: ${TIMEZONE}
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: &image
+              repository: ghcr.io/adampetrovic/gdb-scraper
+              tag: 1.0.0@sha256:fb62b1c11d00f7d8b5989ce99e701d3bfb2a5bcb3815c834c06a27feba00ecd5
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            args: [
+              "latest",
+              "-a", "output_dir=/export",
+              "-L", "INFO",
+            ]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: openebs-hostpath
+        accessMode: ReadWriteOnce
+        size: 20Gi
+        globalMounts:
+          - path: /export
