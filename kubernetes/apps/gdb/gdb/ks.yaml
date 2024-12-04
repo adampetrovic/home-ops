@@ -29,7 +29,7 @@ metadata:
   name: &app gdb-scraper
   namespace: flux-system
 spec:
-  targetNamespace: media
+  targetNamespace: gdb
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
