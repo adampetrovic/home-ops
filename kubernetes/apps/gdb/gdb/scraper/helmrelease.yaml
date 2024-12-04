@@ -64,10 +64,5 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
     persistence:
-      config:
-        type: persistentVolumeClaim
-        storageClass: openebs-hostpath
-        accessMode: ReadWriteOnce
-        size: 20Gi
-        globalMounts:
-          - path: /export
+      export:
+        type: emptyDir
