@@ -48,7 +48,6 @@ spec:
             args: [
               "scrapy", "crawl", "latest",
               "-a", "output_dir=/export",
-              "-a", "limit_meets=20",
               "-L", "INFO",
             ]
             resources:
