@@ -5,3 +5,4 @@ kind: Kustomization
 namespace: gdb
 resources:
   - ./helmrelease.yaml
+  - ./pvc.yaml
