@@ -9,7 +9,7 @@ mqtt:
 #  path: plus://ad32805c2f9fb2fb2363ba3e839da251
 
 database:
-  path: /data/frigate.db
+  path: /config/frigate.db
 
 detectors:
   coral:
