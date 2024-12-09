@@ -16,6 +16,12 @@ detectors:
     type: edgetpu
     device: usb
 
+auth:
+  enabled: False
+  trusted_proxies:
+    - 10.69.0.0/16
+    - 10.0.80.0/28
+
 ffmpeg:
  hwaccel_args: preset-vaapi
 
