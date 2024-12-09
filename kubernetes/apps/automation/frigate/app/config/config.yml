@@ -123,11 +123,13 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        retain:
+          days: 14
+          mode: active_objects
     detect:
       width: 640
       height: 480
@@ -162,11 +164,13 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        retain:
+          days: 14
+          mode: active_objects
     detect:
       width: 1280
       height: 720
@@ -261,13 +265,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
         pre_capture: 5
-        post_capture: 1
-        days: 14
-        mode: active_objects
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -342,13 +348,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
         pre_capture: 5
-        post_capture: 1
-        days: 14
-        mode: active_objects
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -396,11 +404,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        pre_capture: 5
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     review:
       alerts:
         labels: []
@@ -451,11 +463,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        pre_capture: 5
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     review:
       alerts:
         labels: []
@@ -497,11 +513,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        pre_capture: 5
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     review:
       alerts:
         labels: []
@@ -556,11 +576,15 @@ cameras:
         days: 7
         mode: active_objects
       detections:
-        days: 10
-        mode: active_objects
+        retain:
+          days: 10
+          mode: active_objects
       alerts:
-        days: 14
-        mode: active_objects
+        pre_capture: 5
+        post_capture: 5
+        retain:
+          days: 14
+          mode: active_objects
     review:
       alerts:
         labels:
