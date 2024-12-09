@@ -119,7 +119,7 @@ spec:
         enabled: true
         existingClaim: frigate
         globalMounts:
-          - path: /data
+          - path: /config
       config-file:
         type: configMap
         name: frigate-configmap
