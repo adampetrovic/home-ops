@@ -121,10 +121,13 @@ cameras:
       enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 10
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     detect:
       width: 640
       height: 480
@@ -157,10 +160,13 @@ cameras:
       enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 10
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     detect:
       width: 1280
       height: 720
@@ -249,18 +255,19 @@ cameras:
       detections:
         labels:
           - person
-
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
         pre_capture: 5
         post_capture: 1
-        retain:
-          default: 14
-          mode: active_objects
+        days: 14
+        mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -330,16 +337,18 @@ cameras:
         required_zones:
           - footpath
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
         pre_capture: 5
         post_capture: 1
-        retain:
-          default: 14
-          mode: active_objects
+        days: 14
+        mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -382,14 +391,16 @@ cameras:
       parking_space:
         coordinates: 740,150,1024,223,805,515,373,323
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 14
-          mode: active_objects
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     review:
       alerts:
         labels: []
@@ -435,14 +446,16 @@ cameras:
           mask:
             - 0.043,0.541,0.169,0.311,0.283,0.283,0.389,0.526,0.403,1,0.08,1
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 14
-          mode: active_objects
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     review:
       alerts:
         labels: []
@@ -479,14 +492,16 @@ cameras:
         - person
         - dog
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 14
-          mode: active_objects
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     review:
       alerts:
         labels: []
@@ -536,14 +551,16 @@ cameras:
       neighbour_side:
         coordinates: 263,720,777,112,624,77,0,720
     record:
-      enabled: True
+      enabled: true
       retain:
         days: 7
-        mode: motion
-      events:
-        retain:
-          default: 14
-          mode: active_objects
+        mode: active_objects
+      detections:
+        days: 10
+        mode: active_objects
+      alerts:
+        days: 14
+        mode: active_objects
     review:
       alerts:
         labels:
