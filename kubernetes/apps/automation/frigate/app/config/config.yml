@@ -105,6 +105,22 @@ camera_groups:
       - front_balcony
       - front_yard
 
+record:
+  enabled: true
+  retain:
+    days: 7
+    mode: active_objects
+  detections:
+    retain:
+      days: 10
+      mode: active_objects
+  alerts:
+    pre_capture: 5
+    post_capture: 5
+    retain:
+      days: 14
+      mode: active_objects
+
 cameras:
   doorbell:
     ffmpeg:
@@ -117,19 +133,6 @@ cameras:
           input_args: preset-rtsp-restream
           roles:
             - detect
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        retain:
-          days: 14
-          mode: active_objects
     detect:
       width: 640
       height: 480
@@ -158,19 +161,6 @@ cameras:
           input_args: preset-rtsp-restream
           roles:
             - detect
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        retain:
-          days: 14
-          mode: active_objects
     detect:
       width: 1280
       height: 720
@@ -259,21 +249,6 @@ cameras:
       detections:
         labels:
           - person
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -342,21 +317,6 @@ cameras:
           - person
         required_zones:
           - footpath
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     snapshots:
       enabled: True
       timestamp: False
@@ -398,21 +358,6 @@ cameras:
     zones:
       parking_space:
         coordinates: 740,150,1024,223,805,515,373,323
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     review:
       alerts:
         labels: []
@@ -457,21 +402,6 @@ cameras:
           max_area: 75000
           mask:
             - 0.043,0.541,0.169,0.311,0.283,0.283,0.389,0.526,0.403,1,0.08,1
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     review:
       alerts:
         labels: []
@@ -507,21 +437,6 @@ cameras:
       track:
         - person
         - dog
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     review:
       alerts:
         labels: []
@@ -570,21 +485,6 @@ cameras:
         coordinates: 763,720,270,720,827,89,924,116
       neighbour_side:
         coordinates: 263,720,777,112,624,77,0,720
-    record:
-      enabled: true
-      retain:
-        days: 7
-        mode: active_objects
-      detections:
-        retain:
-          days: 10
-          mode: active_objects
-      alerts:
-        pre_capture: 5
-        post_capture: 5
-        retain:
-          days: 14
-          mode: active_objects
     review:
       alerts:
         labels:
