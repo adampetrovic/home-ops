@@ -23,7 +23,8 @@ auth:
     - 10.0.80.0/28
 
 ffmpeg:
- hwaccel_args: preset-vaapi
+ #hwaccel_args: preset-vaapi
+ hwaccel_args: preset-intel-qsv-h264
 
 live:
   height: 720
