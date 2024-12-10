@@ -95,6 +95,7 @@ spec:
     ingress:
       app:
         enabled: true
+        className: internal
         hosts:
           - host: &host esphome.${SECRET_DOMAIN}
             paths:
