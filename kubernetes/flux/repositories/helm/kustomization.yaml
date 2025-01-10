@@ -22,5 +22,5 @@ resources:
   - ./prometheus-community.yaml
   - ./postfinance.yaml
   - ./rook-ceph.yaml
+  - ./spegel.yaml
   - ./stakater.yaml
-  - ./xenitab.yaml
