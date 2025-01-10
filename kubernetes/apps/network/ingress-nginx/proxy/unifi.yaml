@@ -30,5 +30,18 @@ metadata:
   name: external-unifi
   namespace: default
 spec:
-  type: ExternalName
-  externalName: 10.0.0.2
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-unifi
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 10.0.0.2
+    ports:
+      - port: 443
