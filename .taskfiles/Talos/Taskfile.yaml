@@ -5,7 +5,7 @@ version: "3"
 vars:
   TALOS_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos"
   # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-  TALOS_VERSION: v1.8.4
+  TALOS_VERSION: v1.9.2
   TALOS_SCHEMATIC_ID: 5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
   # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
   KUBERNETES_VERSION: v1.32.0
