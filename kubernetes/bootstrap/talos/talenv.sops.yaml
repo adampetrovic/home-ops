@@ -1,0 +1,23 @@
+upsmonHost: ENC[AES256_GCM,data:i9zfRph4b9rC,iv:+cq0ownVkH5hHo2piEAhqP7xN1EV7rtzwPJO1luWG4Q=,tag:DloZoMLCfsbWMj0QB9CbgQ==,type:str]
+upsmonUser: ENC[AES256_GCM,data:UPp2e5KfNw==,iv:vMMtKGP2hK8BeFgDmLgiXAcvFLPQfoMjVbZ3bafoIyg=,tag:PTbv65jsCdtdF4loPtUNGA==,type:str]
+upsmonPass: ENC[AES256_GCM,data:DawimlcN,iv:Jkl/Alp22WT5dTwwjDLBpeIdj6zBZPXc2j+sUZrIrZ4=,tag:51m1TDAh+ZWeZ6SEaILgxQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age1pvlc4c05yg9g0pst6f6uvthh7942vt5tx79ycva92y8matj2ne5qvz4md5
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA0eWxaeWpJVm0xWUx6S1BJ
+            Vkt3ZFZCTVhyWDFEdnlnWlVmMW1DMjNTLzBnCk9QT05hYlE2WExhQlNsUGIvYThC
+            U3MzY1hxT0ZKRVlNdWU2U0VnSFZWTVEKLS0tICs5VFFSTHlMd2t5V244Z3lMeVRT
+            d3lXTkJ0YlozSmxkK3B4eFVFdDJGZkkKbMkBfKXI7aayOzJLWQM9eEbnRj4UhAiU
+            YieK61KfctQwzuHbbvexqn5I/bJOBlnBdEOlSndzJ5JL+hWSiQToUQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2025-01-22T05:44:33Z"
+    mac: ENC[AES256_GCM,data:858fz7ueqheDfbC5R0V+qB9Rb4NP89+ZTN9/6iaoKciNaAcNVdrg0SZ3YmHw+2bBPKWtu0VdkJUjK9HQfIrMKbYO1D3oF8jUsd+3qHXBcporhs4XAqUKWt8hvTI5cVFyisVM49v5jm83KNFhG5CC+oljhax/nMpQuVIRYeVrAMo=,iv:0pCpZstc8WassnSKXLw/a3HPWIzwNgilI8Lscb/mA14=,tag:O90+S7ToMWHtR8FcHKeFoA==,type:str]
+    pgp: []
+    unencrypted_suffix: _unencrypted
+    version: 3.9.3
