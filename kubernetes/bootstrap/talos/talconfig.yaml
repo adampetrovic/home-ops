@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-talosVersion: v1.8.4
+talosVersion: v1.9.2
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.32.0
+kubernetesVersion: v1.30.1
 
 clusterName: &cluster home-kubernetes
 endpoint: https://10.0.80.99:6443
@@ -23,7 +23,7 @@ nodes:
     ipAddress: 10.0.80.10
     installDiskSelector:
       type: ssd
-    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -40,7 +40,7 @@ nodes:
     ipAddress: 10.0.80.11
     installDiskSelector:
       type: ssd
-    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -57,7 +57,7 @@ nodes:
     ipAddress: 10.0.80.12
     installDiskSelector:
       type: ssd
-    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -74,7 +74,7 @@ nodes:
     ipAddress: 10.0.80.13
     installDiskSelector:
       type: ssd
-    talosImageURL: factory.talos.dev/installer/5169bf5329d9d9c7ae670f206d7c17a62bb38037db61625c8dc4ef5f4e77a0f4
+    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -179,12 +179,16 @@ patches:
               - rshared
               - rw
 
-  # Disable predictable NIC naming
+  # Disable predictable NIC naming and other performance values
   - |-
     machine:
       install:
         extraKernelArgs:
           - net.ifnames=0
+          - apparmor=0
+          - init_on_alloc=0
+          - init_on_free=0
+          - mitigations=off
 
   # udev rules
   - |-
@@ -196,6 +200,24 @@ patches:
           - KERNEL=="ttyACM[0-9]", GROUP="20", MODE="0660"
 
 controlPlane:
+  schematic:
+    customization:
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/i915
+          - siderolabs/intel-ucode
+          - siderolabs/thunderbolt
+          - siderolabs/gasket-driver
+          - siderolabs/nut-client
+  extensionServices:
+    - &nut-config
+      name: nut-client
+      configFiles:
+        - content: |-
+            MONITOR ${upsmonHost}:3493 1 ${upsmonUser} ${upsmonPass} secondary
+            FINALDELAY 0
+            SHUTDOWNCMD "/sbin/poweroff"
+          mountPath: /usr/local/etc/nut/upsmon.conf
   patches:
     # Cluster configuration
     - |-
