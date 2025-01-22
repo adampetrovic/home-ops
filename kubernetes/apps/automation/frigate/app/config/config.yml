@@ -539,6 +539,11 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    review:
+      detections:
+        labels:
+          - person
+          - dog
     mqtt:
       enabled: True
       timestamp: False
