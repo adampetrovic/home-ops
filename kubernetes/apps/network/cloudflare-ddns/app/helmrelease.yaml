@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: ghcr.io/onedr0p/kubanetics
-              tag: 2024.12.4@sha256:4941a46bd7c05ce1de1f0f2e98137db44cf116312b33d9c7d0e3619679250bd4
+              tag: 2025.1.3@sha256:3498e696030dca90c8159b1b3ee954563c15a6c28932b9c44a604421ff8e352b
             envFrom:
               - secretRef:
                   name: cloudflare-ddns-secret
