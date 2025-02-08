@@ -70,7 +70,7 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY]) == 0"
+      - "len([BODY]) < 2"
     alerts:
       - type: telegram
         send-on-resolved: true
@@ -86,7 +86,7 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY]) == 0"
+      - "len([BODY]) < 2"
     alerts:
       - type: telegram
         send-on-resolved: true
@@ -102,7 +102,7 @@ endpoints:
         hide-url: true
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY]) == 0"
+      - "len([BODY]) < 2"
     alerts:
       - type: telegram
         send-on-resolved: true
