@@ -113,9 +113,10 @@ patches:
   - |-
     cluster:
       discovery:
+        enabled: true
         registries:
           kubernetes:
-            disabled: false
+            disabled: true
           service:
             disabled: false
 
@@ -245,13 +246,6 @@ controlPlane:
     - |-
       - op: remove
         path: /cluster/apiServer/admissionControl
-
-    # https://github.com/siderolabs/talos/issues/9980
-    - |-
-      cluster:
-         apiServer:
-          extraArgs:
-            feature-gates: AuthorizeNodeWithSelectors=false
 
     # Enable K8s Talos API Access
     - |-
