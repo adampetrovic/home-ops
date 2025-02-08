@@ -126,7 +126,6 @@ patches:
         extraArgs:
           image-gc-low-threshold: 50
           image-gc-high-threshold: 55
-          feature-gates: AuthorizeWithSelectors=false,AuthorizeNodeWithSelectors=false
           rotate-server-certificates: true
         nodeIP:
           validSubnets:
@@ -246,6 +245,13 @@ controlPlane:
     - |-
       - op: remove
         path: /cluster/apiServer/admissionControl
+
+    # https://github.com/siderolabs/talos/issues/9980
+    - |-
+      cluster:
+         apiServer:
+          extraArgs:
+            feature-gates: AuthorizeNodeWithSelectors=false
 
     # Enable K8s Talos API Access
     - |-
