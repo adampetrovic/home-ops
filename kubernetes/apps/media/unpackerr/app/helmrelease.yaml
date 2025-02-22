@@ -57,6 +57,8 @@ spec:
               UN_RADARR_0_PATHS_0: /downloads/complete/qbt/movies
               UN_RADARR_1_URL: http://radarr-4k.media.svc.cluster.local
               UN_RADARR_1_PATHS_0: /downloads/complete/qbt/movies-4k
+              UN_LIDARR_0_URL: http://lidarr.media.svc.cluster.local
+              UN_LIDARR_0_PATHS_0: /downloads/complete/qbt/music
             resources:
               requests:
                 cpu: 10m
