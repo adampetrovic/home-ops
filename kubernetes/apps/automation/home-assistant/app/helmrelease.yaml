@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: ghcr.io/onedr0p/home-assistant
-              tag: 2025.3.3@sha256:16f8597335dde4ab385069b23f3fbfd46911a4ff356c7f2acf3680c429e2d8d7
+              tag: 2025.3.3@sha256:9e2a7177b4600653d6cb46dff01b1598189a5ae93be0b99242fbc039d32d79f1
             env:
               TZ: ${TIMEZONE}
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
@@ -69,7 +69,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.97.2-39
+              tag: 4.98.2-39
             env:
               TZ: ${TIMEZONE}
               GIT_AUTHOR_NAME: "Adam Petrovic"
