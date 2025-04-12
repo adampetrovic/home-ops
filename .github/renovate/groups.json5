@@ -64,7 +64,7 @@
       "groupName": "Homeassistant",
       "matchPackagePatterns": [
         "coder/code-server",
-        "onedr0p/home-assistant",
+        "home-operations/home-assistant",
         "esphome/esphome"
       ],
       "matchDatasources": ["docker"],
