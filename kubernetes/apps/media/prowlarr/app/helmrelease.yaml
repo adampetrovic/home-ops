@@ -43,7 +43,7 @@ spec:
         containers:
           pod:
             image:
-              repository: ghcr.io/home-operations/prowlarr-develop
+              repository: ghcr.io/home-operations/prowlarr
               tag: 1.33.3.5008@sha256:561f1fef63adf59913a97939689faa0889619c189169e74ced708b47f513b168
             envFrom: *envFrom
             env:
