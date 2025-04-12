@@ -34,8 +34,8 @@ spec:
         initContainers:
           01-init-db:
             image:
-              repository: ghcr.io/onedr0p/postgres-init
-              tag: '16.8'
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 17.4.0@sha256:a9f405688344a8a6f718e2c344438342ad21540986aeb5ab5fa781831eb2c597
               pullPolicy: IfNotPresent
             envFrom: &envFrom
               - secretRef:
@@ -43,8 +43,8 @@ spec:
         containers:
           pod:
             image:
-              repository: ghcr.io/onedr0p/prowlarr-develop
-              tag: 1.32.2.4987@sha256:f3c0edbd19d744c8306ae8f72e75f0fb54ff662e9f7b22a4d9029e5c0b7f075c
+              repository: ghcr.io/home-operations/prowlarr-develop
+              tag: 1.33.3.5008@sha256:561f1fef63adf59913a97939689faa0889619c189169e74ced708b47f513b168
             envFrom: *envFrom
             env:
               TZ: ${TIMEZONE}
