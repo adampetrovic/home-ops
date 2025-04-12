@@ -86,7 +86,7 @@
       ],
       ignoreTests: true,
       matchPackageNames: [
-        '/ghcr.io/onedr0p/',
+        '/ghcr.io/home-operations/',
       ],
     },
     {
