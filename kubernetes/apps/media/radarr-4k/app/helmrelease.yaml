@@ -52,6 +52,13 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: radarr-4k-secret
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
         containers:
           app:
             image:
