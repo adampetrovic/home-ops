@@ -48,9 +48,9 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/onedr0p/radarr-develop
+              repository: ghcr.io/home-operations/radarr
               tag:
-                5.20.1.9773@sha256:8187c129a78fdfe15b1603db9175abd2be0e1ca2e99ea3733987c3ae941da165
+                5.22.1@sha256:e697db98905b4b03a8112fa581bb313e6c36531cc5da96005c5d63a463ea3f2c
             envFrom: *envFrom
             env:
               TZ: ${TIMEZONE}
