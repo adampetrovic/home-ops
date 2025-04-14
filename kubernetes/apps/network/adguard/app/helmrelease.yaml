@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: adguard/adguardhome
-              tag: v0.107.57@sha256:5c536c1e25f76693ae7ee5e64e8a029893e0f3f1778c8d2a9581383e60cfa9b9
+              tag: v0.107.60@sha256:f793df60142d249f2b869e95da4516acb96104aaa799bc3efb090622964242bd
               pullPolicy: IfNotPresent
             env:
               TZ: ${TIMEZONE}
