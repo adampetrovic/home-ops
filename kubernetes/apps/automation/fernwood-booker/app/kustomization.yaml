@@ -10,7 +10,7 @@ resources:
   - ./secrets/externalsecret-erika.yaml
   - ./manifests/helmrelease-erika.yaml
   #- ./secrets/externalsecret-odette.yaml
-  - ./manifests/helmrelease-odette.yaml
+  #- ./manifests/helmrelease-odette.yaml
 configMapGenerator:
   - name: fernwood-configmap-sue
     files:
