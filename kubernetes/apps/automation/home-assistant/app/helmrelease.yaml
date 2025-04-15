@@ -47,7 +47,7 @@ spec:
               tag: 2025.4.2@sha256:ec6ee6987362b869c8d1fcfa9aa85a86cf1ba8cb4716a53d4dc9d30eb41b1a3e
             env:
               TZ: ${TIMEZONE}
-              POSTGRES_HOST: postgres-rw.database.svc.cluster.local
+              POSTGRES_HOST: postgres17-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
               HASS_IP: 10.0.81.4
             envFrom: &envFrom
