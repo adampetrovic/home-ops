@@ -13,20 +13,6 @@
       "separateMinorPatch": true
     },
     {
-      "description": ["Immich Group"],
-      "groupName": "Immich",
-      "matchPackagePatterns": [
-        "immich-app/immich-server",
-        "immich-app/immich-machine-learning"
-      ],
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true
-    },
-    {
       "description": ["Rook-Ceph Group"],
       "groupName": "Rook-Ceph",
       "matchPackagePatterns": ["rook.ceph"],
