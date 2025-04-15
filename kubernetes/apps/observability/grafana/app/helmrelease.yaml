@@ -394,8 +394,6 @@ spec:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/CurrentState.json
         dc-charging-curves-by-carrier:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/DCChargingCurvesByCarrier.json
-        database-dashboard-info:
-          url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/DatabaseDashboadInfo.json
         incomplete-data:
           url: https://raw.githubusercontent.com/jheredianet/Teslamate-CustomGrafanaDashboards/main/dashboards/IncompleteData.json
         mileaage-stats:
