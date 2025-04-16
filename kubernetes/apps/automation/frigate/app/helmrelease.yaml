@@ -46,7 +46,6 @@ spec:
               tag: 0.15.0-beta7@sha256:a61610785fda2306b9347aeca089a472f8bb5d07795b6b2766fbd58b8bf8c940
             env:
               TZ: ${TIMEZONE}
-              #LIBVA_DRIVER_NAME: i965
             envFrom:
               - secretRef:
                   name: frigate-secret
