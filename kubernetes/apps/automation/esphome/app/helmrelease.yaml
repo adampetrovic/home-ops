@@ -42,6 +42,7 @@ spec:
               ESPHOME_DASHBOARD_USE_PING: true
               PLATFORMIO_CORE_DIR: .plattformio
               PLATFORMIO_GLOBALLIB_DIR: .plattformioLibs
+              HOME: /tmp
             resources:
               requests:
                 cpu: 407m
