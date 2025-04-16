@@ -23,7 +23,7 @@ auth:
     - 10.0.80.0/28
 
 ffmpeg:
- hwaccel_args: preset-vaapi
+  hwaccel_args: preset-intel-qsv-h264
 
 live:
   height: 720
@@ -152,7 +152,6 @@ cameras:
       crop: True
   side_walkway:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/side_walkway_main
           input_args: preset-rtsp-restream
@@ -201,7 +200,6 @@ cameras:
       crop: True
   front_balcony:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/front_balcony_main
           input_args: preset-rtsp-restream
@@ -269,7 +267,6 @@ cameras:
         - front_parking_space
   front_yard:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/front_yard_main
           input_args: preset-rtsp-restream
@@ -336,7 +333,6 @@ cameras:
         - footpath
   garage:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/garage_main
           input_args: preset-rtsp-restream
@@ -380,7 +376,6 @@ cameras:
       crop: True
   backyard:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/backyard_main
           input_args: preset-rtsp-restream
@@ -425,7 +420,6 @@ cameras:
       crop: True
   back_deck:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/back_deck_main
           input_args: preset-rtsp-restream
@@ -461,7 +455,6 @@ cameras:
       crop: True
   utilities:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/utilities_main
           input_args: preset-rtsp-restream
@@ -518,7 +511,6 @@ cameras:
         - our_side
   laundry:
     ffmpeg:
-      hwaccel_args: preset-intel-qsv-h264
       inputs:
         - path: rtsp://127.0.0.1:8554/laundry_main
           input_args: preset-rtsp-restream
