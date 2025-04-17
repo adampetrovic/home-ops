@@ -73,7 +73,7 @@ spec:
         controller: speedtest-tracker
         ports:
           http:
-            port: *port
+            port: &port 80
     ingress:
       main:
         enabled: true
