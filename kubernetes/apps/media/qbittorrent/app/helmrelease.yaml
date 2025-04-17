@@ -43,9 +43,8 @@ spec:
               tag: 5.0.4@sha256:995c561247b069c10b1fa098186f35b3155c2df63912041f70637a9232755756
             env:
               TZ: ${TIMEZONE}
-              QBITTORRENT__PORT: &port 80
-              QBITTORRENT__BT_PORT: &port-bt 50413
-              QBT_Preferences__WebUI__ServerDomains: '*'
+              QBT_WEBUI_PORT: &port 80
+              QBT_TORRENTING_PORT: &port-bt 50413
             resources:
               requests:
                 cpu: 505m
@@ -66,7 +65,10 @@ spec:
                   failureThreshold: 3
               readiness: *probes
               startup:
-                enabled: false
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
