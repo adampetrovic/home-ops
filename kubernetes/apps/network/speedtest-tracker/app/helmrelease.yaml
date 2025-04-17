@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: speedtest-tracker
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      speedtest-tracker:
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        initContainers:
+          01-init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 17.4.0@sha256:a9f405688344a8a6f718e2c344438342ad21540986aeb5ab5fa781831eb2c597
+              pullPolicy: IfNotPresent
+            envFrom: &envFrom
+              - secretRef:
+                  name: speedtest-tracker-secret
+        containers:
+          app:
+            image:
+              repository: lscr.io/linuxserver/speedtest-tracker
+              tag: 1.4.1@sha256:648ebf9d2de5b6fd39860b0cc11c3100c1f191ca267c90d7622aa07783757503
+            envFrom: *envFrom
+            env:
+              TZ: &timezone ${TIMEZONE}
+              DISPLAY_TIMEZONE: *timezone
+              SPEEDTEST_SCHEDULE: "0 */6 * * *" # every 6 hours
+              SPEEDTEST_SERVERS: "25134,14670,12491,13275,60412,18714"
+              APP_URL: https://speedtest.${SECRET_DOMAIN}
+              MAIL_MAILER: smtp
+              MAIL_PORT: 25
+              MAIL_HOST: smtp.${SECRET_DOMAIN}
+              MAIL_FROM_ADDRESS: Speedtest Tracker <speedtest@${SECRET_DOMAIN}>
+              MAIL_FROM_NAME: Speedtest Tracker
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: speedtest-tracker
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host speedtest.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
