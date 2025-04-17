@@ -13,7 +13,7 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: cloudnative-pg-cluster-v17
-    - name: volsync-system
+    - name: volsync
   path: ./kubernetes/apps/network/speedtest-tracker/app
   prune: true
   sourceRef:
