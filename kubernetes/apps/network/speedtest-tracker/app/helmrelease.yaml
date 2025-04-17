@@ -50,7 +50,7 @@ spec:
               TZ: &timezone ${TIMEZONE}
               DISPLAY_TIMEZONE: *timezone
               SPEEDTEST_SCHEDULE: "0 */6 * * *" # every 6 hours
-              SPEEDTEST_SERVERS: "15132,8777,1267,27582,54360"
+              SPEEDTEST_SERVERS: "15132,8777,1267,27582"
               APP_URL: https://speedtest.${SECRET_DOMAIN}
               MAIL_MAILER: smtp
               MAIL_PORT: 25
