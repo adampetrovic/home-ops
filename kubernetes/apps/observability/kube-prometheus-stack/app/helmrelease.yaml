@@ -49,7 +49,7 @@ spec:
         storage:
           volumeClaimTemplate:
             spec:
-              storageClassName: ceph-block
+              storageClassName: openebs-hostpath
               resources:
                 requests:
                   storage: 1Gi
@@ -92,10 +92,10 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: ceph-block
+              storageClassName: openebs-hostpath
               resources:
                 requests:
-                  storage: 50Gi
+                  storage: 20Gi
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:
