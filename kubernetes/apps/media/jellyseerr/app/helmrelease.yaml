@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: overseerr
+  name: jellyseerr
 spec:
   interval: 15m
   chart:
@@ -33,12 +33,12 @@ spec:
       namespace: volsync-system
   values:
     controllers:
-      overseerr:
+      jellyseerr:
         containers:
           app:
             image:
-              repository: ghcr.io/sct/overseerr
-              tag: 1.34.0
+              repository: ghcr.io/fallenbagel/jellyseerr
+              tag: 2.5.2@sha256:2a611369ad1d0d501c2d051fc89b6246ff081fb4a30879fdc75642cf6a37b1a6
             env:
               TZ: ${TIMEZONE}
               LOG_LEVEL: info
@@ -73,7 +73,7 @@ spec:
             supplementalGroups: [100]
     service:
       app:
-        controller: overseerr
+        controller: jellyseerr
         ports:
           http:
             port: *port
@@ -111,11 +111,17 @@ spec:
     persistence:
       config:
         enabled: true
-        existingClaim: overseerr
+        existingClaim: jellyseerr
         globalMounts:
           - path: /app/config
       cache:
         enabled: true
-        existingClaim: overseerr-cache
+        existingClaim: jellyseerr-cache
         globalMounts:
           - path: /app/config/cache
+      config-logs:
+        type: emptyDir
+        globalMounts:
+          - path: /app/config/logs
+      tmp:
+        type: emptyDir
