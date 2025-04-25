@@ -22,7 +22,7 @@ spec:
     cni:
       image:
         repository: ghcr.io/angelnu/cni-plugins
-        tag: 1.6.2
+        tag: 1.7.1
       logLevel: error
       paths:
         config: /etc/cni/net.d
