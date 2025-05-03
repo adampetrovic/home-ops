@@ -121,6 +121,9 @@ record:
       days: 14
       mode: active_objects
 
+detect:
+  enabled: True
+
 cameras:
   doorbell:
     ffmpeg:
