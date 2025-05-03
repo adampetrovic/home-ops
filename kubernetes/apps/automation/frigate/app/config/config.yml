@@ -146,6 +146,7 @@ cameras:
     objects:
       track:
         - person
+        - face
         - dog
     snapshots:
       enabled: True
@@ -174,6 +175,7 @@ cameras:
     objects:
       track:
         - person
+        - face
         - dog
     zones:
       walkway:
@@ -222,6 +224,7 @@ cameras:
     objects:
       track:
         - person
+        - face
         - car
         - motorcycle
       filters:
@@ -289,6 +292,7 @@ cameras:
     objects:
       track:
         - person
+        - face
       filters:
         person:
           min_area: 4000
@@ -355,6 +359,7 @@ cameras:
     objects:
       track:
         - person
+        - face
         - car
         - dog
       filters:
