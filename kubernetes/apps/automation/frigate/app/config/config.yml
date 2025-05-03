@@ -16,6 +16,9 @@ detectors:
     type: edgetpu
     device: usb
 
+face_recognition:
+  enabled: true
+
 auth:
   enabled: False
   trusted_proxies:
