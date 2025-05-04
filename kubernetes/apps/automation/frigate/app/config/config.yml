@@ -224,6 +224,7 @@ cameras:
           roles:
             - detect
     detect:
+      annotation_offset: -800
       width: 1280
       height: 720
       fps: 6
