@@ -81,6 +81,12 @@ go2rtc:
     utilities_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_UTILITIES_IP}:554/Streaming/Channels/103/
 objects:
+  track:
+    - person
+    - face
+    - car
+    - waste_bin
+    - dog
   filters:
     dog:
       min_score: .65
@@ -227,6 +233,8 @@ cameras:
         - face
         - car
         - motorcycle
+        - package
+        - license_plate
       filters:
         car:
           mask:
@@ -293,6 +301,8 @@ cameras:
       track:
         - person
         - face
+        - package
+        - license_plate
       filters:
         person:
           min_area: 4000
@@ -362,6 +372,7 @@ cameras:
         - face
         - car
         - dog
+        - license_plate
       filters:
         person:
           mask:
