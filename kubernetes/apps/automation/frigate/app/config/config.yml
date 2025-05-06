@@ -6,7 +6,7 @@ mqtt:
   topic_prefix: frigate
 
 model:
-  path: plus://e0c3a3c9b1da4582eabe2818f335546f
+  path: plus://ad29dba5a4618970656e5c86d9b88074
 
 database:
   path: /config/frigate.db
