@@ -19,6 +19,24 @@ detectors:
 face_recognition:
   enabled: true
 
+lpr:
+  enabled: True
+  format: "^(?:[A-Z]{3} [0-9]{3}|[A-Z]{3} [0-9]{2}[A-Z]|NSW [0-9]{2}[A-Z]{2}|[0-9]{3} [A-Z]{3}|[A-Z0-9]{4,6})$"
+  min_plate_length: 4
+  known_plates:
+    modely:
+      - "FGM63Q"
+      - "FGM 63Q"
+      - "FGM 63O"
+      - "FGM63O"
+      - "FGM 630"
+      - "FGM630"
+    model3:
+      - "EVP71W"
+      - "EVP 71W"
+      - "EVP7LW"
+      - "EVP 7LW"
+
 auth:
   enabled: False
   trusted_proxies:
@@ -159,6 +177,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False  # too low quality to pick up license plates
     mqtt:
       enabled: True
       timestamp: False
@@ -208,6 +228,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -437,6 +459,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -472,6 +496,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -526,6 +552,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -560,6 +588,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    lpr:
+      enabled: False
     review:
       detections:
         labels:
