@@ -47,7 +47,7 @@ spec:
           redis:
             image:
               repository: public.ecr.aws/docker/library/redis
-              tag: 7.4.3
+              tag: 8.0.0
               pullPolicy: IfNotPresent
           tika:
             image:
