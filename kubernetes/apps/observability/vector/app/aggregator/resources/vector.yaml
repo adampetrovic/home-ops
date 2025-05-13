@@ -105,6 +105,7 @@ sinks:
     remove_timestamp: true
     labels:
       hostname: '{{ host }}'
+      source: 'journald'
 
   kubernetes:
     inputs: ["kubernetes_remap"]
@@ -118,6 +119,7 @@ sinks:
       app: '{{ custom_app_name }}'
       namespace: '{{ kubernetes.pod_namespace }}'
       node: '{{ kubernetes.pod_node_name }}'
+      source: 'kubernetes'
 
   syslog:
     inputs: ["syslog_source"]
