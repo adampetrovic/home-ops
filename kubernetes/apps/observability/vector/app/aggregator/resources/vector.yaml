@@ -127,6 +127,9 @@ sinks:
     out_of_order_action: accept
     remove_label_fields: true
     remove_timestamp: true
+    labels:
+      source: 'syslog'
+
 
   # vyos:
   #   inputs: ["vyos_source", "vyos_firewall_geoip_remap"]
