@@ -119,6 +119,15 @@ sinks:
       namespace: '{{ kubernetes.pod_namespace }}'
       node: '{{ kubernetes.pod_node_name }}'
 
+  syslog:
+    inputs: ["syslog_source"]
+    type: loki
+    endpoint: http://loki-gateway.observability.svc.cluster.local
+    encoding: { codec: json }
+    out_of_order_action: accept
+    remove_label_fields: true
+    remove_timestamp: true
+
   # vyos:
   #   inputs: ["vyos_source", "vyos_firewall_geoip_remap"]
   #   type: loki
