@@ -20,36 +20,36 @@
     'on saturday',
   ],
   flux: {
-    fileMatch: [
-      '(^|/)ansible/.+\\.ya?ml(\\.j2)?$',
-      '(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)ansible/.+\\.ya?ml(\\.j2)?$/',
+      '/(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$/',
     ],
   },
   'helm-values': {
-    fileMatch: [
-      '(^|/)ansible/.+\\.ya?ml(\\.j2)?$',
-      '(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)ansible/.+\\.ya?ml(\\.j2)?$/',
+      '/(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$/',
     ],
   },
   kubernetes: {
-    fileMatch: [
-      '(^|/)ansible/.+\\.ya?ml(\\.j2)?$',
-      '(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)ansible/.+\\.ya?ml(\\.j2)?$/',
+      '/(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$/',
     ],
   },
   kustomize: {
-    fileMatch: [
-      '(^|/)kustomization\\.ya?ml(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)kustomization\\.ya?ml(\\.j2)?$/',
     ],
   },
   pip_requirements: {
-    fileMatch: [
-      '(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?$/',
     ],
   },
   'ansible-galaxy': {
-    fileMatch: [
-      '(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?$',
+    managerFilePatterns: [
+      '/(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?$/',
     ],
   },
   commitMessageTopic: '{{depName}}',
@@ -346,10 +346,10 @@
       description: [
         'Process custom dependencies',
       ],
-      fileMatch: [
-        '(^|/).taskfiles/.+\\.ya?ml$',
-        '(^|/)ansible/.+\\.ya?ml(\\.j2)?$',
-        '(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$',
+      managerFilePatterns: [
+        '/(^|/).taskfiles/.+\\.ya?ml$/',
+        '/(^|/)ansible/.+\\.ya?ml(\\.j2)?$/',
+        '/(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$/',
       ],
       matchStrings: [
         '(?m:# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+?: "?(?<currentValue>\\S+?)"?$)',
