@@ -12,11 +12,6 @@ vars:
   TALOS_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/Talos/scripts"
 
 tasks:
-  testtask:
-    cmds:
-      - echo 'hi'
-      - echo '{{.TALOS_DIR}}'
-
   bootstrap:
     desc: Bootstrap the Talos cluster
     dir: "{{.TALOS_DIR}}"
