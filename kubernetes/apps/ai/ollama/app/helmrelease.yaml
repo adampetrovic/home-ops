@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ollama
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      ollama:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/ollama/ollama
+              tag: 0.7.0@sha256:f6699242880c38eb356dfd8204b08b7a7ba4da2645bdece55a0871bf6752a585
+            env:
+              TZ: ${TIMEZONE}
+              OLLAMA_HOST: 0.0.0.0
+              OLLAMA_ORIGINS: "*"
+              OLLAMA_MODELS: /models
+            resources:
+              requests:
+                cpu: 200m
+                memory: 8Gi
+              limits:
+                memory: 32Gi
+    service:
+      app:
+        type: LoadBalancer
+        controller: ollama
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: ollama.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: 10.0.81.13
+        ports:
+          http:
+            port: 11434
+    persistence:
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/k8s/ollama
+        globalMounts:
+          - path: /models
+
