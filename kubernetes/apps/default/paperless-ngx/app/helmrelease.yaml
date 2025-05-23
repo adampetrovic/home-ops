@@ -40,7 +40,7 @@ spec:
           gotenburg:
             image:
               repository: thecodingmachine/gotenberg
-              tag: 8.20.1
+              tag: 8.21.0
               pullPolicy: IfNotPresent
             env:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
@@ -57,7 +57,7 @@ spec:
           app:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.15.3
+              tag: 2.16.1
             envFrom: *envFrom
             env:
               USERMAP_UID: 568
