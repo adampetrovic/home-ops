@@ -30,12 +30,6 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   values:
-    defaultPodOptions:
-      securityContext:
-        runAsUser: 568
-        runAsGroup: 568
-        fsGroup: 568
-        fsGroupChangePolicy: OnRootMismatch
     controllers:
       open-webui:
         annotations:
@@ -47,6 +41,8 @@ spec:
               tag: 0.6.13
             env:
               TZ: ${TIMEZONE}
+              ENABLE_WEBSOCKET_SUPPORT: "true"
+              ENABLE_OLLAMA_API: "true"
               OLLAMA_BASE_URL: "http://ollama.ai.svc.cluster.local:11434"
             resources:
               requests:
@@ -54,6 +50,10 @@ spec:
                 memory: 1000Mi
               limits:
                 memory: 1500Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: [ALL]}
     service:
       app:
         controller: open-webui
