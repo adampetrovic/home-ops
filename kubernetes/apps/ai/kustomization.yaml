@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
 
-  - ./ollama/ks.yaml  
+  - ./ollama/ks.yaml
+  - ./open-webui/ks.yaml
