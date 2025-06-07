@@ -41,6 +41,7 @@ spec:
               tag: 0.6.13
             env:
               TZ: ${TIMEZONE}
+              WEBUI_AUTH: "false"
               ENABLE_WEBSOCKET_SUPPORT: "true"
               ENABLE_OLLAMA_API: "true"
               OLLAMA_BASE_URL: "http://ollama.ai.svc.cluster.local:11434"
