@@ -81,4 +81,4 @@ spec:
         enabled: true
         existingClaim: *app
         globalMounts:
-          - path: /app/backend/dat
+          - path: /app/backend/data
