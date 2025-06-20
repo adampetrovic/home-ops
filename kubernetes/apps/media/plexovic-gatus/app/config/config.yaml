@@ -91,21 +91,6 @@ endpoints:
       - type: telegram
         send-on-resolved: true
 
-  - name: Prowlarr - Search Provider
-    group: automations
-    url: http://prowlarr.media.svc.cluster.local/api/v1/health
-    headers:
-      X-Api-Key: ${PROWLARR_API_KEY}
-    interval: 1m
-    ui:
-        hide-hostname: true
-        hide-url: true
-    conditions:
-      - "[STATUS] == 200"
-      - "len([BODY]) < 2"
-    alerts:
-      - type: telegram
-        send-on-resolved: true
 
   - name: QBT - Torrent Downloader
     group: downloaders
