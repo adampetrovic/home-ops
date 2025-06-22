@@ -11,15 +11,6 @@
     'github>adampetrovic/home-ops//.github/renovate/groups.json5',
   ],
   dependencyDashboardTitle: 'Renovate Dashboard 🤖',
-  hostRules: [
-    {
-      matchHost: 'ghcr.io',
-      username: 'adampetrovic',
-      encrypted: {
-        token: '{{ secrets.RENOVATE_GHCR_TOKEN }}',
-      },
-    },
-  ],
   suppressNotifications: [
     'prEditedNotification',
     'prIgnoreNotification',
