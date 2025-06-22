@@ -16,7 +16,7 @@
       matchHost: 'ghcr.io',
       username: 'adampetrovic',
       encrypted: {
-        token: process.env.RENOVATE_GHCR_TOKEN,
+        token: '{{ secrets.RENOVATE_GHCR_TOKEN }}',
       },
     },
   ],
