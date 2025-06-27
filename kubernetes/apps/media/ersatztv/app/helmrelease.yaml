@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: jasongdove/ersatztv
-              tag: v25.1.0-vaapi
+              tag: v25.2.0-vaapi
             env:
               XDG_DATA_HOME: /config # https://github.com/ErsatzTV/ErsatzTV/issues/327
             probes:
