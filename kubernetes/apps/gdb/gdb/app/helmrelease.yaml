@@ -30,6 +30,11 @@ spec:
     defaultPodOptions:
       imagePullSecrets:
         - name: ghcr-token-secret
+      securityContext:
+        runAsUser: 501
+        runAsGroup: 20  # dialout group
+        fsGroup: 20
+        fsGroupChangePolicy: OnRootMismatch
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
