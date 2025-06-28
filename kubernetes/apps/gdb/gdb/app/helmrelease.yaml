@@ -32,7 +32,7 @@ spec:
         - name: ghcr-token-secret
       securityContext:
         runAsUser: 501
-        runAsGroup: 20  # dialout group
+        runAsGroup: 20
         fsGroup: 20
         fsGroupChangePolicy: OnRootMismatch
       topologySpreadConstraints:
@@ -122,6 +122,6 @@ spec:
       media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/stash/media
+        path: /volume2/stash/media/g
         globalMounts:
-          - path: /media
+          - path: /media/g
