@@ -71,7 +71,7 @@ spec:
               CACHE_TTL: "30m"
               RATE_LIMIT_PER_MIN: "60"
               MEDIA_DIR: /media/g
-              STASH_HOST: http://stash.media.svc.cluster.local
+              STASH_HOST: http://stash.media.svc.cluster.local:9999
             envFrom:
               - secretRef:
                   name: gdb-secret
