@@ -19,11 +19,11 @@ detectors:
 face_recognition:
   enabled: true
 
-genai:
-  enabled: True
-  provider: ollama
-  base_url: http://ollama.ai.svc.cluster.local:11434
-  model: llava:7b
+#genai:
+#  enabled: True
+#  provider: ollama
+#  base_url: http://ollama.ai.svc.cluster.local:11434
+#  model: llava:7b
 
 lpr:
   enabled: True
