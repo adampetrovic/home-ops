@@ -7,7 +7,6 @@ resources:
 
   # manifests
   - ./bazarr/ks.yaml
-  - ./ersatztv/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
