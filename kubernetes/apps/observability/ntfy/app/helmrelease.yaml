@@ -50,7 +50,7 @@ spec:
               NTFY_CACHE_DIR: "/config/cache.db"
               NTFY_AUTH_FILE: "/config/authfile.db"
               NTFY_ATTACHMENT_CACHE_DIR: "/config/attachments"
-              NTFY_AUTH_DEFAULT_ACCESS: "write-only"
+              NTFY_AUTH_DEFAULT_ACCESS: "deny-all"
             securityContext:
               readOnlyRootFilesystem: true
               allowPrivilegeEscalation: false
@@ -75,22 +75,22 @@ spec:
           http:
             port: 8080
     ingress:
-      # main:
-      #   enabled: true
-      #   className: external
-      #   annotations:
-      #     external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-      #   hosts:
-      #     - host: &publicHost ntfy.${SECRET_PUBLIC_DOMAIN}
-      #       paths:
-      #         - path: /
-      #           pathType: Prefix
-      #           service:
-      #             identifier: ntfy
-      #             port: http
-      #   tls:
-      #     - hosts:
-      #         - *publicHost
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
+        hosts:
+          - host: &publicHost ntfy.${SECRET_PUBLIC_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: ntfy
+                  port: http
+        tls:
+          - hosts:
+              - *publicHost
       secondary:
         enabled: true
         className: internal
