@@ -50,6 +50,7 @@ spec:
               NTFY_CACHE_DIR: "/config/cache.db"
               NTFY_AUTH_FILE: "/config/authfile.db"
               NTFY_ATTACHMENT_CACHE_DIR: "/config/attachments"
+              NTFY_AUTH_DEFAULT_ACCESS: "write-only"
             securityContext:
               readOnlyRootFilesystem: true
               allowPrivilegeEscalation: false
