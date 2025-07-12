@@ -38,7 +38,7 @@ spec:
           01-init-config:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
-              tag: 2.0.21
+              tag: 2.0.22
               pullPolicy: IfNotPresent
             command: ["/bin/sh", "-c"]
             args: ["cp /tmp/secret/* /mosquitto/external_config/ && mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd"]
@@ -46,7 +46,7 @@ spec:
           app:
             image:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
-              tag: 2.0.21
+              tag: 2.0.22
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
