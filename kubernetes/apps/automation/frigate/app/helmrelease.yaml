@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/blakeblackshear/frigate
-              tag: 0.16.0-beta3@sha256:944dbf199f1cbe99cfedc74b7cd9791daa68a334d4e9f74214a06dde58c1458a
+              tag: 0.16.0-beta4@sha256:0f39e8111ea7ad986d70b43bf572fe64a923c1e80fbdb3580f489c8db6edefd8
             env:
               TZ: ${TIMEZONE}
             envFrom:
