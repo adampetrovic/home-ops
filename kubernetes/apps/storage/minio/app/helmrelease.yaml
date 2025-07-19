@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: quay.io/minio/minio
-              tag: RELEASE.2025-06-13T11-33-47Z
+              tag: RELEASE.2025-07-18T21-56-31Z
             envFrom:
               - secretRef:
                   name: minio-secret
