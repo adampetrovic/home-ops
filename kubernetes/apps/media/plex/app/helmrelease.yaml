@@ -145,6 +145,13 @@ spec:
         globalMounts:
           - path: /movies-4k
             readOnly: false
+      movies-kids:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/movies
+        globalMounts:
+          - path: /movies-kids
+            readOnly: false
       tv:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
@@ -158,6 +165,13 @@ spec:
         path: /volume2/tv-4k
         globalMounts:
           - path: /tv-4k
+            readOnly: false
+      tv-kids:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/tv
+        globalMounts:
+          - path: /tv-kids
             readOnly: false
       music:
         type: nfs
