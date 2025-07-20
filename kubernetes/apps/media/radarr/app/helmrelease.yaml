@@ -132,3 +132,10 @@ spec:
         path: /volume2/movies
         globalMounts:
           - path: /movies
+
+      movies-kids:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/movies
+        globalMounts:
+          - path: /kids
