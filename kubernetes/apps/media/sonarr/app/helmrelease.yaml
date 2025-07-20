@@ -114,6 +114,12 @@ spec:
         path: /volume2/tv
         globalMounts:
           - path: /tv
+      tv-kids:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/tv
+        globalMounts:
+          - path: /kids
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
