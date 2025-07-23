@@ -4,21 +4,6 @@ originRequest:
 
 ingress:
   - hostname: "${SECRET_PUBLIC_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
-  - hostname: "*.${SECRET_PUBLIC_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
-  - hostname: "${SECRET_PLEX_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
-  - hostname: "*.${SECRET_PLEX_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
-  - service: http_status:404
-
----
-originRequest:
-  originServerName: external.devbu.io
-
-ingress:
-  - hostname: "${SECRET_PUBLIC_DOMAIN}"
     service: &svc https://cilium-gateway-external.kube-system.svc.cluster.local
   - hostname: "*.${SECRET_PUBLIC_DOMAIN}"
     service: *svc
