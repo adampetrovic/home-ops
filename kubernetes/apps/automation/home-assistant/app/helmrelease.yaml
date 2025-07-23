@@ -130,50 +130,39 @@ spec:
           http:
             port: 8080
 
-    ingress:
+    route:
       app:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host "hass.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host "hass.${SECRET_DOMAIN}"
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: home-assistant
+                port: 8123
 
       external:
         enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "hass.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - "hass.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
 
       codeserver:
         enabled: true
-        className: internal
-        hosts:
-          - host: &codeHost "hass-code.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: codeserver
-                  port: http
-        tls:
-          - hosts:
-              - *codeHost
+        hostnames:
+          - "hass-code.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
 
     persistence:
       config:

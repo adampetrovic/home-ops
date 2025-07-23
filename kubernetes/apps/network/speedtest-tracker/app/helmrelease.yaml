@@ -68,21 +68,21 @@ spec:
         ports:
           http:
             port: &port 80
-    ingress:
+    route:
       main:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host speedtest.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - &host speedtest.${SECRET_DOMAIN}
+        parentRefs:
+          - name: internal
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: http
     persistence:
       config:
         enabled: true

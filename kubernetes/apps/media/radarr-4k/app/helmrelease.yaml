@@ -98,26 +98,21 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       main:
         enabled: true
-        className: internal
-        annotations:
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-            proxy_set_header Accept-Encoding "";
-            sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.devbu.io/css/base/radarr/nord.css"></head>';
-            sub_filter_once on;
-        hosts:
-          - host: &host radarr4k.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host radarr4k.${SECRET_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: http
     persistence:
       config:
         enabled: true

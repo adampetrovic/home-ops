@@ -62,20 +62,21 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       main:
         enabled: true
-        className: internal
-        hosts:
-          - host: *host
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - *host
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: *port
     persistence:
       config:
         existingClaim: changedetection

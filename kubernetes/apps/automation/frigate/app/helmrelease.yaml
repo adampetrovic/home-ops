@@ -95,24 +95,28 @@ spec:
             port: 8554
           go2rtc:
             port: 1984
-    ingress:
+    route:
       main:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host "frigate.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-              - path: /go2rtc
-                service:
-                  identifier: app
-                  port: go2rtc
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host "frigate.${SECRET_DOMAIN}"
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: http
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /go2rtc
+            backendRefs:
+              - name: app
+                port: go2rtc
     persistence:
       config:
         enabled: true

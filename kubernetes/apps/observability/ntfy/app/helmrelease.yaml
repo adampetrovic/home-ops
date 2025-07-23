@@ -74,37 +74,29 @@ spec:
         ports:
           http:
             port: 8080
-    ingress:
+    route:
       main:
         enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost ntfy.${SECRET_PUBLIC_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: ntfy
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - "ntfy.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
       secondary:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host ntfy.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: ntfy
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - &host ntfy.${SECRET_DOMAIN}
+        parentRefs:
+          - name: internal
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: ntfy
+                port: 8080
 
     persistence:
       config:

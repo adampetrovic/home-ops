@@ -127,20 +127,17 @@ spec:
           http:
             port: *apiPort
 
-    ingress:
+    route:
       app:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+        rules:
+          - backendRefs:
+              - name: '{{ include "bjw-s.common.lib.chart.names.fullname" $ }}-app'
+                port: 80
     persistence:
       config:
         enabled: true

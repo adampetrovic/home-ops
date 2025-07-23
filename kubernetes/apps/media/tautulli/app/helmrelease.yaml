@@ -63,21 +63,23 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       main:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host tautulli.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+            namespace: network
+            sectionName: https
+        hostnames:
+          - &host tautulli.${SECRET_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: 8181
     persistence:
       config:
         enabled: true

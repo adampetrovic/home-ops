@@ -95,41 +95,23 @@ spec:
         ports:
           http:
             port: 8098
-    ingress:
+    route:
       setup:
         enabled: false
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: setup
-                  port: http
-        tls:
-          - secretName: tesla-proxy-tls
-            hosts:
-              - *publicHost
+        hostnames:
+          - "tesla.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
       keyserver:
         enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "tesla.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /.well-known/appspecific/com.tesla.3p.public-key.pem
-                pathType: Prefix
-                service:
-                  identifier: keyserver
-                  port: http
-        tls:
-          - secretName: tesla-proxy-tls
-            hosts:
-              - *publicHost
+        hostnames:
+          - "tesla.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: external
+            namespace: kube-system
+            sectionName: https
     persistence:
       tls:
         type: secret

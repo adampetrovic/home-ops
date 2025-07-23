@@ -76,41 +76,41 @@ spec:
           api:
             enabled: true
             port: *api-port
-    ingress:
+    route:
       app:
         enabled: true
-        className: internal
-        hosts:
-          - host: &console-host minio.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *console-host
+        hostnames:
+          - &console-host minio.${SECRET_DOMAIN}
+        parentRefs:
+          - name: internal
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: minio
+                port: *console-port
       s3:
         enabled: true
-        className: internal
         annotations:
           nginx.ingress.kubernetes.io/proxy-connect-timeout: '300'
           nginx.ingress.kubernetes.io/proxy-body-size: 5000m
           nginx.ingress.kubernetes.io/proxy-request-buffering: off
           nginx.ingress.kubernetes.io/configuration-snippet: |
             chunked_transfer_encoding off;
-        hosts:
-          - host: &api-host s3.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: api
-        tls:
-          - hosts:
-              - *api-host
+        hostnames:
+          - &api-host s3.${SECRET_DOMAIN}
+        parentRefs:
+          - name: internal
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: minio
+                port: *api-port
     persistence:
       config:
         enabled: true

@@ -72,20 +72,21 @@ spec:
         ports:
           http:
             port: 5230
-    ingress:
+    route:
       app:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host "memos.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host "memos.${SECRET_DOMAIN}"
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: app
+                port: 5230
     persistence:
       data:
         existingClaim: *app

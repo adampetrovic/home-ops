@@ -94,19 +94,16 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        className: internal
-        hosts:
-          - host: &host bazarr.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - &host bazarr.${SECRET_DOMAIN}
+        rules:
+          - backendRefs:
+              - name: app
+                port: 6767
     persistence:
       add-ons:
         type: emptyDir

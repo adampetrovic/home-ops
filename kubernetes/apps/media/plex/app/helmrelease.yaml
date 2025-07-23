@@ -101,20 +101,17 @@ spec:
         ports:
           http:
             port: 32400
-    ingress:
+    route:
       app:
         enabled: true
-        className: internal
-        hosts:
-          - host: &host "plex.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        parentRefs:
+          - name: internal
+        hostnames:
+          - "plex.${SECRET_DOMAIN}"
+        rules:
+          - backendRefs:
+              - name: app
+                port: 32400
     persistence:
       config:
         enabled: true
