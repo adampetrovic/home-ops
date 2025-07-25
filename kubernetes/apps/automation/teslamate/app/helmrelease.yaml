@@ -26,6 +26,9 @@ spec:
       strategy: rollback
   uninstall:
     keepHistory: false
+  dependsOn:
+    - name: home-assistant
+      namespace: automation
   values:
     controllers:
       teslamate:
