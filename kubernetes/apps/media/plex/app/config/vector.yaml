@@ -3,7 +3,7 @@ sources:
   plex_logs:
     type: file
     include:
-      - /config/Library/Application Support/Plex Media Server/Logs/*.log
+      - /config/Library/Application Support/Plex Media Server/Logs/Plex Media Server*.log
     read_from: beginning
     ignore_older_secs: 600
     multiline:
@@ -19,24 +19,24 @@ transforms:
       .app = "plex"
       .namespace = "media"
       .pod_name = get_env_var!("HOSTNAME")
-      
+
       # Parse Plex log format: "Jul 25, 2025 09:54:50.329 [139862816533304] INFO - message"
       message_str = string!(.message)
       if match(message_str, r'^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}') {
         parsed = parse_regex(message_str, r'^(?P<timestamp>\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<thread_id>\d+)\] (?P<level>\w+) - (?P<msg>.*)$') ?? {}
-        
+
         # Convert timestamp to RFC3339 format for Loki
         if exists(parsed.timestamp) {
           .timestamp = parse_timestamp!(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f")
         }
-        
+
         .thread_id = parsed.thread_id || "unknown"
-        .level = downcase(string!(parsed.level || "info"))  
+        .level = downcase(string!(parsed.level || "info"))
         .message = parsed.msg || .message
       } else {
         .level = "info"
       }
-  
+
   # Filter to only keep DEBUG level and above
   plex_filtered:
     type: filter
