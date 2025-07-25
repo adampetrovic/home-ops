@@ -73,7 +73,7 @@ spec:
           vector:
             image:
               repository: timberio/vector
-              tag: 0.39.0-alpine
+              tag: 0.48.0-alpine
             args:
               - --config-yaml
               - /etc/vector/vector.yaml
