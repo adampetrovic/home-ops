@@ -70,6 +70,20 @@ spec:
               limits:
                 gpu.intel.com/i915: 1
                 memory: 16Gi
+          vector:
+            image:
+              repository: timberio/vector
+              tag: 0.39.0-alpine
+            args:
+              - --config-yaml
+              - /etc/vector/vector.yaml
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
         pod:
           affinity:
             podAntiAffinity:
@@ -121,6 +135,21 @@ spec:
         existingClaim: plex
         globalMounts:
           - path: /config/Library/Application Support/Plex Media Server
+      vector-data:
+        type: emptyDir
+        advancedMounts:
+          plex:
+            vector:
+              - path: /vector-data-dir
+      vector-config:
+        type: configMap
+        name: plex-vector-config
+        advancedMounts:
+          plex:
+            vector:
+              - path: /etc/vector/vector.yaml
+                subPath: vector.yaml
+                readOnly: true
 
       # Separate PVC for cache to avoid backing up cache files
       plex-cache:
