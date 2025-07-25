@@ -30,9 +30,9 @@ transforms:
           .timestamp = parse_timestamp!(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f")
         }
         
-        .thread_id = parsed.thread_id ?? "unknown"
-        .level = downcase(string!(parsed.level ?? "info"))
-        .message = parsed.msg ?? .message
+        .thread_id = parsed.thread_id || "unknown"
+        .level = downcase(string!(parsed.level || "info"))  
+        .message = parsed.msg || .message
       } else {
         .level = "info"
       }
