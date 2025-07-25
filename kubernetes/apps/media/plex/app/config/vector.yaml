@@ -18,19 +18,20 @@ transforms:
     source: |
       .app = "plex"
       .namespace = "media"
-      .pod_name = get_env_var("HOSTNAME") || "unknown"
+      .pod_name = get_env_var!("HOSTNAME")
       
       # Parse Plex log format: "Jul 25, 2025 09:54:50.329 [139862816533304] INFO - message"
-      if match(.message, r'^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}') {
-        parsed = parse_regex(.message, r'^(?P<timestamp>\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<thread_id>\d+)\] (?P<level>\w+) - (?P<msg>.*)$') ?? {}
+      message_str = string!(.message)
+      if match(message_str, r'^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}') {
+        parsed = parse_regex(message_str, r'^(?P<timestamp>\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<thread_id>\d+)\] (?P<level>\w+) - (?P<msg>.*)$') ?? {}
         
         # Convert timestamp to RFC3339 format for Loki
         if exists(parsed.timestamp) {
-          .timestamp = parse_timestamp(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f") ?? now()
+          .timestamp = parse_timestamp!(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f")
         }
         
         .thread_id = parsed.thread_id ?? "unknown"
-        .level = downcase(parsed.level ?? "info")
+        .level = downcase(string!(parsed.level ?? "info"))
         .message = parsed.msg ?? .message
       } else {
         .level = "info"
