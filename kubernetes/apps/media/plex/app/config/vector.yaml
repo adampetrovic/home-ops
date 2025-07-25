@@ -3,7 +3,7 @@ sources:
   plex_logs:
     type: file
     include:
-      - /config/Library/Application Support/Plex Media Server/Logs/Plex Media Server*.log
+      - /config/Library/Application Support/Plex Media Server/Logs/Plex Media Server.log
     read_from: beginning
     ignore_older_secs: 600
     multiline:
