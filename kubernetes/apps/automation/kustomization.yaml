@@ -12,6 +12,5 @@ resources:
   - ./fernwood-booker/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mosquitto/ks.yaml
-  - ./tesla-proxy/ks.yaml
   - ./teslamate/ks.yaml
   - ./zigbee2mqtt/ks.yaml
