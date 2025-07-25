@@ -38,7 +38,7 @@ spec:
           app:
             image:
               repository: ghcr.io/open-webui/open-webui
-              tag: v0.6.15
+              tag: v0.6.18
             env:
               TZ: ${TIMEZONE}
               WEBUI_AUTH: "false"
