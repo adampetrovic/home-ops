@@ -74,14 +74,14 @@ spec:
               TZ: ${TIMEZONE}
               GIT_AUTHOR_NAME: "Adam Petrovic"
             envFrom: *envFrom
-            command:
-              - /bin/bash
-              - -c
-              - |
-                # Start SSH daemon
-                sudo service ssh start
-                # Start code-server
-                exec code-server --auth none --user-data-dir /config/.vscode --extensions-dir /config/.vscode /config
+            args:
+              - --auth
+              - "none"
+              - --user-data-dir
+              - "/config/.vscode"
+              - --extensions-dir
+              - "/config/.vscode"
+              - /config
             probes:
               liveness:
                 enabled: false
@@ -126,16 +126,9 @@ spec:
             port: 21065
       codeserver:
         controller: homeassistant
-        type: LoadBalancer
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: hass-code-direct.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.81.14
         ports:
           http:
             port: 8080
-          ssh:
-            enabled: true
-            port: 22
 
     ingress:
       app:
