@@ -1,0 +1,58 @@
+data_dir: /vector-data-dir
+sources:
+  plex_logs:
+    type: file
+    include:
+      - /config/Library/Application Support/Plex Media Server/Logs/*.log
+    read_from: beginning
+    ignore_older_secs: 600
+    multiline:
+      start_pattern: '^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}'
+      mode: halt_before
+      condition_pattern: '^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}'
+      timeout_ms: 1000
+transforms:
+  plex_parsed:
+    type: remap
+    inputs: ["plex_logs"]
+    source: |
+      .app = "plex"
+      .namespace = "media"
+      .pod_name = get_env_var("HOSTNAME") || "unknown"
+      
+      # Parse Plex log format: "Jul 25, 2025 09:54:50.329 [139862816533304] INFO - message"
+      if match(.message, r'^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}') {
+        parsed = parse_regex(.message, r'^(?P<timestamp>\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<thread_id>\d+)\] (?P<level>\w+) - (?P<msg>.*)$') ?? {}
+        
+        # Convert timestamp to RFC3339 format for Loki
+        if exists(parsed.timestamp) {
+          .timestamp = parse_timestamp(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f") ?? now()
+        }
+        
+        .thread_id = parsed.thread_id ?? "unknown"
+        .level = downcase(parsed.level ?? "info")
+        .message = parsed.msg ?? .message
+      } else {
+        .level = "info"
+      }
+  
+  # Filter to only keep DEBUG level and above
+  plex_filtered:
+    type: filter
+    inputs: ["plex_parsed"]
+    condition: |
+      .level == "debug" || .level == "info" || .level == "warn" || .level == "warning" || .level == "error" || .level == "fatal"
+sinks:
+  loki:
+    type: loki
+    inputs: ["plex_filtered"]
+    endpoint: http://loki-gateway.observability.svc.cluster.local
+    encoding:
+      codec: json
+    labels:
+      app: "{{ app }}"
+      namespace: "{{ namespace }}"
+      pod: "{{ pod_name }}"
+      level: "{{ level }}"
+      thread_id: "{{ thread_id }}"
+      source: "plex-logs"
