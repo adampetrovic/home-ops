@@ -10,3 +10,5 @@ configMapGenerator:
   - name: plex-vector-config
     files:
       - vector.yaml=config/vector.yaml
+generatorOptions:
+  disableNameSuffixHash: true
