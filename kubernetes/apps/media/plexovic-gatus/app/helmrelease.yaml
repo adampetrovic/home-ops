@@ -29,6 +29,8 @@ spec:
   values:
     controllers:
       gatus:
+        serviceAccount:
+          identifier: gatus
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -90,8 +92,7 @@ spec:
           - hosts:
               - *publicHost
     serviceAccount:
-      create: true
-      name: *app
+      gatus: {}
     persistence:
       config:
         enabled: true
