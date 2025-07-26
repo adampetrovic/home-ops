@@ -46,6 +46,7 @@ spec:
 
     service:
       app:
+        forceRename: *app
         controller: adguard
         ports:
           http:
