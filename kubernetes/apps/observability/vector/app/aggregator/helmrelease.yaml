@@ -45,7 +45,7 @@ spec:
           app:
             image:
               repository: docker.io/timberio/vector
-              tag: 0.45.0-alpine@sha256:936e7e05f54b817f5957acbc72ad32a9b7016f7071c03937ee5cbd199e204c02
+              tag: 0.48.0-alpine@sha256:2dda29c892cef4e80e1b9d00d7981d29658aa9c16034a0edb4e6f41a78280e70
             args: ["--config", "/etc/vector/vector.yaml"]
         pod:
           topologySpreadConstraints:
