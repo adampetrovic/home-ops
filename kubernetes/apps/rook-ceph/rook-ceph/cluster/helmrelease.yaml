@@ -110,6 +110,8 @@ spec:
         deviceFilter: nvme0n1
         config:
           osdsPerDevice: "1"
+      cleanupPolicy:
+        wipeDevicesFromOtherClusters: true
       placement:
         mgr: &placement
           nodeAffinity:
