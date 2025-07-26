@@ -60,6 +60,8 @@ spec:
             args: ["--config", "/etc/vector/vector.yaml"]
             securityContext:
               privileged: true
+    serviceAccount:
+      vector-agent: {}
     persistence:
       config:
         enabled: true
@@ -99,3 +101,19 @@ spec:
         hostPathType: Directory
         globalMounts:
           - readOnly: true
+    rbac:
+      bindings:
+        vector-agent:
+          roleRef:
+            kind: ClusterRole
+            name: vector-agent
+          subjects:
+            - identifier: *app
+          type: ClusterRoleBinding
+      roles:
+        vector-agent:
+          rules:
+            - apiGroups: [""]
+              resources: ["namespaces", "nodes", "pods"]
+              verbs: ["list", "watch"]
+          type: ClusterRole
