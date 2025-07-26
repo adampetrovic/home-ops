@@ -33,6 +33,11 @@ spec:
     monitoring:
       enabled: true
       createPrometheusRules: true
+      # Disable false positive alerts for /var disk space warnings on Talos nodes
+      # These alerts trigger incorrectly due to heavy container image/log usage in /var
+      # but don't reflect actual storage capacity issues since Ceph uses dedicated devices
+      rulesNamespaceOverride:
+        CephNodeDiskspaceWarning: false
     ingress:
       dashboard:
         ingressClassName: internal
