@@ -110,7 +110,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
     service:
       app:
-        nameOverride: *app
+        forceRename: *app
         controller: homeassistant
         type: LoadBalancer
         annotations:
