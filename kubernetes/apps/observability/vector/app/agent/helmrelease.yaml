@@ -30,6 +30,8 @@ spec:
       vector-agent:
         type: daemonset
         strategy: RollingUpdate
+        serviceAccount:
+          identifier: vectorAgent
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -59,8 +61,7 @@ spec:
             securityContext:
               privileged: true
     serviceAccount:
-      create: true
-      name: vector-agent
+      vectorAgent: {}
     persistence:
       config:
         enabled: true
