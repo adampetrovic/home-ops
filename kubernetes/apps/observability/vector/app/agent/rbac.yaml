@@ -18,5 +18,5 @@ roleRef:
   name: vector-agent
 subjects:
   - kind: ServiceAccount
-    name: vectorAgent
+    name: vector-agent
     namespace: observability
