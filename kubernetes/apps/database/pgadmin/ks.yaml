@@ -20,7 +20,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: flux-system
     - name: external-secrets-stores
-      namespace: flux-system
+      namespace: external-secrets
     - name: volsync
       namespace: flux-system
   wait: false

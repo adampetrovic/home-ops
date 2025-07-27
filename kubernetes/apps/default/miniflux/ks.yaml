@@ -14,7 +14,7 @@ spec:
     - name: cloudnative-pg-cluster-v17
       namespace: database
     - name: external-secrets-stores
-      namespace: flux-system
+      namespace: external-secrets
   path: ./kubernetes/apps/default/miniflux/app
   prune: true
   sourceRef:
