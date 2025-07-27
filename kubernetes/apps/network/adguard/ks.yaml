@@ -9,6 +9,7 @@ spec:
   targetNamespace: network
   dependsOn:
     - name: external-secrets-stores
+      namespace: external-secrets
     - name: cert-manager
       namespace: cert-manager
     - name: rook-ceph-cluster
