@@ -3,6 +3,6 @@
 apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 resources:
-  - ./namespace.yaml
-  - ./repos
-  - ./sops
+  - ./claim.yaml
+  - ./minio.yaml
+  - ./r2.yaml
