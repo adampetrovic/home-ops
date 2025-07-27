@@ -10,6 +10,7 @@ spec:
   dependsOn:
     - name: external-secrets-stores
     - name: cert-manager
+      namespace: cert-manager
     - name: rook-ceph-cluster
   path: ./kubernetes/apps/network/adguard/app
   prune: true
