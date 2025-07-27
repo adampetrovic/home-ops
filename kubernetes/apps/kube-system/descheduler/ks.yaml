@@ -17,6 +17,7 @@ spec:
     kind: GitRepository
     name: home-kubernetes
     namespace: flux-system
+    namespace: flux-system
   targetNamespace: kube-system
   timeout: 5m
   wait: false
