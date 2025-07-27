@@ -9,6 +9,7 @@ spec:
   targetNamespace: automation
   dependsOn:
     - name: external-secrets-stores
+      namespace: external-secrets
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
