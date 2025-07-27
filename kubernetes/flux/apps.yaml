@@ -12,7 +12,6 @@ spec:
     kind: GitRepository
     name: home-kubernetes
     namespace: flux-system
-    namespace: flux-system
   decryption:
     provider: sops
     secretRef:
