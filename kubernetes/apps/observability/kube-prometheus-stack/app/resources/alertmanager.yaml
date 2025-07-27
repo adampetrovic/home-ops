@@ -54,15 +54,19 @@ receivers:
           {{ "{{-" }} end {{ "}}" }}
           {{ "{{" }} define "__alert_severity_text" {{ "-}}" }}
             {{ "{{-" }} $alertsLen := (len .Alerts) {{ "-}}" }}
-            {{ "{{" }} range .Alerts {{ "}}" }}
-              {{ "{{-" }} if .Annotations.summary {{ "}}" }}
-                *{{ "{{" }} .Annotations.summary {{ "}}" }}*
-              {{ "{{-" }} end {{ "}}" }}
-              {{ "{{-" }} if .Annotations.description {{ "}}" }}
-                *{{ "{{" }} .Annotations.description {{ "}}" }}*
-              {{ "{{-" }} end {{ "}}" }}
-              {{ "{{-" }} if le $alertsLen 10 {{ "}}" }}
-                [Prometheus Link]({{ "{{" }} .GeneratorURL {{ "}}" }})
+            {{ "{{" }} range $index, $alert := .Alerts {{ "}}" }}
+              {{ "{{-" }} if le $index 5 {{ "}}" }}
+                {{ "{{-" }} if $alert.Annotations.summary {{ "}}" }}
+                  *{{ "{{" }} $alert.Annotations.summary {{ "}}" }}*
+                {{ "{{-" }} end {{ "}}" }}
+                {{ "{{-" }} if $alert.Annotations.description {{ "}}" }}
+                  *{{ "{{" }} $alert.Annotations.description {{ "}}" }}*
+                {{ "{{-" }} end {{ "}}" }}
+                {{ "{{-" }} if le $alertsLen 3 {{ "}}" }}
+                  [Prometheus Link]({{ "{{" }} $alert.GeneratorURL {{ "}}" }})
+                {{ "{{-" }} end {{ "}}" }}
+              {{ "{{-" }} else if eq $index 5 {{ "}}" }}
+                *... and {{ "{{" }} sub $alertsLen 5 {{ "}}" }} more alerts*
               {{ "{{-" }} end {{ "}}" }}
             {{ "{{" }} end {{ "}}" }}
           {{ "{{-" }} end {{ "}}" }}
