@@ -14,7 +14,7 @@ spec:
   prune: true
   dependsOn:
     - name: external-secrets-stores
-      namespace: flux-system
+      namespace: external-secrets
     - name: openebs
       namespace: flux-system
   sourceRef:
@@ -41,7 +41,7 @@ spec:
     - name: cloudnative-pg
       namespace: database
     - name: external-secrets-stores
-      namespace: flux-system
+      namespace: external-secrets
   path: ./kubernetes/apps/database/cloudnative-pg/cluster-v17
   prune: true
   sourceRef:
