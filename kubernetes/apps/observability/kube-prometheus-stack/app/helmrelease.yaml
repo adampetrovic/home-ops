@@ -46,6 +46,9 @@ spec:
       alertmanagerSpec:
         useExistingSecret: true
         configSecret: alertmanager-secret
+        podMetadata:
+          annotations:
+            secret.reloader.stakater.com/reload: alertmanager-secret
         storage:
           volumeClaimTemplate:
             spec:
