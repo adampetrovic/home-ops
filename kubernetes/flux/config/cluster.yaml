@@ -3,7 +3,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
   name: home-kubernetes
-  namespace: flux-system
+  namespace: &namespace kube-system
 spec:
   interval: 30m
   url: "ssh://git@github.com/adampetrovic/home-ops"
@@ -21,7 +21,7 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: cluster
-  namespace: flux-system
+  namespace: &namespace kube-system
 spec:
   interval: 30m
   path: ./kubernetes/flux
