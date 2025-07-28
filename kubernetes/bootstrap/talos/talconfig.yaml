@@ -3,7 +3,7 @@
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.9.6
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.33.1
+kubernetesVersion: v1.32.3
 
 clusterName: &cluster home-kubernetes
 endpoint: https://10.0.80.99:6443
@@ -127,7 +127,7 @@ patches:
         extraArgs:
           image-gc-low-threshold: 50
           image-gc-high-threshold: 55
-          rotate-server-certificates: true
+          rotate-server-certificates: false
         nodeIP:
           validSubnets:
             - "10.0.80.0/21"

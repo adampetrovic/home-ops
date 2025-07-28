@@ -29,7 +29,7 @@ tasks:
       vars: ["cephnodes", "cephdisk"]
 
 
-  # usage: task rook:reset-disk disk=/dev/nvme0n1 node=k8s-node-3 cluster=admin@home-kubernetes
+  # usage: task rook:reset-disk disk=/dev/nvme0n1 node=k8s-node-3
   reset-disk:
     desc: Reset a rook disk on a node
     prompt: Reset rook disk with '{{.node}} {{.disk}}' continue?
