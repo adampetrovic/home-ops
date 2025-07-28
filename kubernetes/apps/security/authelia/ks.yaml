@@ -4,9 +4,9 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app authelia
-  namespace: flux-system
+  namespace: &namespace security
 spec:
-  targetNamespace: security
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -15,6 +15,8 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: lldap
+      namespace: security
   path: ./kubernetes/apps/security/authelia/app
   prune: true
   sourceRef:
