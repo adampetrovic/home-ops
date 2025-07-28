@@ -4,16 +4,21 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app plex
-  namespace: flux-system
+  namespace: &namespace media
 spec:
-  targetNamespace: media
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/volsync
   dependsOn:
-    - name: external-secrets-stores
-      namespace: external-secrets
+    - name: intel-device-plugin-gpu
+      namespace: flux-system
     - name: rook-ceph-cluster
+      namespace: flux-system
+    - name: vector
+      namespace: flux-system
   path: ./kubernetes/apps/media/plex/app
   prune: true
   sourceRef:
@@ -37,9 +42,9 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app plex-image-cleanup
-  namespace: flux-system
+  namespace: &namespace media
 spec:
-  targetNamespace: media
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -47,7 +52,7 @@ spec:
     - name: external-secrets-stores
       namespace: external-secrets
     - name: plex
-    - name: rook-ceph-cluster
+      namespace: media
   interval: 10m
   path: ./kubernetes/apps/media/plex/plex-image-cleanup
   prune: true
@@ -56,6 +61,3 @@ spec:
     name: home-kubernetes
     namespace: flux-system
   wait: false
-  postBuild:
-    substitute:
-      APP: *app

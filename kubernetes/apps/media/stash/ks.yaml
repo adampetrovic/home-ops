@@ -3,14 +3,20 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app stash
-  namespace: flux-system
+  namespace: &namespace media
 spec:
-  targetNamespace: media
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/volsync
+  chartRef:
+    kind: OCIRepository
+    name: app-template
   dependsOn:
     - name: rook-ceph-cluster
+      namespace: flux-system
   path: ./kubernetes/apps/media/stash/app
   prune: true
   sourceRef:
