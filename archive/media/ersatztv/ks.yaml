@@ -12,7 +12,9 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: plex
+      namespace: media
     - name: rook-ceph-cluster
+      namespace: rook-ceph
   path: ./kubernetes/apps/media/ersatztv/app
   prune: true
   sourceRef:

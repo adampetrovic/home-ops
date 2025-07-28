@@ -20,7 +20,7 @@ spec:
     namespace: flux-system
   dependsOn:
     - name: rook-ceph-cluster
-      namespace: flux-system
+      namespace: rook-ceph
   wait: false # no flux ks dependents
   interval: 30m
   retryInterval: 1m
