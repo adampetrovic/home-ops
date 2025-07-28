@@ -21,7 +21,7 @@ spec:
   interval: 30m
   chartRef:
     kind: OCIRepository
-    name: cloudflare-dns
+    name: external-dns
   install:
     remediation:
       retries: -1
