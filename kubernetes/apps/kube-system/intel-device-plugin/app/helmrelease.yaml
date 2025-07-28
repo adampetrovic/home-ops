@@ -22,7 +22,7 @@ spec:
   interval: 30m
   chartRef:
     kind: OCIRepository
-    name: intel-device-plugin-operator
+    name: intel-device-plugins-operator
   install:
     crds: CreateReplace
     remediation:
