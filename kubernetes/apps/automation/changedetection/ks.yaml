@@ -18,7 +18,6 @@ spec:
     namespace: flux-system
   dependsOn:
     - name: rook-ceph-cluster
-    - name: volsync
   wait: false # no flux ks dependents
   interval: 30m
   retryInterval: 1m

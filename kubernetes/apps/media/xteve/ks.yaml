@@ -12,7 +12,6 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: rook-ceph-cluster
-    - name: volsync
   path: ./kubernetes/apps/media/xteve/app
   prune: true
   sourceRef:
