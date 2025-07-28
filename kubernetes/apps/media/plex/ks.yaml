@@ -16,7 +16,7 @@ spec:
     - name: intel-device-plugin-gpu
       namespace: flux-system
     - name: rook-ceph-cluster
-      namespace: flux-system
+      namespace: rook-ceph
     - name: vector
       namespace: flux-system
   path: ./kubernetes/apps/media/plex/app

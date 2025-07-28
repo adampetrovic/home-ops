@@ -27,7 +27,7 @@ spec:
     - name: node-feature-discovery
       namespace: flux-system
     - name: rook-ceph-cluster
-      namespace: flux-system
+      namespace: rook-ceph
   postBuild:
     substitute:
       APP: *app

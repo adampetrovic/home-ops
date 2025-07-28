@@ -21,9 +21,6 @@ spec:
       strategy: rollback
   uninstall:
     keepHistory: false
-  dependsOn:
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   values:
     controllers:
       jellyseerr:
