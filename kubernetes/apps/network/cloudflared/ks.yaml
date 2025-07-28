@@ -3,14 +3,15 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: &app cloudflared
-  namespace: flux-system
+  namespace: &namespace network
 spec:
-  targetNamespace: network
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: external-dns-external
+      namespace: observability
   path: ./kubernetes/apps/network/cloudflared/app
   prune: true
   sourceRef:

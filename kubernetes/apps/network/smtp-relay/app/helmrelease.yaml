@@ -6,19 +6,14 @@ metadata:
   name: &app smtp-relay
 spec:
   interval: 15m
-  chart:
-    spec:
-      chart: app-template
-      version: 4.1.2
-      sourceRef:
-        kind: HelmRepository
-        name: bjw-s
-        namespace: flux-system
+  chartRef:
+    kind: OCIRepository
+    name: app-template
   maxHistory: 2
   install:
     createNamespace: true
     remediation:
-      retries: 3
+      retries: -1
   upgrade:
     cleanupOnFail: true
     remediation:
