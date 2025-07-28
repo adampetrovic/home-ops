@@ -1,11 +1,10 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: automation
+components:
+  - ../../components/common
 resources:
-  - ./namespace.yaml
-  #- ./ghcr-token-secret.yaml
-
-  # manifests
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml
   - ./frigate/ks.yaml

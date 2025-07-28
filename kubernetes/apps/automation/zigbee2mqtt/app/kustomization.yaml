@@ -5,4 +5,4 @@ namespace: automation
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ../../../../templates/volsync
+
