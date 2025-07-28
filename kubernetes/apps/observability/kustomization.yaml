@@ -1,12 +1,13 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: observability
+components:
+  - ../../components/common
 resources:
-  - ./namespace.yaml
   - ./grafana/ks.yaml
   - ./influxdb/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./loki/ks.yaml
-  - ./ntfy/ks.yaml
   - ./unpoller/ks.yaml
   - ./vector/ks.yaml
