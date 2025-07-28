@@ -16,7 +16,6 @@ resources:
   - ./jetstack.yaml
   - ./metrics-server.yaml
   - ./node-feature-discovery.yaml
-  - ./openebs.yaml
   - ./piraeus.yaml
   - ./prometheus-community.yaml
   - ./postfinance.yaml
