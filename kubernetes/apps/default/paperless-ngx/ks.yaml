@@ -14,8 +14,6 @@ spec:
   dependsOn:
     - name: rook-ceph-cluster
       namespace: flux-system
-    - name: volsync
-      namespace: flux-system
   path: ./kubernetes/apps/default/paperless-ngx/app
   prune: true
   sourceRef:

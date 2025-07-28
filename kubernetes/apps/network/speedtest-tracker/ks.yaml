@@ -15,7 +15,6 @@ spec:
       namespace: external-secrets
     - name: cloudnative-pg-cluster-v17
       namespace: database
-    - name: volsync
   path: ./kubernetes/apps/network/speedtest-tracker/app
   prune: true
   sourceRef:

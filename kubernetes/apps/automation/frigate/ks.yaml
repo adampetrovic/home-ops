@@ -24,7 +24,6 @@ spec:
       namespace: external-secrets
     - name: node-feature-discovery
     - name: rook-ceph-cluster
-    - name: volsync
   postBuild:
     substitute:
       APP: *app

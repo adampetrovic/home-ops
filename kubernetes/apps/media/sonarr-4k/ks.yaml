@@ -14,7 +14,6 @@ spec:
     - name: external-secrets-stores
       namespace: external-secrets
     - name: rook-ceph-cluster
-    - name: volsync
   path: ./kubernetes/apps/media/sonarr-4k/app
   prune: true
   sourceRef:
