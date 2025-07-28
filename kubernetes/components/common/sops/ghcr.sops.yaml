@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-    name: ghcr-token-secret
+    name: ghcr-private
     namespace: default
 type: kubernetes.io/dockerconfigjson
 stringData:
@@ -17,7 +17,7 @@ sops:
             TE92TVJacmp5U0lidWI5UEdkNVFZUzAK5c/gDLhQcmTNnTyAFX0feClOVth4OB40
             jYmGSv0uKA4HbFiq9tHbMRgfMmymeQDkgso5W2L63fnaMxJxAHm6/w==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2025-07-28T00:31:50Z"
-    mac: ENC[AES256_GCM,data:z0vOtQ8p2ZK3lONkUs1NYzF0IodyBheuILKHA8tF0/vdaBNHCMoGeblUWZ+d6TwlzxjDlKxeqVGMbm6vyG0Y/QTBuvzS/C6O2r3ACLhOOXn5vAK8g72wdJ2e7A993q+BinkQwtcgVn9JwlZD8jCfqiTNW3evNrC+GXRrMR0R4vo=,iv:W1yAE7c/DQRcYLBFjJTusYZGhFrks0+CPdCPtGu29Zw=,tag:86OK1qa/o9UHfGdPcCbszw==,type:str]
+    lastmodified: "2025-07-28T00:54:03Z"
+    mac: ENC[AES256_GCM,data:1ccvYkQDd72DALje4TPfeItkKkEAEOsS7/IHBBhZNpD65Oags/x/sGDWGpc5p+iGKfREUWXn4oHZMmn2dyTtLgoYWsEF3S/NAr36qWcOTqo9rvOxN/USG0WZpvLK9iiWgz5rmRK6B6vYpKtHH+byQHpirsG+c1GMp5cjtkZky7M=,iv:4eZ/Z7z76hbG0IPep092DXg+Zv3n1+sY0MJSY5QhuMs=,tag:pf563/jap9wgFK90FyE/6Q==,type:str]
     encrypted_regex: ^(data|stringData)$
     version: 3.10.2
