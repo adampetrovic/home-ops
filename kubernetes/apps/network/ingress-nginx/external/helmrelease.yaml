@@ -10,8 +10,10 @@ spec:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
   ref:
-    tag: 4.13.0
-  url: oci://ghcr.io/kubernetes/ingress-nginx
+    tag: 4.12.4
+  url: oci://ghcr.io/home-operations/charts-mirror/ingress-nginx
+  verify:
+    provider: cosign
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
