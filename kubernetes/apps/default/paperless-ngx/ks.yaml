@@ -13,7 +13,7 @@ spec:
     - ../../../../components/volsync
   dependsOn:
     - name: rook-ceph-cluster
-      namespace: flux-system
+      namespace: rook-ceph
   path: ./kubernetes/apps/default/paperless-ngx/app
   prune: true
   sourceRef:
