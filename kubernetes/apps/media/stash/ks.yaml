@@ -11,9 +11,6 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
-  chartRef:
-    kind: OCIRepository
-    name: app-template
   dependsOn:
     - name: rook-ceph-cluster
       namespace: flux-system
