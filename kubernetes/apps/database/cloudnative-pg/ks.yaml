@@ -42,6 +42,8 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: minio
+      namespace: storage
   path: ./kubernetes/apps/database/cloudnative-pg/cluster-v17
   prune: true
   sourceRef:
