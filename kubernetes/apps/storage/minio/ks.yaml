@@ -5,7 +5,7 @@ metadata:
   name: &app minio
   namespace: &namespace storage
 spec:
-  targetNamespace: *storage
+  targetNamespace: *namespace
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
