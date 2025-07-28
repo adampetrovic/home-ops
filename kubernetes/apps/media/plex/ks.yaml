@@ -18,7 +18,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
     - name: vector
-      namespace: flux-system
+      namespace: observability
   path: ./kubernetes/apps/media/plex/app
   prune: true
   sourceRef:
