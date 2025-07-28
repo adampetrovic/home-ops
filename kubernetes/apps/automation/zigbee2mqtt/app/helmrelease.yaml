@@ -6,14 +6,9 @@ metadata:
   name: zigbee2mqtt
 spec:
   interval: 30m
-  chart:
-    spec:
-      chart: app-template
-      version: 4.1.2
-      sourceRef:
-        kind: HelmRepository
-        name: bjw-s
-        namespace: flux-system
+  chartRef:
+    kind: OCIRepository
+    name: app-template
   maxHistory: 2
   install:
     createNamespace: true
@@ -26,11 +21,6 @@ spec:
       strategy: rollback
   uninstall:
     keepHistory: false
-  dependsOn:
-    - name: mosquitto
-      namespace: automation
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   values:
     defaultPodOptions:
       securityContext:
