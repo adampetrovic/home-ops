@@ -22,7 +22,7 @@ nodes:
   - hostname: k8s-node-1
     ipAddress: 10.0.80.10
     installDiskSelector:
-      type: ssd
+      model: Samsung SSD 870
     talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
@@ -39,7 +39,7 @@ nodes:
   - hostname: k8s-node-2
     ipAddress: 10.0.80.11
     installDiskSelector:
-      type: ssd
+      model: Samsung SSD 870
     talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
@@ -56,7 +56,7 @@ nodes:
   - hostname: k8s-node-3
     ipAddress: 10.0.80.12
     installDiskSelector:
-      type: ssd
+      model: Samsung SSD 870
     talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
@@ -73,7 +73,7 @@ nodes:
   - hostname: k8s-node-4
     ipAddress: 10.0.80.13
     installDiskSelector:
-      type: ssd
+      model: Samsung SSD 870
     talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
     controlPlane: true
     networkInterfaces:
