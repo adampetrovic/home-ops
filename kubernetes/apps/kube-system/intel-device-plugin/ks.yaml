@@ -10,6 +10,7 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  path: ./kubernetes/apps/kube-system/intel-device-plugin/app
   prune: true
   sourceRef:
     kind: GitRepository
