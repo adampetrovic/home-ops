@@ -87,6 +87,10 @@ spec:
         multus:
           type: ClusterRoleBinding
           roleRef:
-            identifier: multus
+            kind: ClusterRole
+            name: multus
+            apiGroup: rbac.authorization.k8s.io
           subjects:
-            - identifier: multus
+            - kind: ServiceAccount
+              name: multus
+              namespace: network
