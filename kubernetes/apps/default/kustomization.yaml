@@ -4,8 +4,8 @@ kind: Kustomization
 namespace: default
 components:
   - ../../components/common
-resources: []
-  # - ./atuin/ks.yaml
-  # - ./memos/ks.yaml
-  # - ./miniflux/ks.yaml
-  # - ./paperless-ngx/ks.yaml
+resources:
+  - ./atuin/ks.yaml
+  - ./memos/ks.yaml
+  - ./miniflux/ks.yaml
+  - ./paperless-ngx/ks.yaml
