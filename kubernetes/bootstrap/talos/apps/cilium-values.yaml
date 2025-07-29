@@ -16,8 +16,6 @@ cluster:
 #   - eno0
 endpointRoutes:
   enabled: true
-cni:
-  exclusive: false # Needed to allow Cilium to work with Multus
 hubble:
   enabled: false
 ipam:
@@ -36,23 +34,6 @@ localRedirectPolicy: true
 operator:
   replicas: 1
   rollOutPods: true
-  prometheus:
-    enabled: true
-    serviceMonitor:
-      enabled: true
-  dashboards:
-    enabled: true
-    annotations:
-      grafana_folder: Cilium
-prometheus:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-    trustCRDsExist: true
-dashboards:
-  enabled: true
-  annotations:
-    grafana_folder: Cilium
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
