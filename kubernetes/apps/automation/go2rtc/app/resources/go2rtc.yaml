@@ -71,18 +71,12 @@ homekit:
   doorbell_lq:
     pin: "19550224"
     name: Doorbell
-    pairings:
-      - client_id=$${GO2RTC_HOMEKIT_CLIENT_ID_0}&client_public=$${GO2RTC_HOMEKIT_CLIENT_PUBLIC_0}&permissions=1
   front_balcony_lq:
     pin: "19550224"
     name: Front Balcony
-    pairings:
-      - client_id=$${GO2RTC_HOMEKIT_CLIENT_ID_0}&client_public=$${GO2RTC_HOMEKIT_CLIENT_PUBLIC_0}&permissions=1
   garage_lq:
     pin: "19550224"
     name: Garage
-    pairings:
-      - client_id=$${GO2RTC_HOMEKIT_CLIENT_ID_0}&client_public=$${GO2RTC_HOMEKIT_CLIENT_PUBLIC_0}&permissions=1
   zoey_lq:
     pin: "19550224"
     name: Zoey's Room
