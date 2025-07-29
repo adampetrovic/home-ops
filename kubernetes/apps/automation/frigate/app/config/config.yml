@@ -78,10 +78,10 @@ go2rtc:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_DOORBELL_IP}:554/h264Preview_01_main
     doorbell_sub:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_DOORBELL_IP}:554/h264Preview_01_sub
-    front_balcony_main:
-      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
-    front_balcony_sub:
-      - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/103/
+    #front_balcony_main:
+    #  - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/101/
+    #front_balcony_sub:
+    #  - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_BALCONY_IP}:554/Streaming/Channels/103/
     front_yard_main:
       - rtsp://{FRIGATE_CAMERA_USER}:{FRIGATE_CAMERA_PASSWORD}@{FRIGATE_FRONT_YARD_IP}:554/Streaming/Channels/101/
     front_yard_sub:
@@ -243,11 +243,11 @@ cameras:
   front_balcony:
     ffmpeg:
       inputs:
-        - path: rtsp://127.0.0.1:8554/front_balcony_main
+        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_balcony_hq
           input_args: preset-rtsp-restream
           roles:
             - record
-        - path: rtsp://127.0.0.1:8554/front_balcony_sub
+        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_balcony_lq
           input_args: preset-rtsp-restream
           roles:
             - detect
