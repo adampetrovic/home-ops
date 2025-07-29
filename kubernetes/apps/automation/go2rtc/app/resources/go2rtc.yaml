@@ -17,8 +17,13 @@ webrtc:
 streams:
   front_balcony_hq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.59:554/Streaming/Channels/101/
+  front_balcony_lq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.59:554/Streaming/Channels/103/
 
 homekit:
   front_balcony_hq:
-    pin: 19550224
-    name: Front Balcony (HQ)
+    pin: "19550224"
+    name: Front Balcony (High)
+  front_balcony_lq:
+    pin: "19550224"
+    name: Front Balcony (Low)
