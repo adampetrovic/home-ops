@@ -23,10 +23,6 @@ streams:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.56:554/Streaming/Channels/101/
   backyard_lq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.56:554/Streaming/Channels/103/
-  zoey_hq:
-    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.63:554/h264Preview_01_main
-  zoey_lq:
-    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.63:554/h264Preview_01_sub
   doorbell_hq:
     - "ffmpeg:http://10.0.50.60/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
     - rtsp://10.0.50.60/Preview_01_sub
@@ -52,6 +48,10 @@ streams:
     - rtsps://10.0.0.2:7441/znlLCKhK116rrOuV
   living_room_lq:
     - rtsps://10.0.0.2:7441/HN2z9YAb5rfqAb3Y
+  office_hq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/101/
+  office_lq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/103/
   side_walkway_hq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.55:554/Streaming/Channels/101/
   side_walkway_lq:
@@ -60,17 +60,22 @@ streams:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.52:554/Streaming/Channels/101/
   utilities_lq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.52:554/Streaming/Channels/103/
+  zoey_hq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.63:554/h264Preview_01_main
+  zoey_lq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.63:554/h264Preview_01_sub
+    - ffmpeg:zoey_lq#audio=opus#audio=copy
 
 homekit:
-  front_balcony_hq:
-    pin: "19550224"
-    name: Front Balcony (HQ)
-  front_balcony_lq:
-    pin: "19550224"
-    name: Front Balcony (LQ)
-  doorbell_hq:
-    pin: "19550224"
-    name: Doorbell (HQ)
   doorbell_lq:
     pin: "19550224"
-    name: Doorbell (LQ)
+    name: Doorbell
+  front_balcony_lq:
+    pin: "19550224"
+    name: Front Balcony
+  garage_lq:
+    pin: "19550224"
+    name: Garage
+  zoey_lq:
+    pin: "19550224"
+    name: Zoey's Room
