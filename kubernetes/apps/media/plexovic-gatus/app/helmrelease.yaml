@@ -38,7 +38,9 @@ spec:
               GATUS_CONFIG_PATH: /config
               CUSTOM_WEB_PORT: &port 8080
               SECRET_PLEX_DOMAIN: ${SECRET_PLEX_DOMAIN}
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: plexovic-gatus-secret
             resources:
               requests:
                 cpu: 10m
