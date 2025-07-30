@@ -247,7 +247,7 @@ spec:
         synology:
           # renovate: depName="Synology"
           gnetId: 14284
-          revision: 9
+          revision: 10
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
         unpackerr:
