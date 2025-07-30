@@ -29,7 +29,7 @@ receivers:
       - send_resolved: true
         chat_id: {{ .TELEGRAM_CHAT_ID }}
         bot_token: {{ .TELEGRAM_BOT_TOKEN }}
-        parse_mode: "Markdown"
+        parse_mode: "HTML"
         message: >-
           {{ "{{" }} define "__alert_severity_prefix_title" {{ "-}}" }}
             {{ "{{-" }} if eq .Status "firing" {{ "-}}" }}
@@ -48,21 +48,21 @@ receivers:
           {{ "{{-" }} end {{ "}}" }}
 
           {{ "{{" }} define "__alert_severity_title" {{ "-}}" }}
-            **{{ "{{-" }} .Status | toUpper {{ "-}}" }}
+            <b>{{ "{{-" }} .Status | toUpper {{ "-}}" }}
             {{ "{{" }} if eq .Status "firing" {{ "}}" }}:{{ "{{" }} .Alerts.Firing | len {{ "}}" }}{{ "{{-" }} end {{ "}}" }}
-            {{ "{{" }} template "__alert_severity_prefix_title" . {{ "}}" }} {{ "{{" }} .CommonLabels.alertname {{ "}}" }}**
+            {{ "{{" }} template "__alert_severity_prefix_title" . {{ "}}" }} {{ "{{" }} .CommonLabels.alertname {{ "}}" }}</b>
           {{ "{{-" }} end {{ "}}" }}
           {{ "{{" }} define "__alert_severity_text" {{ "-}}" }}
             {{ "{{-" }} $alertsLen := (len .Alerts) {{ "-}}" }}
             {{ "{{" }} range .Alerts {{ "}}" }}
               {{ "{{-" }} if .Annotations.summary {{ "}}" }}
-                *{{ "{{" }} .Annotations.summary {{ "}}" }}*
+                <i>{{ "{{" }} .Annotations.summary {{ "}}" }}</i>
               {{ "{{-" }} end {{ "}}" }}
               {{ "{{-" }} if .Annotations.description {{ "}}" }}
-                *{{ "{{" }} .Annotations.description {{ "}}" }}*
+                <i>{{ "{{" }} .Annotations.description {{ "}}" }}</i>
               {{ "{{-" }} end {{ "}}" }}
               {{ "{{-" }} if le $alertsLen 5 {{ "}}" }}
-                [Prometheus Link]({{ "{{" }} .GeneratorURL {{ "}}" }})
+                <a href="{{ "{{" }} .GeneratorURL {{ "}}" }}">Prometheus Link</a>
               {{ "{{-" }} end {{ "}}" }}
             {{ "{{" }} end {{ "}}" }}
           {{ "{{-" }} end {{ "}}" }}
