@@ -2,110 +2,389 @@
 
 <img src="https://raw.githubusercontent.com/adampetrovic/home-ops/main/docs/assets/logo.png" align="center" width="144px" height="144px"/>
 
-### My Home Operations Repository :octocat:
+# Home Operations Repository
 
-_... managed with Flux, Renovate, and GitHub Actions_ 🤖
+_A comprehensive Kubernetes-native home infrastructure platform_
+
+**🚀 GitOps • 🔒 Security-First • 🤖 Fully Automated**
+
+![License](https://img.shields.io/github/license/adampetrovic/home-ops?color=blue&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/adampetrovic/home-ops?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/k8s-v1.32.3-blue?style=flat-square)
+![Talos](https://img.shields.io/badge/talos-v1.9.6-orange?style=flat-square)
 
 </div>
 
+---
+
 ## 📖 Overview
 
-This is a mono repository for my home infrastructure and Kubernetes cluster. I try to adhere to Infrastructure as Code (IaC) and GitOps practices using [Kubernetes](https://kubernetes.io/), [Flux](https://github.com/fluxcd/flux2), [Renovate](https://github.com/renovatebot/renovate), and [GitHub Actions](https://github.com/features/actions).
+This repository contains the complete infrastructure-as-code (IaC) configuration for my home operations platform. Built on modern cloud-native principles, it demonstrates enterprise-grade practices scaled down for home use, featuring:
+
+- **🏗️ Kubernetes-Native Architecture**: Built on [Talos Linux](https://talos.dev) for immutable infrastructure
+- **⚡ GitOps Workflow**: Managed by [Flux CD](https://fluxcd.io) for declarative, Git-driven deployments
+- **🔐 Zero-Trust Security**: Comprehensive authentication, authorization, and secrets management
+- **🤖 Full Automation**: From hardware provisioning to application deployment
+- **📊 Complete Observability**: Metrics, logs, traces, and alerting across the stack
+- **🏠 Smart Home Integration**: IoT, automation, and media management platform
+
+### 🎯 Core Principles
+
+- **Infrastructure as Code**: Everything defined declaratively in Git
+- **GitOps**: Git as the single source of truth for cluster state
+- **Security by Design**: Zero-trust networking, encrypted secrets, automated updates
+- **Cloud-Native**: Kubernetes-first, microservices architecture
+- **Observability**: Comprehensive monitoring and alerting
+- **Automation**: Minimal manual intervention required
 
 ---
 
-## ⛵ Kubernetes
+## 🏗️ Infrastructure
 
-My Kubernetes cluster is deployed with [Talos](https://www.talos.dev). This is a semi-hyper-converged cluster, workloads and block storage are sharing the same available resources on my nodes while I have a NAS for NFS/SMB shares, bulk file storage and backups.
+### Cluster Architecture
 
-There is a template over at [onedr0p/cluster-template](https://github.com/onedr0p/cluster-template) if you want to try and follow along with some of the practices I use here.
+The platform runs on a **high-availability Kubernetes cluster** powered by Talos Linux:
 
-### Core Components
+| Component | Details |
+|-----------|---------|
+| **OS** | [Talos Linux](https://talos.dev) v1.9.6 - Immutable, API-driven Linux |
+| **Kubernetes** | v1.32.3 - Latest stable Kubernetes |
+| **CNI** | [Cilium](https://cilium.io) - eBPF-based networking and security |
+| **Nodes** | 4x Control Plane (no dedicated workers) |
+| **High Availability** | Virtual IP, distributed etcd, automated failover |
 
-- [actions-runner-controller](https://github.com/actions/actions-runner-controller): Self-hosted Github runners.
-- [cert-manager](https://github.com/cert-manager/cert-manager): Creates SSL certificates for services in my cluster.
-- [cilium](https://github.com/cilium/cilium): Internal Kubernetes container networking interface.
-- [cloudflared](https://github.com/cloudflare/cloudflared): Enables Cloudflare secure access to certain ingresses.
-- [external-dns](https://github.com/kubernetes-sigs/external-dns): Automatically syncs ingress DNS records to a DNS provider.
-- [external-secrets](https://github.com/external-secrets/external-secrets): Managed Kubernetes secrets using [1Password Connect](https://github.com/1Password/connect).
-- [ingress-nginx](https://github.com/kubernetes/ingress-nginx): Kubernetes ingress controller using NGINX as a reverse proxy and load balancer.
-- [rook](https://github.com/rook/rook): Distributed block storage for peristent storage.
-- [sops](https://github.com/getsops/sops): Managed secrets for Kubernetes and Terraform which are commited to Git.
-- [spegel](https://github.com/spegel-org/spegel): Stateless cluster local OCI registry mirror.
-- [volsync](https://github.com/backube/volsync): Backup and recovery of persistent volume claims.
+### 🖥️ Hardware Specifications
 
-### GitOps
+| Device | Count | CPU | RAM | OS Disk | Data Disk | Purpose |
+|--------|-------|-----|-----|---------|-----------|---------|
+| **Intel NUC12WSHi7** | 2 | i7-1265U | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Intel NUC11PAHi7** | 2 | i7-1165G7 | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Synology RS1219+** | 1 | Atom C2538 | 4GB | - | 6×16TB | NAS Storage |
+| **Synology DVA1622** | 1 | Atom C3508 | 4GB | - | 2×4TB | NVR/Security Cameras |
+| **UniFi UXG-Pro** | 1 | - | - | - | - | Gateway/Router |
+| **UniFi US-48-500W** | 1 | - | - | - | - | 48-Port PoE Switch |
+| **APC SMC1000I-2UC** | 1 | - | - | - | - | UPS Power Management |
 
-[Flux](https://github.com/fluxcd/flux2) watches the clusters in my [kubernetes](./kubernetes/) folder (see Directories below) and makes the changes to my clusters based on the state of my Git repository.
+### 🌐 Network Topology
 
-The way Flux works for me here is it will recursively search the `kubernetes/${cluster}/apps` folder until it finds the most top level `kustomization.yaml` per directory and then apply all the resources listed in it. That aforementioned `kustomization.yaml` will generally only have a namespace resource and one or many Flux kustomizations (`ks.yaml`). Under the control of those Flux kustomizations there will be a `HelmRelease` or other resources related to the application which will be applied.
+- **Management VLAN** (VLAN 80): `10.0.80.0/21` - Kubernetes nodes
+- **Trusted VLAN** (VLAN 10): `10.0.10.0/24` - Home devices, secondary k8s interfaces
+- **Cluster Networking**: 
+  - Pod CIDR: `10.69.0.0/16`
+  - Service CIDR: `10.96.0.0/16`
+  - LoadBalancer VIP: `10.0.80.99`
 
-[Renovate](https://github.com/renovatebot/renovate) watches my **entire** repository looking for dependency updates, when they are found a PR is automatically created. When some PRs are merged Flux applies the changes to my cluster.
+---
 
-### Directories
+## 🚀 Applications
 
-This Git repository contains the following directories under [Kubernetes](./kubernetes/).
+The platform hosts **60+ applications** across multiple categories:
 
-```sh
-📁 kubernetes
-├── 📁 apps           # applications
-├── 📁 bootstrap      # bootstrap procedures
-├── 📁 flux           # core flux configuration
-└── 📁 templates      # re-useable components
-```
+### 🤖 AI & Machine Learning
+- **[Ollama](https://ollama.ai)** - Local LLM inference server
+- **[Open WebUI](https://openwebui.com)** - Modern ChatGPT-like interface for Ollama
 
-### Flux Workflow
+### 🏠 Home Automation
+- **[Home Assistant](https://home-assistant.io)** - Comprehensive home automation platform
+- **[ESPHome](https://esphome.io)** - ESP8266/ESP32 device management
+- **[Zigbee2MQTT](https://zigbee2mqtt.io)** - Zigbee device bridge
+- **[Mosquitto](https://mosquitto.org)** - MQTT message broker
+- **[Frigate](https://frigate.video)** - AI-powered network video recorder
+- **[go2rtc](https://github.com/AlexxIT/go2rtc)** - Real-time streaming server
+- **TeslaMate** - Tesla vehicle data logging and analytics
+- **Fernwood Booker** - Custom multi-tenant appointment booking system
 
-This is a high-level look how Flux deploys my applications with dependencies. Below there are 3 apps `postgres`, `lldap` and `authelia`. `postgres` is the first app that needs to be running and healthy before `lldap` and `authelia`. Once `postgres` and `lldap` are healthy `authelia` will be deployed.
+### 📺 Media Management
+- **[Plex](https://plex.tv)** - Media server and streaming platform
+- **[Sonarr](https://sonarr.tv)** + **[Sonarr 4K](https://sonarr.tv)** - TV series management
+- **[Radarr](https://radarr.video)** + **[Radarr 4K](https://radarr.video)** - Movie management
+- **[Prowlarr](https://prowlarr.com)** - Indexer aggregator
+- **[Bazarr](https://bazarr.media)** - Subtitle management
+- **[SABnzbd](https://sabnzbd.org)** - Usenet downloader
+- **[qBittorrent](https://qbittorrent.org)** - BitTorrent client
+- **[Jellyseerr](https://jellyseerr.dev)** - Media request management
+- **[Tautulli](https://tautulli.com)** - Plex analytics and monitoring
+- **[Unpackerr](https://unpackerr.zip)** - Archive extraction automation
+- **[xTeVe](https://xteve.de)** - IPTV proxy server
+- **[Stash](https://stashapp.cc)** - Media organization tool
+- **Gatus** - Service monitoring and status page
+
+### 🛠️ Productivity & Tools
+- **[Atuin](https://atuin.sh)** - Shell history sync and search
+- **[Memos](https://usememos.com)** - Privacy-first note-taking
+- **[Miniflux](https://miniflux.app)** - Minimalist RSS reader
+- **[Paperless-NGX](https://paperless-ngx.readthedocs.io)** - Document management system
+- **[Change Detection](https://changedetection.io)** - Website monitoring
+- **SpeedTest Tracker** - Internet speed monitoring
+
+### 🗄️ Database & Storage
+- **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
+- **[PgAdmin](https://pgadmin.org)** - PostgreSQL administration
+- **[Redis](https://redis.io)** - In-memory data store
+- **[MinIO](https://min.io)** - S3-compatible object storage
+
+### 🔐 Security & Authentication
+- **[Authelia](https://authelia.com)** - Authentication and authorization server
+- **[LLDAP](https://github.com/lldap/lldap)** - Lightweight LDAP implementation
+- **[External Secrets](https://external-secrets.io)** - Secrets management with 1Password
+- **[cert-manager](https://cert-manager.io)** - Automatic TLS certificate management
+
+### 🌐 Networking & DNS
+- **[Cilium](https://cilium.io)** - eBPF-based CNI and security
+- **[NGINX Ingress](https://kubernetes.github.io/ingress-nginx)** - HTTP/HTTPS ingress (Internal + External)
+- **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
+- **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management
+- **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
+- **[k8s-gateway](https://github.com/ori-edge/k8s_gateway)** - CoreDNS plugin for local DNS
+- **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
+- **SMTP Relay** - Outbound email service
+
+### 📊 Observability & Monitoring
+- **[Prometheus](https://prometheus.io)** - Metrics collection and alerting
+- **[Grafana](https://grafana.com)** - Metrics visualization and dashboards
+- **[Loki](https://grafana.com/oss/loki/)** - Log aggregation and analysis
+- **[Vector](https://vector.dev)** - Log collection and routing
+- **[InfluxDB](https://influxdata.com)** - Time-series database
+- **[UnPoller](https://github.com/unpoller/unpoller)** - UniFi metrics collection
+
+### 💾 Storage Management
+- **[Rook-Ceph](https://rook.io)** - Distributed block and object storage
+- **[OpenEBS](https://openebs.io)** - Local persistent volumes
+- **[VolSync](https://volsync.readthedocs.io)** - Volume backup and synchronization
+- **Snapshot Controller** - Volume snapshot management
+
+### ⚙️ System Services
+- **[Reloader](https://github.com/stakater/Reloader)** - Automatic pod restarts on config changes
+- **[Descheduler](https://github.com/kubernetes-sigs/descheduler)** - Pod rescheduling optimization
+- **[Spegel](https://github.com/spegel-org/spegel)** - Local container registry mirror
+- **[Intel Device Plugin](https://github.com/intel/intel-device-plugins-for-kubernetes)** - GPU and hardware acceleration
+- **[Node Feature Discovery](https://kubernetes-sigs.github.io/node-feature-discovery/)** - Hardware feature detection
+- **[Metrics Server](https://github.com/kubernetes-sigs/metrics-server)** - Resource usage metrics
+
+---
+
+## 🏛️ Architecture
+
+### GitOps Workflow
 
 ```mermaid
-graph TD;
-  id1>Kustomization: cluster] -->|Creates| id2>Kustomization: cluster-apps];
-  id2>Kustomization: cluster-apps] -->|Creates| id3>Kustomization: postgres];
-  id2>Kustomization: cluster-apps] -->|Creates| id6>Kustomization: lldap]
-  id2>Kustomization: cluster-apps] -->|Creates| id8>Kustomization: authelia]
-  id2>Kustomization: cluster-apps] -->|Creates| id5>Kustomization: postgres-cluster]
-  id3>Kustomization: postgres] -->|Creates| id4[HelmRelease: postgres];
-  id5>Kustomization: postgres-cluster] -->|Depends on| id3>Kustomization: postgres];
-  id5>Kustomization: postgres-cluster] -->|Creates| id10[Postgres Cluster];
-  id6>Kustomization: lldap] -->|Creates| id7(HelmRelease: lldap);
-  id8>Kustomization: authelia] -->|Creates| id9(HelmRelease: authelia);
-  id8>Kustomization: authelia] -->|Depends on| id5>Kustomization: postgres-cluster];
-  id9(HelmRelease: authelia) -->|Depends on| id7(HelmRelease: lldap);
+graph TD
+    A[Developer] -->|Git Push| B[GitHub Repository]
+    B -->|Webhook| C[Flux CD]
+    C -->|Pull Changes| B
+    C -->|Apply Manifests| D[Kubernetes Cluster]
+    D -->|Sync Status| C
+    E[Renovate Bot] -->|Dependency Updates| B
+    F[External Secrets] -->|Fetch Secrets| G[1Password]
+    F -->|Create K8s Secrets| D
 ```
+
+**[Flux CD](https://fluxcd.io)** continuously monitors the Git repository and automatically applies changes to the cluster:
+
+1. **Source Controller** - Monitors Git repositories and Helm charts
+2. **Kustomize Controller** - Applies Kustomize configurations  
+3. **Helm Controller** - Manages Helm releases
+4. **Image Automation** - Automatically updates container images
+
+### Security Architecture
+
+```mermaid
+graph TD
+    A[Internet] -->|HTTPS| B[Cloudflare]
+    B -->|Cloudflare Tunnel| C[Ingress Controller]
+    A -->|HTTPS| C
+    C -->|mTLS| D[Authelia]
+    D -->|LDAP Auth| E[LLDAP]
+    D -->|Authorized| F[Application]
+    G[External Secrets] -->|API| H[1Password Connect]
+    G -->|K8s Secrets| F
+```
+
+- **Zero-Trust Network**: All traffic encrypted and authenticated
+- **Multi-Factor Authentication**: TOTP, WebAuthn, and Duo support
+- **Secrets Management**: Encrypted at rest with SOPS, fetched from 1Password
+- **Certificate Management**: Automated TLS with Let's Encrypt
+- **Network Policies**: Microsegmentation with Cilium
+
+### Storage Strategy
+
+```mermaid
+graph TD
+    A[Applications] -->|RWO Volumes| B[Rook-Ceph RBD]
+    A -->|RWX Volumes| C[Rook-Ceph FS]
+    A -->|Local Volumes| D[OpenEBS LocalPV]
+    B -->|Backup| E[VolSync]
+    C -->|Backup| E
+    E -->|S3| F[MinIO/Cloudflare R2]
+    G[NAS] -->|NFS| A
+```
+
+- **Distributed Storage**: Rook-Ceph across all nodes for redundancy
+- **Local Storage**: OpenEBS for high-performance local volumes  
+- **Network Storage**: NFS mounts from Synology NAS
+- **Backup Strategy**: VolSync for automated volume backups to S3-compatible storage
+
+### Networking Deep Dive
+
+- **CNI**: Cilium with eBPF for high-performance networking
+- **Load Balancing**: MetalLB for bare-metal LoadBalancer services
+- **Ingress**: Dual NGINX controllers (internal/external) with TLS termination
+- **DNS**: AdGuard Home for network-wide filtering, k8s-gateway for internal resolution
+- **Multi-Homing**: Multus CNI for additional network interfaces (IoT VLAN access)
+
 ---
 
-## Networking
+## 🔧 Operations & Automation
 
-The Talos nodes in my cluster, by default, are located on VLAN 80 (10.0.80.10-10.0.80.14) in my network. They also get an additional network interface located on my trusted VLAN (VLAN 10). This additional interface is used by [Multus](https://github.com/k8snetworkplumbingwg/multus-cni) to expose additional interfaces in certain apps like HomeAssistant. See [example](https://github.com/adampetrovic/home-ops/blob/main/kubernetes/apps/automation/home-assistant/app/helmrelease.yaml#L97-L102).
+### Task Automation
+
+The repository includes comprehensive [Taskfile](https://taskfile.dev) automation:
+
+```bash
+# Cluster operations
+task talos:bootstrap          # Bootstrap new cluster
+task talos:upgrade            # Rolling cluster upgrades
+task talos:soft-nuke          # Reset cluster to maintenance mode
+
+# GitOps operations  
+task flux:bootstrap           # Install Flux CD
+task flux:github-deploy-key   # Configure GitHub integration
+
+# Storage operations
+task rook:reset              # Reset Rook-Ceph cluster
+task volsync:list-snapshots  # List available backups
+
+# Development
+task k8s:resources           # View all cluster resources  
+task k8s:pods               # View pod status across namespaces
+```
+
+### Upgrade Procedures
+
+- **Talos OS**: Rolling upgrades via `task talos:upgrade node=<ip>`
+- **Kubernetes**: Coordinated upgrades following compatibility matrix
+- **Applications**: Automated via Renovate bot + Flux CD
+- **Full documentation**: See [docs/UPGRADE.md](docs/UPGRADE.md)
+
+### Disaster Recovery
+
+Complete cluster rebuild capability:
+1. **Hardware Reset**: PXE boot into Talos maintenance mode
+2. **Cluster Bootstrap**: Automated via `task talos:bootstrap`  
+3. **Backup Restoration**: VolSync automatically restores from last snapshots
+4. **Full documentation**: See [docs/RESTORE.md](docs/RESTORE.md)
+
+---
+
+## 📁 Repository Structure
+
+```
+📁 kubernetes/
+├── 📁 apps/              # Application deployments organized by namespace
+│   ├── 📁 ai/            # AI/ML applications
+│   ├── 📁 automation/    # Home automation stack
+│   ├── 📁 database/      # Database services
+│   ├── 📁 media/         # Media management applications
+│   ├── 📁 network/       # Networking and DNS services
+│   ├── 📁 observability/ # Monitoring and logging
+│   ├── 📁 security/      # Authentication and secrets management
+│   └── 📁 storage/       # Storage operators and services
+├── 📁 bootstrap/         # Initial cluster bootstrapping
+│   ├── 📁 flux/          # Flux CD configuration
+│   └── 📁 talos/         # Talos Linux machine configs
+├── 📁 components/        # Reusable Kustomize components
+├── 📁 flux/              # Flux system configuration
+└── 📁 templates/         # Template resources for automation
+
+📁 docs/                  # Documentation
+├── RESTORE.md           # Disaster recovery procedures
+└── UPGRADE.md           # Upgrade procedures
+
+📁 .taskfiles/           # Task automation scripts
+Taskfile.yaml           # Main task definitions
+```
+
+### Application Organization
+
+Each application follows a consistent structure:
+```
+app-name/
+├── app/                 # Application manifests
+│   ├── helmrelease.yaml # Helm chart configuration
+│   ├── kustomization.yaml
+│   └── externalsecret.yaml # Secret management
+└── ks.yaml             # Flux Kustomization
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Hardware**: Minimum 4x bare-metal servers or VMs with 16GB+ RAM
+- **Network**: VLAN-capable switch and router/firewall  
+- **DNS**: Domain name with Cloudflare DNS management
+- **Secrets**: 1Password account for secrets management
+- **Tools**: `talosctl`, `kubectl`, `flux`, `task`, `age` (for SOPS)
+
+### Quick Start
+
+1. **Fork this repository** and customize for your environment
+2. **Configure secrets**: Set up SOPS age key and 1Password Connect
+3. **Prepare hardware**: Install Talos Linux on your nodes
+4. **Bootstrap cluster**:
+   ```bash
+   cd kubernetes/bootstrap/talos
+   task talos:bootstrap
+   ```
+5. **Install Flux CD**:
+   ```bash
+   task flux:github-deploy-key
+   task flux:bootstrap
+   ```
+6. **Monitor deployment**: Applications will automatically deploy via GitOps
+
+### Configuration Areas
+
+Key files to customize for your environment:
+- `kubernetes/bootstrap/talos/talconfig.yaml` - Hardware and network configuration
+- `kubernetes/flux/vars/cluster-settings.yaml` - Cluster-wide configuration
+- `kubernetes/flux/vars/cluster-secrets.sops.yaml` - Encrypted secrets
+
+---
 
 ## ☁️ Cloud Dependencies
 
-| Service                                         | Use                                                               | Cost           |
-|-------------------------------------------------|-------------------------------------------------------------------|----------------|
-| [1Password](https://1password.com/)             | Secrets with [External Secrets](https://external-secrets.io/)     | ~$100/yr       |
-| [Cloudflare](https://www.cloudflare.com/)       | DNS & Public Tunnels                                              | Free           |
-| [GitHub](https://github.com/)                   | Hosting this repository and continuous integration/deployments    | Free           |
-|                                                 |                                                                   | Total: ~$9/mo  |
+| Service | Purpose | Cost |
+|---------|---------|------|
+| [1Password](https://1password.com) | Secrets management via External Secrets | ~$100/year |
+| [Cloudflare](https://cloudflare.com) | DNS, CDN, and secure tunnels | Free |
+| [GitHub](https://github.com) | Source control and CI/CD | Free |
+| **Total** | | **~$8/month** |
 
 ---
 
-## 🌐 DNS
+## 🤝 Community & Inspiration
 
-All my DNS records are hosted publically in Cloudflare, including DNS entries that point to a local IP address.
+This repository builds upon the excellent work of the [k8s-at-home](https://discord.gg/k8s-at-home) community. Special thanks to:
 
-Outside the `external-dns` instance mentioned above another instance is deployed in my cluster and configured to sync DNS records to [Cloudflare](https://www.cloudflare.com/). The only ingress this `external-dns` instance looks at to gather DNS records to put in `Cloudflare` are ones that have an ingress class name of `external` and contain an ingress annotation `external-dns.alpha.kubernetes.io/target`.
+- **[onedr0p/cluster-template](https://github.com/onedr0p/cluster-template)** - GitOps cluster template
+- **[k8s-at-home/charts](https://github.com/k8s-at-home/charts)** - Kubernetes Helm charts
+- **Talos Linux Community** - Modern Kubernetes platform
 
 ---
 
-## 🔧 Hardware
+## 📄 License
 
-| Device                      | Count | OS Disk Size | Data Disk Size               | Ram  | Operating System | Purpose                 |
-|-----------------------------|-------|--------------|------------------------------|------|------------------|-------------------------|
-| Intel NUC12WSHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Nodes        |
-| Intel NUC11PAHi7            | 2     | 1TB SSD      | 1TB NVMe (rook-ceph)         | 64GB | Talos            | Kubernetes Nodes        |
-| Synology RS1219+            | 1     | -            | 6x 16TB Seagate Exos         | 4GB  | Synology DSM     | NAS - NFS Share         |
-| Synology DVA1622            | 1     | -            | 2x 4TB Seagate Skyhawk       | 4GB  | Synology DSM     | NVR - Cameras           |
-| Unifi UXG-Pro               | 1     | -            | -                            | -    | -                | Router / Gateway        |
-| Unifi US-48-500W            | 1     | -            | -                            | -    | -                | PoE Rackmount Switch    |
-| APC SMC1000I-2UC            | 1     | -            | -                            | -    | -                | UPS                     |
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+
+---
+
+<div align="center">
+
+**⭐ If you find this repository helpful, please consider giving it a star!**
+
+[🐛 Report Bug](https://github.com/adampetrovic/home-ops/issues) • [💡 Request Feature](https://github.com/adampetrovic/home-ops/issues) • [💬 Discussions](https://github.com/adampetrovic/home-ops/discussions)
+
+</div>
