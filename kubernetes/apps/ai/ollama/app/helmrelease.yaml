@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: docker.io/ollama/ollama
-              tag: 0.10.0@sha256:ba618d67d1421cef18d3d9d88e087abb694cc9bbfb8a22f69f7ab3552f684947
+              tag: 0.10.0@sha256:0f32507862099ab43018cfd782f2586d6c2e561b0c953f2a7ff096f72ea9f2e5
             env:
               TZ: ${TIMEZONE}
               OLLAMA_HOST: 0.0.0.0
