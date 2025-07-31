@@ -113,15 +113,22 @@ spec:
         prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
       storage:
         useAllNodes: false
-        useAllDevices: true
-        deviceFilter: nvme0n1
+        useAllDevices: false
         config:
           osdsPerDevice: "1"
         nodes:
-          - name: "k8s-node-1"
-          - name: "k8s-node-2"
-          - name: "k8s-node-3"
-          - name: "k8s-node-4"
+          - name: k8s-node-1
+            devices:
+              - name: /dev/nvme0n1
+          - name: k8s-node-2
+            devices:
+              - name: /dev/nvme0n1
+          - name: k8s-node-3
+            devices:
+              - name: /dev/nvme0n1
+          - name: k8s-node-4
+            devices:
+              - name: /dev/nvme0n1
       placement:
         mgr: &placement
           nodeAffinity:
