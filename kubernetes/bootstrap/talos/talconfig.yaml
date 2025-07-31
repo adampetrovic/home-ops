@@ -87,6 +87,21 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
+  - hostname: k8s-node-5
+    ipAddress: 10.0.80.14
+    installDiskSelector:
+      model: KINGSTON SA400S3
+    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
+    controlPlane: false
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        vlans:
+          - vlanId: 10
+            mtu: 1500
+            dhcp: true
+            dhcpOptions:
+              routeMetric: 4096
 patches:
   # Configure containerd
   - |-
