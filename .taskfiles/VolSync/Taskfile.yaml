@@ -23,19 +23,6 @@ vars:
   VOLSYNC_TEMPLATES_DIR: "{{.ROOT_DIR}}/.taskfiles/VolSync/templates"
 
 tasks:
-  suspend-controller:
-    desc: Suspends Volsync
-    summary: |
-      Args:
-        cluster: Cluster to run command against (required)
-    cmds:
-      - flux suspend ks volsync
-      - flux suspend hr -n volsync-system volsync
-      - kubectl -n volsync-system scale deployment volsync --replicas 0
-    env: *env
-    requires:
-      vars: ["cluster"]
-
   debug:
     desc: Debug restic
     summary: |
