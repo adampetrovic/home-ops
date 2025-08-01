@@ -19,7 +19,7 @@ spec:
     - name: mosquitto
       namespace: automation
   path: ./kubernetes/apps/automation/zigbee2mqtt/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system

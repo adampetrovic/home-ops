@@ -18,7 +18,7 @@ spec:
   components:
     - ../../../../components/volsync
   path: ./kubernetes/apps/network/speedtest-tracker/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system

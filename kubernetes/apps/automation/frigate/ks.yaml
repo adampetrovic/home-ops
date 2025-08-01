@@ -12,7 +12,7 @@ spec:
   components:
     - ../../../../components/volsync
   path: ./kubernetes/apps/automation/frigate/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system
