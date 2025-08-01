@@ -11,10 +11,10 @@ spec:
   retryInterval: 2m
   wait: false
   path: ./kubernetes/apps
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   decryption:
     provider: sops
