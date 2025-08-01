@@ -1,12 +1,4 @@
-# Node Management Procedures
-
-This document outlines procedures for managing Talos cluster nodes, including removing working nodes and replacing dead nodes.
-
-## Overview
-
-Node management in Talos clusters requires careful coordination between Kubernetes, etcd (for control plane), and storage systems like Rook/Ceph. This document covers both graceful removal of working nodes and emergency replacement of dead nodes.
-
-# Working Node Removal Procedure
+# Working Node
 
 Use this procedure when removing a healthy, working node from the cluster.
 
@@ -113,7 +105,7 @@ talhelper genconfig
 
 ---
 
-# Dead Node Replacement Procedure
+# Dead Node
 
 Use this procedure when a node has died and needs hardware replacement while maintaining the same node identity.
 
