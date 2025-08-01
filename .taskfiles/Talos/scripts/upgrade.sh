@@ -12,7 +12,7 @@ done
 
 if [ "${ROLLOUT}" != "true" ]; then
     echo "Suspending Flux Kustomizations ..."
-    flux suspend kustomization --all
+    kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux suspend kustomization --all -n {}
     echo "Setting CNPG maintenance mode ..."
     kubectl cnpg maintenance set postgres17 --reusePVC -n database
 fi
@@ -37,5 +37,5 @@ done
 
 if [ "${ROLLOUT}" != "true" ]; then
     echo "Unsetting CNPG maintenance mode ..."
-    flux resume kustomization --all
+    kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux resume kustomization --all -n {}
 fi

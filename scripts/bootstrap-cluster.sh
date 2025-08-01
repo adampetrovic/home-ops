@@ -82,6 +82,8 @@ function wait_for_nodes() {
         log info "Nodes are not available, waiting for nodes to be available. Retrying in 10 seconds..."
         sleep 10
     done
+
+    talosctl health --server=false
 }
 
 # CRDs to be applied before the helmfile charts are installed
@@ -150,8 +152,8 @@ function sync_helm_releases() {
 }
 
 function main() {
-    check_env KUBECONFIG KUBERNETES_VERSION TALOS_VERSION
-    check_cli helmfile jq kubectl kustomize minijinja-cli op talosctl yq
+    check_env KUBECONFIG
+    check_cli helmfile jq kubectl kustomize op talosctl yq
 
     if ! op whoami --format=json &>/dev/null; then
         log error "Failed to authenticate with 1Password CLI"
