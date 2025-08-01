@@ -13,12 +13,12 @@ spec:
     - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/storage/minio/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
     namespace: flux-system
-  wait: false 
+  wait: false
   interval: 30m
   retryInterval: 1m
   timeout: 5m

@@ -13,7 +13,7 @@ spec:
     - name: cert-manager-issuers
       namespace: cert-manager
   path: ./kubernetes/apps/network/ingress-nginx/certificates
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
@@ -36,7 +36,7 @@ spec:
   dependsOn:
     - name: ingress-nginx-certificates
   path: ./kubernetes/apps/network/ingress-nginx/internal
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
@@ -59,7 +59,7 @@ spec:
   dependsOn:
     - name: ingress-nginx-certificates
   path: ./kubernetes/apps/network/ingress-nginx/external
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
@@ -78,7 +78,7 @@ spec:
   dependsOn:
     - name: ingress-nginx-certificates
   path: ./kubernetes/apps/network/ingress-nginx/proxy
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes

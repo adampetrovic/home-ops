@@ -16,7 +16,7 @@ spec:
     - name: openebs
       namespace: openebs-system
   path: ./kubernetes/apps/observability/kube-prometheus-stack/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
