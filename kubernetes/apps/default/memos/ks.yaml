@@ -15,7 +15,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/default/memos/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes

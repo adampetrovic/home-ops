@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   path: ./kubernetes/apps/kube-system/intel-device-plugin/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
@@ -36,7 +36,7 @@ spec:
     - name: intel-device-plugin-operator
       namespace: *namespace
   path: ./kubernetes/apps/kube-system/intel-device-plugin/gpu
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: home-kubernetes
