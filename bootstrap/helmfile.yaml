@@ -42,7 +42,7 @@ releases:
           - --server-side
           - --field-manager=kustomize-controller
           - --filename
-          - ../kubernetes/apps/external-secrets/external-secrets/app/clustersecretstore.yaml
+          - ../kubernetes/apps/external-secrets/stores/onepassword/clustersecretstore.yaml
           - --wait=true
         showlogs: true
     needs: ['cert-manager/cert-manager']
