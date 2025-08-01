@@ -31,16 +31,6 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  values:
-    installCRDs: true
-    dns01RecursiveNameservers: 1.1.1.1:53,9.9.9.9:53
-    dns01RecursiveNameserversOnly: true
-    podDnsPolicy: None
-    podDnsConfig:
-      nameservers:
-        - "1.1.1.1"
-        - "9.9.9.9"
-    prometheus:
-      enabled: true
-      servicemonitor:
-        enabled: true
+  valuesFrom:
+    - kind: ConfigMap
+      name: cert-manager-values
