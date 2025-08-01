@@ -16,7 +16,7 @@ spec:
   prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   wait: true
   interval: 30m
@@ -39,7 +39,7 @@ spec:
   prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   wait: false
   interval: 30m
@@ -62,7 +62,7 @@ spec:
   prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   wait: false
   interval: 30m
@@ -81,7 +81,7 @@ spec:
   prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   wait: true
   interval: 30m
