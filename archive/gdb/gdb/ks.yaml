@@ -14,7 +14,7 @@ spec:
       namespace: external-secrets
     - name: cloudnative-pg
   path: ./kubernetes/apps/gdb/gdb/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -40,7 +40,7 @@ spec:
     - name: external-secrets-stores
    namespace: external-secrets
   path: ./kubernetes/apps/gdb/gdb/scraper
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

@@ -20,7 +20,7 @@ spec:
     - name: multus-config
       namespace: network
   path: ./kubernetes/apps/automation/home-assistant/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
