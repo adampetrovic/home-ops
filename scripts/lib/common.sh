@@ -106,7 +106,7 @@ function check_cli() {
     log debug "Deps are installed" "deps=${deps[*]}"
 }
 
-# Render a template using minijinja and inject secrets using op
+# Render a template using op to inject secrets
 function render_template() {
     local -r file="${1}"
     local output
