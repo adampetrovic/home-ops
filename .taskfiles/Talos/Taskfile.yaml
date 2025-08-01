@@ -27,7 +27,7 @@ tasks:
     cmd: op run --env-file=".env" -- talhelper gencommand apply --extra-flags=--insecure | bash
 
   bootstrap:
-    desc: Apply Talos configuration
+    desc: Bootstrap Talos nodes
     dir: "{{.TALOS_DIR}}"
     cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
 
