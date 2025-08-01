@@ -14,7 +14,7 @@ spec:
   prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
-    name: home-kubernetes
+    name: flux-system
     namespace: flux-system
   dependsOn:
     - name: rook-ceph-cluster
