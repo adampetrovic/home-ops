@@ -11,7 +11,7 @@ spec:
   retryInterval: 2m
   wait: false
   path: ./kubernetes/apps
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
