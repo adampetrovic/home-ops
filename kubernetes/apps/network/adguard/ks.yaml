@@ -20,7 +20,7 @@ spec:
   components:
     - ../../../../components/volsync
   path: ./kubernetes/apps/network/adguard/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

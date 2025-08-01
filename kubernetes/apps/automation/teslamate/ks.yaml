@@ -18,7 +18,7 @@ spec:
     - name: home-assistant
       namespace: automation
   path: ./kubernetes/apps/automation/teslamate/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

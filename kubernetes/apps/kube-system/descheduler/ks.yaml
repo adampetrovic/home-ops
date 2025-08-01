@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   interval: 1h
   path: ./kubernetes/apps/kube-system/descheduler/app
-  prune: false # todo: revert to true
+  prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository
