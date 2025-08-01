@@ -106,7 +106,6 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Tautulli](https://tautulli.com)** - Plex analytics and monitoring
 - **[Unpackerr](https://unpackerr.zip)** - Archive extraction automation
 - **[xTeVe](https://xteve.de)** - IPTV proxy server
-- **[removed-media-app](https://removed-media-appapp.cc)** - Media organization tool
 - **Gatus** - Service monitoring and status page
 
 ### 🛠️ Productivity & Tools
