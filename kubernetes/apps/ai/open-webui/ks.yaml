@@ -12,7 +12,7 @@ spec:
   components:
     - ../../../../components/volsync
   path: ./kubernetes/apps/ai/open-webui/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

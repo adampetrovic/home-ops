@@ -20,7 +20,7 @@ spec:
     - name: vector
       namespace: observability
   path: ./kubernetes/apps/media/plex/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -55,7 +55,7 @@ spec:
       namespace: media
   interval: 10m
   path: ./kubernetes/apps/media/plex/plex-image-cleanup
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
