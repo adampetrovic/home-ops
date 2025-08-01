@@ -1,0 +1,3 @@
+upsmonHost: ${UPS_HOST}
+upsmonUser: ${UPS_USER}
+upsmonPass: ${UPS_PASS}
