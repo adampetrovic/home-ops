@@ -1,9 +1,0 @@
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cluster-settings
-data:
-  TIMEZONE: "Australia/Sydney"
-  CLUSTER_CIDR: "10.69.0.0/16"
-  NODE_CIDR: "10.0.80.0/21"
