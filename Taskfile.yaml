@@ -3,10 +3,7 @@
 version: "3"
 
 vars:
-  # Directories
-  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
-  KUBECONFIG_FILE: "$HOME/.kube/config"
 
 includes:
   kubernetes:
