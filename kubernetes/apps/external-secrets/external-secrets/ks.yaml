@@ -21,7 +21,7 @@ spec:
       failed: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
       current: status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
   path: ./kubernetes/apps/external-secrets/external-secrets/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -46,7 +46,7 @@ spec:
     - name: external-secrets
       namespace: *namespace
   path: ./kubernetes/apps/external-secrets/external-secrets/stores
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system

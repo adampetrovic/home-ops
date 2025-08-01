@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   path: ./kubernetes/apps/cert-manager/cert-manager/app
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -34,7 +34,7 @@ spec:
     - name: cert-manager
       namespace: *namespace
   path: ./kubernetes/apps/cert-manager/cert-manager/issuers
-  prune: true
+  prune: false # todo: revert to true
   sourceRef:
     kind: GitRepository
     name: flux-system
