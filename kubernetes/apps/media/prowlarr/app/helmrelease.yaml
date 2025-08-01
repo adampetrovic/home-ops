@@ -42,7 +42,7 @@ spec:
               tag: 2.0.2.5116@sha256:30062fde00bf3901770d02e4e255b3fa1afa320ae2ff5359473ff7599be7ebc8
             envFrom: *envFrom
             env:
-              TZ: ${TIMEZONE}
+              TZ: "Australia/Sydney"
               PROWLARR__INSTANCENAME: Prowlarr
               PROWLARR__SERVER__PORT: &port 80
               PROWLARR__LOG_LEVEL: info

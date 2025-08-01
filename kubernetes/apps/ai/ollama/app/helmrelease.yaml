@@ -31,7 +31,7 @@ spec:
               repository: docker.io/ollama/ollama
               tag: 0.10.0@sha256:0f32507862099ab43018cfd782f2586d6c2e561b0c953f2a7ff096f72ea9f2e5
             env:
-              TZ: ${TIMEZONE}
+              TZ: "Australia/Sydney"
               OLLAMA_HOST: 0.0.0.0
               OLLAMA_ORIGINS: "*"
               OLLAMA_MODELS: /models
