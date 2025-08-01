@@ -3,15 +3,34 @@
 version: "3"
 
 vars:
-  TALOS_DIR: "{{.KUBERNETES_DIR}}/bootstrap/talos"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos"
   # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
   TALOS_VERSION: v1.9.6
   TALOS_SCHEMATIC_ID: 5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
   # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-  KUBERNETES_VERSION: v1.33.1
+  KUBERNETES_VERSION: v1.32.3
   TALOS_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/Talos/scripts"
 
 tasks:
+  generate:
+    desc: Generate Talos configuration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper genconfig -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
+    preconditions:
+      - test -f {{.ROOT_DIR}}/talos/talconfig.yaml
+      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - test -f {{.ROOT_DIR}}/talos/talsecret.yaml
+
+  apply:
+    desc: Apply Talos configuration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper gencommand apply --extra-flags=--insecure | bash
+
+  bootstrap:
+    desc: Apply Talos configuration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
+
   upgrade:
     desc: Upgrade Talos on a node
     cmd: bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "{{.node}}" "{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" "{{.rollout}}"
@@ -27,7 +46,7 @@ tasks:
   upgrade-rollout:
     desc: Rollout Talos upgrade on all nodes
     cmds:
-      - flux suspend kustomization --all
+      - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux suspend kustomization --all -n {}
       - kubectl cnpg maintenance set --reusePVC --all-namespaces
       - for: { var: nodes, split: "," }
         task: upgrade
@@ -35,13 +54,12 @@ tasks:
           node: "{{.ITEM}}"
           rollout: "true"
       - kubectl cnpg maintenance unset --reusePVC --all-namespaces
-      - flux resume kustomization --all
+      - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux resume kustomization --all -n {}
       - task: :kubernetes:delete-failed-pods
     vars:
       nodes:
         sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
     preconditions:
-      - test -f {{.TALOSCONFIG}}
       - talosctl config info >/dev/null 2>&1
       - talosctl --nodes {{.nodes}} get machineconfig >/dev/null 2>&1
 
@@ -60,6 +78,6 @@ tasks:
 
   nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
-    prompt: This will destroy your cluster and reset the nodes back to maintenance mode... continue?
+    prompt: This will DESTROY your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash

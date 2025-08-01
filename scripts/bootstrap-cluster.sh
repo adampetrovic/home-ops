@@ -16,17 +16,13 @@ function apply_talos_config() {
 
     # generate and apply the configuration
     log debug "Generating talos node configuration"
-    op run --env-file="${ROOT_DIR}/talos/.env" -- \
-        talhelper genconfig -c ${ROOT_DIR}/talos/talconfig.yaml \
-                            -e ${ROOT_DIR}/talos/talenv.yaml \
-                            -s ${ROOT_DIR}/talos/talsecret.yaml \
-                            -o ${ROOT_DIR}/talos/clusterconfig
+    task talos:generate
 
     log debug "Applying talos node configuration"
-    if ! output=$(talhelper gencommand apply -o ${ROOT_DIR}/talos/clusterconfig --extra-flags=--insecure --extra-flags=--dry-run | bash 2>&1); then
+    if ! output=$(task talos:apply 2>&1); then
         if [[ "${output}" == *"certificate required"* ]]; then
             log warn "Talos node is already configured, skipping apply of config"
-            continue
+            return
         fi
         log error "Failed to apply Talos node configuration"
     fi
@@ -44,7 +40,7 @@ function bootstrap_talos() {
 
     log debug "Talos controller discovered" "controller=${controller}"
 
-    until output=$(talhelper gencommand bootstrap -o ${ROOT_DIR}/talos/clusterconfig | bash) && [[ "${output}" == *"AlreadyExists"* ]]; do
+    until output=$(task talos:bootstrap) && [[ "${output}" == *"AlreadyExists"* ]]; do
         log info "Talos bootstrap in progress, waiting 10 seconds..." "controller=${controller}"
         sleep 10
     done
@@ -153,7 +149,7 @@ function sync_helm_releases() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli helmfile jq kubectl kustomize op talosctl yq
+    check_cli helmfile jq kubectl kustomize op talosctl yq task
 
     if ! op whoami --format=json &>/dev/null; then
         log error "Failed to authenticate with 1Password CLI"
