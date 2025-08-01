@@ -69,7 +69,7 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 - **Management VLAN** (VLAN 80): `10.0.80.0/21` - Kubernetes nodes
 - **Trusted VLAN** (VLAN 10): `10.0.10.0/24` - Home devices, secondary k8s interfaces
-- **Cluster Networking**: 
+- **Cluster Networking**:
   - Pod CIDR: `10.69.0.0/16`
   - Service CIDR: `10.96.0.0/16`
   - LoadBalancer VIP: `10.0.80.99`
@@ -134,7 +134,6 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
 - **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management
 - **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
-- **[k8s-gateway](https://github.com/ori-edge/k8s_gateway)** - CoreDNS plugin for local DNS
 - **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
 - **SMTP Relay** - Outbound email service
 
@@ -181,7 +180,7 @@ graph TD
 **[Flux CD](https://fluxcd.io)** continuously monitors the Git repository and automatically applies changes to the cluster:
 
 1. **Source Controller** - Monitors Git repositories and Helm charts
-2. **Kustomize Controller** - Applies Kustomize configurations  
+2. **Kustomize Controller** - Applies Kustomize configurations
 3. **Helm Controller** - Manages Helm releases
 4. **Image Automation** - Automatically updates container images
 
@@ -219,7 +218,7 @@ graph TD
 ```
 
 - **Distributed Storage**: Rook-Ceph across all nodes for redundancy
-- **Local Storage**: OpenEBS for high-performance local volumes  
+- **Local Storage**: OpenEBS for high-performance local volumes
 - **Network Storage**: NFS mounts from Synology NAS
 - **Backup Strategy**: VolSync for automated volume backups to S3-compatible storage
 
@@ -228,7 +227,7 @@ graph TD
 - **CNI**: Cilium with eBPF for high-performance networking
 - **Load Balancing**: MetalLB for bare-metal LoadBalancer services
 - **Ingress**: Dual NGINX controllers (internal/external) with TLS termination
-- **DNS**: AdGuard Home for network-wide filtering, k8s-gateway for internal resolution
+- **DNS**: AdGuard Home for network-wide filtering, cloudflare for both internal and external DNS management
 - **Multi-Homing**: Multus CNI for additional network interfaces (IoT VLAN access)
 
 ---
@@ -245,7 +244,7 @@ task talos:bootstrap          # Bootstrap new cluster
 task talos:upgrade            # Rolling cluster upgrades
 task talos:soft-nuke          # Reset cluster to maintenance mode
 
-# GitOps operations  
+# GitOps operations
 task flux:bootstrap           # Install Flux CD
 task flux:github-deploy-key   # Configure GitHub integration
 
@@ -254,7 +253,7 @@ task rook:reset              # Reset Rook-Ceph cluster
 task volsync:list-snapshots  # List available backups
 
 # Development
-task k8s:resources           # View all cluster resources  
+task k8s:resources           # View all cluster resources
 task k8s:pods               # View pod status across namespaces
 ```
 
@@ -269,7 +268,7 @@ task k8s:pods               # View pod status across namespaces
 
 Complete cluster rebuild capability:
 1. **Hardware Reset**: PXE boot into Talos maintenance mode
-2. **Cluster Bootstrap**: Automated via `task talos:bootstrap`  
+2. **Cluster Bootstrap**: Automated via `task talos:bootstrap`
 3. **Backup Restoration**: VolSync automatically restores from last snapshots
 4. **Full documentation**: See [docs/RESTORE.md](docs/RESTORE.md)
 
@@ -322,7 +321,7 @@ app-name/
 ### Prerequisites
 
 - **Hardware**: Minimum 4x bare-metal servers or VMs with 16GB+ RAM
-- **Network**: VLAN-capable switch and router/firewall  
+- **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management
 - **Secrets**: 1Password account for secrets management
 - **Tools**: `talosctl`, `kubectl`, `flux`, `task`, `age` (for SOPS)
