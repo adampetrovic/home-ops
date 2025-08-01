@@ -20,7 +20,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/media/radarr-4k/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

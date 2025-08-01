@@ -10,7 +10,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   path: ./kubernetes/apps/kube-system/node-feature-discovery/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -31,7 +31,7 @@ spec:
     - name: node-feature-discovery
       namespace: kube-system
   path: ./kubernetes/apps/kube-system/node-feature-discovery/rules
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

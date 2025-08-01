@@ -14,7 +14,7 @@ spec:
       namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/automation/go2rtc/app
-  prune: false # todo: revert to true
+  prune: true
   retryInterval: 2m
   sourceRef:
     kind: GitRepository

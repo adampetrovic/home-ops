@@ -21,7 +21,7 @@ spec:
     - name: external-secrets
       namespace: external-secrets
   path: ./kubernetes/apps/network/external-dns/internal
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system

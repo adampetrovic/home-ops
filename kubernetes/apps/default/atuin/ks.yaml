@@ -13,7 +13,7 @@ spec:
     - name: cloudnative-pg-cluster-v17
       namespace: database
   path: ./kubernetes/apps/default/atuin/app
-  prune: false # todo: revert to true
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
