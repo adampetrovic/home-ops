@@ -1,22 +1,11 @@
 {
-    "ansible.ansible.path": ".venv/bin/ansible",
-    "ansible.python.activationScript": ".venv/bin/activate",
-    "ansible.python.interpreterPath": ".venv/bin/python3",
-    "ansible.validation.enabled": true,
-    "ansible.validation.lint.arguments": "-c ansible/.ansible-lint",
-    "ansible.validation.lint.enabled": true,
-    "ansible.validation.lint.path": ".venv/bin/ansible-lint",
     "files.associations": {
-        "*.json5": "jsonc",
-        "./ansible/**/*.yaml": "ansible",
-        "./ansible/**/*.sops.yaml": "yaml",
-        "./ansible/**/inventory/**/*.yaml": "yaml",
+        "**/*.json5": "json5",
         "./kubernetes/**/*.sops.toml": "plaintext"
     },
     "sops.defaults.ageKeyFile": "/Users/adam/.config/sops/age/keys.txt",
     "yaml.schemas": {
-        "ansible": "./ansible/*.yaml",
-        "Kubernetes": "./kubernetes/*.yaml"
+      "kubernetes": "./kubernetes/**/*.yaml"
     },
     "vs-kubernetes": {
         "vs-kubernetes.kubeconfig": "./kubeconfig",
