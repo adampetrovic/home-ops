@@ -12,5 +12,7 @@
         "vs-kubernetes.knownKubeconfigs": [
           "./kubeconfig"
       ]
-    }
+    },
+    "sops.configPath": "./.sops.yaml",
+    "sops.binPath": "/opt/homebrew/bin/sops"
 }

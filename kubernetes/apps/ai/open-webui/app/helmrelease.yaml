@@ -32,7 +32,7 @@ spec:
               repository: ghcr.io/open-webui/open-webui
               tag: v0.6.18
             env:
-              TZ: ${TIMEZONE}
+              TZ: "Australia/Sydney"
               WEBUI_AUTH: "false"
               ENABLE_WEBSOCKET_SUPPORT: "true"
               ENABLE_OLLAMA_API: "true"

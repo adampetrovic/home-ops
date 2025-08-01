@@ -42,7 +42,7 @@ spec:
               tag: 5.27.2@sha256:aa84b8341e2b53281bcea4696427861e4ab02ab004cd76a1b3a76d77ea065ac5
             envFrom: *envFrom
             env:
-              TZ: ${TIMEZONE}
+              TZ: "Australia/Sydney"
               RADARR__INSTANCE_NAME: Radarr
               RADARR__PORT: &port 80
               RADARR__APPLICATION_URL: https://radarr.${SECRET_DOMAIN}
