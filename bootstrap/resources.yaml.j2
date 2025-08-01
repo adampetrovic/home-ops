@@ -1,0 +1,45 @@
+{% for namespace in ["external-secrets", "flux-system", "network"] %}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ namespace }}
+{% endfor %}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: onepassword-connect-secret
+  namespace: external-secrets
+stringData:
+  onepassword-credentials.json: op://k8s/1password/OP_SESSION
+  token: op://k8s/1password/OP_CONNECT_TOKEN
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sops-age
+  namespace: flux-system
+stringData:
+  age.agekey: op://k8s/sops/SOPS_PRIVATE_KEY
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: petrovic-network-production-tls
+  namespace: network
+  annotations:
+    cert-manager.io/alt-names: '*.op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN,*.op://k8s/cluster-secrets/SECRET_DOMAIN,*.op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN,op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN,op://k8s/cluster-secrets/SECRET_DOMAIN,op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN'
+    cert-manager.io/certificate-name: "petrovic-network-production"
+    cert-manager.io/common-name: "op://k8s/cluster-secrets/SECRET_DOMAIN"
+    cert-manager.io/ip-sans: ""
+    cert-manager.io/issuer-group: ""
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: letsencrypt-production
+    cert-manager.io/uri-sans: ""
+  labels:
+    controller.cert-manager.io/fao: "true"
+type: kubernetes.io/tls
+data:
+  tls.crt: op://k8s/petrovic-network-tls/tls.crt
+  tls.key: op://k8s/petrovic-network-tls/tls.key
