@@ -42,7 +42,7 @@ spec:
               - secretRef:
                   name: unpackerr-secret
             env:
-              TZ: ${TIMEZONE}
+              TZ: "Australia/Sydney"
               UN_WEBSERVER_METRICS: 'true'
               UN_SONARR_0_URL: http://sonarr.media.svc.cluster.local
               UN_SONARR_0_PATHS_0: /downloads/complete/qbt/tv

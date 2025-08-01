@@ -57,7 +57,7 @@ spec:
             env:
               USERMAP_UID: 568
               USERMAP_GID: 100
-              PAPERLESS_TIME_ZONE: ${TIMEZONE}
+              PAPERLESS_TIME_ZONE: "Australia/Sydney"
               PAPERLESS_PORT: &port 80
               PAPERLESS_REDIS: redis://localhost:6379
               PAPERLESS_TASK_WORKERS: 2
