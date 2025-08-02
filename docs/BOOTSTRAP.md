@@ -39,36 +39,6 @@ This will reset all nodes back to maintenance mode, wiping state and ephemeral d
 
 Alternatively, you can download `metal-amd64.iso` from the [Talos releases page](https://github.com/siderolabs/talos/releases) matching your current version and manually boot each node into maintenance mode. Nodes should have statically assigned IP addresses from the Unifi DHCP server (`10.0.80.x`).
 
-## Pre-Bootstrap Tasks
-
-### CloudNative-PG Backup Preparation
-
-**Important**: Before bootstrapping, you must bump the backup version for CloudNative-PG clusters. This is necessary because when restoring the Postgres cluster from scratch, it needs to read from the latest backup and start a new backup chain.
-
-1. Increment the backup version number in your CloudNative-PG cluster configurations by 1.
-
-### CloudNative-PG Large Backup Workaround
-
-There is currently a bug in CloudNative-PG that prevents restoration of large bz2-compressed database backups.
-
-1. Download the base backup file from MinIO:
-   ```bash
-   mc cp myserver/cloudnative-pg/postgres17-v4/base/20250728T000000 data.tar.bz2
-   ```
-
-2. Decompress the backup locally:
-   ```bash
-   bzip2 -d data.tar.bz2
-   ```
-
-3. Re-upload the decompressed backup:
-   ```bash
-   # Upload the decompressed tar file back to MinIO
-   mc cp data.tar myserver/cloudnative-pg/postgres17-v4/base/20250728T000000
-   ```
-
-4. Update your restore configuration to point to the decompressed backup file.
-
 ## Bootstrap Process
 
 The bootstrap process can be executed using the automated script:
