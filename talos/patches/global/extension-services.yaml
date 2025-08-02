@@ -1,0 +1,10 @@
+---
+apiVersion: v1alpha1
+kind: ExtensionServiceConfig
+name: nut-client
+configFiles:
+  - content: |-
+      MONITOR ${UPS_HOST}:3493 1 ${UPS_USER} ${UPS_PASS} secondary
+      FINALDELAY 0
+      SHUTDOWNCMD "/sbin/poweroff"
+    mountPath: /usr/local/etc/nut/upsmon.conf

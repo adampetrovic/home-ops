@@ -1,0 +1,22 @@
+cluster:
+  allowSchedulingOnControlPlanes: true
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  discovery:
+    enabled: true
+    registries:
+      kubernetes:
+        disabled: true
+      service:
+        disabled: false
+  proxy:
+    disabled: true
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+    advertisedSubnets:
+      - "10.0.80.0/21"

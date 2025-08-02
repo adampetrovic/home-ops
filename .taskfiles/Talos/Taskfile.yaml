@@ -15,7 +15,7 @@ tasks:
   generate:
     desc: Generate Talos configuration
     dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper genconfig -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
+    cmd: op run --env-file=".env" -- talhelper genconfig --debug -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
     preconditions:
       - test -f {{.ROOT_DIR}}/talos/talconfig.yaml
       - test -f {{.ROOT_DIR}}/talos/talenv.yaml
