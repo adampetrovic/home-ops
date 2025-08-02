@@ -49,6 +49,4 @@ spec:
     - name: source
       plugin:
         name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: minio
-          serverName: postgres17-v5
+        parameters: *parameters
