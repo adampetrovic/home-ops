@@ -13,8 +13,6 @@ done
 if [ "${ROLLOUT}" != "true" ]; then
     echo "Suspending Flux Kustomizations ..."
     kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux suspend kustomization --all -n {}
-    echo "Setting CNPG maintenance mode ..."
-    kubectl cnpg maintenance set postgres --reusePVC -n database
 fi
 
 echo "Upgrading Talos on node ${NODE} ..."
@@ -36,6 +34,5 @@ do
 done
 
 if [ "${ROLLOUT}" != "true" ]; then
-    echo "Unsetting CNPG maintenance mode ..."
     kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux resume kustomization --all -n {}
 fi

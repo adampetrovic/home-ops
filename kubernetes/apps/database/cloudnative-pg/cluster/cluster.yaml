@@ -26,6 +26,8 @@ spec:
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
+  # https://github.com/cloudnative-pg/cloudnative-pg/issues/2570
+  enablePDB: false
   resources:
     requests:
       cpu: 250m
