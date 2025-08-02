@@ -3,7 +3,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: postgres17
+  name: postgres
   annotations:
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
@@ -41,7 +41,7 @@ spec:
       isWALArchiver: true
       parameters: &parameters
         barmanObjectName: minio
-        serverName: postgres-v1
+        serverName: postgres17-v5
   bootstrap:
     recovery:
       source: source
