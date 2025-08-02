@@ -1,13 +1,22 @@
-# NOTE: this isn't used directly as a patch, but kept around as reference
-# This is used to generate the Talos schematic ID from the Talos Image Factory
-#
-# Schematic ID: 5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
-
+---
 customization:
+  extraKernelArgs:
+    - -init_on_alloc                      # Less security, faster puter
+    - -init_on_free                       # Less security, faster puter
+    - -selinux                            # Less security, faster puter
+    - apparmor=0                          # Less security, faster puter
+    - init_on_alloc=0                     # Less security, faster puter
+    - init_on_free=0                      # Less security, faster puter
+    - mitigations=off                     # Less security, faster puter
+    - intel_iommu=on                      # PCI Passthrough
+    - iommu=pt                            # PCI Passthrough
+    - net.ifnames=0                       # persistent interface names
+    - security=none                       # Less security, faster puter
+    - talos.auditd.disabled=1             # Less security, faster puter
   systemExtensions:
       officialExtensions:
-          - siderolabs/gasket-driver
-          - siderolabs/i915
-          - siderolabs/intel-ucode
-          - siderolabs/nut-client
-          - siderolabs/thunderbolt
+        - siderolabs/gasket-driver
+        - siderolabs/i915
+        - siderolabs/intel-ucode
+        - siderolabs/nut-client
+        - siderolabs/thunderbolt
