@@ -41,7 +41,7 @@ spec:
       isWALArchiver: true
       parameters: &parameters
         barmanObjectName: minio
-        serverName: postgres17-v5
+        serverName: postgres
   bootstrap:
     recovery:
       source: source
@@ -49,4 +49,6 @@ spec:
     - name: source
       plugin:
         name: barman-cloud.cloudnative-pg.io
-        parameters: *parameters
+        parameters:
+          barmanObjectName: minio
+          serverName: postgres17-v5
