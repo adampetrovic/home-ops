@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/scheduledbackup_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
@@ -9,3 +10,6 @@ spec:
   backupOwnerReference: self
   cluster:
     name: postgres17
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
