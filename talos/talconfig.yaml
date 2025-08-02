@@ -87,129 +87,19 @@ nodes:
             dhcp: true
             dhcpOptions:
               routeMetric: 4096
+
 patches:
-  # Configure containerd
-  - |-
-    machine:
-      files:
-        - op: create
-          path: /etc/cri/conf.d/20-customization.part
-          content: |-
-            [plugins."io.containerd.grpc.v1.cri"]
-              enable_unprivileged_ports = true
-              enable_unprivileged_icmp = true
-            [plugins."io.containerd.grpc.v1.cri".containerd]
-              discard_unpacked_layers = false
-            [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-              discard_unpacked_layers = false
-
-  # Disable search domain everywhere
-  - |-
-    machine:
-      network:
-        disableSearchDomain: true
-
-  # Enable cluster discovery
-  - |-
-    cluster:
-      discovery:
-        enabled: true
-        registries:
-          kubernetes:
-            disabled: true
-          service:
-            disabled: false
-
-  # Configure kubelet
-  - |-
-    machine:
-      kubelet:
-        extraArgs:
-          image-gc-low-threshold: 50
-          image-gc-high-threshold: 55
-          rotate-server-certificates: false
-        nodeIP:
-          validSubnets:
-            - "10.0.80.0/21"
-
-  # Force nameserver
-  - |-
-    machine:
-      network:
-        nameservers:
-          - 1.1.1.1
-          - 1.0.0.1
-
-  # Config Host DNS
-  - |-
-    machine:
-      features:
-        hostDNS:
-          enabled: true
-          resolveMemberNames: true
-          forwardKubeDNSToHost: false
-
-  # Configure NTP
-  - |-
-    machine:
-      time:
-        disabled: false
-        servers:
-          - time.cloudflare.com
-
-  # Custom sysctl settings
-  - |-
-    machine:
-      sysctls:
-        fs.inotify.max_queued_events: 65536
-        fs.inotify.max_user_watches: 524288
-        fs.inotify.max_user_instances: 8192
-        net.core.rmem_max: 2500000
-        net.core.wmem_max: 2500000
-
-  # Mount openebs-hostpath in kubelet
-  - |-
-    machine:
-      kubelet:
-        extraMounts:
-          - destination: /var/openebs/local
-            type: bind
-            source: /var/openebs/local
-            options:
-              - bind
-              - rshared
-              - rw
-
-  # Disable predictable NIC naming and other performance values
-  - |-
-    machine:
-      install:
-        extraKernelArgs:
-          - net.ifnames=0
-          - apparmor=0
-          - init_on_alloc=0
-          - init_on_free=0
-          - mitigations=off
-
-  # udev rules
-  - |-
-    machine:
-      udev:
-        rules:
-          - ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{authorized}=="0", ATTR{authorized}="1"
-          - SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="44", MODE="0660"
-          - KERNEL=="ttyACM[0-9]", GROUP="20", MODE="0660"
+  - "@./patches/global/extension-services.yaml"
+  - "@./patches/global/machine-features.yaml"
+  - "@./patches/global/machine-files.yaml"
+  - "@./patches/global/machine-install.yaml"
+  - "@./patches/global/machine-kubelet.yaml"
+  - "@./patches/global/machine-network.yaml"
+  - "@./patches/global/machine-sysctls.yaml"
+  - "@./patches/global/machine-time.yaml"
+  - "@./patches/global/machine-udev.yaml"
 
 controlPlane:
-  schematic:
-    customization:
-      systemExtensions:
-        officialExtensions:
-          - siderolabs/i915
-          - siderolabs/intel-ucode
-          - siderolabs/thunderbolt
-          - siderolabs/gasket-driver
-          - siderolabs/nut-client
   extensionServices:
     - &nut-config
       name: nut-client
@@ -220,42 +110,9 @@ controlPlane:
             SHUTDOWNCMD "/sbin/poweroff"
           mountPath: /usr/local/etc/nut/upsmon.conf
   patches:
-    # Cluster configuration
-    - |-
-      cluster:
-        allowSchedulingOnControlPlanes: true
-        controllerManager:
-          extraArgs:
-            bind-address: 0.0.0.0
-        proxy:
-          disabled: true
-        scheduler:
-          extraArgs:
-            bind-address: 0.0.0.0
+   - "@./patches/controller/admission-controller-patch.yaml"
+   - "@./patches/controller/cluster.yaml"
 
-    # ETCD configuration
-    - |-
-      cluster:
-        etcd:
-          extraArgs:
-            listen-metrics-urls: http://0.0.0.0:2381
-          advertisedSubnets:
-            - "10.0.80.0/21"
-
-    # Disable default API server admission plugins.
-    - |-
-      - op: remove
-        path: /cluster/apiServer/admissionControl
-
-    # Enable K8s Talos API Access
-    - |-
-      machine:
-        features:
-          kubernetesTalosAPIAccess:
-            enabled: true
-            allowedRoles:
-              - os:admin
-            allowedKubernetesNamespaces:
-              - system-upgrade
-
-
+worker:
+  extensionServices:
+    - *nut-config
