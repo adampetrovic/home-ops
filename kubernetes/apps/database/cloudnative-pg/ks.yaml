@@ -59,7 +59,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app cloudnative-pg-cluster-v17
+  name: &app cloudnative-pg-cluster
   namespace: &namespace database
 spec:
   targetNamespace: *namespace
@@ -71,7 +71,7 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/database/cloudnative-pg/cluster-v17
+  path: ./kubernetes/apps/database/cloudnative-pg/cluster
   prune: true
   sourceRef:
     kind: GitRepository
