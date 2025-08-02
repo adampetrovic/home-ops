@@ -71,6 +71,17 @@ tasks:
     preconditions:
       - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
 
+  reboot-node:
+    desc: Reboot Talos on a single node [IP=required] [MODE=powercycle]
+    cmd: talosctl --nodes {{.IP}} reboot --mode={{.MODE}}
+    vars:
+      MODE: '{{.MODE | default "powercycle"}}'
+    requires:
+      vars: [IP]
+    preconditions:
+      - talosctl --nodes {{.IP}} get machineconfig
+      - which talosctl
+
   fetch-kubeconfig:
     desc: Generate talos kubeconfig
     dir: "{{.TALOS_DIR}}"
