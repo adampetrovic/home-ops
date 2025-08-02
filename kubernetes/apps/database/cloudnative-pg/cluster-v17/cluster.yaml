@@ -1,9 +1,11 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: postgres17
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 3
   # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
@@ -31,35 +33,20 @@ spec:
       memory: 10Gi
   monitoring:
     enablePodMonitor: true
-    # Ref: https://github.com/cloudnative-pg/cloudnative-pg/issues/2501
     podMonitorMetricRelabelings:
       - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
       - { regex: cluster, action: labeldrop }
-  backup:
-    retentionPolicy: 30d
-    barmanObjectStore: &barmanObjectStore
-      data:
-        compression: bzip2
-      wal:
-        compression: bzip2
-        maxParallel: 8
-      destinationPath: s3://cloudnative-pg/
-      endpointURL: https://s3.${SECRET_DOMAIN}
-      # serverName needs to be incremented
-      # when recovering from a previous cluster
-      serverName: &currentCluster postgres17-v5
-      s3Credentials:
-        accessKeyId:
-          name: cloudnative-pg-secret
-          key: aws-access-key-id
-        secretAccessKey:
-          name: cloudnative-pg-secret
-          key: aws-secret-access-key
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: &parameters
+        barmanObjectName: minio
+        serverName: postgres-v1
   bootstrap:
     recovery:
-      source: &previousCluster postgres17-v4
+      source: source
   externalClusters:
-    - name: *previousCluster
-      barmanObjectStore:
-        <<: *barmanObjectStore
-        serverName: *previousCluster
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters: *parameters
