@@ -53,7 +53,7 @@ spec:
     - name: external-secrets
       namespace: external-secrets
   path: ./kubernetes/apps/network/external-dns/external
-  prune: false
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
