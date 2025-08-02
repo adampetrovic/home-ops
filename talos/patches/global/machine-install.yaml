@@ -1,0 +1,8 @@
+machine:
+  install:
+    extraKernelArgs:
+      - net.ifnames=0
+      - apparmor=0
+      - init_on_alloc=0
+      - init_on_free=0
+      - mitigations=off

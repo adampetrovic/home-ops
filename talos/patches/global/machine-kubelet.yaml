@@ -1,0 +1,17 @@
+machine:
+  kubelet:
+    extraArgs:
+      image-gc-low-threshold: 50
+      image-gc-high-threshold: 55
+      rotate-server-certificates: false
+    nodeIP:
+      validSubnets:
+        - "10.0.80.0/21"
+    extraMounts:
+      - destination: /var/openebs/local
+        type: bind
+        source: /var/openebs/local
+        options:
+          - bind
+          - rshared
+          - rw
