@@ -42,7 +42,7 @@ spec:
               tag: 2025.7.4@sha256:0f7f057d1817c7bed5632ce510ffcc921799ff34e75c6a53346994ba6c7b14ab
             env:
               TZ: "Australia/Sydney"
-              POSTGRES_HOST: postgres17-rw.database.svc.cluster.local
+              POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
               HASS_IP: 10.0.81.4
             envFrom: &envFrom
