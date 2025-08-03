@@ -9,5 +9,11 @@ configMapGenerator:
   - name: plex-vector-config
     files:
       - vector.yaml=config/vector.yaml
+  - name: plex-loki-rules
+    files:
+      - plex.yaml=./config/lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true
