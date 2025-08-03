@@ -24,6 +24,12 @@ configMapGenerator:
   - name: fernwood-configmap-odette
     files:
       - ./config/config-odette.yaml
+  - name: fernwood-booker-loki-rules
+    files:
+      - fernwood-booker.yaml=./lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true
   annotations:
