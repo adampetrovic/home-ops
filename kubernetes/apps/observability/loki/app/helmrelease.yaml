@@ -81,7 +81,7 @@ spec:
             type: local
             local:
               directory: /rules
-          rule_path: /rules/fake
+          rule_path: /rules
     singleBinary:
       replicas: 1
       persistence:
