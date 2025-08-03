@@ -1,0 +1,14 @@
+---
+groups:
+  - name: teslamate
+    rules:
+      - alert: TeslaMateExpiredTokens
+        expr: |
+          sum(count_over_time({app="teslamate"} |~ "(?i)Error / not_signed_in"[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+          category: logs
+        annotations:
+          app: "{{ $labels.app }}"
+          summary: "{{ $labels.app }} has expired tokens. Sign in with new tokens from Tesla Auth app."
