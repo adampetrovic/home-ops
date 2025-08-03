@@ -38,16 +38,3 @@ groups:
         annotations:
           app: "{{ $labels.app }}"
           summary: "{{ $labels.app }} has a unhealthy network"
-
-  - name: fernwood-booker
-    rules:
-      - alert: FernwoodBookerError
-        expr: |
-          sum by (app) (count_over_time({app=~"fernwood-booker-.+"} |~ "(?i)errors"[1h])) > 0
-        for: 2m
-        labels:
-          severity: critical
-          category: logs
-        annotations:
-          app: "{{ $labels.app }}"
-          summary: "{{ $labels.app }} is experiencing errors"
