@@ -23,7 +23,7 @@ nodes:
     ipAddress: 10.0.80.10
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
+    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -40,7 +40,7 @@ nodes:
     ipAddress: 10.0.80.11
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
+    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -57,7 +57,7 @@ nodes:
     ipAddress: 10.0.80.12
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
+    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: eth0
@@ -74,7 +74,7 @@ nodes:
     ipAddress: 10.0.80.13
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/5fdf4b88d1e0a92f43867d783072ef526a290342062880015a34cec2423257bb
+    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: eth0
