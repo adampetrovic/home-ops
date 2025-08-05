@@ -20,13 +20,13 @@ spec:
   values:
     controllers:
       babybuddy:
-        enabled: true
+        annotations:
+          reloader.stakater.com/auto: "true"
         initContainers:
-          01-init-db:
+          init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 17.5.0@sha256:e0c87ce7df39d06b93f27cf2cc6a056611f13faaa88cc07ab4dc8bf7a85d0b11
-            imagePullPolicy: IfNotPresent
             envFrom: &envFrom
               - secretRef:
                   name: babybuddy-secret
@@ -35,7 +35,6 @@ spec:
             image:
               repository: lscr.io/linuxserver/babybuddy
               tag: 2.3.1
-            envFrom: *envFrom
             env:
               TZ: ${TIMEZONE}
               CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN},https://baby.${SECRET_DOMAIN}
@@ -43,6 +42,7 @@ spec:
               PGID: 1000
               DB_ENGINE: django.db.backends.postgresql
               DEBUG: 'True'
+            envFrom: *envFrom
     service:
       app:
         controller: babybuddy
