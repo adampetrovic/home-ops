@@ -26,7 +26,12 @@ nodes:
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
-      - interface: eth0
+      - interface: bond0
+        bond:
+          mode: active-backup
+          deviceSelectors:
+            - hardwareAddr: "48:21:0b:58:8d:f8"
+              driver: igc
         dhcp: true
         vip:
           ip: 10.0.80.99
@@ -43,7 +48,12 @@ nodes:
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
-      - interface: eth0
+      - interface: bond0
+        bond:
+          mode: active-backup
+          deviceSelectors:
+            - hardwareAddr: "1c:69:7a:a7:68:82"
+              driver: igc
         dhcp: true
         vip:
           ip: 10.0.80.99
@@ -60,7 +70,12 @@ nodes:
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
-      - interface: eth0
+      - interface: bond0
+        bond:
+          mode: active-backup
+          deviceSelectors:
+            - hardwareAddr: "48:21:0b:59:26:b7"
+              driver: igc
         dhcp: true
         vip:
           ip: 10.0.80.99
@@ -77,7 +92,12 @@ nodes:
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
-      - interface: eth0
+      - interface: bond0
+        bond:
+          mode: active-backup
+          deviceSelectors:
+            - hardwareAddr: "1c:69:7a:a7:b4:7f"
+              driver: igc
         dhcp: true
         vip:
           ip: 10.0.80.99
@@ -94,9 +114,12 @@ nodes:
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: false
     networkInterfaces:
-      - deviceSelector:
-          hardwareAddr: "58:47:ca:7e:e5:28"
-          driver: i40e
+      - interface: bond0
+        bond:
+          mode: active-backup
+          deviceSelectors:
+            - hardwareAddr: "58:47:ca:7e:e5:28"
+              driver: i40e
         dhcp: true
         vlans:
           - vlanId: 10
@@ -109,7 +132,7 @@ patches:
   - "@./patches/global/extension-services.yaml"
   - "@./patches/global/machine-features.yaml"
   - "@./patches/global/machine-files.yaml"
-  - "@./patches/global/machine-install.yaml"
+  #- "@./patches/global/machine-install.yaml"
   - "@./patches/global/machine-kubelet.yaml"
   - "@./patches/global/machine-network.yaml"
   - "@./patches/global/machine-sysctls.yaml"
