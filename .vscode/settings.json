@@ -3,7 +3,6 @@
         "**/*.json5": "json5",
         "./kubernetes/**/*.sops.toml": "plaintext"
     },
-    "sops.defaults.ageKeyFile": "/Users/adam/.config/sops/age/keys.txt",
     "yaml.schemas": {
       "kubernetes": "./kubernetes/**/*.yaml"
     },
@@ -13,6 +12,4 @@
           "./kubeconfig"
       ]
     },
-    "sops.configPath": "./.sops.yaml",
-    "sops.binPath": "/opt/homebrew/bin/sops"
 }
