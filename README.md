@@ -47,20 +47,22 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 | Component | Details |
 |-----------|---------|
-| **OS** | [Talos Linux](https://talos.dev) v1.9.6 - Immutable, API-driven Linux |
-| **Kubernetes** | v1.32.3 - Latest stable Kubernetes |
+| **OS** | [Talos Linux](https://talos.dev) v1.10.5 - Immutable, API-driven Linux |
+| **Kubernetes** | v1.33.3 - Latest stable Kubernetes |
 | **CNI** | [Cilium](https://cilium.io) - eBPF-based networking and security |
 | **Nodes** | 4x Control Plane (no dedicated workers) |
 | **High Availability** | Virtual IP, distributed etcd, automated failover |
 
 ### 🖥️ Hardware Specifications
 
-| Device | Count | CPU | RAM | OS Disk | Data Disk | Purpose |
-|--------|-------|-----|-----|---------|-----------|---------|
-| **Intel NUC12WSHi7** | 2 | i7-1265U | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
-| **Intel NUC11PAHi7** | 2 | i7-1165G7 | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
-| **Synology RS1219+** | 1 | Atom C2538 | 4GB | - | 6×16TB | NAS Storage |
-| **Synology DVA1622** | 1 | Atom C3508 | 4GB | - | 2×4TB | NVR/Security Cameras |
+| Device | Count | CPU | Cores | RAM | OS | Data | Purpose |
+|--------|-------|-----|-------|-----|---------|-----------|---------|
+| **Intel NUC12WSHi7** | 2 | i7-1265P | 12 (16 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) |64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Worker Node |
+| **Minisforum MS-01** | 1 | i9-13900H | 14 (20 threads) | 96GB | 1TB NVMe | 2TB NVMe | Kubernetes Worker Node |
+| **Synology RS1219+** | 1 | Atom C2538 | - | 4GB | - | 6×16TB | NAS Storage |
+| **Synology DVA1622** | 1 | Atom C3508 | - | 4GB | - | 2×4TB | NVR/Security Cameras |
 | **UniFi UXG-Pro** | 1 | - | - | - | - | Gateway/Router |
 | **UniFi US-48-500W** | 1 | - | - | - | - | 48-Port PoE Switch |
 | **APC SMC1000I-2UC** | 1 | - | - | - | - | UPS Power Management |
