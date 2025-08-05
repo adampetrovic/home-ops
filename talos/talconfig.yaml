@@ -90,7 +90,7 @@ nodes:
     installDiskSelector:
       model: Samsung SSD 870
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
-    controlPlane: true
+    controlPlane: false
     networkInterfaces:
       - interface: bond0
         bond:
@@ -99,8 +99,6 @@ nodes:
             - hardwareAddr: "1c:69:7a:a7:b4:7f"
               driver: igc
         dhcp: true
-        vip:
-          ip: 10.0.80.99
         vlans:
           - vlanId: 10
             mtu: 1500
@@ -132,7 +130,6 @@ patches:
   - "@./patches/global/extension-services.yaml"
   - "@./patches/global/machine-features.yaml"
   - "@./patches/global/machine-files.yaml"
-  #- "@./patches/global/machine-install.yaml"
   - "@./patches/global/machine-kubelet.yaml"
   - "@./patches/global/machine-network.yaml"
   - "@./patches/global/machine-sysctls.yaml"
