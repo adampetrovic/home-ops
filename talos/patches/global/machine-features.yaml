@@ -4,9 +4,3 @@ machine:
       enabled: true
       resolveMemberNames: true
       forwardKubeDNSToHost: false
-    kubernetesTalosAPIAccess:
-      enabled: true
-      allowedRoles:
-        - os:admin
-      allowedKubernetesNamespaces:
-        - system-upgrade
