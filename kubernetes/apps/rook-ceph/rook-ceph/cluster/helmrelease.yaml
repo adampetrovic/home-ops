@@ -119,16 +119,16 @@ spec:
         nodes:
           - name: k8s-node-1
             devices:
-              - name: /dev/nvme0n1
+              - name: /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_with_Heatsink_1TB_S6WSNJ0W114997P
           - name: k8s-node-2
             devices:
-              - name: /dev/nvme0n1
+              - name: /dev/disk/by-id/nvme-CT1000P2SSD8_2130E5BC6D4C
           - name: k8s-node-3
             devices:
-              - name: /dev/nvme0n1
+              - name: /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_1TB_S5GXNX0RA28393L
           - name: k8s-node-4
             devices:
-              - name: /dev/nvme0n1
+              - name: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NU0W602440H
           - name: k8s-node-5
             devices:
               - name: /dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7HENU1Y513806M
