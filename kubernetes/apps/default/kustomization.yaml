@@ -6,6 +6,7 @@ components:
   - ../../components/common
 resources:
   - ./atuin/ks.yaml
+  - ./babybuddy/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
