@@ -242,21 +242,27 @@ The repository includes comprehensive [Taskfile](https://taskfile.dev) automatio
 
 ```bash
 # Cluster operations
+task talos:generate           # Generate Talos configuration
+task talos:apply              # Apply Talos configuration  
 task talos:bootstrap          # Bootstrap new cluster
-task talos:upgrade            # Rolling cluster upgrades
-task talos:soft-nuke          # Reset cluster to maintenance mode
+task talos:fetch-kubeconfig   # Generate talos kubeconfig
+task talos:upgrade            # Upgrade Talos on a node (requires: node=<ip>)
+task talos:upgrade-rollout    # Rolling Talos upgrade on all nodes
+task talos:upgrade-k8s        # Upgrade Kubernetes version (requires: node=<ip> to=<version>)
+task talos:reboot-node        # Reboot node (requires: IP=<ip>)
+task talos:nuke               # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
-# GitOps operations
-task flux:bootstrap           # Install Flux CD
-task flux:github-deploy-key   # Configure GitHub integration
+# Volume backup operations  
+task volsync:check            # Check volsync repo (requires: app=<name>)
+task volsync:debug            # Debug restic (requires: app=<name>)
+task volsync:list             # List snapshots (requires: app=<name>)
+task volsync:unlock           # Unlock restic repository (requires: app=<name>)
+task volsync:snapshot         # Create snapshot (requires: app=<name>)
+task volsync:restore          # Restore from snapshot (requires: app=<name>)
+task volsync:cleanup          # Delete volume populator PVCs
 
-# Storage operations
-task rook:reset              # Reset Rook-Ceph cluster
-task volsync:list-snapshots  # List available backups
-
-# Development
-task k8s:resources           # View all cluster resources
-task k8s:pods               # View pod status across namespaces
+# Kubernetes operations
+task k8s:delete-failed-pods   # Delete pods with failed status
 ```
 
 ### Upgrade Procedures
@@ -281,27 +287,52 @@ Complete cluster rebuild capability:
 ```
 📁 kubernetes/
 ├── 📁 apps/              # Application deployments organized by namespace
-│   ├── 📁 ai/            # AI/ML applications
+│   ├── 📁 ai/            # AI/ML applications (ollama, open-webui)
 │   ├── 📁 automation/    # Home automation stack
-│   ├── 📁 database/      # Database services
+│   ├── 📁 cert-manager/  # Certificate management
+│   ├── 📁 database/      # Database services  
+│   ├── 📁 default/       # Default namespace apps (atuin, memos, etc.)
+│   ├── 📁 external-secrets/ # Secrets management with 1Password
+│   ├── 📁 flux-system/   # Flux operator and instance
+│   ├── 📁 kube-system/   # Core cluster services (cilium, metrics, etc.)
 │   ├── 📁 media/         # Media management applications
 │   ├── 📁 network/       # Networking and DNS services
 │   ├── 📁 observability/ # Monitoring and logging
-│   ├── 📁 security/      # Authentication and secrets management
-│   └── 📁 storage/       # Storage operators and services
-├── 📁 bootstrap/         # Initial cluster bootstrapping
-│   ├── 📁 flux/          # Flux CD configuration
-│   └── 📁 talos/         # Talos Linux machine configs
+│   ├── 📁 openebs-system/ # OpenEBS storage
+│   ├── 📁 rook-ceph/     # Rook-Ceph distributed storage
+│   ├── 📁 security/      # Authentication and security
+│   ├── 📁 storage/       # MinIO object storage
+│   └── 📁 volsync-system/ # Volume backup services
 ├── 📁 components/        # Reusable Kustomize components
-├── 📁 flux/              # Flux system configuration
-└── 📁 templates/         # Template resources for automation
+│   ├── 📁 common/        # Common configurations
+│   └── 📁 volsync/       # VolSync components
+└── 📁 flux/              # Flux system configuration
+    ├── 📁 cluster/       # Cluster-wide configurations
+    └── 📁 vars/          # Cluster settings and secrets
+
+📁 talos/                 # Talos Linux configuration
+├── 📁 clusterconfig/     # Generated cluster configs
+└── 📁 patches/           # Configuration patches
+    ├── 📁 controller/    # Controller-specific patches
+    └── 📁 global/        # Global patches
+
+📁 bootstrap/             # Initial cluster bootstrapping
+├── helmfile.yaml         # Helmfile for bootstrapping
+└── resources.yaml.j2     # Template for resources
+
+📁 scripts/               # Helper scripts
+└── 📁 lib/               # Script libraries
 
 📁 docs/                  # Documentation
-├── RESTORE.md           # Disaster recovery procedures
-└── UPGRADE.md           # Upgrade procedures
+├── RESTORE.md            # Disaster recovery procedures
+└── UPGRADE.md            # Upgrade procedures
 
-📁 .taskfiles/           # Task automation scripts
-Taskfile.yaml           # Main task definitions
+📁 .taskfiles/            # Task automation scripts
+├── 📁 Kubernetes/        # Kubernetes tasks
+├── 📁 Talos/             # Talos tasks and scripts
+└── 📁 VolSync/           # VolSync tasks and templates
+
+Taskfile.yaml             # Main task definitions
 ```
 
 ### Application Organization
@@ -309,11 +340,12 @@ Taskfile.yaml           # Main task definitions
 Each application follows a consistent structure:
 ```
 app-name/
-├── app/                 # Application manifests
-│   ├── helmrelease.yaml # Helm chart configuration
-│   ├── kustomization.yaml
-│   └── externalsecret.yaml # Secret management
-└── ks.yaml             # Flux Kustomization
+├── app/                     # Application manifests
+│   ├── helmrelease.yaml     # Helm chart configuration
+│   ├── kustomization.yaml   # Kustomize configuration
+│   ├── externalsecret.yaml  # Secret management (if needed)
+│   └── configs/             # Additional config files (optional)
+└── ks.yaml                  # Flux Kustomization
 ```
 
 ---
