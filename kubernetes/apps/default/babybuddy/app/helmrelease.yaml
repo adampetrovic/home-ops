@@ -34,7 +34,7 @@ spec:
           babybuddy:
             image:
               repository: lscr.io/linuxserver/babybuddy
-              tag: 2.3.1
+              tag: 2.7.1
             env:
               TZ: ${TIMEZONE}
               CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN},https://baby.${SECRET_DOMAIN}
