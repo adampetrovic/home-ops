@@ -6,6 +6,7 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 stringData:
     .dockerconfigjson: ENC[AES256_GCM,data:gMRBNMjf78FN+bmggHiiOd4L3tHuzd9kL2FvDVYrYoSK0je8q4xQi+FuLPAxQJsHe2F/9A+2HkCIPFKuZqoePBuydvoHyWunPuSNvUqPov/IKjyiZYDZ+Jqt/kf8FdC6zR43ytERV70T,iv:ENucAbGdpHRNDlcIFbdRARuhkWd/nColc2dEn/9XhMQ=,tag:OW+v1pj1RjwGrSST6UaiMQ==,type:str]
+# noinspection KubernetesUnknownKeys
 sops:
     age:
         - recipient: age1pvlc4c05yg9g0pst6f6uvthh7942vt5tx79ycva92y8matj2ne5qvz4md5
