@@ -117,3 +117,13 @@ endpoints:
     alerts:
       - type: telegram
         send-on-resolved: true
+
+  - name: NAS Storage (NFS)
+    group: storage
+    url: "tcp://${SECRET_NFS_DOMAIN}:111"
+    interval: 1m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[CONNECTED] == true"
