@@ -20,6 +20,7 @@ alerting:
     id: ${TELEGRAM_CHAT_ID}
 endpoints:
   - name: Plex Requests
+    group: automation
     url: https://requests.${SECRET_PLEX_DOMAIN}
     interval: 1m
     ui:
