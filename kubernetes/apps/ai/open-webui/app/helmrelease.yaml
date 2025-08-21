@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/open-webui/open-webui
-              tag: 0.6.22
+              tag: 0.6.23
             env:
               TZ: "Australia/Sydney"
               WEBUI_AUTH: "false"
