@@ -115,18 +115,16 @@ spec:
       config:
         enabled: true
         existingClaim: paperless-ngx
-        globalMounts:
-          - path: /data
-            subPath: app-data
+        advancedMounts:
+          paperless-ngx:
+            app:
+              - path: /data
       redis-data:
         type: emptyDir
-        globalMounts:
-          - path: /data
-            subPath: redis
-            advancedMounts:
-              paperless-ngx:
-                redis:
-                  - path: /data
+        advancedMounts:
+          paperless-ngx:
+            redis:
+              - path: /data
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
