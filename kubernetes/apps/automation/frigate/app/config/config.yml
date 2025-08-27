@@ -23,7 +23,7 @@ genai:
   enabled: True
   provider: openai
   api_key: "{FRIGATE_OPENAI_API_KEY}"
-  model: gpt-5-nano
+  model: gpt-5-mini
 
 lpr:
   enabled: True
