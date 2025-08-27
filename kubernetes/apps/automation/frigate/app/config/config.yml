@@ -19,11 +19,11 @@ detectors:
 face_recognition:
   enabled: true
 
-#genai:
-#  enabled: True
-#  provider: ollama
-#  base_url: http://ollama.ai.svc.cluster.local:11434
-#  model: llava:7b
+genai:
+  enabled: True
+  provider: openai
+  api_key: "{FRIGATE_OPENAI_API_KEY}"
+  model: gpt-5-nano
 
 lpr:
   enabled: True
@@ -327,6 +327,11 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    genai:
+      enabled: True
+      use_snapshot: True
+      objects:
+        - person
     mqtt:
       enabled: True
       timestamp: False
