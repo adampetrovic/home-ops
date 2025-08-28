@@ -146,6 +146,8 @@ cameras:
       crop: False
     lpr:
       enabled: False  # too low quality to pick up license plates
+    genai:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -264,6 +266,8 @@ cameras:
         - front_door
         - driveway
       crop: False
+    genai:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -334,7 +338,15 @@ cameras:
       crop: False
     genai:
       enabled: True
-      use_snapshot: True
+      prompt: Examine the person in these images from the {camera} security camera
+        at the front of the house. What are they doing, and how might their
+        actions suggest their purpose (e.g., delivering something, approaching, leaving)?
+        If they are carrying or interacting with a package, include details about
+        its source or destination. For additional context, this camera is placed in
+        the front yard of our house, looking out onto the driveway in front, and the walkway leading up to the front
+        door of the house. The garage door is at the end of driveway towards the house and the walkway leads to the
+        front door of the house up a set of stairs on the right of screen out of view of the camera. The main street
+        and footpath is visible intersecting the driveway.
       objects:
         - person
     mqtt:
@@ -387,6 +399,8 @@ cameras:
       timestamp: False
       bounding_box: True
       crop: False
+    genai:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -433,6 +447,8 @@ cameras:
       crop: False
     lpr:
       enabled: False
+    genai:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -469,6 +485,8 @@ cameras:
       bounding_box: True
       crop: False
     lpr:
+      enabled: False
+    genai:
       enabled: False
     mqtt:
       enabled: True
@@ -526,6 +544,8 @@ cameras:
       crop: False
     lpr:
       enabled: False
+    genai:
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -561,6 +581,8 @@ cameras:
       bounding_box: True
       crop: False
     lpr:
+      enabled: False
+    genai:
       enabled: False
     review:
       detections:
