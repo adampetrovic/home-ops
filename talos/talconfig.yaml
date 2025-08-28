@@ -58,11 +58,7 @@ nodes:
         vip:
           ip: 10.0.80.99
         vlans:
-          - vlanId: 10
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
+          - { vlanId: 10, dhcp: false, mtu: 1500 }
   - hostname: k8s-node-3
     ipAddress: 10.0.80.12
     installDiskSelector:
@@ -80,11 +76,7 @@ nodes:
         vip:
           ip: 10.0.80.99
         vlans:
-          - vlanId: 10
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
+          - { vlanId: 10, dhcp: false, mtu: 1500 }
   - hostname: k8s-node-4
     ipAddress: 10.0.80.13
     installDiskSelector:
@@ -100,11 +92,7 @@ nodes:
               driver: igc
         dhcp: true
         vlans:
-          - vlanId: 10
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
+          - { vlanId: 10, dhcp: false, mtu: 1500 }
   - hostname: k8s-node-5
     ipAddress: 10.0.80.14
     installDiskSelector:
@@ -120,11 +108,7 @@ nodes:
               driver: i40e
         dhcp: true
         vlans:
-          - vlanId: 10
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
+          - { vlanId: 10, dhcp: false, mtu: 1500 }
     patches:
       - "@./patches/machine/k8s-node-5.yaml"
 
