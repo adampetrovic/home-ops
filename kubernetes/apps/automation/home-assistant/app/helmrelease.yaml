@@ -96,7 +96,7 @@ spec:
               [{
                 "name":"multus-trusted",
                 "namespace": "network",
-                "ips": ["10.0.10.99/21"],
+                "ips": ["10.0.10.99/23"],
                 "mac": "9a:d4:f2:54:5a:97"
               }]
           securityContext:
