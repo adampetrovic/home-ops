@@ -11,9 +11,7 @@ cgroup:
 cluster:
   id: 1
   name: home-kubernetes
-# NOTE: This might need to be set if you have more than one active NIC on your hosts
-# devices:
-#   - eno0
+devices: bond+
 endpointRoutes:
   enabled: true
 cni:
