@@ -36,11 +36,7 @@ nodes:
         vip:
           ip: 10.0.80.99
         vlans:
-          - vlanId: 10
-            mtu: 1500
-            dhcp: true
-            dhcpOptions:
-              routeMetric: 4096
+          - { vlanId: 10, dhcp: false, mtu: 1500 }
   - hostname: k8s-node-2
     ipAddress: 10.0.80.11
     installDiskSelector:
