@@ -346,7 +346,10 @@ cameras:
         the front yard of our house, looking out onto the driveway in front, and the walkway leading up to the front
         door of the house. The garage door is at the end of driveway towards the house and the walkway leads to the
         front door of the house up a set of stairs on the right of screen out of view of the camera. The main street
-        and footpath is visible intersecting the driveway.
+        and footpath is visible intersecting the driveway. Our letter box is placed at the corner of the front grass
+        adjacent to the driveway and public footpath in front of the house. It appears as a grey-coloured metallic box
+        with two black posts. Your output should ONLY be in a single sentence form, suitable for displaying on a mobile
+        notification. Do not speculate, only provide factual descriptions of what you see in the output.
       objects:
         - person
     mqtt:
