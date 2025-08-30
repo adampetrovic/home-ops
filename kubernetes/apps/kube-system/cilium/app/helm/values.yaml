@@ -11,9 +11,8 @@ cgroup:
 cluster:
   id: 1
   name: home-kubernetes
-# NOTE: This might need to be set if you have more than one active NIC on your hosts
-# devices:
-#   - eno0
+# Explicitly set to bond0 to prevent auto-detection from using bond0.10 VLAN interface
+devices: bond0
 endpointRoutes:
   enabled: true
 cni:
