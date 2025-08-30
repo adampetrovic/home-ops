@@ -11,8 +11,7 @@ cgroup:
 cluster:
   id: 1
   name: home-kubernetes
-# Explicitly set to bond0 to prevent auto-detection from using bond0.10 VLAN interface
-devices: bond0
+devices: bond+
 endpointRoutes:
   enabled: true
 cni:
