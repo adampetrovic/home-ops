@@ -349,7 +349,10 @@ cameras:
         and footpath is visible intersecting the driveway. Our letter box is placed at the corner of the front grass
         adjacent to the driveway and public footpath in front of the house. It appears as a grey-coloured metallic box
         with two black posts. Your output should ONLY be in a single sentence form, suitable for displaying on a mobile
-        notification. Do not speculate, only provide factual descriptions of what you see in the output.
+        notification. Do not speculate, only provide factual descriptions of what you see in the output. DO NOT include
+        any time information in your output. Focus on what the person is doing (e.g. running, walking) and what they are
+        carrying. If there is no interaction with the mailbox, driveway, walkway or house then do not include that
+        information in the output.
       objects:
         - person
     mqtt:
