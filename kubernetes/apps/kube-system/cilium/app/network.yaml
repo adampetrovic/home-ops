@@ -6,9 +6,8 @@ metadata:
   name: policy
 spec:
   loadBalancerIPs: true
-  # NOTE: This might need to be set if you have more than one active NIC on your hosts
-  # interfaces:
-  #   - ^eno[0-9]+
+  interfaces:
+    - bond0
   nodeSelector:
     matchLabels:
       kubernetes.io/os: linux
