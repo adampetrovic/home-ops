@@ -14,6 +14,8 @@ spec:
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: dragonfly-cluster
+      namespace: database
   path: ./kubernetes/apps/default/paperless-ngx/app
   prune: true
   sourceRef:
