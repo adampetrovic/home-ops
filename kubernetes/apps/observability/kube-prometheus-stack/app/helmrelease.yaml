@@ -13,7 +13,7 @@ spec:
     tag: 77.0.2
   url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -82,25 +82,22 @@ spec:
           - hosts:
               - *host
       prometheusSpec:
-        replicas: 2
-        replicaExternalLabelName: __replica__
-        scrapeInterval: 1m # Must match interval in Grafana Helm chart
-        ruleSelectorNilUsesHelmValues: false
-        serviceMonitorSelectorNilUsesHelmValues: false
+        image:
+          registry: docker.io
+          repository: prompp/prompp
+          tag: 2.53.2-0.4.0
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
-        enableAdminAPI: true
-        walCompression: true
-        enableFeatures:
-          - memory-snapshot-on-shutdown
+        serviceMonitorSelectorNilUsesHelmValues: false
         retention: 14d
         retentionSize: 50GB
         resources:
           requests:
             cpu: 100m
           limits:
-            memory: 4Gi
+            memory: 2000Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
