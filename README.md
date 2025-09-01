@@ -121,7 +121,7 @@ The platform hosts **60+ applications** across multiple categories:
 ### 🗄️ Database & Storage
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
 - **[PgAdmin](https://pgadmin.org)** - PostgreSQL administration
-- **[Redis](https://redis.io)** - In-memory data store
+- **[Dragonfly](https://www.dragonflydb.io/)** - In-memory data store, drop-in Redis replacement
 - **[MinIO](https://min.io)** - S3-compatible object storage
 
 ### 🔐 Security & Authentication
@@ -243,7 +243,7 @@ The repository includes comprehensive [Taskfile](https://taskfile.dev) automatio
 ```bash
 # Cluster operations
 task talos:generate           # Generate Talos configuration
-task talos:apply              # Apply Talos configuration  
+task talos:apply              # Apply Talos configuration
 task talos:bootstrap          # Bootstrap new cluster
 task talos:fetch-kubeconfig   # Generate talos kubeconfig
 task talos:upgrade            # Upgrade Talos on a node (requires: node=<ip>)
@@ -252,7 +252,7 @@ task talos:upgrade-k8s        # Upgrade Kubernetes version (requires: node=<ip> 
 task talos:reboot-node        # Reboot node (requires: IP=<ip>)
 task talos:nuke               # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
-# Volume backup operations  
+# Volume backup operations
 task volsync:check            # Check volsync repo (requires: app=<name>)
 task volsync:debug            # Debug restic (requires: app=<name>)
 task volsync:list             # List snapshots (requires: app=<name>)
@@ -290,7 +290,7 @@ Complete cluster rebuild capability:
 │   ├── 📁 ai/            # AI/ML applications (ollama, open-webui)
 │   ├── 📁 automation/    # Home automation stack
 │   ├── 📁 cert-manager/  # Certificate management
-│   ├── 📁 database/      # Database services  
+│   ├── 📁 database/      # Database services
 │   ├── 📁 default/       # Default namespace apps (atuin, memos, etc.)
 │   ├── 📁 external-secrets/ # Secrets management with 1Password
 │   ├── 📁 flux-system/   # Flux operator and instance

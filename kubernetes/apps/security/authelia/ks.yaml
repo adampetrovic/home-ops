@@ -17,6 +17,8 @@ spec:
       namespace: external-secrets
     - name: lldap
       namespace: security
+    - name: dragonfly-cluster
+      namespace: database
   path: ./kubernetes/apps/security/authelia/app
   prune: true
   sourceRef:

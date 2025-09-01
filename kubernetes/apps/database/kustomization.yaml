@@ -9,4 +9,3 @@ resources:
   - ./cloudnative-pg/ks.yaml
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml
-  - ./redis/ks.yaml
