@@ -5,14 +5,13 @@ kind: HelmRelease
 metadata:
   name: &app dragonfly-operator
 spec:
-  interval: 30m
+  interval: 1h
   chartRef:
     kind: OCIRepository
     name: app-template
   install:
-    createNamespace: true
     remediation:
-      retries: -1
+      retries: 3
   upgrade:
     cleanupOnFail: true
     remediation:
@@ -21,13 +20,14 @@ spec:
   values:
     controllers:
       dragonfly-operator:
+        replicas: 1
         strategy: RollingUpdate
         containers:
           app:
             image:
               repository: ghcr.io/dragonflydb/operator
-              tag: v1.1.11@sha256:11cef45ec1079b9d97930fc99ecd08ba29d4eca55cdb45887cb0ac40ee4e4d24
-            command: ["/manager"]
+              tag: v1.2.1@sha256:6aa4f9e21d7b5d1f17856e25e110d1c6762bdda27640ddfb33684b269fa826f7
+            command: [/manager]
             args:
               - --health-probe-bind-address=:8081
               - --metrics-bind-address=:8080
@@ -62,20 +62,19 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-    defaultPodOptions:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65534
-        runAsGroup: 65534
-        seccompProfile: { type: RuntimeDefault }
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: *app
+              capabilities: { drop: [ALL] }
+        pod:
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            runAsNonRoot: true
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: *app
     service:
       app:
         controller: *app
@@ -84,9 +83,6 @@ spec:
             port: *port
           metrics:
             port: 8080
-    serviceAccount:
-      create: true
-      name: *app
     serviceMonitor:
       app:
         serviceName: *app
@@ -96,3 +92,5 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
+    serviceAccount:
+      dragonfly-operator: {}
