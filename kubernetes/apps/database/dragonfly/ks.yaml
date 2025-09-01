@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: external-secrets-stores
+      namespace: external-secrets
   path: ./kubernetes/apps/database/dragonfly/app
   prune: true
   sourceRef:
@@ -36,6 +37,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: dragonfly-operator
+      namespace: database
   path: ./kubernetes/apps/database/dragonfly/cluster
   prune: true
   sourceRef:
