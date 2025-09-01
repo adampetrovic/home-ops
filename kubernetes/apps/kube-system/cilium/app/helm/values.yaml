@@ -11,7 +11,6 @@ cgroup:
 cluster:
   id: 1
   name: home-kubernetes
-devices: bond+
 endpointRoutes:
   enabled: true
 cni:
