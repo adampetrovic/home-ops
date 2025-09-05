@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: docker.io/ollama/ollama
-              tag: 0.11.9@sha256:d8f430f5b760c8c2f93d6fc12d91fa02dfb1ec3d55865483adb9b76c43b0e980
+              tag: 0.11.10@sha256:a5409cb903d30f9cd67e9f430dd336ddc9274e16fd78f75b675c42065991b4fd
             env:
               TZ: "Australia/Sydney"
               OLLAMA_HOST: 0.0.0.0
