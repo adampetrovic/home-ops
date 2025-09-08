@@ -12,7 +12,7 @@ spec:
     - name: gdb-postgres-cluster
       namespace: gdb
     - name: external-secrets-stores
-      namespace: external-secrets-stores
+      namespace: external-secrets
   path: ./kubernetes/apps/gdb/gdb/app
   prune: true
   sourceRef:
@@ -38,7 +38,7 @@ spec:
     - name: gdb-postgres-cluster
       namespace: gdb
     - name: external-secrets-stores
-      namespace: external-secrets-stores
+      namespace: external-secrets
   path: ./kubernetes/apps/gdb/gdb/scraper
   prune: true
   sourceRef:
