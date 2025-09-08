@@ -11,10 +11,10 @@ spec:
     endpointURL: https://s3.${SECRET_DOMAIN}
     s3Credentials:
       accessKeyId:
-        name: cloudnative-pg-secret
+        name: gdb-postgres-secret
         key: aws-access-key-id
       secretAccessKey:
-        name: cloudnative-pg-secret
+        name: gdb-postgres-secret
         key: aws-secret-access-key
     wal:
       compression: bzip2
