@@ -44,9 +44,9 @@ spec:
       parameters: &parameters
         barmanObjectName: gdb-minio
         serverName: gdb-postgres
-  #bootstrap:
-  #  recovery:
-  #    source: source
+  bootstrap:
+    recovery:
+      source: source
   externalClusters:
     - name: source
       plugin:
