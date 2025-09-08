@@ -28,7 +28,7 @@ spec:
         type: cronjob
         cronjob:
           schedule: "@weekly"
-          timeZone: ${TIMEZONE}
+          timeZone: "Australia/Sydney"
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
