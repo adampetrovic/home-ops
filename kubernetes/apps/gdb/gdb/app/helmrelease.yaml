@@ -24,7 +24,7 @@ spec:
   values:
     defaultPodOptions:
       imagePullSecrets:
-        - name: ghcr-token-secret
+        - name: ghcr-private
       securityContext:
         runAsUser: 501
         runAsGroup: 20

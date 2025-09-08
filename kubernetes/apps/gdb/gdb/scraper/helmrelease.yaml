@@ -22,7 +22,7 @@ spec:
   values:
     defaultPodOptions:
       imagePullSecrets:
-        - name: ghcr-token-secret
+        - name: ghcr-private
     controllers:
       tagging:
         type: cronjob
