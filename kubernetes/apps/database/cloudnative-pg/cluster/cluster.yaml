@@ -8,8 +8,8 @@ metadata:
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 3
-  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.4@sha256:3c0ba08ea353c9705a755c113e4ae395be76553e0ed68076e5410cb09b9d17d9
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgis
+  imageName: ghcr.io/cloudnative-pg/postgis:17-3.5
   primaryUpdateStrategy: unsupervised
   storage:
     size: 40Gi
