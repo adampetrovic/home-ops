@@ -3,6 +3,10 @@
     {
       "hostType": "docker",
       "matchHost": "ghcr.io",
+      "matchPackageNames": [
+        "ghcr.io/adampetrovic/removed-db-web",
+        "ghcr.io/adampetrovic/removed-db-scraper"
+      ],
       "username": "adampetrovic",
       "password": "{{ env.RENOVATE_PAT }}"
     }
