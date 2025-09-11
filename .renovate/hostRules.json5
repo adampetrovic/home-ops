@@ -3,8 +3,8 @@
     {
       "hostType": "docker",
       "matchHost": "ghcr.io",
-      "username": "adampetrovic",
-      "password": "{{ secrets.RENOVATE_PAT }}"
+      "username": "x-access-token",
+      "password": "{{ env.RENOVATE_TOKEN }}"
     }
   ]
 }
