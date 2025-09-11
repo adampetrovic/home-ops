@@ -8,6 +8,7 @@
     "github>adampetrovic/home-ops//.renovate/customManagers.json5",
     "github>adampetrovic/home-ops//.renovate/grafanaDashboards.json5",
     "github>adampetrovic/home-ops//.renovate/groups.json5",
+    "github>adampetrovic/home-ops//.renovate/hostRules.json5",
     "github>adampetrovic/home-ops//.renovate/labels.json5",
     "github>adampetrovic/home-ops//.renovate/semanticCommits.json5",
     ":automergeBranch",
