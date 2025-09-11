@@ -3,6 +3,10 @@
     {
       "hostType": "docker",
       "matchHost": "ghcr.io",
+      "matchPackageNames": [
+        "ghcr.io/adampetrovic/gdb-web",
+        "ghcr.io/adampetrovic/gdb-scraper"
+      ],
       "username": "adampetrovic",
       "password": "{{ env.RENOVATE_PAT }}"
     }
