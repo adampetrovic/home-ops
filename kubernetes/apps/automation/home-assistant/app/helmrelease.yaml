@@ -176,6 +176,12 @@ spec:
         enabled: true
         existingClaim: home-assistant
 
+      deps:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /config/deps
+
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
