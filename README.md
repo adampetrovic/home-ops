@@ -287,7 +287,6 @@ Complete cluster rebuild capability:
 ```
 📁 kubernetes/
 ├── 📁 apps/              # Application deployments organized by namespace
-│   ├── 📁 ai/            # AI/ML applications (ollama, open-webui)
 │   ├── 📁 automation/    # Home automation stack
 │   ├── 📁 cert-manager/  # Certificate management
 │   ├── 📁 database/      # Database services
