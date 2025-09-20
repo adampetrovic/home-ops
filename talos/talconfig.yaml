@@ -105,8 +105,6 @@ nodes:
         dhcp: true
         vlans:
           - { vlanId: 10, dhcp: false, mtu: 1500 }
-    patches:
-      - "@./patches/machine/k8s-node-5.yaml"
 
 patches:
   - "@./patches/global/extension-services.yaml"
