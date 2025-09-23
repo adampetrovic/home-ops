@@ -29,6 +29,15 @@ spec:
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: drivers.talos.dev/nic
+                    operator: In
+                    values: ["i40e"]
     controllers:
       qbittorrent:
         containers:
