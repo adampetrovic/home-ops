@@ -29,6 +29,15 @@ spec:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [100]
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: drivers.talos.dev/nic
+                    operator: In
+                    values: ["i40e"]
     controllers:
       sabnzbd:
         annotations:

@@ -95,6 +95,8 @@ nodes:
       model: CT1000P310SSD8
     talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: false
+    nodeLabels:
+      drivers.talos.dev/nic: "i40e"
     networkInterfaces:
       - interface: bond0
         bond:
