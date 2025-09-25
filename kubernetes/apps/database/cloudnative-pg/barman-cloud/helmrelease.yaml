@@ -23,7 +23,7 @@ spec:
           app:
             image:
               repository: ghcr.io/cloudnative-pg/plugin-barman-cloud
-              tag: v0.6.0@sha256:2adabf02728307119a22c13abb9efc52371ad6d74106db6204c6dee5abe75fb8
+              tag: v0.7.0@sha256:641877c4dc6b879542bf7c6997ac4ae5db57e7543fc6ccced78b5b20e144880d
             args:
               - operator
               - --leader-elect
@@ -33,7 +33,7 @@ spec:
               - --server-address=:9090
             env:
               # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar
-              SIDECAR_IMAGE: ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.6.0@sha256:8a1a117a33b1338411e3a215ee8036bd914a3c6d5e127ae8a7de23b472aab32d
+              SIDECAR_IMAGE: ghcr.io/cloudnative-pg/plugin-barman-cloud-sidecar:v0.7.0@sha256:6c0023cce6a21cabbf3019c0a53f66dab18617871e63c38afbb9bef87e4daf62
             probes:
               liveness:
                 enabled: true
