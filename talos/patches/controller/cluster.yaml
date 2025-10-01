@@ -18,5 +18,8 @@ cluster:
   etcd:
     extraArgs:
       listen-metrics-urls: http://0.0.0.0:2381
+      heartbeat-interval: "250"
+      election-timeout: "2500"
+      quota-backend-bytes: "8589934592"
     advertisedSubnets:
       - "10.0.80.0/21"
