@@ -52,16 +52,6 @@ spec:
                 cpu: 10m
               limits:
                 memory: 512Mi
-        pod:
-          affinity:
-            nodeAffinity:
-              preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 100
-                  preference:
-                    matchExpressions:
-                      - key: drivers.talos.dev/nic
-                        operator: In
-                        values: ["i40e"]
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
