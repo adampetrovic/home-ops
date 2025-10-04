@@ -46,6 +46,24 @@ spec:
               postStart:
                 exec:
                   command: ["/sbin/apk", "add", "youtube-dl"]
+          uploader:
+            image:
+              repository: ghcr.io/adampetrovic/stash-uploader
+              tag: 0.1.2@sha256:1ca4b62a635da5c4f4216800d6216fe026a4124d0f9a466b452fea67ac8204d4
+            env:
+              TZ: "Australia/Sydney"
+              UPLOAD_DIR: /media
+              PORT: "8080"
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              runAsUser: 568
+              runAsGroup: 568
+              fsGroup: 568
         pod:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
@@ -56,6 +74,12 @@ spec:
           http:
             enabled: true
             port: 9999
+      uploader:
+        controller: stash
+        ports:
+          http:
+            enabled: true
+            port: 8080
     ingress:
       app:
         enabled: true
@@ -67,6 +91,11 @@ spec:
                 pathType: Prefix
                 service:
                   identifier: app
+                  port: http
+              - path: /upload
+                pathType: Prefix
+                service:
+                  identifier: uploader
                   port: http
         tls:
           - hosts:
