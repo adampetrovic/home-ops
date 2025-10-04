@@ -52,6 +52,14 @@ spec:
                 cpu: 10m
               limits:
                 memory: 512Mi
+        pod:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/worker
+                        operator: Exists
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
