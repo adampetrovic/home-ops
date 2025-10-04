@@ -81,21 +81,8 @@ spec:
                       - key: intel.feature.node.kubernetes.io/gpu
                         operator: In
                         values: ["true"]
-              preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 100
-                  preference:
-                    matchExpressions:
-                      - key: drivers.talos.dev/nic
-                        operator: In
-                        values: ["i40e"]
-            podAntiAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                      - key: app.kubernetes.io/name
-                        operator: In
-                        values: ["frigate"]
-                  topologyKey: kubernetes.io/hostname
+                      - key: node-role.kubernetes.io/worker
+                        operator: Exists
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
           securityContext:
