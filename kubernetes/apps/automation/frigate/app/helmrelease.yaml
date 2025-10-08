@@ -61,7 +61,7 @@ spec:
                 memory: 16Gi
         pod:
           affinity:
-            podAntiAffinity:
+            nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
                 nodeSelectorTerms:
                   - matchExpressions:
