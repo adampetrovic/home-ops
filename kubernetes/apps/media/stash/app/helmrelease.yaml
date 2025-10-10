@@ -62,7 +62,7 @@ spec:
                 cpu: 10m
                 memory: 32Mi
               limits:
-                memory: 128Mi
+                memory: 2048Mi
         pod:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
