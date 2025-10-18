@@ -67,6 +67,15 @@ spec:
               limits:
                 memory: 500Mi
         pod:
+          pod:
+            annotations:
+              k8s.v1.cni.cncf.io/networks: |
+                [{
+                  "name":"multus-trusted",
+                  "namespace": "network",
+                  "ips": ["10.0.10.101/23"],
+                  "mac": "9a:d4:f2:54:5a:98"
+                }]
           securityContext:
             runAsUser: 568
             runAsGroup: 568
