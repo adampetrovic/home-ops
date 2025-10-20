@@ -42,7 +42,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.105.0-39
+              tag: 4.105.1-39
             env:
               TZ: "Australia/Sydney"
               GIT_AUTHOR_NAME: "Adam Petrovic"
