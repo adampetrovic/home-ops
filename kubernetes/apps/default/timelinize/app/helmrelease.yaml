@@ -35,6 +35,7 @@ spec:
               tag: v0.0.28@sha256:cd004f5a9bb1610f14da893ecf114fda597202c78241a1abec61eeec7d861992
             env:
               TZ: ${TZ}
+              TLZ_ORIGIN: "https://timelinize.${SECRET_DOMAIN}"
             probes:
               liveness:
                 enabled: true
