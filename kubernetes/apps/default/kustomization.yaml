@@ -10,3 +10,4 @@ resources:
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
+  - ./timelinize/ks.yaml
