@@ -201,11 +201,11 @@ spec:
             type: postgres
             access: proxy
             url: postgres-ro.database.svc.cluster.local:5432
-            database: teslamate
             user: "$TESLAMATE_POSTGRES_USER"
             secureJsonData:
               password: "$TESLAMATE_POSTGRES_PASS"
             jsonData:
+              database: teslamate
               postgresVersion: 1000
               sslmode: disable
     dashboards:
