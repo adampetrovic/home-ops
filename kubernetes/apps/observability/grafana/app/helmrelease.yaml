@@ -202,7 +202,6 @@ spec:
             access: proxy
             url: postgres-ro.database.svc.cluster.local:5432
             database: teslamate
-            isDefault: true
             user: "$TESLAMATE_POSTGRES_USER"
             secureJsonData:
               password: "$TESLAMATE_POSTGRES_PASS"
