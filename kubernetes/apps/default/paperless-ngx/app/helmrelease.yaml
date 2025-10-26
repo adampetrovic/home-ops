@@ -64,9 +64,9 @@ spec:
               PAPERLESS_ENABLE_HTTP_REMOTE_USER: 'true'
               PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: HTTP_REMOTE_USER
               PAPERLESS_CONSUMPTION_DIR: /library/consume
-              PAPERLESS_DATA_DIR: /library/data
-              PAPERLESS_MEDIA_ROOT: /library/media
-              PAPERLESS_EXPORT_DIR: /library/export
+              PAPERLESS_DATA_DIR: /data/data
+              PAPERLESS_MEDIA_ROOT: /data/media
+              PAPERLESS_EXPORT_DIR: /data/export
               PAPERLESS_CONSUMER_POLLING: 60
               PAPERLESS_CONSUMER_IGNORE_PATTERNS: '[".DS_STORE/*", "._*", ".stfolder/*", "@eaDir/*"]'
               PAPERLESS_TRUSTED_PROXIES: 10.42.0.0/16
