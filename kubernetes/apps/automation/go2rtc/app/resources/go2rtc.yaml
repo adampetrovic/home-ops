@@ -67,6 +67,12 @@ streams:
   zoey_lq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.63:554/h264Preview_01_sub
     - ffmpeg:zoey_lq#audio=opus#audio=copy
+  eliza_hq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.64:554/h264Preview_01_main
+    - ffmpeg:eliza_hq#audio=opus#audio=copy
+  eliza_lq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.64:554/h264Preview_01_sub
+    - ffmpeg:eliza_lq#audio=opus#audio=copy
 
 homekit:
   doorbell_lq:
