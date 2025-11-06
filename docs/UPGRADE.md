@@ -16,9 +16,9 @@ Check official release pages for installer images. Your tasks likely use `factor
 ## Upgrade Procedure
 
 1.  **Generate latest configuration:**
-    Ensure your Talos machine configurations are up-to-date before upgrading any node. Run the following command in your Talos configuration directory (e.g., `kubernetes/bootstrap/talos`):
+    Ensure your Talos machine configurations are up-to-date before upgrading any node. Run the following command:
     ```sh
-    talhelper genconfig -c talconfig.yaml -e talenv.sops.yaml -s talsecret.sops.yaml
+    task talos:generate
     ```
 
 2.  **Perform the upgrade via Taskfile:**
@@ -57,4 +57,4 @@ Talos OS upgrades do not upgrade Kubernetes. See the official [Upgrading Kuberne
 
 ---
 
-This guide summarizes your scripted upgrade. Always refer to the [official Talos documentation](https://www.talos.dev/latest/talos-guides/upgrading-talos/) for base `talosctl` behavior. 
+This guide summarizes your scripted upgrade. Always refer to the [official Talos documentation](https://www.talos.dev/latest/talos-guides/upgrading-talos/) for base `talosctl` behavior.
