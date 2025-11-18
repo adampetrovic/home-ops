@@ -9,5 +9,5 @@ resources:
   - ./babybuddy/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
+  - ./paperless-ai/ks.yaml
   - ./paperless-ngx/ks.yaml
-  - ./timelinize/ks.yaml
