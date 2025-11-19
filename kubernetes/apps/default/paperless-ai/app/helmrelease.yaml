@@ -83,7 +83,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  identifier: app
+                  identifier: paperless-ai
                   port: http
         tls:
           - hosts:
