@@ -39,7 +39,7 @@ spec:
               AI_PROVIDER: openai
               OPENAI_MODEL: gpt-4o
               PAPERLESS_AI_PORT: &port 3000
-              PAPERLESS_API_URL: http://paperless.default.svc.cluster.local/api
+              PAPERLESS_API_URL: http://paperless-ngx.default.svc.cluster.local/api
               PGID: 1000
               PUID: 1000
               RAG_SERVICE_ENABLED: true
