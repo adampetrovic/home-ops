@@ -48,7 +48,7 @@ spec:
               TZ: Australia/Sydney
             envFrom:
               - secretRef:
-                  name: paperless-ai
+                  name: paperless-ai-secret
             probes:
               liveness: &probes
                 enabled: true
