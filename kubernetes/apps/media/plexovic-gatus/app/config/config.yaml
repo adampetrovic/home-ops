@@ -72,9 +72,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "len([BODY]) < 2"
-    alerts:
-      - type: telegram
-        send-on-resolved: true
 
   - name: Radarr - Movies Downloader
     group: automations
@@ -88,9 +85,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "len([BODY]) < 2"
-    alerts:
-      - type: telegram
-        send-on-resolved: true
 
 
   - name: QBT - Torrent Downloader
