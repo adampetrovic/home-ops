@@ -42,9 +42,7 @@ spec:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
-            args: [
-              "/app/entrypoint.sh", "mms"
-            ]
+            args: ["mms"]
             resources:
               requests:
                 memory: 1Gi
@@ -74,9 +72,7 @@ spec:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
-            args: [
-              "/app/entrypoint.sh", "mso"
-            ]
+            args: ["mso"]
             resources:
               requests:
                 memory: 1Gi
