@@ -24,10 +24,10 @@ spec:
       imagePullSecrets:
         - name: ghcr-private
     controllers:
-      tagging:
+      mymeetscores:
         type: cronjob
         cronjob:
-          schedule: "@weekly"
+          schedule: "0 6 * * *"
           timeZone: "Australia/Sydney"
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
@@ -36,14 +36,14 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.19@sha256:d2e9f0181e302322b43679fb0de205ea74a98b84c515679a9059f17cf63de8f0
+              tag: 0.1.22@sha256:ea0bda7159a5c8509cb273519c530d9371bbd50700fb7c3cf47c62d91f1fa057
             envFrom:
               - secretRef:
                   name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
             args: [
-              "scrapy", "crawl", "latest",
-              "-a", "output_dir=/export",
-              "-L", "INFO",
+              "/app/entrypoint.sh", "mms"
             ]
             resources:
               requests:
