@@ -11,6 +11,7 @@ resources:
   - ./plexovic-gatus/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
+  - ./qui/ks.yaml
   - ./tautulli/ks.yaml
   - ./radarr/ks.yaml
   - ./radarr-4k/ks.yaml
