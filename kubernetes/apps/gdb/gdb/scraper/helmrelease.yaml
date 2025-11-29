@@ -24,7 +24,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-private
     controllers:
-      mymeetscores:
+      mms:
         type: cronjob
         cronjob:
           schedule: "0 6 * * *"
@@ -44,6 +44,38 @@ spec:
               OUTPUT_DIR: /export
             args: [
               "/app/entrypoint.sh", "mms"
+            ]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      mso:
+        type: cronjob
+        cronjob:
+          schedule: "0 18 * * *"
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+            args: [
+              "/app/entrypoint.sh", "mso"
             ]
             resources:
               requests:
