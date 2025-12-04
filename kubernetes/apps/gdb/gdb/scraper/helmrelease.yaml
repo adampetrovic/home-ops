@@ -36,7 +36,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.29@sha256:7b40e6568651bc9bbc9d9f44878b2c4b182522d6cf6f682859db554f2474f3dc
+              tag: 0.1.30@sha256:f5a532bb545d0903c24f72a5928dc9dea8fd0889ec061bf0299a44e892f384d7
             envFrom:
               - secretRef:
                   name: gdb-secret
@@ -73,6 +73,37 @@ spec:
             env:
               OUTPUT_DIR: /export
             args: ["mso"]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      usag:
+        type: cronjob
+        cronjob:
+          schedule: "0 12 * * 0"
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+              START_ID: "1"
+            args: ["usag"]
             resources:
               requests:
                 memory: 1Gi
