@@ -5,8 +5,8 @@ kind: Kustomization
 resources:
   - ./secrets/externalsecret-sue.yaml
   - ./manifests/helmrelease-sue.yaml
-  #- ./secrets/externalsecret-nicole.yaml
-  #- ./manifests/helmrelease-nicole.yaml
+  - ./secrets/externalsecret-nicole.yaml
+  - ./manifests/helmrelease-nicole.yaml
   - ./secrets/externalsecret-erika.yaml
   - ./manifests/helmrelease-erika.yaml
   #- ./secrets/externalsecret-odette.yaml
