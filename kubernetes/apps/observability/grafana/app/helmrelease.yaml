@@ -427,7 +427,7 @@ spec:
             - { name: DS_PROMETHEUS, value: Prometheus }
         unifi-uxg:
           # renovate: depName="UniFi-Poller: USG Insights - Prometheus"
-          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/adampetrovic/unifi-dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
         unifi-usw:
