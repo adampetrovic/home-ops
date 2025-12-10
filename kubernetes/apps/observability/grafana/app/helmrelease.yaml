@@ -412,23 +412,23 @@ spec:
       unifi:
         unifi-clients:
           # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
-          url: https://github.com/unpoller/dashboards/blob/master/v2.0.0/UniFi-Poller_%20Client%20Insights%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20Client%20Insights%20-%20Prometheus.json
           datasource: Prometheus
         unifi-network-sites:
           # renovate: depName="UniFi-Poller: Network Sites - Prometheus"
-          url: https://github.com/unpoller/dashboards/blob/master/v2.0.0/UniFi-Poller_%20Network%20Sites%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20Network%20Sites%20-%20Prometheus.json
           datasource: Prometheus
         unifi-uap:
           # renovate: depName="UniFi-Poller: UAP Insights - Prometheus"
-          url: https://github.com/unpoller/dashboards/blob/master/v2.0.0/UniFi-Poller_%20UAP%20Insights%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20UAP%20Insights%20-%20Prometheus.json
           datasource: Prometheus
         unifi-uxg:
           # renovate: depName="UniFi-Poller: USG Insights - Prometheus"
-          url: https://raw.githubusercontent.com/adampetrovic/unifi-dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
           datasource: Prometheus
         unifi-usw:
           # renovate: depName="UniFi-Poller: USW Insights - Prometheus"
-          url: https://github.com/unpoller/dashboards/blob/master/v2.0.0/UniFi-Poller_%20USW%20Insights%20-%20Prometheus.json
+          url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20USW%20Insights%20-%20Prometheus.json
           datasource: Prometheus
     sidecar:
       dashboards:
