@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: influxdb
-              tag: 2.7.12
+              tag: 2.8.0
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3G
               TZ: "Australia/Sydney"
