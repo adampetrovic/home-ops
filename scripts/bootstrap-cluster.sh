@@ -96,7 +96,7 @@ function apply_crds() {
         # renovate: datasource=github-releases depName=k8snetworkplumbingwg/network-attachment-definition-client
         https://raw.githubusercontent.com/k8snetworkplumbingwg/network-attachment-definition-client/refs/tags/v1.7.7/artifacts/networks-crd.yaml
         # renovate: datasource=github-releases depName=cloudnative-pg/plugin-barman-cloud
-        https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/v0.9.0/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml
+        https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/v0.10.0/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml
     )
 
     for crd in "${crds[@]}"; do
