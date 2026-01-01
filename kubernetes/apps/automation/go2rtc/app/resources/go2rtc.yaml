@@ -75,6 +75,7 @@ streams:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.64:554/h264Preview_01_sub
     - ffmpeg:eliza_lq#audio=opus#audio=copy
 
+# NOTE: when adding a new camera be sure to omit pairings the first time.
 homekit:
   doorbell_lq:
     pin: "19550224"
