@@ -1,7 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/AlexxIT/go2rtc/master/website/schema.json
 ---
 log:
-  streams: info
+  streams: debug
+  homekit: trace
 api:
   listen: :80
 rtsp:
