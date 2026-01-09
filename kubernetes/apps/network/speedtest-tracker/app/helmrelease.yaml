@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: lscr.io/linuxserver/speedtest-tracker
-              tag: 1.12.3@sha256:d218848ed14ed7c6b3f1458832c1d0eaa836c52e48cf239f07a88e8e0d6810bb
+              tag: 1.13.5@sha256:d00dcbe8cd2c868ec059dd70379d8d7b033932c8fbeb744f6e10d0133c664a42
             envFrom: *envFrom
             env:
               TZ: &timezone "Australia/Sydney"
