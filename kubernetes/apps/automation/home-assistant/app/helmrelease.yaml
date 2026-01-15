@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/home-assistant
-              tag: 2026.1.0@sha256:69c42ff4f1bde909140f139838c2e81f3f93db1b8957fbe4425f4e9075b959c7
+              tag: 2026.1.1@sha256:9cd3ab36e0f226915dba281c4867cc6c9d14fd18208234f4a65ddbf8a10bf7e5
             env:
               TZ: "Australia/Sydney"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
