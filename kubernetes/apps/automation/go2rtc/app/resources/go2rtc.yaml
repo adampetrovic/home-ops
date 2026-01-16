@@ -47,9 +47,9 @@ streams:
   laundry_lq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/103/
   living_room_hq:
-    - rtsps://10.0.0.2:7441/znlLCKhK116rrOuV
+    - rtsps://10.0.0.1:7441/gH63vU7AHUWtDwH0?enableSrtp
   living_room_lq:
-    - rtsps://10.0.0.2:7441/HN2z9YAb5rfqAb3Y
+    - rtsps://10.0.0.1:7441/mYZztW3rCxSF95fB?enableSrtp
   office_hq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/101/
   office_lq:
