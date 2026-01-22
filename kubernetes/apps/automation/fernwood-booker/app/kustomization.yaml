@@ -1,36 +1,36 @@
 ---
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
-#apiVersion: kustomize.config.k8s.io/v1beta1
-#kind: Kustomization
-#resources:
-  #- ./secrets/externalsecret-sue.yaml
-  #- ./manifests/helmrelease-sue.yaml
-  #- ./secrets/externalsecret-nicole.yaml
-  #- ./manifests/helmrelease-nicole.yaml
-  #- ./secrets/externalsecret-erika.yaml
-  #- ./manifests/helmrelease-erika.yaml
-  #- ./secrets/externalsecret-odette.yaml
-  #- ./manifests/helmrelease-odette.yaml
-#configMapGenerator:
-#  - name: fernwood-configmap-sue
-#    files:
-#      - ./config/config-sue.yaml
-#  - name: fernwood-configmap-nicole
-#    files:
-#      - ./config/config-nicole.yaml
-#  - name: fernwood-configmap-erika
-#    files:
-#      - ./config/config-erika.yaml
-#  - name: fernwood-configmap-odette
-#    files:
-#      - ./config/config-odette.yaml
-#  - name: fernwood-booker-loki-rules
-#    files:
-#      - fernwood-booker.yaml=./lokirule.yaml
-#    options:
-#      labels:
-#        loki_rule: "true"
-#generatorOptions:
-#  disableNameSuffixHash: true
-#  annotations:
-#    kustomize.toolkit.fluxcd.io/substitute: disabled
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./secrets/externalsecret-sue.yaml
+  - ./manifests/helmrelease-sue.yaml
+  - ./secrets/externalsecret-nicole.yaml
+  - ./manifests/helmrelease-nicole.yaml
+  - ./secrets/externalsecret-erika.yaml
+  - ./manifests/helmrelease-erika.yaml
+#  - ./secrets/externalsecret-odette.yaml
+#  - ./manifests/helmrelease-odette.yaml
+configMapGenerator:
+  - name: fernwood-configmap-sue
+    files:
+      - ./config/config-sue.yaml
+  - name: fernwood-configmap-nicole
+    files:
+      - ./config/config-nicole.yaml
+  - name: fernwood-configmap-erika
+    files:
+      - ./config/config-erika.yaml
+  - name: fernwood-configmap-odette
+    files:
+      - ./config/config-odette.yaml
+  - name: fernwood-booker-loki-rules
+    files:
+      - fernwood-booker.yaml=./lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled

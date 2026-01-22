@@ -39,7 +39,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/home-assistant
-              tag: 2026.1.1@sha256:9cd3ab36e0f226915dba281c4867cc6c9d14fd18208234f4a65ddbf8a10bf7e5
+              tag: 2026.1.2@sha256:9587276dcc680f8210115015508cd02d19f6921cdbff6bf119453fc4a8e10969
             env:
               TZ: "Australia/Sydney"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
@@ -64,7 +64,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.108.0-39
+              tag: 4.108.1-39
             env:
               TZ: "Australia/Sydney"
               GIT_AUTHOR_NAME: "Adam Petrovic"
