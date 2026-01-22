@@ -18,5 +18,6 @@ resources:
   - ./sabnzbd/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
+  - ./stash/ks.yaml
   - ./unpackerr/ks.yaml
   - ./xteve/ks.yaml
