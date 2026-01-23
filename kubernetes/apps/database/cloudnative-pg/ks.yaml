@@ -42,7 +42,7 @@ spec:
       namespace: cert-manager
     - name: cloudnative-pg
       namespace: database
-    - name: minio
+    - name: garage
       namespace: storage
   path: ./kubernetes/apps/database/cloudnative-pg/barman-cloud
   interval: 1h

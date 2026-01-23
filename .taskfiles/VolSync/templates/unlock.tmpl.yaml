@@ -12,7 +12,7 @@ spec:
       automountServiceAccountToken: false
       restartPolicy: OnFailure
       containers:
-        - name: minio
+        - name: garage
           image: docker.io/restic/restic:0.16.4
           args: ["unlock", "--remove-all"]
           envFrom:
