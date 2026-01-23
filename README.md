@@ -383,6 +383,18 @@ Key files to customize for your environment:
 - `kubernetes/flux/vars/cluster-settings.yaml` - Cluster-wide configuration
 - `kubernetes/flux/vars/cluster-secrets.sops.yaml` - Encrypted secrets
 
+### Required 1Password Items
+
+The following items must be created in 1Password for Garage S3 storage integration:
+
+| Item Name | Fields | Description |
+|-----------|--------|-------------|
+| `garage` | `GARAGE_RPC_SECRET`, `GARAGE_ADMIN_TOKEN`, `GARAGE_METRICS_TOKEN` | Garage server configuration |
+| `cloudnative-pg-s3` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Dedicated S3 credentials for PostgreSQL backups |
+| `volsync-s3` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `REPOSITORY_TEMPLATE`, `RESTIC_PASSWORD` | Dedicated S3 credentials for VolSync PVC backups |
+
+> **Note**: Each service uses dedicated S3 access keys rather than shared root credentials. Create separate Garage API keys for each use case via `garage key create <key-name>`.
+
 ---
 
 ## ☁️ Cloud Dependencies

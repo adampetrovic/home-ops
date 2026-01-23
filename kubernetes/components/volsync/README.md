@@ -267,8 +267,19 @@ spec:
 
 The VolSync component automatically creates ExternalSecrets that pull credentials from 1Password:
 
-- **Garage**: Uses `garage` and `volsync-garage-template` secrets
+- **Garage**: Uses `volsync-s3` secret (dedicated S3 credentials for VolSync)
 - **R2**: Uses `cloudflare-r2` and `volsync-r2-template` secrets
+
+#### Required 1Password Keys
+
+Create a `volsync-s3` item in 1Password with the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `AWS_ACCESS_KEY_ID` | Garage S3 access key for VolSync |
+| `AWS_SECRET_ACCESS_KEY` | Garage S3 secret key for VolSync |
+| `REPOSITORY_TEMPLATE` | Restic repository URL template (e.g., `s3:https://s3.yourdomain.com/volsync`) |
+| `RESTIC_PASSWORD` | Encryption password for Restic backups |
 
 No additional secret configuration is required in your application.
 
