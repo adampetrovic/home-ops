@@ -41,8 +41,8 @@ spec:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
           tika:
             image:
-              repository: ghcr.io/paperless-ngx/tika
-              tag: 2.9.1-full
+              repository: apache/tika
+              tag: latest-full
               pullPolicy: IfNotPresent
           app:
             image:
