@@ -22,10 +22,73 @@ Our implementation uses a Kustomize component approach located in `kubernetes/co
 ```
 volsync/
 ├── kustomization.yaml    # Component definition
-├── claim.yaml           # PVC template with restore capability
-├── garage.yaml           # Garage backup configuration
-└── r2.yaml              # Cloudflare R2 backup configuration
+├── claim.yaml            # PVC template with restore capability
+├── garage.yaml           # Garage backup configuration (primary)
+├── r2.yaml               # Cloudflare R2 backup configuration (secondary)
+└── minio-legacy.yaml     # Temporary: restore-only access to old Minio backups
 ```
+
+## Minio to Garage Migration (Soft Cutover)
+
+This section documents the soft cutover strategy from Minio to Garage for S3 storage.
+
+### Migration Strategy
+
+The migration uses a **soft cutover** approach that ensures zero data loss:
+
+1. **New backups** → Garage (primary) and R2 (secondary)
+2. **Existing backups** → Accessible via `minio-legacy` component (restore-only)
+3. **Default restore** → Uses Garage (`${APP}-dst`)
+4. **Legacy restore** → Available via `${APP}-minio-legacy-dst` when needed
+
+### How It Works
+
+| Component | Purpose | Backups | Restores |
+|-----------|---------|---------|----------|
+| `garage.yaml` | Primary storage | ✅ Yes | ✅ Yes (default) |
+| `r2.yaml` | Off-site backup | ✅ Yes | ✅ Yes |
+| `minio-legacy.yaml` | Migration support | ❌ No | ✅ Yes |
+
+### Restoring from Old Minio Backups
+
+If you need to restore data from the old Minio repository during the transition:
+
+1. **Modify the PVC** to reference the legacy destination:
+   ```yaml
+   spec:
+     dataSourceRef:
+       kind: ReplicationDestination
+       apiGroup: volsync.backube
+       name: "${APP}-minio-legacy-dst"  # Instead of ${APP}-dst
+   ```
+
+2. **Trigger the restore** by deleting and recreating the PVC, or use the task:
+   ```bash
+   task volsync:restore app=<app-name> ns=<namespace>
+   ```
+
+### Required 1Password Item for Legacy Access
+
+Create a `volsync-minio-legacy` item in 1Password with your old Minio credentials:
+
+| Field | Description |
+|-------|-------------|
+| `AWS_ACCESS_KEY_ID` | Old Minio access key |
+| `AWS_SECRET_ACCESS_KEY` | Old Minio secret key |
+| `REPOSITORY_TEMPLATE` | Old Minio repository URL (e.g., `s3:https://s3.oldminio.com/volsync`) |
+| `RESTIC_PASSWORD` | Same Restic password used for old backups |
+
+### Completing the Migration
+
+Once all applications have:
+1. Been running with Garage backups for sufficient time (recommended: 30+ days)
+2. Accumulated enough backup history in Garage for your retention needs
+
+You can safely remove the legacy component:
+
+1. Remove `minio-legacy.yaml` from `kustomization.yaml`
+2. Delete the `volsync-minio-legacy` item from 1Password
+3. (Optional) Clean up old Minio backup data
 
 ## Detailed Workflows
 

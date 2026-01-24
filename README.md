@@ -392,8 +392,11 @@ The following items must be created in 1Password for Garage S3 storage integrati
 | `garage` | `GARAGE_RPC_SECRET`, `GARAGE_ADMIN_TOKEN`, `GARAGE_METRICS_TOKEN` | Garage server configuration |
 | `cloudnative-pg-s3` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Dedicated S3 credentials for PostgreSQL backups |
 | `volsync-s3` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `REPOSITORY_TEMPLATE`, `RESTIC_PASSWORD` | Dedicated S3 credentials for VolSync PVC backups |
+| `volsync-minio-legacy` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `REPOSITORY_TEMPLATE`, `RESTIC_PASSWORD` | **(Temporary)** Old Minio credentials for restore-only access during migration |
 
 > **Note**: Each service uses dedicated S3 access keys rather than shared root credentials. Create separate Garage API keys for each use case via `garage key create <key-name>`.
+>
+> The `volsync-minio-legacy` item is only needed during the Minio → Garage migration period. Remove it once all applications have sufficient backup history in Garage (recommended: 30+ days).
 
 ---
 

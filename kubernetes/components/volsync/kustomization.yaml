@@ -6,3 +6,4 @@ resources:
   - ./claim.yaml
   - ./garage.yaml
   - ./r2.yaml
+  - ./minio-legacy.yaml # Temporary: restore-only access to old Minio backups

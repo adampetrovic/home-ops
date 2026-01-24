@@ -1,0 +1,22 @@
+# Template for restoring from legacy Minio backups during Garage migration
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: ${job}
+  namespace: ${ns}
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: ${app}-volsync-minio-legacy-secret
+    destinationPVC: ${claim}
+    copyMethod: Direct
+    storageClassName: ceph-block
+    # IMPORTANT NOTE:
+    #   Set to the last X number of snapshots to restore from
+    previous: ${previous}
+    moverSecurityContext:
+      runAsUser: ${puid}
+      runAsGroup: ${pgid}
+      fsGroup: ${pgid}
