@@ -3,7 +3,7 @@
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
-  name: minio
+  name: garage
 spec:
   retentionPolicy: 7d
   configuration:
