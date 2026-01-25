@@ -57,14 +57,8 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
         pod:
           securityContext:
-            runAsUser: 568
-            runAsGroup: 568
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
