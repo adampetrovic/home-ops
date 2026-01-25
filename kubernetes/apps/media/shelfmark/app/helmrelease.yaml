@@ -115,6 +115,6 @@ spec:
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/books/shelfmark
+        path: /volume2/books
         globalMounts:
           - path: /books
