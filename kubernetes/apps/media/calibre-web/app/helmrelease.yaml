@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/linuxserver/calibre-web
-              tag: 0.6.24
+              tag: 0.6.25
             env:
               TZ: "Australia/Sydney"
               PUID: 568
