@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: esphome/esphome
-              tag: 2026.1.0
+              tag: 2026.1.2
             env:
               ESPHOME_DASHBOARD_USE_PING: true
               PLATFORMIO_CORE_DIR: .plattformio
