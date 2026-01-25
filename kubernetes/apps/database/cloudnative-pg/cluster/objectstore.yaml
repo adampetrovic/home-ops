@@ -8,7 +8,7 @@ spec:
   retentionPolicy: 7d
   configuration:
     destinationPath: s3://postgres/
-    endpointURL: https://s3-garage.${SECRET_DOMAIN}
+    endpointURL: https://s3.${SECRET_DOMAIN}
     s3Credentials:
       accessKeyId:
         name: cloudnative-pg-secret

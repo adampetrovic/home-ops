@@ -97,7 +97,7 @@ tasks:
       - envsubst < <(cat {{.VOLSYNC_TEMPLATES_DIR}}/unlock.tmpl.yaml) | kubectl apply -f -
       - bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh {{.job}} {{.ns}}
       - kubectl -n {{.ns}} wait job/{{.job}} --for condition=complete --timeout=1m
-      - kubectl -n {{.ns}} logs job/{{.job}} --container minio
+      - kubectl -n {{.ns}} logs job/{{.job}} --container garage
       - kubectl -n {{.ns}} logs job/{{.job}} --container r2
       - kubectl -n {{.ns}} delete job {{.job}}
     env: *env
