@@ -4,7 +4,7 @@ VolSync is a Kubernetes operator that provides automated backup and restore capa
 
 This VolSync setup uses a dual-storage strategy:
 
-- **MinIO (Primary)**: Frequent backups (hourly by default) stored in local MinIO S3-compatible storage
+- **Garage (Primary)**: Frequent backups (hourly by default) stored in local Garage S3-compatible storage
 - **Cloudflare R2 (Secondary)**: Daily backups stored in Cloudflare R2 for long-term retention and disaster recovery
 
 ### Core Components
@@ -23,7 +23,7 @@ Our implementation uses a Kustomize component approach located in `kubernetes/co
 volsync/
 ├── kustomization.yaml    # Component definition
 ├── claim.yaml           # PVC template with restore capability
-├── minio.yaml           # MinIO backup configuration
+├── garage.yaml          # Garage backup configuration
 └── r2.yaml              # Cloudflare R2 backup configuration
 ```
 
@@ -98,7 +98,7 @@ Once the PVC is ready (either empty or restored), the application pod can start 
 
 Automated backups are configured via ReplicationSource with two separate schedules:
 
-#### MinIO Backup (Frequent)
+#### Garage Backup (Frequent)
 - **Schedule**: `${VOLSYNC_SCHEDULE}` (default: hourly at minute 0)
 - **Retention**: 24 hourly, 7 daily, 5 weekly, 6 monthly
 
@@ -139,7 +139,7 @@ When a backup is triggered:
 4. **Backup Execution**:
    - Pod mounts the snapshot as read-only
    - Restic creates encrypted, deduplicated backup
-   - Data is uploaded to the target repository (MinIO or R2)
+   - Data is uploaded to the target repository (Garage or R2)
    - Backup metadata is updated
 
 5. **Cleanup Process**:
@@ -231,8 +231,8 @@ spec:
       VOLSYNC_STORAGECLASS: ceph-block                # Optional: default ceph-block
       VOLSYNC_SNAPSHOTCLASS: csi-ceph-blockpool       # Optional: default csi-ceph-blockpool
       VOLSYNC_COPYMETHOD: Snapshot                    # Optional: default Snapshot
-      VOLSYNC_SCHEDULE: "0 */6 * * *"                # Optional: default hourly
-      VOLSYNC_R2_SCHEDULE: "30 2 * * *"              # Optional: default daily at 00:30
+      VOLSYNC_SCHEDULE: "0 */6 * * *"                # Optional: Garage backup schedule (default hourly)
+      VOLSYNC_R2_SCHEDULE: "30 2 * * *"              # Optional: R2 backup schedule (default daily at 00:30)
       VOLSYNC_CACHE_CAPACITY: 4Gi                     # Optional: default 4Gi
       VOLSYNC_CACHE_SNAPSHOTCLASS: openebs-hostpath   # Optional: default openebs-hostpath
       VOLSYNC_CACHE_ACCESSMODES: ReadWriteOnce        # Optional: default ReadWriteOnce
@@ -260,14 +260,14 @@ spec:
 | `VOLSYNC_ACCESSMODES` | No | ReadWriteOnce | PVC access modes |
 | `VOLSYNC_STORAGECLASS` | No | ceph-block | StorageClass for PVC |
 | `VOLSYNC_SNAPSHOTCLASS` | No | csi-ceph-blockpool | VolumeSnapshotClass for snapshots |
-| `VOLSYNC_SCHEDULE` | No | 0 * * * * | Cron schedule for MinIO backups |
+| `VOLSYNC_SCHEDULE` | No | 0 * * * * | Cron schedule for Garage backups |
 | `VOLSYNC_R2_SCHEDULE` | No | 30 0 * * * | Cron schedule for R2 backups |
 
 ### Step 4: Secret Management
 
 The VolSync component automatically creates ExternalSecrets that pull credentials from 1Password:
 
-- **MinIO**: Uses `minio` and `volsync-minio-template` secrets
+- **Garage**: Uses `garage` and `volsync-garage-template` secrets
 - **R2**: Uses `cloudflare-r2` and `volsync-r2-template` secrets
 
 No additional secret configuration is required in your application.
