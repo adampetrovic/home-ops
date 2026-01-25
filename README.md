@@ -122,7 +122,7 @@ The platform hosts **60+ applications** across multiple categories:
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
 - **[PgAdmin](https://pgadmin.org)** - PostgreSQL administration
 - **[Dragonfly](https://www.dragonflydb.io/)** - In-memory data store, drop-in Redis replacement
-- **[MinIO](https://min.io)** - S3-compatible object storage
+- **[Garage](https://garagehq.deuxfleurs.fr)** - Distributed S3-compatible object storage
 
 ### 🔐 Security & Authentication
 - **[Authelia](https://authelia.com)** - Authentication and authorization server
@@ -215,7 +215,7 @@ graph TD
     A -->|Local Volumes| D[OpenEBS LocalPV]
     B -->|Backup| E[VolSync]
     C -->|Backup| E
-    E -->|S3| F[MinIO/Cloudflare R2]
+    E -->|S3| F[Garage/Cloudflare R2]
     G[NAS] -->|NFS| A
 ```
 
@@ -300,7 +300,7 @@ Complete cluster rebuild capability:
 │   ├── 📁 openebs-system/ # OpenEBS storage
 │   ├── 📁 rook-ceph/     # Rook-Ceph distributed storage
 │   ├── 📁 security/      # Authentication and security
-│   ├── 📁 storage/       # MinIO object storage
+│   ├── 📁 storage/       # Garage object storage
 │   └── 📁 volsync-system/ # Volume backup services
 ├── 📁 components/        # Reusable Kustomize components
 │   ├── 📁 common/        # Common configurations
