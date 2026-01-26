@@ -30,7 +30,7 @@ spec:
           01-init-db:
             image:
               repository: docker.io/library/mariadb
-              tag: 11.7.2
+              tag: 11.8.5
             command: ["/bin/sh", "-c"]
             args:
               - |
@@ -90,7 +90,7 @@ spec:
           mariadb:
             image:
               repository: docker.io/library/mariadb
-              tag: 11.7.2
+              tag: 11.8.5
             env:
               MARIADB_DATABASE: booklore
               MARIADB_USER: booklore
