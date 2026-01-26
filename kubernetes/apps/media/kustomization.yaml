@@ -6,7 +6,6 @@ components:
   - ../../components/common
 resources:
   - ./bazarr/ks.yaml
-  - ./booklore/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
