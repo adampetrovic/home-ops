@@ -38,12 +38,12 @@ spec:
               BOOKLORE_PORT: &port 6060
               SWAGGER_ENABLED: "false"
               DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
-              DB_USER:
+              DATABASE_USERNAME:
                 valueFrom:
                   secretKeyRef:
                     name: booklore-secret
                     key: MYSQL_USER
-              DB_PASSWORD:
+              DATABASE_PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: booklore-secret
