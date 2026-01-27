@@ -112,3 +112,9 @@ spec:
         path: /volume2/books
         globalMounts:
           - path: /books
+      downloads:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
+        globalMounts:
+          - path: /downloads
