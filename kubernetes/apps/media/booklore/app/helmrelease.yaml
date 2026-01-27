@@ -124,14 +124,7 @@ spec:
         advancedMounts:
           booklore:
             app:
-              - path: /config
-      mariadb-config:
-        enabled: true
-        type: persistentVolumeClaim
-        accessMode: ReadWriteOnce
-        size: 2Gi
-        advancedMounts:
-          booklore:
+              - path: /app/data
             mariadb:
               - path: /config
       tmp:
