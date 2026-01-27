@@ -121,8 +121,10 @@ spec:
       config:
         enabled: true
         existingClaim: booklore
-        globalMounts:
-          - path: /config
+        advancedMounts:
+          booklore:
+            app:
+              - path: /config
       mariadb-config:
         enabled: true
         type: persistentVolumeClaim
@@ -134,11 +136,15 @@ spec:
               - path: /config
       tmp:
         type: emptyDir
-        globalMounts:
-          - path: /tmp
+        advancedMounts:
+          booklore:
+            app:
+              - path: /tmp
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/books
-        globalMounts:
-          - path: /books
+        advancedMounts:
+          booklore:
+            app:
+              - path: /books
