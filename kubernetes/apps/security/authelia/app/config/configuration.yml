@@ -32,7 +32,9 @@ access_control:
       policy: two_factor
       subject:
         - 'group:users'
-    - domain: ["echo-server.${SECRET_DOMAIN}"]
+    - domain:
+        - "echo-server.${SECRET_DOMAIN}"
+        - "shelfmark.petrovic.network"
       policy: one_factor
       subject:
         - 'group:users'
