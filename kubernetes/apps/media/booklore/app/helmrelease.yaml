@@ -30,16 +30,24 @@ spec:
           app:
             image:
               repository: ghcr.io/booklore-app/booklore
-              tag: v1.17.0@sha256:5b594a607fb0d9533d06a850156e2b54877ed0ddd0da8cd1f0240cb38bb6ac70
+              tag: v1.18.5@sha256:44a39097fcf69e7373b51df0459da052640d07459fb02b429f2c47cceaa32485
             env:
               TZ: "Australia/Sydney"
               USER_ID: "568"
               GROUP_ID: "568"
               BOOKLORE_PORT: &port 6060
               SWAGGER_ENABLED: "false"
-              MYSQL_HOST: "localhost"
-              MYSQL_PORT: "3306"
-              MYSQL_DATABASE: "booklore"
+              DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
+              DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: booklore-secret
+                    key: MYSQL_USER
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: booklore-secret
+                    key: MYSQL_PASSWORD
             envFrom:
               - secretRef:
                   name: booklore-secret
