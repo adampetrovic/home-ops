@@ -24,11 +24,13 @@ access_control:
         - "qb.${SECRET_DOMAIN}"
         - "radarr.${SECRET_DOMAIN}"
         - "radarr4k.${SECRET_DOMAIN}"
+        - "booklore.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
     - domain:
         - "paperless.${SECRET_DOMAIN}"
         - "memos.${SECRET_DOMAIN}"
+        - "booklore.${SECRET_DOMAIN}"
       policy: two_factor
       subject:
         - 'group:users'
@@ -50,6 +52,9 @@ identity_providers:
     cors:
       endpoints: ["authorization", "token", "revocation", "introspection"]
       allowed_origins_from_client_redirect_uris: true
+    claims_policies:
+      booklore:
+        id_token: [ 'email', 'preferred_username', 'name' ]
     clients:
       - id: grafana
         description: Grafana
@@ -94,6 +99,7 @@ identity_providers:
         token_endpoint_auth_method: "client_secret_post"
       - client_id: 'booklore'
         client_name: 'BookLore'
+        claims_policy: 'booklore'
         public: true
         authorization_policy: two_factor
         require_pkce: true
