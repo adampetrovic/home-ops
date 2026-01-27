@@ -26,21 +26,6 @@ spec:
       booklore:
         annotations:
           reloader.stakater.com/auto: 'true'
-        initContainers:
-          01-init-db:
-            image:
-              repository: busybox
-              tag: 1.37.0
-            command:
-              - sh
-              - -c
-              - |
-                until nc -z localhost 3306; do
-                  echo "Waiting for MariaDB..."
-                  sleep 2
-                done
-                echo "MariaDB is ready"
-            restartPolicy: Always
         containers:
           app:
             image:
