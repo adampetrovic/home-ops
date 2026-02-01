@@ -35,11 +35,17 @@ spec:
               - -c
               - |
                 set -e
-                # Install openclaw globally if not already installed
+                # Configure npm to use local prefix for global installs
+                export NPM_CONFIG_PREFIX=/home/node/.npm-global
+                export PATH="/home/node/.npm-global/bin:$PATH"
+                mkdir -p /home/node/.npm-global
+
+                # Install openclaw if not already installed
                 if ! command -v openclaw &> /dev/null; then
                   echo "Installing openclaw..."
                   npm install -g openclaw@latest
                 fi
+
                 # Start the gateway
                 echo "Starting openclaw gateway..."
                 exec openclaw gateway --port 18789 --verbose
@@ -47,6 +53,8 @@ spec:
               TZ: "${TZ}"
               HOME: /home/node
               NODE_ENV: production
+              NPM_CONFIG_PREFIX: /home/node/.npm-global
+              PATH: /home/node/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             envFrom:
               - secretRef:
                   name: molt-secret
