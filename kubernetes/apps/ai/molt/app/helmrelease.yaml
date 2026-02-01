@@ -114,6 +114,13 @@ spec:
         existingClaim: molt
         globalMounts:
           - path: /home/node
+      config:
+        type: configMap
+        name: molt-config
+        globalMounts:
+          - path: /home/node/.openclaw/openclaw.json
+            subPath: openclaw.json
+            readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
