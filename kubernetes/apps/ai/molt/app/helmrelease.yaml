@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: node
-              tag: 22-bookworm
+              tag: 24-bookworm
             command:
               - /bin/bash
               - -c
