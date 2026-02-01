@@ -114,13 +114,6 @@ spec:
         existingClaim: molt-data
         globalMounts:
           - path: /home/node
-      config:
-        type: emptyDir
-        globalMounts:
-          - path: /home/node/.openclaw
-            subPath: openclaw
-          - path: /home/node/claw
-            subPath: claw
       tmp:
         type: emptyDir
         globalMounts:
