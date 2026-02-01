@@ -111,7 +111,7 @@ spec:
               - *host
     persistence:
       data:
-        existingClaim: molt-data
+        existingClaim: molt
         globalMounts:
           - path: /home/node
       tmp:
