@@ -48,7 +48,7 @@ spec:
 
                 # Start the gateway
                 echo "Starting openclaw gateway..."
-                exec openclaw gateway --port 18789 --verbose
+                exec openclaw gateway --bind 0.0.0.0 --port 18789 --verbose
             env:
               TZ: "${TZ}"
               HOME: /home/node
