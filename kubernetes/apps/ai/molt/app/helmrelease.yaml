@@ -100,7 +100,7 @@ spec:
         enabled: true
         className: internal
         hosts:
-          - host: &host "molt.${SECRET_DOMAIN}"
+          - host: &host "clawd.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
