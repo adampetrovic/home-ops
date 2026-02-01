@@ -7,7 +7,7 @@ data:
   openclaw.json: |
     {
       "agent": {
-        "model": "anthropic/claude-opus-4"
+        "model": "anthropic/claude-opus-4-5"
       },
       "gateway": {
         "bind": "0.0.0.0",
