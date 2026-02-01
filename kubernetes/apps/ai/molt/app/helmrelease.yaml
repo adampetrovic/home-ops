@@ -53,6 +53,8 @@ spec:
               TZ: "${TZ}"
               HOME: /home/node
               NODE_ENV: production
+              NPM_CONFIG_PREFIX: /home/node/.npm-global
+              PATH: /home/node/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             envFrom:
               - secretRef:
                   name: molt-secret
