@@ -35,14 +35,14 @@ spec:
               - -c
               - |
                 set -e
-                # Install moltbot globally if not already installed
-                if ! command -v moltbot &> /dev/null; then
-                  echo "Installing moltbot..."
-                  npm install -g moltbot@latest
+                # Install openclaw globally if not already installed
+                if ! command -v openclaw &> /dev/null; then
+                  echo "Installing openclaw..."
+                  npm install -g openclaw@latest
                 fi
                 # Start the gateway
-                echo "Starting moltbot gateway..."
-                exec moltbot gateway --port 18789 --verbose
+                echo "Starting openclaw gateway..."
+                exec openclaw gateway --port 18789 --verbose
             env:
               TZ: "${TZ}"
               HOME: /home/node
@@ -117,10 +117,10 @@ spec:
       config:
         type: emptyDir
         globalMounts:
-          - path: /home/node/.clawdbot
-            subPath: clawdbot
-          - path: /home/node/clawd
-            subPath: clawd
+          - path: /home/node/.openclaw
+            subPath: openclaw
+          - path: /home/node/claw
+            subPath: claw
       tmp:
         type: emptyDir
         globalMounts:
