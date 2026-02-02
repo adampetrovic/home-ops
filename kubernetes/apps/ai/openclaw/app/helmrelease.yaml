@@ -80,7 +80,8 @@ spec:
 
                 echo "Tool installation complete"
 
-                # Ensure config directory exists
+                # Clean up stale .openclaw directory and recreate fresh
+                rm -rf /home/node/.openclaw
                 mkdir -p /home/node/.openclaw
                 echo "Init container completed successfully"
         containers:
@@ -94,16 +95,8 @@ spec:
               - |
                 # Set up openclawbot CLI symlink
                 ln -sf /app/openclawbot.mjs /home/node/.local/bin/openclawbot
-                # Debug: show secrets mount
-                echo "=== Secrets mount contents ==="
-                ls -la /secrets/
-                echo "=== Secret file contents ==="
-                cat /secrets/openclaw.json | head -5
-                # Copy config from secret mount to writable location (force overwrite)
-                rm -f /home/node/.openclaw/openclaw.json
+                # Copy config from secret mount to writable location
                 cp /secrets/openclaw.json /home/node/.openclaw/openclaw.json
-                echo "=== Copied config contents ==="
-                cat /home/node/.openclaw/openclaw.json | head -5
                 # Start gateway
                 exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
             env:
