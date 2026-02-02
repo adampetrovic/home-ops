@@ -5,4 +5,4 @@ namespace: ai
 components:
   - ../../components/common
 resources:
-  - ./molt/ks.yaml
+  - ./openclaw/ks.yaml
