@@ -1,28 +1,21 @@
+# ABOUTME: HelmRelease for OpenClaw - AI assistant gateway deployment
+# ABOUTME: Includes init container for tool installation and RBAC for cluster access
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app molt
+  name: &app openclaw
 spec:
-  interval: 30m
   chartRef:
     kind: OCIRepository
     name: app-template
-  install:
-    createNamespace: true
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      strategy: rollback
-      retries: 3
+  dependsOn: []
+  interval: 15m
   values:
     controllers:
-      molt:
+      openclaw:
         replicas: 1
-        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -70,8 +63,8 @@ spec:
                   git clone --depth 1 https://github.com/Homebrew/brew $HOMEBREW_PREFIX
                 fi
 
-                # Check if pip is available
-                set +e
+                # Check if pip is available (either standalone or via python3 -m pip)
+                set +e # Don't fail on pip errors
                 if command -v pip3 >/dev/null 2>&1 || command -v pip >/dev/null 2>&1 || python3 -m pip --version >/dev/null 2>&1; then
                   echo "pip is available"
                 else
@@ -83,13 +76,12 @@ spec:
                   echo "pip install skipped (use python3 -m pip instead)"
                   rm -f get-pip.py
                 fi
-                set -e
+                set -e # Re-enable error checking
 
                 echo "Tool installation complete"
 
                 # Ensure config directory exists
                 mkdir -p /home/node/.openclaw
-
                 echo "Init container completed successfully"
         containers:
           app:
@@ -102,9 +94,8 @@ spec:
               - |
                 # Set up openclawbot CLI symlink
                 ln -sf /app/openclawbot.mjs /home/node/.local/bin/openclawbot
-
                 # Start gateway
-                exec node dist/index.js gateway --bind 0.0.0.0 --port 18789
+                exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
             env:
               HOME: &homepath /home/node
               TERM: xterm-256color
@@ -116,15 +107,7 @@ spec:
               TZ: "${TZ}"
             envFrom:
               - secretRef:
-                  name: molt-secret
-            probes:
-              liveness:
-                enabled: false
-              readiness:
-                enabled: false
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities: {drop: ["ALL"]}
+                  name: openclaw
             resources:
               requests:
                 cpu: 500m
@@ -135,18 +118,16 @@ spec:
     defaultPodOptions:
       shareProcessNamespace: true
       securityContext:
-        runAsNonRoot: true
         runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        runAsGroup: 100
+        fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
-        seccompProfile: {type: RuntimeDefault}
     service:
       app:
-        controller: molt
+        controller: openclaw
         ports:
           http:
-            port: *port
+            port: 18789
     ingress:
       app:
         enabled: true
@@ -161,19 +142,78 @@ spec:
         tls:
           - hosts:
               - *host
+    rbac:
+      roles:
+        openclaw-read-all:
+          type: ClusterRole
+          rules:
+            - apiGroups: [""]
+              resources: ["pods", "nodes", "services", "namespaces", "configmaps", "persistentvolumes", "persistentvolumeclaims", "endpoints", "resourcequotas", "limitranges", "serviceaccounts", "events"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: [""]
+              resources: ["pods/log"]
+              verbs: ["get", "list"]
+            - apiGroups: ["apps"]
+              resources: ["deployments", "daemonsets", "statefulsets", "replicasets"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["batch"]
+              resources: ["jobs", "cronjobs"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["networking.k8s.io"]
+              resources: ["ingresses", "networkpolicies"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["storage.k8s.io"]
+              resources: ["storageclasses"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["rbac.authorization.k8s.io"]
+              resources: ["roles", "rolebindings", "clusterroles", "clusterrolebindings"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["metrics.k8s.io"]
+              resources: ["nodes", "pods"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["helm.toolkit.fluxcd.io"]
+              resources: ["helmreleases"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+              resources: ["kustomizations"]
+              verbs: ["get", "list", "watch"]
+            - apiGroups: ["external-secrets.io"]
+              resources: ["externalsecrets", "secretstores", "clustersecretstores"]
+              verbs: ["get", "list", "watch"]
+        openclaw-write-restricted:
+          type: Role
+          rules:
+            - apiGroups: [""]
+              resources: ["pods"]
+              verbs: ["delete"]
+            - apiGroups: ["apps"]
+              resources: ["deployments"]
+              verbs: ["patch", "update"]
+      bindings:
+        openclaw-read-all:
+          type: ClusterRoleBinding
+          roleRef:
+            identifier: openclaw-read-all
+          subjects:
+            - identifier: openclaw
+              serviceAccount: openclaw
+        openclaw-write-restricted:
+          type: RoleBinding
+          roleRef:
+            identifier: openclaw-write-restricted
+          subjects:
+            - identifier: openclaw
+              serviceAccount: openclaw
+    serviceAccount:
+      openclaw: {}
     persistence:
-      data:
-        existingClaim: molt
+      config:
+        existingClaim: openclaw
         globalMounts:
           - path: *homepath
-      config:
-        type: configMap
-        name: molt-config
+      openclaw-config:
+        type: secret
+        name: openclaw-config
         globalMounts:
           - path: /home/node/.openclaw/openclaw.json
             subPath: openclaw.json
-            readOnly: true
-      tmp:
-        type: emptyDir
-        globalMounts:
-          - path: /tmp
