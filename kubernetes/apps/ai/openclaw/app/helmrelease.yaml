@@ -81,7 +81,9 @@ spec:
                 echo "Tool installation complete"
 
                 # Clean up stale .openclaw directory and recreate fresh
-                rm -rf /home/node/.openclaw
+                set +e
+                rm -rf /home/node/.openclaw 2>/dev/null
+                set -e
                 mkdir -p /home/node/.openclaw
                 echo "Init container completed successfully"
         containers:
