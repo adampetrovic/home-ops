@@ -25,6 +25,18 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          copy-config:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - /bin/sh
+              - -c
+              - |
+                mkdir -p /home/node/.openclaw
+                cp /config/openclaw.json /home/node/.openclaw/openclaw.json
+                chown -R 1000:1000 /home/node/.openclaw
         containers:
           app:
             image:
@@ -125,10 +137,11 @@ spec:
       config:
         type: configMap
         name: molt-config
-        globalMounts:
-          - path: /home/node/.openclaw/openclaw.json
-            subPath: openclaw.json
-            readOnly: true
+        advancedMounts:
+          molt:
+            copy-config:
+              - path: /config
+                readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
