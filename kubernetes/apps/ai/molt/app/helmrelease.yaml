@@ -23,20 +23,6 @@ spec:
       molt:
         replicas: 1
         strategy: Recreate
-        annotations:
-          reloader.stakater.com/auto: "true"
-        initContainers:
-          copy-config:
-            image:
-              repository: busybox
-              tag: latest
-            command:
-              - /bin/sh
-              - -c
-              - |
-                mkdir -p /home/node/.openclaw
-                rm -f /home/node/.openclaw/openclaw.json
-                cp /config/openclaw.json /home/node/.openclaw/openclaw.json
         containers:
           app:
             image:
@@ -57,6 +43,31 @@ spec:
                   echo "Installing openclaw..."
                   npm install -g openclaw@latest
                 fi
+
+                # Create config directory if it doesn't exist
+                mkdir -p /home/node/.openclaw
+
+                # Create or update config file
+                cat > /home/node/.openclaw/openclaw.json <<'JSONEOF'
+                {
+                  "agents": {
+                    "defaults": {
+                      "model": {
+                        "primary": "anthropic/claude-opus-4-5"
+                      }
+                    }
+                  },
+                  "gateway": {
+                    "mode": "local",
+                    "port": 18789
+                  },
+                  "channels": {
+                    "telegram": {
+                      "enabled": true
+                    }
+                  }
+                }
+                JSONEOF
 
                 # Start the gateway
                 echo "Starting openclaw gateway..."
@@ -134,14 +145,6 @@ spec:
         existingClaim: molt
         globalMounts:
           - path: /home/node
-      config:
-        type: configMap
-        name: molt-config
-        advancedMounts:
-          molt:
-            copy-config:
-              - path: /config
-                readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
