@@ -28,7 +28,10 @@ spec:
               - -c
               - |
                 set -e
-                mkdir -p /home/node/.local/bin /home/node/.local/go
+                mkdir -p /home/node/.local/bin /home/node/.local/go /home/node/.local/npm-global
+
+                # Configure npm to use user-writable directory for global packages
+                npm config set prefix /home/node/.local/npm-global
 
                 echo "Starting tool installation..."
 
@@ -104,7 +107,8 @@ spec:
             env:
               HOME: &homepath /home/node
               TERM: xterm-256color
-              PATH: /home/node/.local/bin:/home/node/.local/go/bin:/home/node/.local/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              PATH: /home/node/.local/npm-global/bin:/home/node/.local/bin:/home/node/.local/go/bin:/home/node/.local/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              NPM_CONFIG_PREFIX: /home/node/.local/npm-global
               GOPATH: /home/node/go
               HOMEBREW_PREFIX: /home/node/.local/homebrew
               HOMEBREW_CELLAR: /home/node/.local/homebrew/Cellar
