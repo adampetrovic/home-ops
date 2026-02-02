@@ -23,39 +23,97 @@ spec:
       molt:
         replicas: 1
         strategy: Recreate
-        containers:
-          app:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          install-tools:
             image:
-              repository: node
-              tag: 22-bookworm
+              repository: ghcr.io/openclaw/openclaw
+              tag: 2026.1.30@sha256:95f9dda05e25dac6b1fe2f72722178da94fd8f9fbdac9f115e70e20b4c5e6989
             command:
-              - /bin/bash
+              - /bin/sh
               - -c
               - |
                 set -e
-                # Configure npm to use local prefix for global installs
-                export NPM_CONFIG_PREFIX=/home/node/.npm-global
-                export PATH="/home/node/.npm-global/bin:$PATH"
-                mkdir -p /home/node/.npm-global
+                mkdir -p /home/node/.local/bin /home/node/.local/go
 
-                # Install openclaw if not already installed
-                if ! command -v openclaw &> /dev/null; then
-                  echo "Installing openclaw..."
-                  npm install -g openclaw@latest
+                echo "Starting tool installation..."
+
+                # Install gh CLI if not present on PVC
+                if [ ! -f /home/node/.local/bin/gh ]; then
+                  echo "Installing gh CLI..."
+                  cd /tmp
+                  curl -fsSL https://github.com/cli/cli/releases/download/v2.61.0/gh_2.61.0_linux_amd64.tar.gz -o gh.tar.gz
+                  tar xzf gh.tar.gz
+                  cp gh_2.61.0_linux_amd64/bin/gh /home/node/.local/bin/
+                  rm -rf gh.tar.gz gh_2.61.0_linux_amd64
                 fi
 
-                echo "OpenClaw installed successfully!"
-                echo "Run 'kubectl exec -it -n ai deploy/molt -- bash' to access the pod"
-                echo "Then run 'openclaw onboard' to configure and start the gateway"
+                # Install Go if not present on PVC
+                if [ ! -f /home/node/.local/go/bin/go ]; then
+                  echo "Installing Go..."
+                  cd /tmp
+                  curl -fsSL https://go.dev/dl/go1.23.5.linux-amd64.tar.gz -o go.tar.gz
+                  tar xzf go.tar.gz
+                  mv go /home/node/.local/
+                  rm -rf go.tar.gz
+                fi
 
-                # Keep container running
-                tail -f /dev/null
+                # Install Homebrew if not present on PVC
+                if [ ! -f /home/node/.local/homebrew/bin/brew ]; then
+                  echo "Installing Homebrew..."
+                  export HOMEBREW_PREFIX=/home/node/.local/homebrew
+                  export HOMEBREW_CELLAR=/home/node/.local/homebrew/Cellar
+                  export HOMEBREW_REPOSITORY=/home/node/.local/homebrew
+                  mkdir -p $HOMEBREW_PREFIX
+                  cd /tmp
+                  git clone --depth 1 https://github.com/Homebrew/brew $HOMEBREW_PREFIX
+                fi
+
+                # Check if pip is available
+                set +e
+                if command -v pip3 >/dev/null 2>&1 || command -v pip >/dev/null 2>&1 || python3 -m pip --version >/dev/null 2>&1; then
+                  echo "pip is available"
+                else
+                  echo "Installing pip..."
+                  cd /tmp
+                  curl -fsSL https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+                  python3 get-pip.py --user --no-warn-script-location --break-system-packages || \
+                  python3 get-pip.py --user --no-warn-script-location || \
+                  echo "pip install skipped (use python3 -m pip instead)"
+                  rm -f get-pip.py
+                fi
+                set -e
+
+                echo "Tool installation complete"
+
+                # Ensure config directory exists
+                mkdir -p /home/node/.openclaw
+
+                echo "Init container completed successfully"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/openclaw/openclaw
+              tag: 2026.1.30@sha256:95f9dda05e25dac6b1fe2f72722178da94fd8f9fbdac9f115e70e20b4c5e6989
+            command:
+              - /bin/sh
+              - -c
+              - |
+                # Set up openclawbot CLI symlink
+                ln -sf /app/openclawbot.mjs /home/node/.local/bin/openclawbot
+
+                # Start gateway
+                exec node dist/index.js gateway --bind 0.0.0.0 --port 18789
             env:
+              HOME: &homepath /home/node
+              TERM: xterm-256color
+              PATH: /home/node/.local/bin:/home/node/.local/go/bin:/home/node/.local/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+              GOPATH: /home/node/go
+              HOMEBREW_PREFIX: /home/node/.local/homebrew
+              HOMEBREW_CELLAR: /home/node/.local/homebrew/Cellar
+              HOMEBREW_REPOSITORY: /home/node/.local/homebrew
               TZ: "${TZ}"
-              HOME: /home/node
-              NODE_ENV: production
-              NPM_CONFIG_PREFIX: /home/node/.npm-global
-              PATH: /home/node/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             envFrom:
               - secretRef:
                   name: molt-secret
@@ -69,12 +127,13 @@ spec:
               capabilities: {drop: ["ALL"]}
             resources:
               requests:
-                cpu: 100m
-                memory: 256Mi
+                cpu: 500m
+                memory: 512Mi
               limits:
                 cpu: 2000m
                 memory: 2Gi
     defaultPodOptions:
+      shareProcessNamespace: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -106,12 +165,15 @@ spec:
       data:
         existingClaim: molt
         globalMounts:
-          - path: /home/node
+          - path: *homepath
+      config:
+        type: configMap
+        name: molt-config
+        globalMounts:
+          - path: /home/node/.openclaw/openclaw.json
+            subPath: openclaw.json
+            readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
           - path: /tmp
-      npm-cache:
-        type: emptyDir
-        globalMounts:
-          - path: /home/node/.npm
