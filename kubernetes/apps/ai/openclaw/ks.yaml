@@ -1,8 +1,10 @@
+# ABOUTME: Flux Kustomization for OpenClaw deployment
+# ABOUTME: Configures volsync for persistent storage backup
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app molt
+  name: &app openclaw
   namespace: &namespace ai
 spec:
   targetNamespace: *namespace
@@ -16,7 +18,7 @@ spec:
       namespace: external-secrets
     - name: volsync
       namespace: volsync-system
-  path: ./kubernetes/apps/ai/molt/app
+  path: ./kubernetes/apps/ai/openclaw/app
   prune: true
   sourceRef:
     kind: GitRepository
