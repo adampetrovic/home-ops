@@ -35,8 +35,7 @@ spec:
               - -c
               - |
                 mkdir -p /home/node/.openclaw
-                cp /config/openclaw.json /home/node/.openclaw/openclaw.json
-                chown -R 1000:1000 /home/node/.openclaw
+                cp -f /config/openclaw.json /home/node/.openclaw/openclaw.json
         containers:
           app:
             image:
