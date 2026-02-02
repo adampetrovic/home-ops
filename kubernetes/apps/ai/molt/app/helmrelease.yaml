@@ -28,33 +28,16 @@ spec:
         containers:
           app:
             image:
-              repository: node
-              tag: 22-bookworm
+              repository: ghcr.io/openclaw/openclaw
+              tag: 2026.1.30@sha256:1ae6dd85eaae41c9de42e9dc2dba9607bbfc9e9652e2dcbf46ceaf16a1ed5a15
             command:
               - /bin/bash
               - -c
               - |
-                set -e
-                # Configure npm to use local prefix for global installs
-                export NPM_CONFIG_PREFIX=/home/node/.npm-global
-                export PATH="/home/node/.npm-global/bin:$PATH"
-                mkdir -p /home/node/.npm-global
-
-                # Install openclaw if not already installed
-                if ! command -v openclaw &> /dev/null; then
-                  echo "Installing openclaw..."
-                  npm install -g openclaw@latest
-                fi
-
-                # Start the gateway
-                echo "Starting openclaw gateway..."
-                exec openclaw gateway --port 18789 --verbose
+                exec node dist/index.js gateway --bind 0.0.0.0 --port 18789
             env:
               TZ: "${TZ}"
               HOME: /home/node
-              NODE_ENV: production
-              NPM_CONFIG_PREFIX: /home/node/.npm-global
-              PATH: /home/node/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
             envFrom:
               - secretRef:
                   name: molt-secret
@@ -133,7 +116,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
-      npm-cache:
-        type: emptyDir
-        globalMounts:
-          - path: /home/node/.npm
