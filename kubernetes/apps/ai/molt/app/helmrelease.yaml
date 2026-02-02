@@ -44,34 +44,12 @@ spec:
                   npm install -g openclaw@latest
                 fi
 
-                # Create config directory if it doesn't exist
-                mkdir -p /home/node/.openclaw
+                echo "OpenClaw installed successfully!"
+                echo "Run 'kubectl exec -it -n ai deploy/molt -- bash' to access the pod"
+                echo "Then run 'openclaw onboard' to configure and start the gateway"
 
-                # Create or update config file
-                cat > /home/node/.openclaw/openclaw.json <<'JSONEOF'
-                {
-                  "agents": {
-                    "defaults": {
-                      "model": {
-                        "primary": "anthropic/claude-opus-4-5"
-                      }
-                    }
-                  },
-                  "gateway": {
-                    "mode": "local",
-                    "port": 18789
-                  },
-                  "channels": {
-                    "telegram": {
-                      "enabled": true
-                    }
-                  }
-                }
-                JSONEOF
-
-                # Start the gateway
-                echo "Starting openclaw gateway..."
-                exec openclaw gateway --bind lan --port 18789 --verbose
+                # Keep container running
+                tail -f /dev/null
             env:
               TZ: "${TZ}"
               HOME: /home/node
@@ -83,25 +61,9 @@ spec:
                   name: molt-secret
             probes:
               liveness:
-                enabled: true
-                custom: true
-                spec:
-                  tcpSocket:
-                    port: &port 18789
-                  initialDelaySeconds: 60
-                  periodSeconds: 30
-                  timeoutSeconds: 5
-                  failureThreshold: 3
+                enabled: false
               readiness:
-                enabled: true
-                custom: true
-                spec:
-                  tcpSocket:
-                    port: *port
-                  initialDelaySeconds: 30
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
+                enabled: false
             securityContext:
               allowPrivilegeEscalation: false
               capabilities: {drop: ["ALL"]}
