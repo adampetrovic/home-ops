@@ -35,7 +35,8 @@ spec:
               - -c
               - |
                 mkdir -p /home/node/.openclaw
-                cp -f /config/openclaw.json /home/node/.openclaw/openclaw.json
+                rm -f /home/node/.openclaw/openclaw.json
+                cp /config/openclaw.json /home/node/.openclaw/openclaw.json
         containers:
           app:
             image:
