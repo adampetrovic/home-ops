@@ -94,6 +94,8 @@ spec:
               - |
                 # Set up openclawbot CLI symlink
                 ln -sf /app/openclawbot.mjs /home/node/.local/bin/openclawbot
+                # Copy config from secret mount to writable location
+                cp /secrets/openclaw.json /home/node/.openclaw/openclaw.json
                 # Start gateway
                 exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
             env:
@@ -215,5 +217,4 @@ spec:
         type: secret
         name: openclaw-config
         globalMounts:
-          - path: /home/node/.openclaw/openclaw.json
-            subPath: openclaw.json
+          - path: /secrets
