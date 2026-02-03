@@ -20,5 +20,6 @@ resources:
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
+  - ./removed-media-app/ks.yaml
   - ./unpackerr/ks.yaml
   - ./xteve/ks.yaml
