@@ -160,3 +160,9 @@ spec:
         path: /volume2/books
         globalMounts:
           - path: /mnt/books
+      stash:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/stash
+        globalMounts:
+          - path: /mnt/stash
