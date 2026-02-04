@@ -268,7 +268,7 @@ spec:
 The VolSync component automatically creates ExternalSecrets that pull credentials from 1Password:
 
 - **Garage**: Uses `garage` and `volsync-garage-template` secrets
-- **R2**: Uses `cloudflare-r2` and `volsync-r2-template` secrets
+- **R2**: Uses `cloudflare-r2-volsync` and `volsync-r2-template` secrets
 
 No additional secret configuration is required in your application.
 
