@@ -53,6 +53,8 @@ spec:
     domainFilters:
       - "${SECRET_PUBLIC_DOMAIN}"
       - "*.${SECRET_PUBLIC_DOMAIN}"
+      - "${SECRET_PUBLIC_ANON_DOMAIN}"
+      - "*.${SECRET_PUBLIC_ANON_DOMAIN}"
       - "${SECRET_PLEX_DOMAIN}"
       - "*.${SECRET_PLEX_DOMAIN}"
     serviceMonitor:

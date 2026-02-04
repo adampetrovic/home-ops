@@ -11,4 +11,8 @@ ingress:
     service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
   - hostname: "*.${SECRET_PLEX_DOMAIN}"
     service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+  - hostname: "${SECRET_PUBLIC_ANON_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+  - hostname: "*.${SECRET_PUBLIC_ANON_DOMAIN}"
+    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
   - service: http_status:404
