@@ -78,10 +78,15 @@ spec:
         tls:
           - hosts:
               - *host
-    # persistence:
-    #   config-file:
-    #     type: configMap
-    #     name: evcc-configmap
-    #     globalMounts:
-    #       - path: /etc/evcc.yaml
-    #         subPath: evcc.yaml
+    persistence:
+      data:
+        enabled: true
+        existingClaim: evcc
+        globalMounts:
+          - path: /root/.evcc
+      # config-file:
+      #   type: configMap
+      #   name: evcc-configmap
+      #   globalMounts:
+      #     - path: /etc/evcc.yaml
+      #       subPath: evcc.yaml
