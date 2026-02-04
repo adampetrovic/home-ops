@@ -1,0 +1,56 @@
+# ABOUTME: evcc configuration file for EV charging management
+# ABOUTME: Configure your site, meters, chargers, and vehicles here
+
+# Network settings for evcc web interface
+network:
+  port: 7070
+
+# MQTT integration for home-assistant
+mqtt:
+  broker: mosquitto.automation.svc.cluster.local:1883
+  user: "{EVCC_MQTT_USERNAME}"
+  password: "{EVCC_MQTT_PASSWORD}"
+  topic: evcc
+
+# Site configuration - customize for your installation
+site:
+  title: Home
+  meters:
+    grid: grid
+    # pv:
+    #   - pv
+    # battery:
+    #   - battery
+
+# Tariff configuration
+tariffs:
+  currency: AUD
+  # grid:
+  #   type: fixed
+  #   price: 0.30
+
+# Meters - configure your energy meters
+meters:
+  - name: grid
+    type: template
+    template: placeholder
+    power: 0
+
+# Chargers - configure your EV chargers
+chargers:
+  - name: placeholder
+    type: const
+    status: A
+
+# Vehicles - configure your EVs
+# vehicles:
+#   - name: mycar
+#     type: template
+#     template: your-vehicle-template
+
+# Loadpoints - charging points configuration
+loadpoints:
+  - title: Garage
+    charger: placeholder
+    # vehicle: mycar
+    mode: "off"

@@ -7,8 +7,9 @@ components:
 resources:
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml
-  - ./frigate/ks.yaml
+  - ./evcc/ks.yaml
   - ./fernwood-booker/ks.yaml
+  - ./frigate/ks.yaml
   - ./go2rtc/ks.yaml
   - ./home-assistant/ks.yaml
   - ./mosquitto/ks.yaml
