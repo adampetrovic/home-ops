@@ -1,0 +1,162 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app filebrowser
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      filebrowser:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/filebrowser/filebrowser
+              tag: v2.32.0@sha256:93b3e0841c9388b907c7af00430f088ce11b1e9083c41c6505bee8e10655e183
+            env:
+              FB_DATABASE: /config/filebrowser.db
+              FB_ROOT: /mnt
+              FB_LOG: stdout
+              FB_PORT: &port 7000
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+              limits:
+                memory: 2Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host "filebrowser.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+      external:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_ANON_DOMAIN}"
+        hosts:
+          - host: &publicHost "files.${SECRET_PUBLIC_ANON_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *publicHost
+    persistence:
+      config:
+        enabled: true
+        existingClaim: *app
+        globalMounts:
+          - path: /config
+      movies:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/movies
+        globalMounts:
+          - path: /mnt/movies
+      movies-4k:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/movies-4k
+        globalMounts:
+          - path: /mnt/movies-4k
+      tv:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv
+        globalMounts:
+          - path: /mnt/tv
+      tv-4k:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/tv-4k
+        globalMounts:
+          - path: /mnt/tv-4k
+      kids-movies:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/movies
+        globalMounts:
+          - path: /mnt/kids/movies
+      kids-tv:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/kids/tv
+        globalMounts:
+          - path: /mnt/kids/tv
+      music:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/music
+        globalMounts:
+          - path: /mnt/music
+      downloads:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/downloads
+        globalMounts:
+          - path: /mnt/downloads
+      books:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/books
+        globalMounts:
+          - path: /mnt/books
