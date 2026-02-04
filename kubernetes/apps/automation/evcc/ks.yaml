@@ -1,0 +1,26 @@
+# ABOUTME: Flux Kustomization for evcc EV charging manager
+# ABOUTME: Defines deployment dependencies and variable substitution for evcc
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app evcc
+  namespace: &namespace automation
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  path: ./kubernetes/apps/automation/evcc/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: false
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
