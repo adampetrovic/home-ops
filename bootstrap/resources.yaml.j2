@@ -37,7 +37,7 @@ metadata:
   name: petrovic-network-production-tls
   namespace: network
   annotations:
-    cert-manager.io/alt-names: '*.{{ op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN }},*.{{ op://k8s/cluster-secrets/SECRET_DOMAIN }},*.{{ op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN }}'
+    cert-manager.io/alt-names: '*.{{ op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN }},*.{{ op://k8s/cluster-secrets/SECRET_PUBLIC_ANON_DOMAIN }},*.{{ op://k8s/cluster-secrets/SECRET_DOMAIN }},*.{{ op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_PUBLIC_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_PUBLIC_ANON_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_DOMAIN }},{{ op://k8s/cluster-secrets/SECRET_PLEX_DOMAIN }}'
     cert-manager.io/certificate-name: "petrovic-network-production"
     cert-manager.io/common-name: "op://k8s/cluster-secrets/SECRET_DOMAIN"
     cert-manager.io/ip-sans: ""
