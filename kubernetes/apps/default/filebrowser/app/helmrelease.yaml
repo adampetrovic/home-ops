@@ -34,21 +34,18 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/filebrowser/filebrowser
-              tag: v2.57.0@sha256:8b9b1c5ab32612b36b54085234d4171fe35116fcd40388f27ead57f4cd0d7a6b
+              repository: ghcr.io/gtsteffaniak/filebrowser
+              tag: 1.1.1-stable@sha256:aa6d214d269af8785f6af7c1bb3d2cda019a09265b3d3bdff22257e9dc993ee4
             env:
-              FB_DATABASE: /config/filebrowser.db
-              FB_ROOT: /mnt
-              FB_LOG: stdout
-              FB_PORT: &port 7000
+              FILEBROWSER_CONFIG: /config/config.yaml
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
-                    port: *port
+                    path: /
+                    port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -100,12 +97,29 @@ spec:
         tls:
           - hosts:
               - *publicHost
+    configMaps:
+      config:
+        data:
+          config.yaml: |-
+            server:
+              database: /data/filebrowser.db
+              cacheDir: /tmp/.cache
+              sources:
+                - path: /mnt
+                  config:
+                    defaultEnabled: true
     persistence:
       config:
-        enabled: true
+        type: configMap
+        identifier: config
+      data:
         existingClaim: *app
         globalMounts:
-          - path: /config
+          - path: /data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
       movies:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
