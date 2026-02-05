@@ -97,21 +97,13 @@ spec:
         tls:
           - hosts:
               - *publicHost
-    configMaps:
-      config:
-        data:
-          config.yaml: |-
-            server:
-              database: /data/filebrowser.db
-              cacheDir: /tmp/.cache
-              sources:
-                - path: /mnt
-                  config:
-                    defaultEnabled: true
     persistence:
       config:
         type: configMap
-        identifier: config
+        name: filebrowser-configmap
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
       data:
         existingClaim: *app
         globalMounts:
