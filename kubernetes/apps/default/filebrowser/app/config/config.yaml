@@ -1,0 +1,37 @@
+---
+server:
+  port: 80
+  baseURL: /
+  root: /srv
+
+auth:
+  tokenExpirationTime: 24h
+
+userDefaults:
+  darkMode: true
+  viewMode: normal
+  singleClick: false
+  showHidden: false
+  dateFormat: false
+  gallerySize: 3
+  quickDownload: false
+  lockPassword: false
+  disableSettings: false
+
+preview:
+  highQuality: true
+  image: true
+  video: true
+  motionVideoPreview: true
+  office: true
+  popup: true
+  autoplayMedia: false
+  folder: true
+
+permissions:
+  admin: true
+  modify: true
+  share: true
+  delete: true
+  create: true
+  download: true

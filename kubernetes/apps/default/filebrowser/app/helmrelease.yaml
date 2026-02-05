@@ -37,10 +37,7 @@ spec:
               repository: docker.io/gtstef/filebrowser
               tag: v1.1.1-stable
             env:
-              FB_DATABASE: /config/filebrowser.db
-              FB_ROOT: /mnt
-              FB_LOG: stdout
-              FB_PORT: &port 7000
+              TZ: ${TZ}
             probes:
               liveness: &probes
                 enabled: true
@@ -48,7 +45,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -57,6 +54,7 @@ spec:
             resources:
               requests:
                 cpu: 100m
+                memory: 512Mi
               limits:
                 memory: 2Gi
             securityContext:
@@ -102,67 +100,73 @@ spec:
               - *publicHost
     persistence:
       config:
-        enabled: true
-        existingClaim: *app
+        type: configMap
+        name: filebrowser-configmap
         globalMounts:
-          - path: /config
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      data:
+        type: emptyDir
+        globalMounts:
+          - path: /home/filebrowser
       movies:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/movies
         globalMounts:
-          - path: /mnt/movies
+          - path: /srv/movies
       movies-4k:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/movies-4k
         globalMounts:
-          - path: /mnt/movies-4k
+          - path: /srv/movies-4k
       tv:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/tv
         globalMounts:
-          - path: /mnt/tv
+          - path: /srv/tv
       tv-4k:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/tv-4k
         globalMounts:
-          - path: /mnt/tv-4k
+          - path: /srv/tv-4k
       kids-movies:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/kids/movies
         globalMounts:
-          - path: /mnt/kids/movies
+          - path: /srv/kids/movies
       kids-tv:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/kids/tv
         globalMounts:
-          - path: /mnt/kids/tv
+          - path: /srv/kids/tv
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/music
         globalMounts:
-          - path: /mnt/music
+          - path: /srv/music
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/downloads
         globalMounts:
-          - path: /mnt/downloads
+          - path: /srv/downloads
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/books
         globalMounts:
-          - path: /mnt/books
+          - path: /srv/books
       stash:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/stash/media
         globalMounts:
-          - path: /mnt/stash
+          - path: /srv/stash
