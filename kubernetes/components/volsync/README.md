@@ -309,34 +309,10 @@ kubectl exec -n <namespace> <pod-name> -- restic snapshots
 
 When switching applications or resetting state, you may need to wipe the contents of a VolSync-managed PVC without deleting the PVC itself. Deleting the PVC would cause VolSync to restore from the existing backup on recreation, bringing back the old data.
 
+Use the `volsync:wipe` task to automate this. It suspends the Flux kustomization and HelmRelease, scales down the application, runs a cleanup job against the PVC, then resumes everything:
+
 ```bash
-# 1. Suspend the Flux kustomization to prevent reconciliation
-flux suspend ks <app> -n flux-system
-
-# 2. Scale down the application so it releases the PVC
-kubectl scale deployment <app> -n <namespace> --replicas=0
-
-# 3. Run a temporary pod to wipe the PVC contents
-kubectl run pvc-cleanup -n <namespace> --rm -it --restart=Never \
-  --image=alpine \
-  --overrides='{
-    "spec": {
-      "containers": [{
-        "name": "pvc-cleanup",
-        "image": "alpine",
-        "command": ["sh", "-c", "rm -rf /data/* /data/.*; echo done"],
-        "volumeMounts": [{"name": "data", "mountPath": "/data"}]
-      }],
-      "volumes": [{
-        "name": "data",
-        "persistentVolumeClaim": {"claimName": "<app>"}
-      }],
-      "securityContext": {"runAsUser": 568, "runAsGroup": 568, "fsGroup": 568}
-    }
-  }'
-
-# 4. Resume the kustomization to deploy the updated application
-flux resume ks <app> -n flux-system
+task volsync:wipe app=<app> ns=<namespace>
 ```
 
 The next scheduled backup will snapshot the fresh state, replacing old data in the backup chain over time according to the retention policy.
