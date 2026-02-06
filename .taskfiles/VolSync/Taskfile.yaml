@@ -262,6 +262,6 @@ tasks:
   .resume:
     internal: true
     cmds:
-      - flux --context {{.cluster}} -n {{.ns}} resume helmrelease {{.app}}
-      - flux --context {{.cluster}} -n flux-system resume kustomization {{.app}}
+      - flux -n {{.ns}} resume helmrelease {{.app}}
+      - flux -n flux-system resume kustomization {{.app}}
     env: *env
