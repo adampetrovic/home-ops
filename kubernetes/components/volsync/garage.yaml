@@ -44,6 +44,13 @@ spec:
       runAsUser: 568
       runAsGroup: 568
       fsGroup: 568
+    moverAffinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: DoesNotExist
     retain:
       hourly: 24
       daily: 7
@@ -72,3 +79,10 @@ spec:
       runAsUser: 568
       runAsGroup: 568
       fsGroup: 568
+    moverAffinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: DoesNotExist
