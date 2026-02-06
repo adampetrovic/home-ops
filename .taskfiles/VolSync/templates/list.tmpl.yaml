@@ -13,6 +13,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: main
+          # renovate: datasource=docker depName=restic/restic
           image: docker.io/restic/restic:0.16.4
           args: ["snapshots"]
           envFrom:
