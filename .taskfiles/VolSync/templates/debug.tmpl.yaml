@@ -1,0 +1,20 @@
+#file: noinspection KubernetesUnknownValues
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ${job}
+  namespace: ${ns}
+spec:
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  containers:
+    - name: main
+      # renovate: datasource=docker depName=restic/restic
+      image: docker.io/restic/restic:0.16.4
+      command: ["/bin/sh"]
+      args: ["-c", "sleep infinity"]
+      envFrom:
+        - secretRef:
+            name: ${app}-volsync-secret
+      resources: {}
