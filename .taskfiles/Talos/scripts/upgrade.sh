@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 NODE="${1}"
 TALOS_STANZA="${2}"
 ROLLOUT="${3:-false}"
