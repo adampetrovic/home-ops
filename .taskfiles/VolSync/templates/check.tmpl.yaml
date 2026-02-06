@@ -15,7 +15,7 @@ spec:
         - name: main
           # renovate: datasource=docker depName=restic/restic
           image: docker.io/restic/restic:0.16.4
-          args: ["snapshots"]
+          args: ["check"]
           envFrom:
             - secretRef:
                 name: ${app}-volsync-secret

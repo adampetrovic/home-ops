@@ -12,6 +12,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: main
+          # renovate: datasource=docker depName=library/alpine
           image: docker.io/library/alpine:latest
           command: ["/bin/sh", "-c", "cd /config; find . -delete"]
           volumeMounts:
