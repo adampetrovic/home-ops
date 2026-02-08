@@ -38,8 +38,8 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/meisnate12/plex-image-cleanup
-              tag: v1.0.2
+              repository: kometateam/imagemaid
+              tag: v1.1.1@sha256:fbec331b36c1473f8a9c4214f55e5b097860476c8a5274eb61a2b85df89e56cc
             env:
               PLEX_URL: http://plex.media.svc.cluster.local:32400
               PLEX_TOKEN:
