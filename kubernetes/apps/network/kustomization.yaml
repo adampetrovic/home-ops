@@ -13,4 +13,3 @@ resources:
   - ./multus/ks.yaml
   - ./ntpd/ks.yaml
   - ./smtp-relay/ks.yaml
-  - ./speedtest-tracker/ks.yaml
