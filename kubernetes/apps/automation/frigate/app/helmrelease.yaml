@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/blakeblackshear/frigate
-              tag: 0.16.0-beta4@sha256:0f39e8111ea7ad986d70b43bf572fe64a923c1e80fbdb3580f489c8db6edefd8
+              tag: 0.16.4@sha256:1f8dbaaa4c7c2855c2aef711842d13b0c20bfdc3f28ad88faf66aa1bc219b108
             env:
               TZ: "Australia/Sydney"
             envFrom:
