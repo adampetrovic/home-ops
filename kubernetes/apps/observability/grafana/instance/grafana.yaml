@@ -77,11 +77,6 @@ spec:
               env:
                 - name: GF_INSTALL_PLUGINS
                   value: grafana-clock-panel,grafana-piechart-panel,grafana-worldmap-panel,marcusolsson-hourly-heatmap-panel,natel-discrete-panel,natel-plotly-panel,pr0ps-trackmap-panel,vonage-status-panel
-                - name: GF_SECURITY_ADMIN_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: grafana-secret
-                      key: GF_SECURITY_ADMIN_PASSWORD
                 - name: GF_DATABASE_USER
                   valueFrom:
                     secretKeyRef:
