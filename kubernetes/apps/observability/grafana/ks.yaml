@@ -34,8 +34,6 @@ spec:
       app.kubernetes.io/name: grafana
   dependsOn:
     - name: grafana
-    - name: cloudnative-pg-cluster
-      namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/observability/grafana/instance
