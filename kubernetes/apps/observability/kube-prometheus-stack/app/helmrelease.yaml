@@ -44,14 +44,7 @@ spec:
     cleanPrometheusOperatorObjectNames: true
     alertmanager:
       ingress:
-        enabled: true
-        pathType: Prefix
-        ingressClassName: internal
-        hosts:
-          - &host alertmanager.${SECRET_DOMAIN}
-        tls:
-          - hosts:
-              - *host
+        enabled: false
       alertmanagerSpec:
         useExistingSecret: true
         configSecret: alertmanager-secret
@@ -73,14 +66,7 @@ spec:
       enabled: false
     prometheus:
       ingress:
-        enabled: true
-        ingressClassName: internal
-        pathType: Prefix
-        hosts:
-          - &host prometheus.${SECRET_DOMAIN}
-        tls:
-          - hosts:
-              - *host
+        enabled: false
       prometheusSpec:
         image:
           registry: quay.io
