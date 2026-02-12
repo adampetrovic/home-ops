@@ -253,6 +253,18 @@ task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo
 - **Trusted VLAN 10:** `10.0.10.0/24` (secondary interfaces for IoT access)
 - CNI is **Cilium** (eBPF-based, deployed without kube-proxy)
 
+## GitOps Reconciliation
+
+Flux reconciles cluster state from Git automatically. A **GitHub webhook** notifies the Flux Notification Controller on every push to `main`, triggering an immediate reconciliation — there is no need to wait for the default polling interval. This means pushing a fix to a broken HelmRelease will be picked up within seconds, not minutes.
+
+Combined with `install.remediation.retries: -1`, a newly introduced app that fails on first install will keep retrying indefinitely until the configuration is correct. Push a fix → GitHub webhook fires → Flux pulls immediately → Helm retries with the corrected spec.
+
+You can still force a manual reconciliation if needed:
+
+```bash
+flux reconcile ks <app-name> -n flux-system --with-source
+```
+
 ## Common Operations for Agents
 
 ### Adding a New Application
