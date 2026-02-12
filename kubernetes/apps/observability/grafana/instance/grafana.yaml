@@ -37,13 +37,6 @@ spec:
     auth.generic_oauth.group_mapping:
       org_id: "1"
       role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || contains(groups[*], 'people') && 'Viewer'"
-    database:
-      type: postgres
-      host: postgres-rw.database.svc.cluster.local:5432
-      name: $GF_DATABASE_NAME
-      user: $GF_DATABASE_USER
-      password: $GF_DATABASE_PASSWORD
-      ssl_mode: disable
     date_formats:
       use_browser_locale: "false"
       default_timezone: Australia/Sydney
@@ -65,37 +58,15 @@ spec:
       root_url: "https://grafana.${SECRET_DOMAIN}"
   deployment:
     spec:
-      replicas: 2
       strategy:
-        type: RollingUpdate
+        type: Recreate
       template:
         spec:
-          initContainers:
-            - name: 01-init-db
-              image: ghcr.io/home-operations/postgres-init:18.1.0
-              envFrom:
-                - secretRef:
-                    name: grafana-secret
           containers:
             - name: grafana
               env:
                 - name: GF_INSTALL_PLUGINS
                   value: grafana-clock-panel,grafana-piechart-panel,grafana-worldmap-panel,marcusolsson-hourly-heatmap-panel,natel-discrete-panel,natel-plotly-panel,pr0ps-trackmap-panel,vonage-status-panel
-                - name: GF_DATABASE_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: grafana-secret
-                      key: GF_DATABASE_USER
-                - name: GF_DATABASE_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: grafana-secret
-                      key: GF_DATABASE_PASSWORD
-                - name: GF_DATABASE_NAME
-                  valueFrom:
-                    secretKeyRef:
-                      name: grafana-secret
-                      key: GF_DATABASE_NAME
                 - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
@@ -111,13 +82,6 @@ spec:
             runAsGroup: 472
             fsGroup: 472
             fsGroupChangePolicy: OnRootMismatch
-          topologySpreadConstraints:
-            - maxSkew: 1
-              topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
-              labelSelector:
-                matchLabels:
-                  app.kubernetes.io/name: grafana
   httpRoute:
     spec:
       hostnames:
@@ -129,4 +93,12 @@ spec:
         - backendRefs:
             - name: grafana-service
               port: 3000
+  persistentVolumeClaim:
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: ceph-block
   disableDefaultSecurityContext: All
