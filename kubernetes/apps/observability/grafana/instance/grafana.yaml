@@ -30,6 +30,7 @@ spec:
       name_attribute_path: name
       use_pkce: "true"
       client_id: grafana
+      client_secret: $GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
       api_url: "https://auth.${SECRET_DOMAIN}/api/oidc/userinfo"
       auth_url: "https://auth.${SECRET_DOMAIN}/api/oidc/authorization"
       token_url: "https://auth.${SECRET_DOMAIN}/api/oidc/token"
@@ -39,6 +40,9 @@ spec:
     database:
       type: postgres
       host: postgres-rw.database.svc.cluster.local:5432
+      name: $GF_DATABASE_NAME
+      user: $GF_DATABASE_USER
+      password: $GF_DATABASE_PASSWORD
       ssl_mode: disable
     date_formats:
       use_browser_locale: "false"
