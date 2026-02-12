@@ -95,20 +95,10 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost miniflux.${SECRET_PUBLIC_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - miniflux.${SECRET_PUBLIC_DOMAIN}
+        parentRefs:
+          - name: envoy-external
+            namespace: network

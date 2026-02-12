@@ -67,37 +67,19 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       main:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost requests.${SECRET_PLEX_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - requests.${SECRET_PLEX_DOMAIN}
+        parentRefs:
+          - name: envoy-external
+            namespace: network
       secondary:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host requests.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - requests.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
     persistence:
       config:
         enabled: true
