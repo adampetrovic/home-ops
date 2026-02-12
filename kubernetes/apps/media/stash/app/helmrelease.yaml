@@ -79,26 +79,24 @@ spec:
           http:
             enabled: true
             port: 8080
-    ingress:
+    route:
       app:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host stash.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-              - path: /upload
-                pathType: Prefix
-                service:
-                  identifier: uploader
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - stash.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /upload
+            backendRefs:
+              - identifier: uploader
+                port: http
     persistence:
       stash:
         enabled: true

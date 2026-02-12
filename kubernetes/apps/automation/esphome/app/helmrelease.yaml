@@ -91,33 +91,23 @@ spec:
         ports:
           http:
             port: 8080
-    ingress:
+    route:
       app:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host esphome.${SECRET_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - esphome.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
       codeserver:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &codeHost "esphome-code.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: codeserver
-                  port: http
-        tls:
-          - hosts:
-              - *codeHost
+        hostnames:
+          - "esphome-code.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: codeserver
+                port: http
     persistence:
       config:
         enabled: true
