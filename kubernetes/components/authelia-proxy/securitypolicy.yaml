@@ -5,20 +5,20 @@ metadata:
   name: ${APP}
 spec:
   extAuth:
-    failOpen: false
     headersToExtAuth:
-      - X-Forwarded-Method
-      - X-Forwarded-Proto
-      - X-Forwarded-Host
-      - X-Forwarded-Uri
-      - X-Forwarded-For
+      - accept
       - cookie
+      - location
+      - authorization
+      - proxy-authorization
+      - x-forwarded-proto
+    failOpen: false
     http:
       backendRefs:
         - name: authelia
           namespace: security
           port: 80
-      path: /api/authz/forward-auth
+      path: /api/authz/ext-authz/
       headersToBackend:
         - Remote-User
         - Remote-Name
