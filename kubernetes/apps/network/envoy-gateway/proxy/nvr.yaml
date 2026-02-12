@@ -1,0 +1,28 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: external-nvr
+  namespace: default
+spec:
+  parentRefs:
+    - name: envoy-internal
+      namespace: network
+  hostnames:
+    - nvr.${SECRET_DOMAIN}
+  rules:
+    - backendRefs:
+        - name: external-nvr
+          port: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-nvr
+  namespace: default
+spec:
+  ports:
+    - name: external-nvr
+      port: 5001
+  type: ExternalName
+  externalName: nvr-direct.${SECRET_DOMAIN}
