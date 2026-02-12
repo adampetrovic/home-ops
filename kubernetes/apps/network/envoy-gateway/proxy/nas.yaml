@@ -12,17 +12,20 @@ spec:
     - nas.${SECRET_DOMAIN}
   rules:
     - backendRefs:
-        - name: external-nas
-          port: 5001
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: external-nas
+          namespace: default
 ---
-apiVersion: v1
-kind: Service
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
 metadata:
   name: external-nas
   namespace: default
 spec:
-  ports:
-    - name: external-nas
-      port: 5001
-  type: ExternalName
-  externalName: nas-direct.${SECRET_DOMAIN}
+  endpoints:
+    - fqdn:
+        hostname: nas-direct.${SECRET_DOMAIN}
+        port: 5001
+  tls:
+    insecureSkipVerify: true
