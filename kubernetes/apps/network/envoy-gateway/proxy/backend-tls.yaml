@@ -1,0 +1,42 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTLSPolicy
+metadata:
+  name: external-nas
+  namespace: default
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: external-nas
+  validation:
+    wellKnownCACertificates: System
+    hostname: nas-direct.${SECRET_DOMAIN}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTLSPolicy
+metadata:
+  name: external-nvr
+  namespace: default
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: external-nvr
+  validation:
+    wellKnownCACertificates: System
+    hostname: nvr-direct.${SECRET_DOMAIN}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTLSPolicy
+metadata:
+  name: external-unifi
+  namespace: default
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: external-unifi
+  validation:
+    wellKnownCACertificates: System
+    hostname: unifi.${SECRET_DOMAIN}
