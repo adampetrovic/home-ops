@@ -132,7 +132,7 @@ The platform hosts **60+ applications** across multiple categories:
 
 ### 🌐 Networking & DNS
 - **[Cilium](https://cilium.io)** - eBPF-based CNI and security
-- **[NGINX Ingress](https://kubernetes.github.io/ingress-nginx)** - HTTP/HTTPS ingress (Internal + External)
+- **[Envoy Gateway](https://gateway.envoyproxy.io)** - Gateway API implementation (Internal + External)
 - **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
 - **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management
 - **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
