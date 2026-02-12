@@ -1,0 +1,47 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  merge:
+    desc: Selectively merge open GitHub PRs using fzf
+    summary: |
+      Lists all open PRs in a multi-select fzf picker and merges the selected ones.
+      Use TAB to select multiple PRs, ENTER to confirm, ESC to cancel.
+
+      Args:
+        method: Merge method — merge, squash, or rebase (default: squash)
+        delete-branch: Delete the remote branch after merge — true or false (default: true)
+    silent: true
+    vars:
+      method: '{{.method | default "rebase"}}'
+      delete-branch: '{{.delete_branch | default "true"}}'
+    cmds:
+      - |
+        prs=$(gh pr list --state open --json number,title,author,headRefName \
+          --template '{{`{{range .}}{{printf "#%-6.0f %s\n" .number .title}}{{end}}`}}' \
+          | fzf --multi --header="SPACE select · ENTER merge · ESC cancel" \
+                --bind='space:toggle' \
+                --preview='gh pr diff {1} --color=always' \
+                --preview-window=down:60%:wrap)
+
+        [ -z "$prs" ] && echo "No PRs selected." && exit 0
+
+        count=$(echo "$prs" | wc -l | tr -d ' ')
+        echo "Merging $count PR(s) with --{{.method}}..."
+        echo ""
+
+        echo "$prs" | while IFS= read -r line; do
+          pr=$(echo "$line" | awk '{print $1}' | tr -d '#')
+          title=$(echo "$line" | awk '{$1=""; print $0}' | sed 's/^ *//')
+          echo "→ #$pr $title"
+          gh pr merge "$pr" --{{.method}} {{if eq .delete_branch "true"}}--delete-branch{{end}} && \
+            echo "  ✓ merged" || echo "  ✗ failed"
+        done
+    preconditions:
+      - sh: command -v gh
+        msg: "gh (GitHub CLI) is not installed"
+      - sh: command -v fzf
+        msg: "fzf is not installed"
+      - sh: gh auth status
+        msg: "Not authenticated with GitHub — run 'gh auth login'"

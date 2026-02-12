@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-clients
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: depName="UniFi-Poller: Client Insights - Prometheus"
+  url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20Client%20Insights%20-%20Prometheus.json
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-network-sites
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: depName="UniFi-Poller: Network Sites - Prometheus"
+  url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20Network%20Sites%20-%20Prometheus.json
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-uap
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: depName="UniFi-Poller: UAP Insights - Prometheus"
+  url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20UAP%20Insights%20-%20Prometheus.json
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-uxg
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: depName="UniFi-Poller: USG Insights - Prometheus"
+  url: https://raw.githubusercontent.com/adampetrovic/unifi-dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-usw
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: depName="UniFi-Poller: USW Insights - Prometheus"
+  url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20USW%20Insights%20-%20Prometheus.json
