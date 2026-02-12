@@ -110,6 +110,33 @@ function apply_crds() {
             log error "Failed to apply CRDs" "crd=${crd}"
         fi
     done
+
+    # Extract and apply CRDs from Helm charts (matching onedr0p/home-ops pattern)
+    local -r helm_crds=(
+        # renovate: datasource=docker depName=docker.io/envoyproxy/gateway-helm
+        "oci://docker.io/envoyproxy/gateway-helm 1.7.0"
+    )
+
+    for entry in "${helm_crds[@]}"; do
+        local chart="${entry% *}"
+        local version="${entry#* }"
+        local tmpdir
+        tmpdir=$(mktemp -d)
+        if helm pull "${chart}" --version "${version}" --untar --untardir "${tmpdir}" &>/dev/null; then
+            local crds_dir
+            crds_dir=$(find "${tmpdir}" -type d -name crds | head -1)
+            if [[ -n "${crds_dir}" ]]; then
+                if kubectl apply --server-side --force-conflicts -f "${crds_dir}" --recursive &>/dev/null; then
+                    log info "Helm chart CRDs applied" "chart=${chart}" "version=${version}"
+                else
+                    log error "Failed to apply Helm chart CRDs" "chart=${chart}" "version=${version}"
+                fi
+            fi
+        else
+            log error "Failed to pull Helm chart" "chart=${chart}" "version=${version}"
+        fi
+        rm -rf "${tmpdir}"
+    done
 }
 
 # Resources to be applied before the helmfile charts are installed
@@ -153,7 +180,7 @@ function sync_helm_releases() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli helmfile jq kubectl kustomize op talosctl yq task
+    check_cli helm helmfile jq kubectl kustomize op talosctl yq task
 
     if ! op whoami --format=json &>/dev/null; then
         log error "Failed to authenticate with 1Password CLI"
