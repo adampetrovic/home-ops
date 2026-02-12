@@ -19,5 +19,7 @@ kubeconfig
 Brewfile.lock.json
 # intellij
 .idea
+# claude
+.claude
 # wiki
 wiki
