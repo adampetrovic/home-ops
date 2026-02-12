@@ -62,12 +62,12 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   valuesFrom:
-    - targetPath: datasource.secureJsonData.token
+    - targetPath: "secureJsonData.token"
       valueFrom:
         secretKeyRef:
           name: grafana-secret
           key: GRAFANA_INFLUXDB_TOKEN
-    - targetPath: datasource.jsonData.organization
+    - targetPath: "jsonData.organization"
       valueFrom:
         secretKeyRef:
           name: grafana-secret
@@ -93,18 +93,18 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   valuesFrom:
-    - targetPath: datasource.jsonData.user
+    - targetPath: "user"
       valueFrom:
         secretKeyRef:
           name: grafana-secret
           key: TESLAMATE_POSTGRES_USER
-    - targetPath: datasource.secureJsonData.password
+    - targetPath: "secureJsonData.password"
       valueFrom:
         secretKeyRef:
           name: grafana-secret
           key: TESLAMATE_POSTGRES_PASS
   datasource:
-    type: grafana-postgresql-datasource
+    type: postgres
     name: TeslaMate
     uid: TeslaMate
     access: proxy
