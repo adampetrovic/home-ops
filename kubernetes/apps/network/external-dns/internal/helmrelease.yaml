@@ -42,10 +42,11 @@ spec:
             key: api-token
     extraArgs:
       - --ingress-class=internal
+      - --gateway-name=envoy-internal
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
     policy: sync
-    sources: ["crd", "ingress", "service"]
+    sources: ["crd", "ingress", "gateway-httproute", "service"]
     txtPrefix: k8s.
     txtOwnerId: kubernetes-home-internal
     domainFilters:
