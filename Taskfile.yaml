@@ -6,6 +6,9 @@ vars:
   KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
 
 includes:
+  github:
+    aliases: ["gh"]
+    taskfile: .taskfiles/GitHub/Taskfile.yaml
   kubernetes:
     aliases: ["k8s"]
     taskfile: .taskfiles/Kubernetes/Taskfile.yaml
