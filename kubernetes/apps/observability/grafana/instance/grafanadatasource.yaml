@@ -80,8 +80,11 @@ spec:
     url: http://influxdb.observability.svc.cluster.local:8086
     jsonData:
       version: Flux
+      organization: "${INFLUXDB_ORG_ID}"
       defaultBucket: default
       tlsSkipVerify: true
+    secureJsonData:
+      token: "${GRAFANA_INFLUXDB_TOKEN}"
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadatasource_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -109,8 +112,11 @@ spec:
     uid: TeslaMate
     access: proxy
     url: postgres-ro.database.svc.cluster.local:5432
+    user: "${TESLAMATE_POSTGRES_USER}"
     isDefault: false
     jsonData:
       database: teslamate
       postgresVersion: 1000
       sslmode: disable
+    secureJsonData:
+      password: "${TESLAMATE_POSTGRES_PASS}"
