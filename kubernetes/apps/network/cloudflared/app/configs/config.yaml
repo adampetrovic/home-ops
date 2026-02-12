@@ -1,18 +1,21 @@
 ---
 originRequest:
   originServerName: "external.${SECRET_PUBLIC_DOMAIN}"
+  http2Origin: true
+  keepAliveTimeout: 3600s
+  tcpKeepAlive: 7200s
 
 ingress:
   - hostname: "${SECRET_PUBLIC_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - hostname: "*.${SECRET_PUBLIC_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - hostname: "${SECRET_PLEX_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - hostname: "*.${SECRET_PLEX_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - hostname: "${SECRET_PUBLIC_ANON_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - hostname: "*.${SECRET_PUBLIC_ANON_DOMAIN}"
-    service: https://ingress-nginx-external-controller.network.svc.cluster.local:443
+    service: https://envoy-external.network.svc.cluster.local:443
   - service: http_status:404

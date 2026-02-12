@@ -50,36 +50,19 @@ spec:
           http:
             primary: true
             port: 8000
-    ingress:
+    route:
       app:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "baby.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
-
+        hostnames:
+          - "baby.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
       external:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "baby.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - "baby.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
     persistence:
       config:
         type: emptyDir

@@ -126,50 +126,29 @@ spec:
           http:
             port: 8080
 
-    ingress:
+    route:
       app:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "hass.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
-
+        hostnames:
+          - "hass.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
       external:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_DOMAIN}"
-        hosts:
-          - host: &publicHost "hass.${SECRET_PUBLIC_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
-
+        hostnames:
+          - "hass.${SECRET_PUBLIC_DOMAIN}"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
       codeserver:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &codeHost "hass-code.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: codeserver
-                  port: http
-        tls:
-          - hosts:
-              - *codeHost
+        hostnames:
+          - "hass-code.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: codeserver
+                port: http
 
     persistence:
       config:
