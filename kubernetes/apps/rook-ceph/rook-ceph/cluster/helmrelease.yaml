@@ -45,13 +45,7 @@ spec:
           disabled: true
     ingress:
       dashboard:
-        ingressClassName: internal
-        host:
-          name: &host rook.${SECRET_DOMAIN}
-          path: /
-        tls:
-          - hosts:
-              - *host
+        ingressClassName: ""
     toolbox:
       enabled: true
 
@@ -255,11 +249,4 @@ spec:
           parameters:
             region: us-east-1
         ingress:
-          enabled: true
-          ingressClassName: internal
-          host:
-            name: &host rgw.${SECRET_DOMAIN}
-            path: /
-          tls:
-            - hosts:
-                - *host
+          enabled: false
