@@ -93,7 +93,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   valuesFrom:
-    - targetPath: datasource.user
+    - targetPath: datasource.jsonData.user
       valueFrom:
         secretKeyRef:
           name: grafana-secret
@@ -104,11 +104,13 @@ spec:
           name: grafana-secret
           key: TESLAMATE_POSTGRES_PASS
   datasource:
-    type: postgres
+    type: grafana-postgresql-datasource
     name: TeslaMate
+    uid: TeslaMate
     access: proxy
     url: postgres-ro.database.svc.cluster.local:5432
-    database: teslamate
+    isDefault: false
     jsonData:
+      database: teslamate
       postgresVersion: 1000
       sslmode: disable
