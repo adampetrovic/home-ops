@@ -133,12 +133,20 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
       external:
         hostnames:
           - "hass.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
           - name: envoy-external
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
       codeserver:
         hostnames:
           - "hass-code.${SECRET_DOMAIN}"
