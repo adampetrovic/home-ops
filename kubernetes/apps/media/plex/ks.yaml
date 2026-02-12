@@ -34,8 +34,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 60Gi
       VOLSYNC_CACHE_CAPACITY: 15Gi
-      VOLSYNC_SCHEDULE: "0 3 * * 1" # 3am Monday mornings
-      VOLSYNC_R2_SCHEDULE: "0 4 * * 1"  # 4am Monday Mornings
+      VOLSYNC_R2_SCHEDULE: "0 4 * * 1" # 4am Monday Mornings
 
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
