@@ -57,20 +57,13 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       main:
-        enabled: true
-        className: internal
-        hosts:
-          - host: *host
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - *host
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
     persistence:
       config:
         existingClaim: changedetection

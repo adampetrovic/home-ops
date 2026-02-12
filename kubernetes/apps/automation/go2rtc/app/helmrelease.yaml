@@ -94,20 +94,13 @@ spec:
           streams-webrtc-udp:
             port: 8555
             protocol: UDP
-    ingress:
+    route:
       main:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "go2rtc.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: *port
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - "go2rtc.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
     persistence:
       config-file:
         type: configMap
