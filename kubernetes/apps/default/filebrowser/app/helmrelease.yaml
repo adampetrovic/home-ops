@@ -68,35 +68,19 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
+    route:
       app:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "filebrowser.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - "filebrowser.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
       external:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_PUBLIC_ANON_DOMAIN}"
-        hosts:
-          - host: &publicHost "files.${SECRET_PUBLIC_ANON_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *publicHost
+        hostnames:
+          - "files.${SECRET_PUBLIC_ANON_DOMAIN}"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
     persistence:
       config:
         type: configMap
