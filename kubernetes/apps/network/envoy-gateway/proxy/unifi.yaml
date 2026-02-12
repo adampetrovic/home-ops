@@ -12,27 +12,20 @@ spec:
     - unifi.${SECRET_DOMAIN}
   rules:
     - backendRefs:
-        - name: external-unifi
-          port: 443
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: external-unifi
+          namespace: default
 ---
-apiVersion: v1
-kind: Service
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
 metadata:
   name: external-unifi
   namespace: default
 spec:
-  ports:
-    - protocol: TCP
-      port: 443
-      targetPort: 443
----
-apiVersion: v1
-kind: Endpoints
-metadata:
-  name: external-unifi
-  namespace: default
-subsets:
-  - addresses:
-      - ip: 10.0.0.1
-    ports:
-      - port: 443
+  endpoints:
+    - ip:
+        address: 10.0.0.1
+        port: 443
+  tls:
+    insecureSkipVerify: true
