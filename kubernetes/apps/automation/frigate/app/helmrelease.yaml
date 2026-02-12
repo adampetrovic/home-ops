@@ -79,24 +79,13 @@ spec:
             port: 8554
           go2rtc:
             port: 1984
-    ingress:
+    route:
       main:
-        enabled: true
-        className: internal
-        hosts:
-          - host: &host "frigate.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-              - path: /go2rtc
-                service:
-                  identifier: app
-                  port: go2rtc
-        tls:
-          - hosts:
-              - *host
+        hostnames:
+          - "frigate.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
     persistence:
       config:
         enabled: true
