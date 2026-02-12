@@ -12,17 +12,20 @@ spec:
     - nvr.${SECRET_DOMAIN}
   rules:
     - backendRefs:
-        - name: external-nvr
-          port: 5001
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: external-nvr
+          namespace: default
 ---
-apiVersion: v1
-kind: Service
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
 metadata:
   name: external-nvr
   namespace: default
 spec:
-  ports:
-    - name: external-nvr
-      port: 5001
-  type: ExternalName
-  externalName: nvr-direct.${SECRET_DOMAIN}
+  endpoints:
+    - fqdn:
+        hostname: nvr-direct.${SECRET_DOMAIN}
+        port: 5001
+  tls:
+    insecureSkipVerify: true
