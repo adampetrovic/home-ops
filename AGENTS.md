@@ -1,0 +1,302 @@
+# AGENTS.md
+
+> Instructions for AI coding agents working in this repository.
+
+## Repository Overview
+
+This is a **home-ops GitOps repository** managing a Kubernetes cluster running on Talos Linux. All infrastructure and applications are declaratively defined and automatically deployed by Flux CD. The cluster consists of 5 bare-metal nodes (3 control plane + 2 workers) running Talos Linux with Cilium CNI.
+
+**Key technologies:** Talos Linux, Kubernetes, Flux CD, Helm, Kustomize, SOPS, 1Password (External Secrets), Rook-Ceph, VolSync, Renovate.
+
+## Version Control
+
+This repository uses **Jujutsu (jj)** as the version control system (with a Git backend). Use `jj` commands instead of `git` for all VCS operations. See the jj skill for details.
+
+## Repository Structure
+
+```
+kubernetes/
+├── apps/                    # Application deployments organized by namespace
+│   ├── automation/          # Home Assistant, Frigate, Zigbee2MQTT, etc.
+│   ├── cert-manager/        # TLS certificate management
+│   ├── database/            # CloudNative-PG, Dragonfly, PgAdmin
+│   ├── default/             # General apps (Atuin, Memos, Miniflux, Paperless, etc.)
+│   ├── external-secrets/    # 1Password integration
+│   ├── flux-system/         # Flux operator and instance
+│   ├── kube-system/         # Cilium, Reloader, Descheduler, metrics, etc.
+│   ├── media/               # Plex, Sonarr, Radarr, SABnzbd, etc.
+│   ├── network/             # Ingress-NGINX, AdGuard, Cloudflared, ExternalDNS
+│   ├── observability/       # Prometheus, Grafana, Loki, Vector
+│   ├── openebs-system/      # OpenEBS local storage
+│   ├── rook-ceph/           # Distributed storage
+│   ├── security/            # Authelia, LLDAP
+│   ├── storage/             # Garage S3-compatible storage
+│   └── volsync-system/      # Volume backup services
+├── components/              # Reusable Kustomize components
+│   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
+│   └── volsync/             # VolSync backup/restore component
+└── flux/
+    └── cluster/             # Top-level Flux Kustomization
+
+talos/                       # Talos Linux configuration
+├── talconfig.yaml           # Node definitions (managed by talhelper)
+├── talenv.yaml              # Talos environment vars
+├── talsecret.yaml           # Talos secrets
+├── clusterconfig/           # Generated node configs (do not edit directly)
+└── patches/                 # Talos machine patches
+    ├── controller/          # Control-plane-specific patches
+    └── global/              # All-node patches
+
+bootstrap/                   # Initial cluster bootstrap
+├── helmfile.yaml            # Bootstrap Helm releases (Cilium → Spegel → cert-manager → ESO → Flux)
+└── resources.yaml.j2        # Bootstrap resources template
+
+scripts/                     # Helper scripts
+├── bootstrap-cluster.sh     # Full cluster bootstrap automation
+└── lib/                     # Script libraries
+
+.taskfiles/                  # Taskfile automation
+├── Kubernetes/              # k8s helper tasks
+├── Talos/                   # Talos upgrade/management tasks
+└── VolSync/                 # Backup/restore tasks
+```
+
+## Application Structure Pattern
+
+Every application follows this consistent structure:
+
+```
+app-name/
+├── ks.yaml                  # Flux Kustomization — entry point for Flux
+└── app/
+    ├── kustomization.yaml   # Kustomize resources list
+    ├── helmrelease.yaml     # HelmRelease (most apps use bjw-s app-template or upstream charts)
+    └── externalsecret.yaml  # ExternalSecret pulling from 1Password (if needed)
+```
+
+### Flux Kustomization (`ks.yaml`)
+
+This is the Flux entry point for each app. Key conventions:
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app <app-name>           # Use YAML anchors for DRY
+  namespace: &namespace <namespace>
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn: []                    # List upstream dependencies
+  path: ./kubernetes/apps/<namespace>/<app-name>/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true                       # false if nothing depends on this app
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+```
+
+**For apps with persistent storage (VolSync)**, add the volsync component and postBuild substitution variables:
+
+```yaml
+spec:
+  components:
+    - ../../../../components/volsync
+  postBuild:
+    substitute:
+      APP: *app
+      VOLSYNC_CAPACITY: 10Gi
+      VOLSYNC_SCHEDULE: "15 * * * *"        # Garage backup schedule
+      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule
+```
+
+### HelmRelease Conventions
+
+- Most apps use the **bjw-s app-template** chart via `OCIRepository` named `app-template`
+- Schema reference: `https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json`
+- Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback`
+- Use YAML anchors (`&app`, `&port`, `*envFrom`) to reduce duplication
+- Container images should include both tag and digest: `tag: v1.0.0@sha256:abc123...`
+- Apply security contexts: `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, `capabilities: {drop: ["ALL"]}`
+- Set `runAsNonRoot: true` in defaultPodOptions where possible
+
+### ExternalSecret Conventions
+
+- All secrets come from **1Password** via a `ClusterSecretStore` named `onepassword-connect`
+- ExternalSecrets extract keys from 1Password items and template them into Kubernetes secrets
+- PostgreSQL apps typically use an `init-db` init container with `ghcr.io/home-operations/postgres-init`
+- Database connection strings follow the pattern: `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`
+
+### Namespace Kustomization
+
+Each namespace directory has a `kustomization.yaml` that:
+1. References the `../../components/common` component (provides namespace, SOPS, cluster vars, Helm repos)
+2. Lists all `ks.yaml` files for apps in that namespace
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: <namespace>
+components:
+  - ../../components/common
+resources:
+  - ./app-one/ks.yaml
+  - ./app-two/ks.yaml
+```
+
+## Ingress Conventions
+
+- Two NGINX ingress controllers: `internal` and `external`
+- Internal apps use `className: internal`
+- External apps use `className: external` (routed through Cloudflare Tunnel)
+- Hosts use variable substitution: `host: "app.${SECRET_DOMAIN}"`
+- TLS is configured for all ingresses
+
+## Secrets Management
+
+### SOPS Encryption
+
+- Encrypted files match `*.sops.yaml` pattern
+- Encryption uses **age** keys (key file at `~/.config/sops/age/keys.txt`)
+- Kubernetes secrets encrypt only `data` and `stringData` fields (`encrypted_regex: "^(data|stringData)$"`)
+- Talos secrets encrypt the entire file
+- **Never** commit unencrypted secrets. If you need to create a secret, use an ExternalSecret referencing 1Password instead.
+
+### Cluster Variables
+
+- Cluster-wide variables are stored in `kubernetes/components/common/vars/cluster-secrets.sops.yaml` (encrypted)
+- Variables like `${SECRET_DOMAIN}` are substituted into all Flux Kustomizations via `postBuild.substituteFrom`
+
+## Coding Standards
+
+### YAML Formatting
+
+- **Indent:** 2 spaces (never tabs)
+- **Line endings:** LF
+- **Final newline:** Always include
+- All YAML files should start with `---`
+- Include yaml-language-server schema comments where applicable:
+  ```yaml
+  # yaml-language-server: $schema=https://json.schemastore.org/kustomization
+  ```
+
+### Shell Scripts
+
+- **Indent:** 4 spaces
+- Use `set -Eeuo pipefail` for strict error handling
+- Use `#!/usr/bin/env bash` shebang
+
+### Naming Conventions
+
+- App names are lowercase, hyphen-separated: `home-assistant`, `paperless-ngx`
+- Kubernetes labels follow: `app.kubernetes.io/name: <app-name>`
+- Flux Kustomization names match app directory names
+- HelmRelease names match app directory names
+
+## Renovate (Automated Dependency Updates)
+
+Renovate runs hourly and manages dependency updates automatically. Key conventions:
+
+- **Container images** include digest pinning: `tag: v1.0.0@sha256:...`
+- **Talos/Kubernetes versions** use annotated comments for Renovate detection:
+  ```yaml
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+  TALOS_VERSION: v1.11.3
+  ```
+- **CRD URLs** in bootstrap scripts use similar annotations
+- Renovate config lives in `.renovaterc.json5` and `.renovate/` directory
+- Semantic commits are enforced: `feat(container)!:`, `fix(helm):`, `chore(container):`
+
+## Task Automation
+
+Run tasks with `task <namespace>:<task>`. Key commands:
+
+```bash
+# Talos operations
+task talos:generate              # Generate Talos node configs
+task talos:apply                 # Apply configs to nodes
+task talos:upgrade node=<ip>     # Upgrade Talos on a node
+task talos:upgrade-rollout       # Rolling upgrade all nodes
+task talos:upgrade-k8s node=<ip> to=<version>  # Upgrade Kubernetes
+task talos:fetch-kubeconfig      # Fetch kubeconfig
+
+# Kubernetes
+task k8s:delete-failed-pods     # Clean up failed/evicted pods
+
+# VolSync backup/restore
+task volsync:list app=<name> ns=<namespace>      # List snapshots
+task volsync:snapshot app=<name> ns=<namespace>   # Create snapshot
+task volsync:restore app=<name> ns=<namespace>    # Restore from snapshot
+task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo
+```
+
+## Storage
+
+- **Rook-Ceph** (`ceph-block` StorageClass): Default for most persistent volumes (RWO)
+- **Rook-CephFS**: For RWX volumes
+- **OpenEBS** (`openebs-hostpath`): Local high-performance volumes, used for VolSync cache
+- **NFS**: Synology NAS mounts for media storage
+- **VolSync**: Automated restic backups to both local Garage (hourly) and Cloudflare R2 (daily)
+
+## Network
+
+- **Pod CIDR:** `10.69.0.0/16`
+- **Service CIDR:** `10.96.0.0/16`
+- **LoadBalancer VIP:** `10.0.80.99`
+- **Node IPs:** `10.0.80.10-14` (Management VLAN 80)
+- **Trusted VLAN 10:** `10.0.10.0/24` (secondary interfaces for IoT access)
+- CNI is **Cilium** (eBPF-based, deployed without kube-proxy)
+
+## Common Operations for Agents
+
+### Adding a New Application
+
+1. Create the directory structure under `kubernetes/apps/<namespace>/<app-name>/`
+2. Create `ks.yaml` (Flux Kustomization) with appropriate `dependsOn`
+3. Create `app/helmrelease.yaml` using app-template or upstream chart
+4. Create `app/kustomization.yaml` listing all resources
+5. If secrets needed: create `app/externalsecret.yaml` referencing 1Password
+6. If persistent storage needed: add volsync component to `ks.yaml`
+7. Add the `ks.yaml` reference to the namespace's `kustomization.yaml`
+
+### Modifying an Existing Application
+
+- Edit the `helmrelease.yaml` for configuration changes
+- Edit `ks.yaml` for dependency or VolSync changes
+- Flux will automatically detect and apply changes once committed and pushed
+
+### Debugging Applications
+
+```bash
+kubectl get ks -A                          # Check Flux Kustomization status
+kubectl get hr -A                          # Check HelmRelease status
+flux get kustomization --all-namespaces    # Detailed Flux status
+kubectl describe hr <name> -n <namespace>  # HelmRelease details
+kubectl logs -n <namespace> <pod>          # Application logs
+flux reconcile ks <name> --with-source     # Force reconciliation
+```
+
+### Suspending/Resuming Flux
+
+```bash
+flux suspend ks <name> -n flux-system      # Pause reconciliation
+flux resume ks <name> -n flux-system       # Resume reconciliation
+flux suspend hr <name> -n <namespace>      # Pause Helm release
+flux resume hr <name> -n <namespace>       # Resume Helm release
+```
+
+## Important Warnings
+
+- **Never edit files in `talos/clusterconfig/`** — these are generated by `task talos:generate`
+- **Never commit plaintext secrets** — use ExternalSecrets (1Password) or SOPS encryption
+- **Never modify Flux system resources directly** — changes are reconciled from Git
+- **Be cautious with `prune: true`** — removing a resource from Git will delete it from the cluster
+- **The `*.sops.yaml` files are encrypted** — you cannot read their contents without the age key
+- **Container image tags should always include digests** for reproducibility
+- **Respect `dependsOn` chains** — apps may fail if their dependencies aren't ready
