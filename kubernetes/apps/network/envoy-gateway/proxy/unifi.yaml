@@ -23,6 +23,8 @@ metadata:
   name: external-unifi
   namespace: default
 spec:
+  appProtocols:
+    - gateway.envoyproxy.io/ws
   endpoints:
     - ip:
         address: 10.0.0.1
