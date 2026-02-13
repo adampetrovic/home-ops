@@ -36,6 +36,7 @@ spec:
                   name: kopia-secret
             args:
               - --without-password
+              - --refresh-interval=5m
             probes:
               liveness: &probes
                 enabled: true
@@ -44,10 +45,10 @@ spec:
                   httpGet:
                     path: /
                     port: *port
-                  initialDelaySeconds: 0
+                  initialDelaySeconds: 60
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 3
+                  failureThreshold: 5
               readiness: *probes
             securityContext:
               allowPrivilegeEscalation: false
