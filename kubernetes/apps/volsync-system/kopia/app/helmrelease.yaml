@@ -36,6 +36,7 @@ spec:
                   name: kopia-secret
             args:
               - --without-password
+              - --refresh-interval=5m
             probes:
               liveness: &probes
                 enabled: true
