@@ -6,6 +6,7 @@ metadata:
   name: daily
 spec:
   enabled: true
+  activeDeadlineSeconds: 43200
   trigger:
     schedule: 0 */12 * * *
   repository:
