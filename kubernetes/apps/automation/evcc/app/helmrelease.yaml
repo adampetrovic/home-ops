@@ -23,6 +23,12 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    defaultPodOptions:
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
     controllers:
       evcc:
         annotations:
@@ -34,6 +40,9 @@ spec:
               # https://github.com/evcc-io/evcc/pull/27346
               repository: ghcr.io/adampetrovic/evcc
               tag: 0.300.8-twc3-connection-timer
+            args:
+              - --database
+              - /data/evcc.db
             env:
               TZ: "Australia/Sydney"
             envFrom:
@@ -78,7 +87,7 @@ spec:
         enabled: true
         existingClaim: evcc
         globalMounts:
-          - path: /root/.evcc
+          - path: /data
       # config-file:
       #   type: configMap
       #   name: evcc-configmap
