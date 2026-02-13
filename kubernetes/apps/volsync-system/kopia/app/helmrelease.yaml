@@ -37,6 +37,7 @@ spec:
             args:
               - --without-password
               - --refresh-interval=5m
+              - --log-level=debug
             probes:
               liveness: &probes
                 enabled: true
@@ -61,8 +62,8 @@ spec:
                 memory: 1Gi
     defaultPodOptions:
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 568
+        runAsNonRoot: false
+        runAsUser: 0
         runAsGroup: 568
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
