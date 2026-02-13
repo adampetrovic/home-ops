@@ -33,3 +33,5 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 5Gi
       VOLSYNC_R2_SCHEDULE: "50 1 * * *"
+      VOLSYNC_UID: "0"
+      VOLSYNC_GID: "0"
