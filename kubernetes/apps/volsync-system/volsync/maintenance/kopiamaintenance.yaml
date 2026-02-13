@@ -6,6 +6,17 @@ metadata:
   name: daily
 spec:
   enabled: true
+  activeDeadlineSeconds: 43200
+  podSecurityContext:
+    runAsUser: 0
+    runAsGroup: 568
+    fsGroup: 568
+    runAsNonRoot: false
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
   trigger:
     schedule: 0 */12 * * *
   repository:
