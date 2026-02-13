@@ -37,6 +37,7 @@ spec:
             args:
               - --without-password
               - --refresh-interval=5m
+              - --log-level=debug
             probes:
               liveness: &probes
                 enabled: true
