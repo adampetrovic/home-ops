@@ -31,7 +31,7 @@ kubernetes/
 │   ├── rook-ceph/           # Distributed storage
 │   ├── security/            # Authelia, LLDAP
 │   ├── storage/             # Garage S3-compatible storage
-│   └── volsync-system/      # Volume backup services
+│   └── volsync-system/      # VolSync operator, Kopia web UI, snapshot controller
 ├── components/              # Reusable Kustomize components
 │   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
 │   └── volsync/             # VolSync backup/restore component
@@ -112,9 +112,10 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_SCHEDULE: "15 * * * *"        # Garage backup schedule
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule
+      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule (optional override)
 ```
+
+The Kopia (primary) backup schedule is fixed at `0 * * * *` for all apps — a `MutatingAdmissionPolicy` injects random 0-30s jitter to prevent thundering herd. Only `VOLSYNC_R2_SCHEDULE` can be overridden per-app.
 
 ### HelmRelease Conventions
 
@@ -233,16 +234,21 @@ task k8s:delete-failed-pods     # Clean up failed/evicted pods
 task volsync:list app=<name> ns=<namespace>      # List snapshots
 task volsync:snapshot app=<name> ns=<namespace>   # Create snapshot
 task volsync:restore app=<name> ns=<namespace>    # Restore from snapshot
-task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo
+task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo (R2)
 ```
 
 ## Storage
 
 - **Rook-Ceph** (`ceph-block` StorageClass): Default for most persistent volumes (RWO)
 - **Rook-CephFS**: For RWX volumes
-- **OpenEBS** (`openebs-hostpath`): Local high-performance volumes, used for VolSync cache
-- **NFS**: Synology NAS mounts for media storage
-- **VolSync**: Automated restic backups to both local Garage (hourly) and Cloudflare R2 (daily)
+- **OpenEBS** (`openebs-hostpath`): Local high-performance volumes, used for VolSync R2 cache
+- **NFS**: Synology NAS mounts for media storage and Kopia backup repository (`/volume2/kopia`)
+- **VolSync**: Dual-storage backup strategy:
+  - **Kopia (primary)**: Hourly backups to NFS filesystem repository (uses perfectra1n VolSync fork with Kopia support)
+  - **Restic (secondary)**: Daily backups to Cloudflare R2 for off-site disaster recovery
+  - `MutatingAdmissionPolicy` resources inject NFS mounts and jitter into VolSync mover jobs automatically
+  - `KopiaMaintenance` CRD runs repository maintenance every 12 hours
+  - Kopia web UI available at `kopia.<domain>` for browsing backups
 
 ## Network
 
