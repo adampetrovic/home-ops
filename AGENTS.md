@@ -25,13 +25,13 @@ kubernetes/
 │   ├── flux-system/         # Flux operator and instance
 │   ├── kube-system/         # Cilium, Reloader, Descheduler, metrics, etc.
 │   ├── media/               # Plex, Sonarr, Radarr, SABnzbd, etc.
-│   ├── network/             # Ingress-NGINX, AdGuard, Cloudflared, ExternalDNS
+│   ├── network/             # Envoy Gateway, AdGuard, Cloudflared, ExternalDNS
 │   ├── observability/       # Prometheus, Grafana, Loki, Vector
 │   ├── openebs-system/      # OpenEBS local storage
 │   ├── rook-ceph/           # Distributed storage
 │   ├── security/            # Authelia, LLDAP
 │   ├── storage/             # Garage S3-compatible storage
-│   └── volsync-system/      # Volume backup services
+│   └── volsync-system/      # VolSync operator, Kopia web UI, snapshot controller
 ├── components/              # Reusable Kustomize components
 │   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
 │   └── volsync/             # VolSync backup/restore component
@@ -112,9 +112,10 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_SCHEDULE: "15 * * * *"        # Garage backup schedule
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule
+      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule (optional override)
 ```
+
+The Kopia (primary) backup schedule is fixed at `0 * * * *` for all apps — a `MutatingAdmissionPolicy` injects random 0-30s jitter to prevent thundering herd. Only `VOLSYNC_R2_SCHEDULE` can be overridden per-app.
 
 ### HelmRelease Conventions
 
@@ -150,13 +151,64 @@ resources:
   - ./app-two/ks.yaml
 ```
 
-## Ingress Conventions
+## Gateway / HTTPRoute Conventions
 
-- Two NGINX ingress controllers: `internal` and `external`
-- Internal apps use `className: internal`
-- External apps use `className: external` (routed through Cloudflare Tunnel)
-- Hosts use variable substitution: `host: "app.${SECRET_DOMAIN}"`
-- TLS is configured for all ingresses
+Traffic ingress uses the **Gateway API** with **Envoy Gateway** as the implementation. Two `Gateway` resources are defined in the `network` namespace:
+
+- **`envoy-internal`**: For apps accessible only on the internal network (`10.0.80.200`)
+- **`envoy-external`**: For apps exposed through Cloudflare Tunnel (`10.0.80.201`)
+
+### HTTPRoute in app-template HelmReleases
+
+Apps using the bjw-s app-template define routes via the `route` key in the HelmRelease values. This automatically generates an `HTTPRoute` resource:
+
+```yaml
+route:
+  app:
+    hostnames:
+      - "app.${SECRET_DOMAIN}"
+    parentRefs:
+      - name: envoy-internal     # or envoy-external
+        namespace: network
+```
+
+### Standalone HTTPRoute resources
+
+For apps not using app-template (e.g. kube-prometheus-stack, rook-ceph), create a separate `httproute.yaml`:
+
+```yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: <app-name>
+spec:
+  parentRefs:
+    - name: envoy-internal       # or envoy-external
+      namespace: network
+  hostnames:
+    - "app.${SECRET_DOMAIN}"
+  rules:
+    - backendRefs:
+        - name: <service-name>
+          port: <port>
+```
+
+### Authentication with Authelia
+
+Apps requiring authentication use the `authelia-proxy` Kustomize component, which creates an Envoy Gateway `SecurityPolicy` targeting the app's HTTPRoute by name. Add it to the app's `kustomization.yaml`:
+
+```yaml
+components:
+  - ../../../../components/authelia-proxy
+```
+
+### Key differences from Ingress
+
+- No `className` — instead, `parentRefs` specifies which Gateway to attach to
+- TLS is terminated at the Gateway level (configured once per Gateway, not per route)
+- Hostnames are set via `hostnames` (not `host` under `rules`)
+- External apps use `envoy-external` Gateway → Cloudflare Tunnel → public access
+- Internal apps use `envoy-internal` Gateway → local network only
 
 ## Secrets Management
 
@@ -233,16 +285,21 @@ task k8s:delete-failed-pods     # Clean up failed/evicted pods
 task volsync:list app=<name> ns=<namespace>      # List snapshots
 task volsync:snapshot app=<name> ns=<namespace>   # Create snapshot
 task volsync:restore app=<name> ns=<namespace>    # Restore from snapshot
-task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo
+task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo (R2)
 ```
 
 ## Storage
 
 - **Rook-Ceph** (`ceph-block` StorageClass): Default for most persistent volumes (RWO)
 - **Rook-CephFS**: For RWX volumes
-- **OpenEBS** (`openebs-hostpath`): Local high-performance volumes, used for VolSync cache
-- **NFS**: Synology NAS mounts for media storage
-- **VolSync**: Automated restic backups to both local Garage (hourly) and Cloudflare R2 (daily)
+- **OpenEBS** (`openebs-hostpath`): Local high-performance volumes, used for VolSync R2 cache
+- **NFS**: Synology NAS mounts for media storage and Kopia backup repository (`/volume2/kopia`)
+- **VolSync**: Dual-storage backup strategy:
+  - **Kopia (primary)**: Hourly backups to NFS filesystem repository (uses perfectra1n VolSync fork with Kopia support)
+  - **Restic (secondary)**: Daily backups to Cloudflare R2 for off-site disaster recovery
+  - `MutatingAdmissionPolicy` resources inject NFS mounts and jitter into VolSync mover jobs automatically
+  - `KopiaMaintenance` CRD runs repository maintenance every 12 hours
+  - Kopia web UI available at `kopia.<domain>` for browsing backups
 
 ## Network
 
