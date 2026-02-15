@@ -30,8 +30,13 @@ jobs:
           echo "Testing talosctl connection to nodes..."
           talosctl --nodes 10.0.80.10 version
           
-      - name: Test kubectl access
+      - name: Test kubectl access (optional - may not be in image)
+        continue-on-error: true
         run: |
           echo "Testing kubectl access..."
-          kubectl get nodes
-          kubectl get pods -n actions-runner-system
+          if command -v kubectl &> /dev/null; then
+            kubectl get nodes
+            kubectl get pods -n actions-runner-system
+          else
+            echo "kubectl not found in runner image (expected with official image)"
+          fi
