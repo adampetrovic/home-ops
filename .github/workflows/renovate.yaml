@@ -70,7 +70,7 @@ jobs:
           RENOVATE_PLATFORM: github
           RENOVATE_PLATFORM_COMMIT: true
           RENOVATE_PAT: "${{ secrets.RENOVATE_PAT }}"
-          RENOVATE_GHCR_TOKEN: "${{ github.token }}"
+          RENOVATE_GHCR_TOKEN: "${{ secrets.GHCR_TOKEN }}"
         with:
           token: "${{ steps.app-token.outputs.token }}"
           renovate-version: "${{ inputs.version || 'latest' }}"
