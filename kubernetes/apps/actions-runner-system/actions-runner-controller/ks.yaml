@@ -33,7 +33,7 @@ spec:
   dependsOn:
     - name: actions-runner-controller
     - name: openebs
-      namespace: flux-system
+      namespace: openebs-system
   interval: 1h
   path: ./kubernetes/apps/actions-runner-system/actions-runner-controller/runners
   prune: true
