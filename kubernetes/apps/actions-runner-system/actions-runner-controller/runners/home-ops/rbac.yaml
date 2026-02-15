@@ -1,0 +1,29 @@
+---
+# Kubernetes ServiceAccount for the runner pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: home-ops-runner
+---
+# Grant cluster-admin to runner pods (needed for kubectl operations)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: home-ops-runner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: home-ops-runner
+    namespace: actions-runner-system
+---
+# Talos ServiceAccount - generates talosconfig secret automatically
+apiVersion: talos.dev/v1alpha1
+kind: ServiceAccount
+metadata:
+  name: home-ops-runner
+spec:
+  roles:
+    - os:admin
