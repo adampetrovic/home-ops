@@ -68,6 +68,7 @@ spec:
       ingress:
         enabled: false
       prometheusSpec:
+        externalUrl: https://prometheus.${SECRET_DOMAIN}
         image:
           registry: quay.io
           repository: prometheus/prometheus
