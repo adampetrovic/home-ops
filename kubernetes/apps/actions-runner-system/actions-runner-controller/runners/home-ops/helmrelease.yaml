@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app home-ops-runner
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: gha-runner-scale-set
+  interval: 1h
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    githubConfigUrl: https://github.com/adampetrovic/home-ops
+    githubConfigSecret: home-ops-runner-secret
+    
+    # Scaling configuration
+    minRunners: 0  # Scale to zero when idle
+    maxRunners: 3  # Max concurrent runners
+    
+    # Use Kubernetes container mode
+    containerMode:
+      type: kubernetes
+      kubernetesModeWorkVolumeClaim:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: openebs-hostpath
+        resources:
+          requests:
+            storage: 25Gi
+    
+    # Reference to the controller ServiceAccount
+    controllerServiceAccount:
+      name: actions-runner-controller
+      namespace: actions-runner-system
+    
+    # Runner pod template
+    template:
+      spec:
+        containers:
+          - name: runner
+            # Using official GitHub Actions runner image
+            # Workflows will install talosctl on-demand
+            image: ghcr.io/actions/actions-runner:latest
+            command:
+              - /home/runner/run.sh
+            env:
+              - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+                value: "false"
+              - name: NODE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.hostIP
+            volumeMounts:
+              - mountPath: /var/run/secrets/talos.dev
+                name: talos
+                readOnly: true
+        
+        serviceAccountName: *app
+        
+        volumes:
+          - name: talos
+            secret:
+              secretName: *app
