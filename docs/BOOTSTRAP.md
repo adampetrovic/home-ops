@@ -4,6 +4,7 @@
 
 The following CLI tools must be installed and accessible in your PATH:
 
+- `helm` - Helm package manager
 - `helmfile` - Helm chart deployment orchestration
 - `jq` - JSON processor
 - `kubectl` - Kubernetes command-line tool
@@ -86,10 +87,20 @@ Once Talos is bootstrapped, the script sets up core Kubernetes components:
    - External DNS CRDs
    - Gateway API experimental CRDs
    - Prometheus Operator CRDs
+   - Network Attachment Definition CRDs (Multus)
+   - Barman Cloud CRDs (CloudNative-PG)
+   - Envoy Gateway CRDs (extracted from Helm chart)
 
-3. **Apply bootstrap resources**: Renders and applies resources from `bootstrap/resources.yaml.j2` using 1Password to inject secrets.
+3. **Apply bootstrap resources**: Renders and applies resources from `bootstrap/resources.yaml.j2` using 1Password (`op inject`) to inject secrets. This creates:
+   - `external-secrets`, `flux-system`, and `network` namespaces
+   - 1Password Connect credentials secret
+   - SOPS age key secret for Flux decryption
+   - TLS certificate secret for ingress
 
-4. **Sync Helm releases**: Deploys core infrastructure components using Helmfile:
+4. **Sync Helm releases**: Deploys core infrastructure components using Helmfile in order:
+   ```
+   Cilium → CoreDNS (built-in) → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
+   ```
    ```bash
    helmfile --file bootstrap/helmfile.yaml sync --hide-notes
    ```
@@ -128,7 +139,7 @@ Ensure OSDs are properly configured in `rook-ceph`. With `wipeDevicesFromOtherCl
 
 ### Data Restoration
 
-If VolumeSync backups are configured at the PVC locations, they will automatically begin hydrating from the last snapshot. Verify that your applications have their data restored after startup.
+VolSync backups use a dual-storage strategy (Kopia to NFS + Restic to Cloudflare R2). On bootstrap, VolSync will automatically begin restoring volumes from the last available snapshot. Verify that your applications have their data restored after startup.
 
 ## Troubleshooting
 
