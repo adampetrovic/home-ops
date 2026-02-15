@@ -70,8 +70,8 @@ jobs:
           RENOVATE_PLATFORM: github
           RENOVATE_PLATFORM_COMMIT: true
           RENOVATE_PAT: "${{ secrets.RENOVATE_PAT }}"
-          GHCR_TOKEN: "${{ secrets.GHCR_TOKEN }}"
+          RENOVATE_GHCR_TOKEN: "${{ secrets.GHCR_TOKEN }}"
         with:
           token: "${{ steps.app-token.outputs.token }}"
           renovate-version: "${{ inputs.version || 'latest' }}"
-          env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN|NODE_OPTIONS|(?:HTTPS?|NO)_PROXY|(?:https?|no)_proxy|GHCR_TOKEN)$"
+          env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN|NODE_OPTIONS|(?:HTTPS?|NO)_PROXY|(?:https?|no)_proxy)$"
