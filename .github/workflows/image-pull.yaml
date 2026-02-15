@@ -114,18 +114,18 @@ jobs:
       max-parallel: 4
       fail-fast: false
     env:
-      TALOS_NODES: "10.0.80.10,10.0.80.11,10.0.80.12,10.0.80.13,10.0.80.14"
       MATRIX_IMAGE: ${{ matrix.image }}
     steps:
       - name: Install talosctl
         run: curl -fsSL https://raw.githubusercontent.com/siderolabs/talos/main/website/static/install | sh
 
-      - name: Pull Image to All Nodes
+      - name: Pull Image
         run: |-
           export TALOSCONFIG=/var/run/secrets/talos.dev/config
           echo "Pulling image: ${MATRIX_IMAGE}"
-          echo "To nodes: ${TALOS_NODES}"
-          talosctl --nodes ${TALOS_NODES} image pull "${MATRIX_IMAGE}"
+          echo "To node: $NODE"
+          talosctl --nodes $NODE image pull "${MATRIX_IMAGE}"
+          echo "✓ Spegel will distribute to remaining nodes"
 
   success:
     if: ${{ !cancelled() }}
