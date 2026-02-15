@@ -168,6 +168,12 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Metrics Server](https://github.com/kubernetes-sigs/metrics-server)** - Resource usage metrics
 - **[Tuppr](https://github.com/home-operations/tuppr)** - Automated Talos Linux and Kubernetes upgrades
 
+### 🤖 CI/CD & Automation
+- **[Actions Runner Controller](https://github.com/actions/actions-runner-controller)** - Self-hosted GitHub Actions runners
+  - Enables image pre-pulling to Talos nodes via `talosctl`
+  - Scales 0-3 runners dynamically based on workflow demand
+  - Authenticates via GitHub App with cluster-admin and os:admin permissions
+
 ---
 
 ## 🏛️ Architecture
@@ -296,6 +302,7 @@ Complete cluster rebuild capability:
 ```
 📁 kubernetes/
 ├── 📁 apps/              # Application deployments organized by namespace
+│   ├── 📁 actions-runner-system/ # Self-hosted GitHub Actions runners
 │   ├── 📁 automation/    # Home automation stack
 │   ├── 📁 cert-manager/  # Certificate management
 │   ├── 📁 database/      # Database services
