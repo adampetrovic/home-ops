@@ -4,7 +4,8 @@
       description: "GHCR private packages",
       matchHost: "ghcr.io",
       hostType: "docker",
-      token: "{{ process.env.GHCR_TOKEN }}",
+      username: "adampetrovic",
+      password: "{{ process.env.RENOVATE_GHCR_TOKEN }}",
     },
   ],
 }
