@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app actions-runner-controller
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: gha-runner-scale-set-controller
+  interval: 1h
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    fullnameOverride: *app
