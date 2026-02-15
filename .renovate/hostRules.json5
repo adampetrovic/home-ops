@@ -1,11 +1,10 @@
 {
   hostRules: [
     {
-      description: "Private GHCR packages owned by adampetrovic",
-      matchHost: "https://ghcr.io/adampetrovic",
+      description: "GHCR private packages",
+      matchHost: "ghcr.io",
       hostType: "docker",
-      username: "adampetrovic",
-      password: "{{ process.env.GHCR_TOKEN }}",
+      token: "{{ process.env.GHCR_TOKEN }}",
     },
   ],
 }
