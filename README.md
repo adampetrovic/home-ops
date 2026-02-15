@@ -10,8 +10,8 @@ _A comprehensive Kubernetes-native home infrastructure platform_
 
 ![License](https://img.shields.io/github/license/adampetrovic/home-ops?color=blue&style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/adampetrovic/home-ops?style=flat-square)
-![Kubernetes](https://img.shields.io/badge/k8s-v1.32.3-blue?style=flat-square)
-![Talos](https://img.shields.io/badge/talos-v1.10.5-orange?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/k8s-v1.35.1-blue?style=flat-square)
+![Talos](https://img.shields.io/badge/talos-v1.12.3-orange?style=flat-square)
 
 </div>
 
@@ -47,10 +47,11 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 | Component | Details |
 |-----------|---------|
-| **OS** | [Talos Linux](https://talos.dev) v1.10.5 - Immutable, API-driven Linux |
-| **Kubernetes** | v1.33.3 - Latest stable Kubernetes |
+| **OS** | [Talos Linux](https://talos.dev) v1.12.3 - Immutable, API-driven Linux |
+| **Kubernetes** | v1.35.1 - Latest stable Kubernetes |
 | **CNI** | [Cilium](https://cilium.io) - eBPF-based networking and security |
-| **Nodes** | 4x Control Plane (no dedicated workers) |
+| **Ingress** | [Envoy Gateway](https://gateway.envoyproxy.io) - Gateway API-based ingress |
+| **Nodes** | 3x Control Plane + 2x Workers |
 | **High Availability** | Virtual IP, distributed etcd, automated failover |
 
 ### 🖥️ Hardware Specifications
@@ -80,11 +81,7 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 ## 🚀 Applications
 
-The platform hosts **60+ applications** across multiple categories:
-
-### 🤖 AI & Machine Learning
-- **[Ollama](https://ollama.ai)** - Local LLM inference server
-- **[Open WebUI](https://openwebui.com)** - Modern ChatGPT-like interface for Ollama
+The platform hosts **70+ applications** across multiple categories:
 
 ### 🏠 Home Automation
 - **[Home Assistant](https://home-assistant.io)** - Comprehensive home automation platform
@@ -93,8 +90,10 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Mosquitto](https://mosquitto.org)** - MQTT message broker
 - **[Frigate](https://frigate.video)** - AI-powered network video recorder
 - **[go2rtc](https://github.com/AlexxIT/go2rtc)** - Real-time streaming server
-- **TeslaMate** - Tesla vehicle data logging and analytics
-- **Fernwood Booker** - Custom multi-tenant appointment booking system
+- **[EVCC](https://evcc.io)** - EV charging management
+- **[TeslaMate](https://github.com/teslamate-org/teslamate)** - Tesla vehicle data logging and analytics
+- **[Fernwood Booker](https://github.com/adampetrovic/fernwood-booker)** - Custom multi-tenant appointment booking system
+- **[Change Detection](https://changedetection.io)** - Website monitoring
 
 ### 📺 Media Management
 - **[Plex](https://plex.tv)** - Media server and streaming platform
@@ -108,15 +107,18 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Tautulli](https://tautulli.com)** - Plex analytics and monitoring
 - **[Unpackerr](https://unpackerr.zip)** - Archive extraction automation
 - **[xTeVe](https://xteve.de)** - IPTV proxy server
-- **Gatus** - Service monitoring and status page
+- **[Booklore](https://github.com/booklore-app/booklore)** - Book library management
+- **[Shelfmark](https://github.com/calibrain/shelfmark)** - Calibre-based book management
+- **[Qui](https://github.com/autobrr/qui)** - Autobrr web UI
+- **[Plexovic Gatus](https://github.com/TwiN/gatus)** - Media service monitoring and status page
 
 ### 🛠️ Productivity & Tools
 - **[Atuin](https://atuin.sh)** - Shell history sync and search
 - **[Memos](https://usememos.com)** - Privacy-first note-taking
 - **[Miniflux](https://miniflux.app)** - Minimalist RSS reader
 - **[Paperless-NGX](https://paperless-ngx.readthedocs.io)** - Document management system
-- **[Change Detection](https://changedetection.io)** - Website monitoring
-- **SpeedTest Tracker** - Internet speed monitoring
+- **[Baby Buddy](https://github.com/babybuddy/babybuddy)** - Baby care tracking
+- **[Filebrowser](https://filebrowser.org)** - Web-based file manager
 
 ### 🗄️ Database & Storage
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
@@ -132,12 +134,14 @@ The platform hosts **60+ applications** across multiple categories:
 
 ### 🌐 Networking & DNS
 - **[Cilium](https://cilium.io)** - eBPF-based CNI and security
-- **[NGINX Ingress](https://kubernetes.github.io/ingress-nginx)** - HTTP/HTTPS ingress (Internal + External)
+- **[Envoy Gateway](https://gateway.envoyproxy.io)** - Gateway API-based ingress (Internal + External gateways)
 - **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
 - **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management
 - **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
 - **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
+- **NTPd** - Network time protocol server
 - **SMTP Relay** - Outbound email service
+- **Echo Server** - HTTP echo/debug server
 
 ### 📊 Observability & Monitoring
 - **[Prometheus](https://prometheus.io)** - Metrics collection and alerting
@@ -146,12 +150,14 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Vector](https://vector.dev)** - Log collection and routing
 - **[InfluxDB](https://influxdata.com)** - Time-series database
 - **[UnPoller](https://github.com/unpoller/unpoller)** - UniFi metrics collection
+- **[Silence Operator](https://github.com/giantswarm/silence-operator)** - Alertmanager silence management
 
 ### 💾 Storage Management
 - **[Rook-Ceph](https://rook.io)** - Distributed block and object storage
 - **[OpenEBS](https://openebs.io)** - Local persistent volumes
 - **[VolSync](https://volsync.readthedocs.io)** - Volume backup and synchronization
 - **Snapshot Controller** - Volume snapshot management
+- **[Kopia](https://kopia.io)** - Backup repository web UI
 
 ### ⚙️ System Services
 - **[Reloader](https://github.com/stakater/Reloader)** - Automatic pod restarts on config changes
@@ -160,6 +166,7 @@ The platform hosts **60+ applications** across multiple categories:
 - **[Intel Device Plugin](https://github.com/intel/intel-device-plugins-for-kubernetes)** - GPU and hardware acceleration
 - **[Node Feature Discovery](https://kubernetes-sigs.github.io/node-feature-discovery/)** - Hardware feature detection
 - **[Metrics Server](https://github.com/kubernetes-sigs/metrics-server)** - Resource usage metrics
+- **[Tuppr](https://github.com/home-operations/tuppr)** - Automated Talos Linux and Kubernetes upgrades
 
 ---
 
@@ -191,9 +198,9 @@ graph TD
 ```mermaid
 graph TD
     A[Internet] -->|HTTPS| B[Cloudflare]
-    B -->|Cloudflare Tunnel| C[Ingress Controller]
+    B -->|Cloudflare Tunnel| C[Envoy Gateway]
     A -->|HTTPS| C
-    C -->|mTLS| D[Authelia]
+    C -->|Ext Auth| D[Authelia]
     D -->|LDAP Auth| E[LLDAP]
     D -->|Authorized| F[Application]
     G[External Secrets] -->|API| H[1Password Connect]
@@ -215,22 +222,24 @@ graph TD
     A -->|Local Volumes| D[OpenEBS LocalPV]
     B -->|Backup| E[VolSync]
     C -->|Backup| E
-    E -->|S3| F[Garage/Cloudflare R2]
-    G[NAS] -->|NFS| A
+    E -->|Kopia| F[NFS Repository]
+    E -->|Restic| G[Cloudflare R2]
+    H[NAS] -->|NFS| A
 ```
 
 - **Distributed Storage**: Rook-Ceph across all nodes for redundancy
 - **Local Storage**: OpenEBS for high-performance local volumes
 - **Network Storage**: NFS mounts from Synology NAS
-- **Backup Strategy**: VolSync for automated volume backups to S3-compatible storage
+- **Backup Strategy**: Dual-storage — Kopia hourly to NFS, Restic daily to Cloudflare R2 for off-site disaster recovery
 
 ### Networking Deep Dive
 
-- **CNI**: Cilium with eBPF for high-performance networking
-- **Load Balancing**: MetalLB for bare-metal LoadBalancer services
-- **Ingress**: Dual NGINX controllers (internal/external) with TLS termination
-- **DNS**: AdGuard Home for network-wide filtering, cloudflare for both internal and external DNS management
+- **CNI**: Cilium with eBPF for high-performance networking (deployed without kube-proxy)
+- **Load Balancing**: Cilium LB IPAM for bare-metal LoadBalancer services
+- **Ingress**: Envoy Gateway with dual Gateways (internal + external) using the Kubernetes Gateway API
+- **DNS**: AdGuard Home for network-wide filtering, Cloudflare for both internal and external DNS management
 - **Multi-Homing**: Multus CNI for additional network interfaces (IoT VLAN access)
+- **Tunnel**: Cloudflared for secure external access through Cloudflare
 
 ---
 
@@ -267,8 +276,8 @@ task k8s:delete-failed-pods   # Delete pods with failed status
 
 ### Upgrade Procedures
 
-- **Talos OS**: Rolling upgrades via `task talos:upgrade node=<ip>`
-- **Kubernetes**: Coordinated upgrades following compatibility matrix
+- **Talos OS**: Automated rolling upgrades via [Tuppr](https://github.com/home-operations/tuppr) or manual via `task talos:upgrade node=<ip>`
+- **Kubernetes**: Automated via Tuppr or manual coordinated upgrades following compatibility matrix
 - **Applications**: Automated via Renovate bot + Flux CD
 - **Full documentation**: See [docs/UPGRADE.md](docs/UPGRADE.md)
 
@@ -276,9 +285,9 @@ task k8s:delete-failed-pods   # Delete pods with failed status
 
 Complete cluster rebuild capability:
 1. **Hardware Reset**: PXE boot into Talos maintenance mode
-2. **Cluster Bootstrap**: Automated via `task talos:bootstrap`
-3. **Backup Restoration**: VolSync automatically restores from last snapshots
-4. **Full documentation**: See [docs/RESTORE.md](docs/RESTORE.md)
+2. **Cluster Bootstrap**: Automated via bootstrap scripts
+3. **Backup Restoration**: VolSync automatically restores from Kopia (NFS) or Restic (R2) snapshots
+4. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
 
 ---
 
@@ -301,16 +310,20 @@ Complete cluster rebuild capability:
 │   ├── 📁 rook-ceph/     # Rook-Ceph distributed storage
 │   ├── 📁 security/      # Authentication and security
 │   ├── 📁 storage/       # Garage object storage
+│   ├── 📁 system-upgrade/ # Automated Talos/K8s upgrades (Tuppr)
 │   └── 📁 volsync-system/ # Volume backup services
 ├── 📁 components/        # Reusable Kustomize components
+│   ├── 📁 authelia-proxy/ # Authelia ext-auth security policy
 │   ├── 📁 common/        # Common configurations
 │   └── 📁 volsync/       # VolSync components
 └── 📁 flux/              # Flux system configuration
-    ├── 📁 cluster/       # Cluster-wide configurations
-    └── 📁 vars/          # Cluster settings and secrets
+    └── 📁 cluster/       # Cluster-wide configurations
 
 📁 talos/                 # Talos Linux configuration
-├── 📁 clusterconfig/     # Generated cluster configs
+├── talconfig.yaml        # Node definitions (managed by talhelper)
+├── talenv.yaml           # Talos environment vars
+├── talsecret.yaml        # Talos secrets (encrypted)
+├── 📁 clusterconfig/     # Generated cluster configs (do not edit)
 └── 📁 patches/           # Configuration patches
     ├── 📁 controller/    # Controller-specific patches
     └── 📁 global/        # Global patches
@@ -323,7 +336,8 @@ Complete cluster rebuild capability:
 └── 📁 lib/               # Script libraries
 
 📁 docs/                  # Documentation
-├── RESTORE.md            # Disaster recovery procedures
+├── BOOTSTRAP.md          # Bootstrap procedures
+├── NODE-REPLACEMENT.md   # Node replacement guide
 └── UPGRADE.md            # Upgrade procedures
 
 📁 .taskfiles/            # Task automation scripts
@@ -353,7 +367,7 @@ app-name/
 
 ### Prerequisites
 
-- **Hardware**: Minimum 4x bare-metal servers or VMs with 16GB+ RAM
+- **Hardware**: Minimum 3x bare-metal servers or VMs with 16GB+ RAM
 - **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management
 - **Secrets**: 1Password account for secrets management
@@ -366,22 +380,16 @@ app-name/
 3. **Prepare hardware**: Install Talos Linux on your nodes
 4. **Bootstrap cluster**:
    ```bash
-   cd kubernetes/bootstrap/talos
-   task talos:bootstrap
+   ./scripts/bootstrap-cluster.sh
    ```
-5. **Install Flux CD**:
-   ```bash
-   task flux:github-deploy-key
-   task flux:bootstrap
-   ```
-6. **Monitor deployment**: Applications will automatically deploy via GitOps
+5. **Monitor deployment**: Applications will automatically deploy via GitOps
 
 ### Configuration Areas
 
 Key files to customize for your environment:
-- `kubernetes/bootstrap/talos/talconfig.yaml` - Hardware and network configuration
-- `kubernetes/flux/vars/cluster-settings.yaml` - Cluster-wide configuration
-- `kubernetes/flux/vars/cluster-secrets.sops.yaml` - Encrypted secrets
+- `talos/talconfig.yaml` - Hardware and network configuration
+- `kubernetes/components/common/vars/cluster-settings.yaml` - Cluster-wide configuration
+- `kubernetes/components/common/vars/cluster-secrets.sops.yaml` - Encrypted secrets
 
 ---
 
@@ -390,7 +398,7 @@ Key files to customize for your environment:
 | Service | Purpose | Cost |
 |---------|---------|------|
 | [1Password](https://1password.com) | Secrets management via External Secrets | ~$100/year |
-| [Cloudflare](https://cloudflare.com) | DNS, CDN, and secure tunnels | Free |
+| [Cloudflare](https://cloudflare.com) | DNS, CDN, R2 storage, and secure tunnels | Free |
 | [GitHub](https://github.com) | Source control and CI/CD | Free |
 | **Total** | | **~$8/month** |
 
