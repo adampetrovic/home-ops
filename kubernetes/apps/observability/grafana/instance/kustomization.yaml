@@ -12,5 +12,8 @@ configMapGenerator:
   - name: grafana-dashboard-home-energy
     files:
       - home-energy.json=./dashboards/home-energy.json
+  - name: grafana-dashboard-home-energy-pro
+    files:
+      - home-energy-pro.json=./dashboards/home-energy-pro.json
 generatorOptions:
   disableNameSuffixHash: true
