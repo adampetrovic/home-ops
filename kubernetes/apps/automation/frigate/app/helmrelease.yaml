@@ -25,6 +25,12 @@ spec:
       frigate:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          copy-config:
+            image:
+              repository: busybox
+              tag: latest
+            command: ["sh", "-c", "cp /config-source/config.yml /config/config.yml"]
         containers:
           app:
             image:
@@ -99,9 +105,12 @@ spec:
       config-file:
         type: configMap
         name: frigate-configmap
-        globalMounts:
-          - path: /config/config.yml
-            subPath: config.yml
+        advancedMounts:
+          frigate:
+            copy-config:
+              - path: /config-source/config.yml
+                subPath: config.yml
+                readOnly: true
       cache:
         enabled: true
         type: emptyDir
