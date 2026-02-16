@@ -1,0 +1,4320 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_INFLUXDB",
+      "label": "InfluxDB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "influxdb",
+      "pluginName": "InfluxDB"
+    },
+    {
+      "name": "VAR_DAILY_SUPPLY_CHARGE",
+      "type": "constant",
+      "label": "daily_supply_charge",
+      "value": "1.10",
+      "description": ""
+    },
+    {
+      "name": "VAR_PEAK_TARIFF",
+      "type": "constant",
+      "label": "peak_tariff",
+      "value": "0.6050",
+      "description": ""
+    },
+    {
+      "name": "VAR_OFFPEAK_TARIFF",
+      "type": "constant",
+      "label": "offpeak_tariff",
+      "value": "0.3520",
+      "description": ""
+    },
+    {
+      "name": "VAR_SUPEROFFPEAK_TARIFF",
+      "type": "constant",
+      "label": "superoffpeak_tariff",
+      "value": "0.0",
+      "description": ""
+    },
+    {
+      "name": "VAR_FEEDIN_TARIFF",
+      "type": "constant",
+      "label": "feedin_tariff",
+      "value": "0.03",
+      "description": ""
+    },
+    {
+      "name": "VAR_EVOFFPEAK_TARIFF",
+      "type": "constant",
+      "label": "evoffpeak_tariff",
+      "value": "0.08",
+      "description": ""
+    },
+    {
+      "name": "VAR_BATTERY_CAPACITY",
+      "type": "constant",
+      "label": "battery_capacity",
+      "value": "16.0",
+      "description": "Battery capacity in kWh"
+    },
+    {
+      "name": "VAR_SOLAR_SIZE_KW",
+      "type": "constant",
+      "label": "solar_size_kw",
+      "value": "10.0",
+      "description": "Solar system size in kW for yield calculations"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "barchart",
+      "name": "Bar chart",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "heatmap",
+      "name": "Heatmap",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "text",
+      "name": "Text",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "influxdb",
+      "name": "InfluxDB",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Comprehensive home energy monitoring: real-time power flow, cost analysis, solar performance, circuit breakdown, battery readiness, and trend projections.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "\u26a1 Real-Time Power Flow",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 15000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3000
+              },
+              {
+                "color": "orange",
+                "value": 6000
+              },
+              {
+                "color": "red",
+                "value": 10000
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Demand",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 12000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
+                "color": "yellow",
+                "value": 3000
+              },
+              {
+                "color": "green",
+                "value": 5000
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 5,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Generation",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "semi-dark-blue",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 2000
+              },
+              {
+                "color": "red",
+                "value": 5000
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 10,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Watts\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Grid Import (W)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 500
+              },
+              {
+                "color": "super-light-green",
+                "value": 3000
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 14,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Watts\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "Grid Export (W)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 18,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solar = from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> last()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nexport = from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Watts\")\n    |> last()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nbranch = from(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> last()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarUsed = solar._value - export._value\nrate = if branch._value > 0.0 then (solarUsed / branch._value) * 100.0 else 0.0\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> last()\n    |> map(fn: (r) => ({r with _value: rate}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Self-Sufficiency",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "blue",
+                  "text": "\ud83d\udd0c EV Off-Peak ($0.08)"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "1": {
+                  "color": "super-light-green",
+                  "text": "\ud83c\udd93 Super Off-Peak ($0.00)"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "2": {
+                  "color": "green",
+                  "text": "Off-Peak ($0.352)"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "3": {
+                  "color": "red",
+                  "text": "\u26a0\ufe0f PEAK ($0.605)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 3,
+        "x": 21,
+        "y": 1
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nhour = date.hour(t: now())\nmonth = date.month(t: now())\nweekday = date.weekDay(t: now())\n\nisPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\nisWeekend = weekday == date.Saturday or weekday == date.Sunday\nisPeakTime = hour >= 15 and hour < 21\nisEVTime = hour >= 0 and hour < 6\nisSuperOffPeak = hour >= 11 and hour < 14\n\n// 0=EV Off-Peak, 1=Super Off-Peak, 2=Off-Peak, 3=Peak\ntariffCode = if isPeakTime then\n    if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then 3.0\n    else 2.0\nelse if isEVTime then 0.0\nelse if isSuperOffPeak then 1.0\nelse 2.0\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: -1m)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> last()\n    |> map(fn: (r) => ({r with _value: tariffCode}))\n    |> keep(columns: [\"_time\", \"_value\"])",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Tariff",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 10,
+      "panels": [],
+      "title": "\ud83d\udcca Period Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 8
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumption",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 8
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "PV Generation",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 6,
+        "y": 8
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Import",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 8,
+        "y": 8
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Export",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 10,
+        "y": 8
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nselfConsumed = solarGen._value - solarExp._value\nrate = if solarGen._value > 0.0 then (selfConsumed / solarGen._value) * 100.0 else 0.0\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: rate}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Self-Consume",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 12,
+        "y": 8
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nconsumption = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nselfConsumed = solarGen._value - solarExp._value\nrate = if consumption._value > 0.0 then (selfConsumed / consumption._value) * 100.0 else 0.0\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: rate}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Self-Sufficient",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 14,
+        "y": 8
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Import $",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 16,
+        "y": 8
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\n\ndailySupplyCharge = ${daily_supply_charge}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else\n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Supply $",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 18,
+        "y": 8
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "feedInTariff = ${feedin_tariff}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * feedInTariff * -1.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Feed-In $",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 20,
+        "y": 8
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Calculate what solar self-consumption saved (kWh used from solar * grid price at that time)\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * -1.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Saved",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 22,
+        "y": 8
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = ${daily_supply_charge}\nfeedInTariff = ${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndata = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"GridImport\" or r._measurement == \"SolarExport\") and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nimportCost = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nfeedInCredit = data\n    |> filter(fn: (r) => r._measurement == \"SolarExport\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * feedInTariff * -1.0}))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Net Cost $",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 11
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = ${daily_supply_charge}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Cost WITHOUT solar = all consumption at grid rates + supply charge\nconsumption = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nunion(tables: [consumption, supplyCharge])\n    |> group()\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "No Solar Cost",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 11
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = ${daily_supply_charge}\nfeedInTariff = ${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value / 1000.0}))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_measurement: r._measurement, _field: \"cost_per_kwh\", _value: r.total_cost / r.total_kwh}))\n    |> keep(columns: [\"_value\"])\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg $/kWh",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 6,
+        "y": 11
+      },
+      "id": 24,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nselfConsumed = (solarGen._value - solarExp._value) / 1000.0\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: selfConsumed}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Self-Used",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 11
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solar_size_kw = ${solar_size_kw}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) / solar_size_kw}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Yield",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 11
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Solar (W)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 15,
+        "y": 11
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Demand (W)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 11
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Watts\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Import (W)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 11
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Tesla\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "EV Charging",
+      "type": "stat"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 30,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "dark-orange",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "kwatth"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 3,
+            "x": 0,
+            "y": 15
+          },
+          "id": 31,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.6.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+              },
+              "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+              "refId": "A"
+            }
+          ],
+          "title": "Consumption (prev)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "yellow",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "kwatth"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 3,
+            "x": 3,
+            "y": 15
+          },
+          "id": 32,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.6.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+              },
+              "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+              "refId": "A"
+            }
+          ],
+          "title": "PV Generation (prev)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "semi-dark-blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "kwatth"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 2,
+            "x": 6,
+            "y": 15
+          },
+          "id": 33,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.6.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+              },
+              "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+              "refId": "A"
+            }
+          ],
+          "title": "Import (prev)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "semi-dark-purple",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "kwatth"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 2,
+            "x": 8,
+            "y": 15
+          },
+          "id": 34,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.6.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+              },
+              "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+              "refId": "A"
+            }
+          ],
+          "title": "Export (prev)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "currencyUSD"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 3,
+            "x": 10,
+            "y": 15
+          },
+          "id": 35,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "sum"
+              ],
+              "fields": "/.*/",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.6.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+              },
+              "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = ${daily_supply_charge}\nfeedInTariff = ${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\ndata = from(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => (r._measurement == \"GridImport\" or r._measurement == \"SolarExport\") and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nimportCost = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nfeedInCredit = data\n    |> filter(fn: (r) => r._measurement == \"SolarExport\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * feedInTariff * -1.0}))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
+              "refId": "A"
+            }
+          ],
+          "title": "Total Cost (prev)",
+          "type": "stat"
+        }
+      ],
+      "title": "\ud83d\udcc8 Previous Period Comparison",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 40,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "description": "Battery monitoring will be available once the 16kWh battery is installed and connected to data collection.\n\n**Planned metrics:**\n- State of Charge (SOC %)\n- Charge/Discharge Power (W)\n- Battery Throughput (kWh)\n- Peak Shaving Value ($)\n- Arbitrage Savings ($)\n- Cycle Count\n\n**Optimal Strategy for Your Tariff:**\n- \ud83d\udd0c **Charge** during Super Off-Peak (11am-2pm, FREE) and EV Off-Peak (12am-6am, $0.08/kWh)\n- \u26a1 **Discharge** during Peak (3pm-9pm, $0.605/kWh)\n- \ud83d\udcb0 **Max arbitrage value**: $0.605/kWh \u00d7 16kWh = **$9.68/day** from peak shaving alone\n- \ud83c\udd93 **Free charging** during super off-peak means pure profit during peak discharge\n\n**To connect:** Add battery measurements to IotaWatt or Home Assistant, then update the queries in this section to reference the battery measurement names.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "id": 41,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "# \ud83d\udd0b Battery Section \u2014 Coming Soon\n\nThis section is ready for your **16 kWh battery** installation.\n\n## Optimal Charging Strategy (Based on Your Tariff)\n\n| Time Window | Tariff | Rate | Strategy |\n|---|---|---|---|\n| 11:00\u201314:00 | Super Off-Peak | **$0.00/kWh** | \u2600\ufe0f Charge from solar + grid (FREE!) |\n| 00:00\u201306:00 | EV Off-Peak | $0.08/kWh | \ud83d\udd0c Top-up charge overnight |\n| 15:00\u201321:00 | Peak | $0.605/kWh | \u26a1 **DISCHARGE** \u2014 max savings |\n| All other | Off-Peak | $0.352/kWh | Hold or trickle charge |\n\n## Potential Daily Savings\n- **Full peak shaving**: 16kWh \u00d7 $0.605 = **$9.68/day**\n- **If charged for free** (super off-peak solar): **$9.68/day pure savings**\n- **If charged at EV rate**: 16kWh \u00d7 ($0.605 - $0.08) = **$8.40/day**\n- **Projected annual savings**: ~$3,000\u2013$3,500\n\n## To Activate\n1. Add battery CT clamp to IotaWatt (or integrate via Home Assistant)\n2. Expected measurements: `BatteryCharge`, `BatteryDischarge`, `BatterySOC`\n3. Update queries in this section with actual measurement names",
+            "mode": "markdown"
+          },
+          "pluginVersion": "11.6.0",
+          "title": "Battery Setup Guide",
+          "type": "text"
+        }
+      ],
+      "title": "\ud83d\udd0b Battery (16 kWh) \u2014 Ready for Connection",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 50,
+      "panels": [],
+      "title": "\ud83d\udcc9 Energy Flow Over Time",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Power (W)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar Generation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid Import"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Grid Export"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.transform",
+                "value": "negative-Y"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consumption"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 51,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({r with _field: \"Solar Generation\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({r with _field: \"Grid Import\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({r with _field: \"Grid Export\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({r with _field: \"Consumption\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "D"
+        }
+      ],
+      "title": "Power Flow",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 60,
+      "panels": [],
+      "title": "\ud83d\udcb0 Cost Analysis",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Cost",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "time: DD/MM"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "id": 61,
+      "interval": "1d",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "colorByField": "_value",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Import Cost",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "$/kWh",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.25
+              },
+              {
+                "color": "red",
+                "value": 0.4
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 62,
+      "interval": "1d",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "colorByField": "_value",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value / 1000.0}))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_time\", \"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_time: r._time, _value: r.total_cost / r.total_kwh}))\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Average $/kWh",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 1,
+          "fieldMinMax": false,
+          "mappings": [
+            {
+              "options": {
+                "evoffpeak": {
+                  "index": 1,
+                  "text": "EV Off-Peak ($0.08)"
+                },
+                "offpeak": {
+                  "index": 2,
+                  "text": "Off-Peak ($0.352)"
+                },
+                "peak": {
+                  "index": 0,
+                  "text": "Peak ($0.605)"
+                },
+                "superoffpeak": {
+                  "index": 3,
+                  "text": "Super Off-Peak ($0.00)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 37
+      },
+      "id": 63,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 104,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ngetTariffType = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then \"peak\"\n        else \"offpeak\"\n    else if isEVTime then \"evoffpeak\"\n    else if isSuperOffPeak then \"superoffpeak\"\n    else \"offpeak\"\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0, tariff: getTariffType(timeVal: r._time)}))\n    |> group(columns: [\"tariff\"])\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)",
+          "refId": "A"
+        }
+      ],
+      "title": "Import by Tariff (kWh)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "evoffpeak": {
+                  "index": 1,
+                  "text": "EV Off-Peak"
+                },
+                "offpeak": {
+                  "index": 2,
+                  "text": "Off-Peak"
+                },
+                "peak": {
+                  "index": 0,
+                  "text": "Peak"
+                },
+                "superoffpeak": {
+                  "index": 3,
+                  "text": "Super Off-Peak"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 6,
+        "y": 37
+      },
+      "id": 64,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 104,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetTariffType = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then \"peak\"\n        else \"offpeak\"\n    else if isEVTime then \"evoffpeak\"\n    else if isSuperOffPeak then \"superoffpeak\"\n    else \"offpeak\"\n}\n\ngetPrice = (tariffName) => {\n    return dict.get(dict: tariffs, key: tariffName, default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => {\n        tariff = getTariffType(timeVal: r._time)\n        return {r with _value: (r._value / 1000.0) * getPrice(tariffName: tariff), tariff: tariff}\n    })\n    |> group(columns: [\"tariff\"])\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)",
+          "refId": "A"
+        }
+      ],
+      "title": "Cost by Tariff ($)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "scheme",
+            "schemeName": "RdYlGn",
+            "reverse": true
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "decimals": 1,
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 37
+      },
+      "id": 65,
+      "options": {
+        "calculate": true,
+        "calculation": {
+          "xBuckets": {
+            "mode": "size",
+            "value": "1h"
+          },
+          "yBuckets": {
+            "mode": "size",
+            "value": "1"
+          }
+        },
+        "cellGap": 1,
+        "cellValues": {},
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "RdYlGn",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 0
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "tooltip": {
+          "mode": "single",
+          "showColorScale": false,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Import Heatmap (Hour \u00d7 Day)",
+      "type": "heatmap"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      },
+      "id": 70,
+      "panels": [],
+      "title": "\u2600\ufe0f Solar Performance",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Power (W)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar Generation"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 47
+      },
+      "id": 71,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({r with _field: \"Solar Generation\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Generation Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "kWh",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 47
+      },
+      "id": 72,
+      "interval": "1d",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "colorByField": "_value",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Daily Solar Generation",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "%",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Self-Consumption %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Self-Sufficiency %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 55
+      },
+      "id": 73,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: if r._value_gen > 0.0 then ((r._value_gen - r._value_exp) / r._value_gen) * 100.0 else 0.0,\n        _field: \"Self-Consumption %\"\n    }))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nbranch = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolarUsed = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({_time: r._time, _value: r._value_gen - r._value_exp, _field: \"solar_used\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])\n\njoin(tables: {solar: solarUsed, cons: branch}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: if r._value_cons > 0.0 then (r._value_solar / r._value_cons) * 100.0 else 0.0,\n        _field: \"Self-Sufficiency %\"\n    }))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "B"
+        }
+      ],
+      "title": "Solar Utilization Over Time",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 80,
+      "panels": [],
+      "title": "\ud83d\udd0c Circuit Breakdown",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 0,
+        "y": 64
+      },
+      "id": 81,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^_value$/",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "grid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode: \"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import) / 1000.0}))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\"])\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"usage\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Import by Circuit (kWh)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 8,
+        "y": 64
+      },
+      "id": 82,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^_value$/",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode: \"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import) / 1000.0 * getPrice(timeVal: r._time)}))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\"])\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"cost\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Import Cost by Circuit ($)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 8,
+        "x": 16,
+        "y": 64
+      },
+      "id": 83,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^_value$/",
+          "values": true
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode: \"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_solar_generation) / 1000.0 * getPrice(timeVal: r._time)\n    }))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\", \"_value_solar_generation\"])\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"savings\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Savings by Circuit ($)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 84,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "normal",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> group(columns: [\"_measurement\"])\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import) / 1000.0 * getPrice(timeVal: r._time)\n    }))\n    |> keep(columns: [\"_time\", \"_measurement\", \"_value\"])\n    |> sort(columns: [\"_time\"])\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Cost by Circuit Over Time",
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 81
+      },
+      "id": 90,
+      "panels": [],
+      "title": "\ud83d\udcc5 Trends & Projections",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Cost ($)",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 350
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 82
+      },
+      "id": 91,
+      "interval": "30d",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.8,
+        "colorByField": "_value",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "title": "Monthly Import Cost",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "kWh",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Consumption"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Solar"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Import"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 82
+      },
+      "id": 92,
+      "interval": "30d",
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value / 1000.0, _field: \"Consumption\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value / 1000.0, _field: \"Solar\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value / 1000.0, _field: \"Import\"}))\n    |> keep(columns: [\"_time\", \"_value\", \"_field\"])",
+          "refId": "C"
+        }
+      ],
+      "title": "Monthly Energy (kWh)",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "orange",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 400
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 91
+      },
+      "id": 93,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = ${daily_supply_charge}\nfeedInTariff = ${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndata = from(bucket: \"iotawatt\")\n    |> range(start: -30d)\n    |> filter(fn: (r) => (r._measurement == \"GridImport\" or r._measurement == \"SolarExport\") and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nimportCost = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n\nfeedInCredit = data\n    |> filter(fn: (r) => r._measurement == \"SolarExport\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * feedInTariff * -1.0}))\n    |> sum()\n\nunion(tables: [importCost, feedInCredit])\n    |> group()\n    |> sum()\n    |> map(fn: (r) => ({r with _value: ((r._value + (dailySupplyCharge * 30.0)) / 30.0) * 30.44}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Projected Monthly Bill",
+      "description": "Based on the last 30 days average daily cost, projected to a full month (30.44 days)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 91
+      },
+      "id": 94,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: -30d)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: -30d)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 30.0) * 365.25 * -1.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Projected Annual Solar Savings",
+      "description": "Extrapolation of last 30 days solar self-consumption savings to a full year",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 91
+      },
+      "id": 95,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -30d)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0 / 30.0) }))",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Daily Usage",
+      "description": "Average daily consumption over the last 30 days",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 91
+      },
+      "id": 96,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -30d)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0 / 30.0) }))",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Daily Solar",
+      "description": "Average daily solar generation over the last 30 days",
+      "type": "stat"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 96
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Blank Row",
+      "type": "row"
+    }
+  ],
+  "refresh": "5m",
+  "schemaVersion": 41,
+  "tags": [
+    "energy",
+    "iotawatt",
+    "solar",
+    "battery"
+  ],
+  "templating": {
+    "list": [
+      {
+        "hide": 2,
+        "name": "daily_supply_charge",
+        "query": "${VAR_DAILY_SUPPLY_CHARGE}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_DAILY_SUPPLY_CHARGE}",
+          "text": "${VAR_DAILY_SUPPLY_CHARGE}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_DAILY_SUPPLY_CHARGE}",
+            "text": "${VAR_DAILY_SUPPLY_CHARGE}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "hide": 2,
+        "name": "peak_tariff",
+        "query": "${VAR_PEAK_TARIFF}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_PEAK_TARIFF}",
+          "text": "${VAR_PEAK_TARIFF}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_PEAK_TARIFF}",
+            "text": "${VAR_PEAK_TARIFF}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "hide": 2,
+        "name": "offpeak_tariff",
+        "query": "${VAR_OFFPEAK_TARIFF}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_OFFPEAK_TARIFF}",
+          "text": "${VAR_OFFPEAK_TARIFF}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_OFFPEAK_TARIFF}",
+            "text": "${VAR_OFFPEAK_TARIFF}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "hide": 2,
+        "name": "superoffpeak_tariff",
+        "query": "${VAR_SUPEROFFPEAK_TARIFF}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_SUPEROFFPEAK_TARIFF}",
+          "text": "${VAR_SUPEROFFPEAK_TARIFF}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_SUPEROFFPEAK_TARIFF}",
+            "text": "${VAR_SUPEROFFPEAK_TARIFF}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "hide": 2,
+        "name": "feedin_tariff",
+        "query": "${VAR_FEEDIN_TARIFF}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_FEEDIN_TARIFF}",
+          "text": "${VAR_FEEDIN_TARIFF}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_FEEDIN_TARIFF}",
+            "text": "${VAR_FEEDIN_TARIFF}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "hide": 2,
+        "name": "evoffpeak_tariff",
+        "query": "${VAR_EVOFFPEAK_TARIFF}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_EVOFFPEAK_TARIFF}",
+          "text": "${VAR_EVOFFPEAK_TARIFF}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_EVOFFPEAK_TARIFF}",
+            "text": "${VAR_EVOFFPEAK_TARIFF}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Battery capacity in kWh",
+        "hide": 2,
+        "name": "battery_capacity",
+        "query": "${VAR_BATTERY_CAPACITY}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_BATTERY_CAPACITY}",
+          "text": "${VAR_BATTERY_CAPACITY}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_BATTERY_CAPACITY}",
+            "text": "${VAR_BATTERY_CAPACITY}",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "Solar system size in kW",
+        "hide": 2,
+        "name": "solar_size_kw",
+        "query": "${VAR_SOLAR_SIZE_KW}",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "value": "${VAR_SOLAR_SIZE_KW}",
+          "text": "${VAR_SOLAR_SIZE_KW}",
+          "selected": false
+        },
+        "options": [
+          {
+            "value": "${VAR_SOLAR_SIZE_KW}",
+            "text": "${VAR_SOLAR_SIZE_KW}",
+            "selected": false
+          }
+        ]
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Home Energy Pro",
+  "uid": "home-energy-pro",
+  "version": 1,
+  "weekStart": ""
+}
