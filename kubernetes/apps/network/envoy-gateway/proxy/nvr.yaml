@@ -23,9 +23,23 @@ metadata:
   name: external-nvr
   namespace: default
 spec:
+  appProtocols:
+    - gateway.envoyproxy.io/wss
   endpoints:
     - fqdn:
         hostname: nvr-direct.${SECRET_DOMAIN}
         port: 5001
   tls:
     insecureSkipVerify: true
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: external-nvr
+  namespace: default
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: external-nvr
+  useClientProtocol: true
