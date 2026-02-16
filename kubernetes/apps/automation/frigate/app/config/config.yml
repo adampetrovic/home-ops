@@ -618,7 +618,8 @@ cameras:
       alerts:
         labels: []
       detections:
-        labels: []
+        labels:
+          - person
     mqtt:
       enabled: True
       timestamp: False
