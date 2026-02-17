@@ -7,62 +7,6 @@
       "type": "datasource",
       "pluginId": "influxdb",
       "pluginName": "InfluxDB"
-    },
-    {
-      "name": "VAR_DAILY_SUPPLY_CHARGE",
-      "type": "constant",
-      "label": "daily_supply_charge",
-      "value": "1.10",
-      "description": ""
-    },
-    {
-      "name": "VAR_PEAK_TARIFF",
-      "type": "constant",
-      "label": "peak_tariff",
-      "value": "0.6050",
-      "description": ""
-    },
-    {
-      "name": "VAR_OFFPEAK_TARIFF",
-      "type": "constant",
-      "label": "offpeak_tariff",
-      "value": "0.3520",
-      "description": ""
-    },
-    {
-      "name": "VAR_SUPEROFFPEAK_TARIFF",
-      "type": "constant",
-      "label": "superoffpeak_tariff",
-      "value": "0.0",
-      "description": ""
-    },
-    {
-      "name": "VAR_FEEDIN_TARIFF",
-      "type": "constant",
-      "label": "feedin_tariff",
-      "value": "0.03",
-      "description": ""
-    },
-    {
-      "name": "VAR_EVOFFPEAK_TARIFF",
-      "type": "constant",
-      "label": "evoffpeak_tariff",
-      "value": "0.08",
-      "description": ""
-    },
-    {
-      "name": "VAR_BATTERY_CAPACITY",
-      "type": "constant",
-      "label": "battery_capacity",
-      "value": "16.0",
-      "description": "Battery capacity in kWh"
-    },
-    {
-      "name": "VAR_SOLAR_SIZE_KW",
-      "type": "constant",
-      "label": "solar_size_kw",
-      "value": "10.0",
-      "description": "Solar system size in kW for yield calculations"
     }
   ],
   "__elements": {},
@@ -1600,7 +1544,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "solar_size_kw = ${solar_size_kw}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) / solar_size_kw}))",
+          "query": "solar_size_kw = float(v: ${solar_size_kw})\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) / solar_size_kw}))",
           "refId": "A"
         }
       ],
@@ -2490,12 +2434,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Time"
+              "options": "_value"
             },
             "properties": [
               {
-                "id": "unit",
-                "value": "time: DD/MM"
+                "id": "displayName",
+                "value": "Import Cost"
               }
             ]
           }
@@ -2529,7 +2473,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "11.6.0",
@@ -2539,7 +2483,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> keep(columns: [\"_time\", \"_value\"])",
           "refId": "A"
         }
       ],
@@ -2598,7 +2542,20 @@
           },
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Avg $/kWh"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -2628,7 +2585,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "11.6.0",
@@ -2638,7 +2595,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value / 1000.0}))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_time\", \"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_time: r._time, _value: r.total_cost / r.total_kwh}))\n    |> yield()",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value / 1000.0}))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_time\", \"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_time: r._time, _value: r.total_cost / r.total_kwh}))\n    |> keep(columns: [\"_time\", \"_value\"])\n    |> yield()",
           "refId": "A"
         }
       ],
@@ -3091,7 +3048,20 @@
           },
           "unit": "kwatth"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Solar Generation"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -3121,7 +3091,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
+        "xTickLabelRotation": -45,
         "xTickLabelSpacing": 0
       },
       "pluginVersion": "11.6.0",
@@ -3131,7 +3101,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value / 1000.0}))\n    |> keep(columns: [\"_time\", \"_value\"])",
           "refId": "A"
         }
       ],
@@ -3197,31 +3167,25 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byName",
-              "options": "Self-Consumption %"
+              "id": "byFrameRefID",
+              "options": "A"
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
+                "id": "displayName",
+                "value": "Self-Consumption %"
               }
             ]
           },
           {
             "matcher": {
-              "id": "byName",
-              "options": "Self-Sufficiency %"
+              "id": "byFrameRefID",
+              "options": "B"
             },
             "properties": [
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
+                "id": "displayName",
+                "value": "Self-Sufficiency %"
               }
             ]
           }
@@ -3578,8 +3542,8 @@
           "mode": "single",
           "sort": "none"
         },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 150
       },
       "pluginVersion": "11.6.0",
       "targets": [
@@ -3660,7 +3624,20 @@
           },
           "unit": "currencyUSD"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Import Cost"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -3700,7 +3677,7 @@
             "type": "influxdb",
             "uid": "${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    weekday = date.weekDay(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isWeekend = weekday == date.Saturday or weekday == date.Sunday\n    isPeakTime = hour >= 15 and hour < 21\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    return if isPeakTime then\n        if (isPeakSeason and not isWeekend) or (not isPeakSeason and isWeekend) then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n        else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n    else if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> aggregateWindow(every: 1mo, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> keep(columns: [\"_time\", \"_value\"])",
           "refId": "A"
         }
       ],
@@ -4154,114 +4131,114 @@
       {
         "hide": 2,
         "name": "daily_supply_charge",
-        "query": "${VAR_DAILY_SUPPLY_CHARGE}",
+        "query": "1.10",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_DAILY_SUPPLY_CHARGE}",
-          "text": "${VAR_DAILY_SUPPLY_CHARGE}",
-          "selected": false
+          "selected": true,
+          "text": "1.10",
+          "value": "1.10"
         },
         "options": [
           {
-            "value": "${VAR_DAILY_SUPPLY_CHARGE}",
-            "text": "${VAR_DAILY_SUPPLY_CHARGE}",
-            "selected": false
+            "selected": true,
+            "text": "1.10",
+            "value": "1.10"
           }
         ]
       },
       {
         "hide": 2,
         "name": "peak_tariff",
-        "query": "${VAR_PEAK_TARIFF}",
+        "query": "0.605",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_PEAK_TARIFF}",
-          "text": "${VAR_PEAK_TARIFF}",
-          "selected": false
+          "selected": true,
+          "text": "0.605",
+          "value": "0.605"
         },
         "options": [
           {
-            "value": "${VAR_PEAK_TARIFF}",
-            "text": "${VAR_PEAK_TARIFF}",
-            "selected": false
+            "selected": true,
+            "text": "0.605",
+            "value": "0.605"
           }
         ]
       },
       {
         "hide": 2,
         "name": "offpeak_tariff",
-        "query": "${VAR_OFFPEAK_TARIFF}",
+        "query": "0.352",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_OFFPEAK_TARIFF}",
-          "text": "${VAR_OFFPEAK_TARIFF}",
-          "selected": false
+          "selected": true,
+          "text": "0.352",
+          "value": "0.352"
         },
         "options": [
           {
-            "value": "${VAR_OFFPEAK_TARIFF}",
-            "text": "${VAR_OFFPEAK_TARIFF}",
-            "selected": false
+            "selected": true,
+            "text": "0.352",
+            "value": "0.352"
           }
         ]
       },
       {
         "hide": 2,
         "name": "superoffpeak_tariff",
-        "query": "${VAR_SUPEROFFPEAK_TARIFF}",
+        "query": "0.00",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_SUPEROFFPEAK_TARIFF}",
-          "text": "${VAR_SUPEROFFPEAK_TARIFF}",
-          "selected": false
+          "selected": true,
+          "text": "0.00",
+          "value": "0.00"
         },
         "options": [
           {
-            "value": "${VAR_SUPEROFFPEAK_TARIFF}",
-            "text": "${VAR_SUPEROFFPEAK_TARIFF}",
-            "selected": false
+            "selected": true,
+            "text": "0.00",
+            "value": "0.00"
           }
         ]
       },
       {
         "hide": 2,
         "name": "feedin_tariff",
-        "query": "${VAR_FEEDIN_TARIFF}",
+        "query": "0.03",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_FEEDIN_TARIFF}",
-          "text": "${VAR_FEEDIN_TARIFF}",
-          "selected": false
+          "selected": true,
+          "text": "0.03",
+          "value": "0.03"
         },
         "options": [
           {
-            "value": "${VAR_FEEDIN_TARIFF}",
-            "text": "${VAR_FEEDIN_TARIFF}",
-            "selected": false
+            "selected": true,
+            "text": "0.03",
+            "value": "0.03"
           }
         ]
       },
       {
         "hide": 2,
         "name": "evoffpeak_tariff",
-        "query": "${VAR_EVOFFPEAK_TARIFF}",
+        "query": "0.08",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_EVOFFPEAK_TARIFF}",
-          "text": "${VAR_EVOFFPEAK_TARIFF}",
-          "selected": false
+          "selected": true,
+          "text": "0.08",
+          "value": "0.08"
         },
         "options": [
           {
-            "value": "${VAR_EVOFFPEAK_TARIFF}",
-            "text": "${VAR_EVOFFPEAK_TARIFF}",
-            "selected": false
+            "selected": true,
+            "text": "0.08",
+            "value": "0.08"
           }
         ]
       },
@@ -4269,19 +4246,19 @@
         "description": "Battery capacity in kWh",
         "hide": 2,
         "name": "battery_capacity",
-        "query": "${VAR_BATTERY_CAPACITY}",
+        "query": "16",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_BATTERY_CAPACITY}",
-          "text": "${VAR_BATTERY_CAPACITY}",
-          "selected": false
+          "selected": true,
+          "text": "16",
+          "value": "16"
         },
         "options": [
           {
-            "value": "${VAR_BATTERY_CAPACITY}",
-            "text": "${VAR_BATTERY_CAPACITY}",
-            "selected": false
+            "selected": true,
+            "text": "16",
+            "value": "16"
           }
         ]
       },
@@ -4289,19 +4266,19 @@
         "description": "Solar system size in kW",
         "hide": 2,
         "name": "solar_size_kw",
-        "query": "${VAR_SOLAR_SIZE_KW}",
+        "query": "10",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "value": "${VAR_SOLAR_SIZE_KW}",
-          "text": "${VAR_SOLAR_SIZE_KW}",
-          "selected": false
+          "selected": true,
+          "text": "10",
+          "value": "10"
         },
         "options": [
           {
-            "value": "${VAR_SOLAR_SIZE_KW}",
-            "text": "${VAR_SOLAR_SIZE_KW}",
-            "selected": false
+            "selected": true,
+            "text": "10",
+            "value": "10"
           }
         ]
       }
