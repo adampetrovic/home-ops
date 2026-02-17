@@ -63,6 +63,9 @@ spec:
                 name: talos
                 readOnly: true
         
+        nodeSelector:
+          node-role.kubernetes.io/worker: ""
+        
         serviceAccountName: *app
         
         volumes:
