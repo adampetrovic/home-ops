@@ -27,6 +27,25 @@ spec:
       stash:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          install-plugins:
+            image:
+              repository: alpine
+              tag: 3.21
+            command:
+              - /bin/sh
+              - -c
+              - |
+                apk add --no-cache git
+                rm -rf /tmp/stash-plugins
+                git clone --depth 1 https://github.com/adampetrovic/stash-plugins.git /tmp/stash-plugins
+                for plugin in /tmp/stash-plugins/plugins/*/; do
+                  name=$(basename "$plugin")
+                  mkdir -p "/root/.stash/plugins/$name"
+                  cp -r "$plugin"* "/root/.stash/plugins/$name/"
+                  echo "Installed plugin: $name"
+                done
+                rm -rf /tmp/stash-plugins
         containers:
           app:
             image:
