@@ -30,10 +30,8 @@ spec:
         containers:
           app:
             image:
-              # todo: replace with official once my PR is merged
-              # https://github.com/evcc-io/evcc/pull/27346
-              repository: ghcr.io/adampetrovic/evcc
-              tag: 0.300.8-twc3-connection-timer
+              repository: evcc/evcc
+              tag: 0.301.0@sha256:73f6b5dc7a74fc0f08a4e085dc4d23863385ee2063234189df976aa76fe3a758
             env:
               TZ: "Australia/Sydney"
             envFrom:
