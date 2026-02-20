@@ -29,6 +29,7 @@ spec:
         cronjob:
           schedule: "0 6 * * *"
           timeZone: "Australia/Sydney"
+          suspend: true  # Suspended during initial backfill
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
@@ -63,6 +64,7 @@ spec:
         cronjob:
           schedule: "0 18 * * *"
           timeZone: "Australia/Sydney"
+          suspend: true  # Suspended during initial backfill
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
@@ -95,6 +97,7 @@ spec:
         cronjob:
           schedule: "0 12 * * 0"
           timeZone: "Australia/Sydney"
+          suspend: true  # Suspended during initial backfill
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
