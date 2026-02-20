@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gdb-postgres
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
+spec:
+  instances: 2
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgis
+  imageName: ghcr.io/cloudnative-pg/postgis:17-3.5
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 40Gi
+    storageClass: openebs-hostpath
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: gdb-postgres-secret
+  postgresql:
+    parameters:
+      max_connections: "600"
+      shared_buffers: 512MB
+    #shared_preload_libraries:
+    #  - "vectors.so"
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  # https://github.com/cloudnative-pg/cloudnative-pg/issues/2570
+  enablePDB: false
+  resources:
+    requests:
+      cpu: 250m
+    limits:
+      memory: 4Gi
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
+      - { regex: cluster, action: labeldrop }
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters: &parameters
+        barmanObjectName: gdb-garage
+        serverName: gdb-postgres
+#  bootstrap:
+#    recovery:
+#      source: source
+  externalClusters:
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters: *parameters

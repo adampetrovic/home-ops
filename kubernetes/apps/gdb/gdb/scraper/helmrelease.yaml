@@ -1,0 +1,122 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gdb-scraper
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+    controllers:
+      mms:
+        type: cronjob
+        cronjob:
+          schedule: "0 6 * * *"
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: &image
+              repository: ghcr.io/adampetrovic/gdb-scraper
+              tag: 0.1.33@sha256:3580c1765edf019eedb11b0b696c3b7393d54ea0941f8b4c556b50506056e419
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+            args: ["mms"]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      mso:
+        type: cronjob
+        cronjob:
+          schedule: "0 18 * * *"
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+            args: ["mso"]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      usag:
+        type: cronjob
+        cronjob:
+          schedule: "0 12 * * 0"
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+              START_ID: "1"
+            args: ["usag"]
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 8Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+    persistence:
+      export:
+        existingClaim: gdb-scraper
