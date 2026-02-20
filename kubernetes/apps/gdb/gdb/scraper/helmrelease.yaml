@@ -36,12 +36,14 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.33@sha256:3580c1765edf019eedb11b0b696c3b7393d54ea0941f8b4c556b50506056e419
+              tag: 0.1.34@sha256:a0a5fa0935e8b5722b566da46e1b0345a96ebea5ff83fef7ca2a1cbaa8275ebc
             envFrom:
               - secretRef:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
+              MODE: full
+              YEARS: "2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026"
             args: ["mms"]
             resources:
               requests:
@@ -72,6 +74,8 @@ spec:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
+              MODE: full
+              SEASONS: "2000-2001,2001-2002,2002-2003,2003-2004,2004-2005,2005-2006,2006-2007,2007-2008,2008-2009,2009-2010,2010-2011,2011-2012,2012-2013,2013-2014,2014-2015,2015-2016,2016-2017,2017-2018,2018-2019,2019-2020,2020-2021,2021-2022,2022-2023,2023-2024,2024-2025,2025-2026"
             args: ["mso"]
             resources:
               requests:
@@ -102,7 +106,6 @@ spec:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
-              START_ID: "1"
             args: ["usag"]
             resources:
               requests:
