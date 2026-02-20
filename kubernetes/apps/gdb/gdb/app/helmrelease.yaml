@@ -1,0 +1,122 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app gdb
+spec:
+  interval: 15m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 3
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsUser: 501
+        runAsGroup: 20
+        fsGroup: 20
+        fsGroupChangePolicy: OnRootMismatch
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: *app
+    controllers:
+      gdb:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        initContainers:
+          01-init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.1.0@sha256:3c54d39f19fdb82ed5b3f286450e4071133cc6025bd0e25856bc2c522f8fc030
+              pullPolicy: IfNotPresent
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/gdb-web
+              tag: 1.1.6
+              pullPolicy: Always
+            env:
+              SERVER_HOST: "0.0.0.0"
+              SERVER_PORT: "8080"
+              APP_ENV: "production"
+              LOG_LEVEL: "info"
+              CACHE_TTL: "30m"
+              RATE_LIMIT_PER_MIN: "60"
+              MEDIA_DIR: /media/g
+              STASH_HOST: http://stash.media.svc.cluster.local:9999
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            resources:
+              requests:
+                cpu: 223m
+                memory: 100Mi
+              limits:
+                memory: 1Gi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+    service:
+      app:
+        controller: gdb
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        enabled: true
+        className: internal
+        hosts:
+          - host: &host gdb.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+
+    persistence:
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/stash/media/g
+        globalMounts:
+          - path: /media/g
