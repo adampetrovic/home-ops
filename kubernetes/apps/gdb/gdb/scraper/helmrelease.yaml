@@ -44,7 +44,7 @@ spec:
             env:
               OUTPUT_DIR: /export
               MODE: incremental
-            args: ["mms"]
+              SOURCE: mms
             resources:
               requests:
                 memory: 1Gi
@@ -76,7 +76,7 @@ spec:
             env:
               OUTPUT_DIR: /export
               MODE: incremental
-            args: ["mso"]
+              SOURCE: mso
             resources:
               requests:
                 memory: 1Gi
@@ -108,7 +108,7 @@ spec:
             env:
               OUTPUT_DIR: /export
               MODE: incremental
-            args: ["usag"]
+              SOURCE: usag
             resources:
               requests:
                 memory: 1Gi
