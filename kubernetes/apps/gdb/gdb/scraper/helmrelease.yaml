@@ -107,6 +107,7 @@ spec:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
+              MODE: incremental
             args: ["usag"]
             resources:
               requests:
