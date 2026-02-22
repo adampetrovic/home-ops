@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: evcc/evcc
-              tag: 0.301.0@sha256:73f6b5dc7a74fc0f08a4e085dc4d23863385ee2063234189df976aa76fe3a758
+              tag: 0.301.1@sha256:caf946659e43b3a3f2aaeaa439a57602ff1636f938ae02da9cdc9075e10573fa
             env:
               TZ: "Australia/Sydney"
             envFrom:
