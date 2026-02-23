@@ -33,6 +33,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 60Gi
+      VOLSYNC_KOPIA_SCHEDULE: "0 * * * *"
       VOLSYNC_CACHE_CAPACITY: 15Gi
       VOLSYNC_R2_SCHEDULE: "0 4 * * 1" # 4am Monday Mornings
 
