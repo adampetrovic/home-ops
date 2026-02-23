@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.4.2@sha256:291636a05554f63384c1578e642911612fd27b0999a852c56e4795ae1798bffc
+              tag: 1.4.3@sha256:d050e6867a1a3e6b513968612acc21b54a9e5e85c7c18bbe823db74d96715612
               pullPolicy: Always
             env:
               SERVER_HOST: "0.0.0.0"
