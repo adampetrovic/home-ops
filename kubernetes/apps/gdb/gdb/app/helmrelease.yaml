@@ -26,9 +26,9 @@ spec:
       imagePullSecrets:
         - name: ghcr-private
       securityContext:
-        runAsUser: 501
-        runAsGroup: 20
-        fsGroup: 20
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
         fsGroupChangePolicy: OnRootMismatch
       topologySpreadConstraints:
         - maxSkew: 1
@@ -68,7 +68,7 @@ spec:
               SERVER_READ_TIMEOUT: "60s"
               SERVER_WRITE_TIMEOUT: "60s"
               MEDIA_DIR: /media/g
-              STASH_HOST: http://stash.media.svc.cluster.local:9999
+              STASH_HOST: http://stash-app.media.svc.cluster.local:9999
             envFrom:
               - secretRef:
                   name: gdb-secret
