@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/gtsteffaniak/filebrowser
-              tag: 1.1.2-stable@sha256:24b80967bea15d5595c28065146ff7a931f0538c110f34748c037979ef2d634e
+              tag: 1.2.0-stable@sha256:98575f39b98d21d8c5b7f4c51389ddeea6f6e440fa5971c508a1a512715a165c
             env:
               FILEBROWSER_CONFIG: /config/config.yaml
             probes:
