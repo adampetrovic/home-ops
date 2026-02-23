@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/dgtlmoon/changedetection.io
-              tag: "0.53.4@sha256:92eb008681b978859af72f8c181b59a1a9526f23d423b9541812fb0744cc7920"
+              tag: "0.54.1@sha256:bda857dd1c0680eb2665366ef8fe7472593c5add6558c25825a28e241888c6ea"
             env:
               TZ: "Australia/Sydney"
               PORT: &port 5000
