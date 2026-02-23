@@ -29,4 +29,5 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_KOPIA_SCHEDULE: "54 * * * *"
       VOLSYNC_R2_SCHEDULE: "5 2 * * *"

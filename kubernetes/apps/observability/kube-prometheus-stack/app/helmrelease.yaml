@@ -68,6 +68,13 @@ spec:
       ingress:
         enabled: false
       prometheusSpec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: node-role.kubernetes.io/control-plane
+                      operator: DoesNotExist
         externalUrl: https://prometheus.${SECRET_DOMAIN}
         image:
           registry: quay.io
