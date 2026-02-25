@@ -17,6 +17,7 @@ This repository uses **Jujutsu (jj)** as the version control system (with a Git 
 ```
 kubernetes/
 ├── apps/                    # Application deployments organized by namespace
+│   ├── actions-runner-system/ # GitHub Actions self-hosted runners
 │   ├── automation/          # Home Assistant, Frigate, Zigbee2MQTT, etc.
 │   ├── cert-manager/        # TLS certificate management
 │   ├── database/            # CloudNative-PG, Dragonfly, PgAdmin
@@ -31,6 +32,7 @@ kubernetes/
 │   ├── rook-ceph/           # Distributed storage
 │   ├── security/            # Authelia, LLDAP
 │   ├── storage/             # Garage S3-compatible storage
+│   ├── system-upgrade/      # Tuppr for automated Talos/Kubernetes upgrades
 │   └── volsync-system/      # VolSync operator, Kopia web UI, snapshot controller
 ├── components/              # Reusable Kustomize components
 │   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
