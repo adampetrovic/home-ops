@@ -30,7 +30,7 @@ spec:
             env:
               KOPIA_WEB_ENABLED: true
               KOPIA_WEB_PORT: &port 80
-              TZ: Australia/Sydney
+              TZ: ${TZ}
             envFrom:
               - secretRef:
                   name: kopia-secret

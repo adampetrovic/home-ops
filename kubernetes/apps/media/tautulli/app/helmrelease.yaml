@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/home-operations/tautulli
               tag: 2.16.1@sha256:6983eea603ee230b189f2d32e7d7fc0bb94917df735a71ba20460c4991877645
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               TAUTULLI__PORT: &port 8181
             resources:
               requests:

@@ -40,7 +40,7 @@ spec:
               repository: teslamate/teslamate
               tag: 2.2.0
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               DISABLE_MQTT: "false"
               MQTT_HOST: mosquitto.automation.svc.cluster.local
             envFrom:

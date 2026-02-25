@@ -43,7 +43,7 @@ spec:
               tag: v0.6.2@sha256:9e605a66c02514bfcffd1b67cafb1e98d50992216bb2871d7ae44622047dd09d
             envFrom: *envFrom
             env:
-              TZ: Australia/Sydney
+              TZ: ${TZ}
               LLDAP_HTTP_PORT: &port 80
               LLDAP_HTTP_URL: https://lldap.${SECRET_DOMAIN}
               LLDAP_LDAP_PORT: &ldapPort 389

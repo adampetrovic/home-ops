@@ -35,7 +35,7 @@ spec:
               - secretRef:
                   name: fernwood-booker-secret-odette
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               AUTOBOOK_CONFIG: /config/config-odette.yaml
             resources:
               requests:

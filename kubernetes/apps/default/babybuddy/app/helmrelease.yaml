@@ -36,7 +36,7 @@ spec:
               repository: ghcr.io/linuxserver/babybuddy
               tag: 2.7.1@sha256:900f5b6ab9d41e869ffb6761900c0da9f23d6d5ffd55215265671028405e485c
             env:
-              TZ: ${TIMEZONE}
+              TZ: ${TZ}
               CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN},https://baby.${SECRET_DOMAIN}
               PUID: 1000
               PGID: 1000

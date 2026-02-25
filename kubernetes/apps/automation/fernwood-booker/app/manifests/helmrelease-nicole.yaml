@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: fernwood-booker-secret-nicole
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               AUTOBOOK_CONFIG: /config/config-nicole.yaml
             resources:
               requests:
