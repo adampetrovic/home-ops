@@ -34,19 +34,19 @@ spec:
           gotenburg:
             image:
               repository: thecodingmachine/gotenberg
-              tag: 8.27.0
+              tag: 8.27.0@sha256:d71ab8c13b6bd47c7bc81195082005dfb17eaa75e8b1fadd347a64ee66ed98d5
               pullPolicy: IfNotPresent
             env:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
           tika:
             image:
               repository: apache/tika
-              tag: latest-full
+              tag: latest-full@sha256:21d8052de04e491ccf66e8680ade4da6f3d453a56d59f740b4167e54167219b7
               pullPolicy: IfNotPresent
           app:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.20.8
+              tag: 2.20.8@sha256:e231ec11a1907bfdf172b4f120b4ef1994feb71e6cc624e8b88c53e2da3dfb62
             envFrom: *envFrom
             env:
               USERMAP_UID: 568
