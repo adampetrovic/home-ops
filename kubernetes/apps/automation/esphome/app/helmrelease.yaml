@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: esphome
 spec:
-  interval: 10m
+  interval: 30m
   chartRef:
     kind: OCIRepository
     name: app-template
