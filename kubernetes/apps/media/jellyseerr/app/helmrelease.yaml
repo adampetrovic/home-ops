@@ -29,7 +29,7 @@ spec:
               repository: ghcr.io/seerr-team/seerr
               tag: v3.0.1@sha256:1b5fc1ea825631d9d165364472663b817a4c58ef6aa1013f58d82c1570d7c866
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               LOG_LEVEL: info
               PORT: &port 80
             resources:

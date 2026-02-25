@@ -32,7 +32,7 @@ spec:
               tag: 2.8.0
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3G
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
             resources:
               requests:
                 cpu: 23m

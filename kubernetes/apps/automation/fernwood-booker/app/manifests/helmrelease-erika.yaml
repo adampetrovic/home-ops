@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: fernwood-booker-secret-erika
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               AUTOBOOK_CONFIG: /config/config-erika.yaml
             resources:
               requests:

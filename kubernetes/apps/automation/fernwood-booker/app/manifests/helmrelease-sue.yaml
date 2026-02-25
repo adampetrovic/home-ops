@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: fernwood-booker-secret-sue
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               AUTOBOOK_CONFIG: /config/config-sue.yaml
             resources:
               requests:
