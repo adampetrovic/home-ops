@@ -26,6 +26,9 @@ access_control:
         - "radarr4k.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
+    - domain: "booklore.${SECRET_DOMAIN}"
+      policy: bypass
+      resources: ["^/api/koreader([?/].*)?$"]
     - domain:
         - "paperless.${SECRET_DOMAIN}"
         - "memos.${SECRET_DOMAIN}"
