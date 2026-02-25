@@ -38,7 +38,6 @@ spec:
             image:
               repository: docker.io/browserless/chrome
               tag: 1-chrome-stable
-              pullPolicy: IfNotPresent
             env:
               - {name: SCREEN_WIDTH, value: "1920"}
               - {name: SCREEN_HEIGHT, value: "1024"}
