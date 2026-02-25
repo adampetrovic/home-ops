@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: sonarr-4k-secret
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               SONARR__INSTANCE_NAME: Sonarr 4K
               SONARR__PORT: &port 80
               SONARR__APPLICATION_URL: https://sonarr4k.${SECRET_DOMAIN}
