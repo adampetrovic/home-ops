@@ -11,6 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/actions-runner-system/actions-runner-controller/app
   prune: true
   sourceRef:
@@ -35,6 +37,8 @@ spec:
     - name: openebs
       namespace: openebs-system
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/actions-runner-system/actions-runner-controller/runners
   prune: true
   sourceRef:
