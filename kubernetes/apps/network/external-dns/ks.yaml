@@ -18,7 +18,7 @@ spec:
       kind: CustomResourceDefinition
       name: dnsendpoints.externaldns.k8s.io
   dependsOn:
-    - name: external-secrets
+    - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/network/external-dns/internal
   prune: true
@@ -50,7 +50,7 @@ spec:
       kind: CustomResourceDefinition
       name: dnsendpoints.externaldns.k8s.io
   dependsOn:
-    - name: external-secrets
+    - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/network/external-dns/external
   prune: true
