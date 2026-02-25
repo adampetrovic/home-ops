@@ -28,7 +28,7 @@ access_control:
       resources: ["^/api([?/].*)?$"]
     - domain: "booklore.${SECRET_DOMAIN}"
       policy: bypass
-      resources: ["^/api/koreader([?/].*)?$"]
+      resources: ["^/api/(koreader|v1/opds)([?/].*)?$"]
     - domain:
         - "paperless.${SECRET_DOMAIN}"
         - "memos.${SECRET_DOMAIN}"
