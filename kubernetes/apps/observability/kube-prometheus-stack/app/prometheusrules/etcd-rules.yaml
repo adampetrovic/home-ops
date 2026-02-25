@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: etcd-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: etcd-overrides
+      rules:
+        - alert: etcdMemberCommunicationSlow
+          annotations:
+            description: >-
+              etcd cluster "{{ $labels.job }}": member communication with
+              {{ $labels.To }} is taking {{ $value }}s on etcd instance {{ $labels.instance }}.
+            summary: etcd cluster member communication is slow.
+          expr: |-
+            histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket{job=~".*etcd.*"}[5m]))
+            > 0.25
+          for: 10m
+          labels:
+            severity: warning
