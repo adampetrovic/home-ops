@@ -12,10 +12,10 @@ spec:
   install:
     createNamespace: true
     remediation:
-      retries: 5
+      retries: -1
   upgrade:
     remediation:
-      retries: 5
+      retries: 3
       strategy: rollback
   values:
     controllers:
