@@ -50,7 +50,7 @@ spec:
               repository: ghcr.io/home-operations/qbittorrent
               tag: 5.1.4@sha256:56ecd30a7f5e1357daf5eea2a6935134d329b7b268a3a9b9c67041b65fb87fc6
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               QBT_WEBUI_PORT: &port 80
               QBT_TORRENTING_PORT: &port-bt 50413
             resources:
