@@ -1,4 +1,7 @@
 ---
+# Talos Image Factory schematic — defines the installer image at factory.talos.dev.
+# The schematic ID derived from this file is used in talosImageURL in talconfig.yaml.
+# Kernel args and extensions here are baked into the installer image at build time.
 customization:
   extraKernelArgs:
     - -init_on_alloc                      # Less security, faster puter
