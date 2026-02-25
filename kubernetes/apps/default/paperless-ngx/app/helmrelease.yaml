@@ -26,7 +26,6 @@ spec:
             image:
               repository: ghcr.io/home-operations/postgres-init
               tag: 18.2.0@sha256:ae89578925b480f5972f237dda2f7a37efe36aff500d3e7bd1d3a6a3181e4191
-              pullPolicy: IfNotPresent
             envFrom: &envFrom
               - secretRef:
                   name: paperless-secret
@@ -35,14 +34,12 @@ spec:
             image:
               repository: thecodingmachine/gotenberg
               tag: 8.27.0@sha256:d71ab8c13b6bd47c7bc81195082005dfb17eaa75e8b1fadd347a64ee66ed98d5
-              pullPolicy: IfNotPresent
             env:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
           tika:
             image:
               repository: apache/tika
               tag: latest-full@sha256:21d8052de04e491ccf66e8680ade4da6f3d453a56d59f740b4167e54167219b7
-              pullPolicy: IfNotPresent
           app:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
