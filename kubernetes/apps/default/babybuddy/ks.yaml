@@ -10,6 +10,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
     - name: cloudnative-pg-cluster
       namespace: database
   path: ./kubernetes/apps/default/babybuddy/app

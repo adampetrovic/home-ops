@@ -11,6 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
     - name: cert-manager
       namespace: cert-manager
   path: ./kubernetes/apps/network/smtp-relay/app
