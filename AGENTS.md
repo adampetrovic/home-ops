@@ -25,7 +25,7 @@ kubernetes/
 │   ├── flux-system/         # Flux operator and instance
 │   ├── kube-system/         # Cilium, Reloader, Descheduler, metrics, etc.
 │   ├── media/               # Plex, Sonarr, Radarr, SABnzbd, etc.
-│   ├── network/             # Ingress-NGINX, AdGuard, Cloudflared, ExternalDNS
+│   ├── network/             # Envoy Gateway, AdGuard, Cloudflared, ExternalDNS
 │   ├── observability/       # Prometheus, Grafana, Loki, Vector
 │   ├── openebs-system/      # OpenEBS local storage
 │   ├── rook-ceph/           # Distributed storage
@@ -151,13 +151,93 @@ resources:
   - ./app-two/ks.yaml
 ```
 
-## Ingress Conventions
+## Routing Conventions (Gateway API)
 
-- Two NGINX ingress controllers: `internal` and `external`
-- Internal apps use `className: internal`
-- External apps use `className: external` (routed through Cloudflare Tunnel)
-- Hosts use variable substitution: `host: "app.${SECRET_DOMAIN}"`
-- TLS is configured for all ingresses
+Ingress is handled by **Envoy Gateway** using the Kubernetes **Gateway API** — there are no legacy `Ingress` resources. Two `Gateway` resources are defined in the `network` namespace:
+
+- **`envoy-internal`** (`10.0.80.200`): For apps accessible only within the local network. Uses `${SECRET_DOMAIN}`.
+- **`envoy-external`** (`10.0.80.201`): For apps exposed to the internet via **Cloudflare Tunnel**. Uses `${SECRET_PUBLIC_DOMAIN}`.
+
+Both Gateways terminate TLS on port 443 with a wildcard certificate and redirect HTTP→HTTPS automatically.
+
+### App-Template Route Configuration
+
+Most apps use the bjw-s app-template `route:` key, which renders `HTTPRoute` resources:
+
+**Internal-only app** (most common):
+```yaml
+route:
+  app:
+    hostnames:
+      - "app.${SECRET_DOMAIN}"
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+```
+
+**Externally-exposed app** (via Cloudflare Tunnel):
+```yaml
+route:
+  app:
+    hostnames:
+      - "app.${SECRET_PUBLIC_DOMAIN}"
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+```
+
+**Dual internal + external** (rare):
+```yaml
+route:
+  internal:
+    hostnames:
+      - "app.${SECRET_DOMAIN}"
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+  external:
+    hostnames:
+      - "app.${SECRET_PUBLIC_DOMAIN}"
+    parentRefs:
+      - name: envoy-external
+        namespace: network
+```
+
+When the default `backendRefs` (auto-wired from the `service:` block) aren't sufficient, explicit rules can be added:
+```yaml
+route:
+  app:
+    hostnames:
+      - "app.${SECRET_DOMAIN}"
+    parentRefs:
+      - name: envoy-internal
+        namespace: network
+    rules:
+      - backendRefs:
+          - identifier: app
+            port: http
+```
+
+### Authelia Authentication (authelia-proxy component)
+
+Apps that need **Authelia SSO/ext-auth** include the `authelia-proxy` Kustomize component in their **app-level `kustomization.yaml`** (not `ks.yaml`):
+
+```yaml
+# app/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helmrelease.yaml
+  - ./externalsecret.yaml
+components:
+  - ../../../../components/authelia-proxy
+```
+
+This creates an Envoy `SecurityPolicy` that targets the app's `HTTPRoute` by name (`${APP}`), forwarding auth checks to `authelia.security.svc.cluster.local`. A `ReferenceGrant` in the `security` namespace authorises cross-namespace access — if you add authelia-proxy to an app in a **new namespace**, that namespace must be added to the ReferenceGrant at `kubernetes/apps/security/authelia/app/referencegrant.yaml`.
+
+### Cloudflare Tunnel
+
+External traffic flows: **Internet → Cloudflare → cloudflared pod → `envoy-external` Gateway service → app**. The Cloudflare Tunnel is configured in `kubernetes/apps/network/cloudflared/app/configs/config.yaml` and forwards all `*.${SECRET_PUBLIC_DOMAIN}` traffic to the `envoy-external` service.
 
 ## Secrets Management
 
@@ -279,9 +359,11 @@ flux reconcile ks <app-name> -n flux-system --with-source
 2. Create `ks.yaml` (Flux Kustomization) with appropriate `dependsOn`
 3. Create `app/helmrelease.yaml` using app-template or upstream chart
 4. Create `app/kustomization.yaml` listing all resources
-5. If secrets needed: create `app/externalsecret.yaml` referencing 1Password
-6. If persistent storage needed: add volsync component to `ks.yaml`
-7. Add the `ks.yaml` reference to the namespace's `kustomization.yaml`
+5. If the app needs a web UI: add a `route:` block in the HelmRelease pointing to `envoy-internal` or `envoy-external`
+6. If the app needs Authelia auth: add the `authelia-proxy` component to `app/kustomization.yaml`
+7. If secrets needed: create `app/externalsecret.yaml` referencing 1Password
+8. If persistent storage needed: add volsync component to `ks.yaml`
+9. Add the `ks.yaml` reference to the namespace's `kustomization.yaml`
 
 ### Modifying an Existing Application
 
