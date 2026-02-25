@@ -43,6 +43,7 @@ spec:
               REMOTE_AUTH_HEADER_EMAIL: Remote-Email
               REMOTE_AUTH_HEADER_GROUPS: Remote-Groups
               REMOTE_AUTH_ADMIN_GROUP: admin
+              FORCE_DISABLE_OIDC: "true"
               DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
               DATABASE_USERNAME:
                 valueFrom:
