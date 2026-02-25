@@ -1,5 +1,3 @@
-# ABOUTME: evcc configuration file for EV charging management
-# ABOUTME: Configure your site, meters, chargers, and vehicles here
 
 # Network settings for evcc web interface
 network:
