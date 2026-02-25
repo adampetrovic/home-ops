@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: influxdb
-              tag: 2.8.0
+              tag: 2.8.0@sha256:60676b368409b4ac9664d1ba57b2613c5dec7c1a0f9dcd9405a0be0c375409f5
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3G
               TZ: "${TZ}"
