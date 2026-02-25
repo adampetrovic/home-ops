@@ -13,6 +13,8 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/media/qui/app
   postBuild:
     substitute:
