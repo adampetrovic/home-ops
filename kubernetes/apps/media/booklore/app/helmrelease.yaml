@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/booklore-app/booklore
               tag: v2.0.1@sha256:e5c51133c0c50e97004bf711a34521c698e4b27b6847e54fe304c08ff4aa8ee1
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               USER_ID: "568"
               GROUP_ID: "568"
               BOOKLORE_PORT: &port 6060
@@ -76,7 +76,7 @@ spec:
               repository: lscr.io/linuxserver/mariadb
               tag: 11.4.8
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               PUID: "568"
               PGID: "568"
               MYSQL_DATABASE: "booklore"

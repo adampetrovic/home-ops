@@ -37,7 +37,7 @@ spec:
               repository: ghcr.io/blakeblackshear/frigate
               tag: 0.17.0-rc2@sha256:2a6a0e01cf14b7ab8edf5322a58876fbec800f386d917f2707cc4ca9c639b660
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
             envFrom:
               - secretRef:
                   name: frigate-secret
