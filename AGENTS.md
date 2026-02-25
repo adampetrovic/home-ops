@@ -114,10 +114,11 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"     # Cloudflare R2 backup schedule (optional override)
+      VOLSYNC_KOPIA_SCHEDULE: "12 * * * *"   # Kopia backup schedule (default: "0 * * * *")
+      VOLSYNC_R2_SCHEDULE: "30 3 * * *"      # Cloudflare R2 backup schedule (default: "0 3 * * *")
 ```
 
-The Kopia (primary) backup schedule is fixed at `0 * * * *` for all apps — a `MutatingAdmissionPolicy` injects random 0-30s jitter to prevent thundering herd. Only `VOLSYNC_R2_SCHEDULE` can be overridden per-app.
+Both `VOLSYNC_KOPIA_SCHEDULE` and `VOLSYNC_R2_SCHEDULE` can be overridden per-app. Most apps set a custom Kopia minute offset (e.g., `12 * * * *`) to spread backup load across the hour. A `MutatingAdmissionPolicy` injects an additional random 0-30s jitter on top of the configured schedule to prevent thundering herd.
 
 ### HelmRelease Conventions
 
