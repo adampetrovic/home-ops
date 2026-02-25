@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/calibrain/shelfmark
               tag: v1.1.2
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               FLASK_PORT: &port 8084
               PUID: 568
               PGID: 568

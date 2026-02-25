@@ -28,7 +28,7 @@ spec:
               repository: dxflrs/garage
               tag: v2.2.0@sha256:45a61ce3f7c9c24fc23d9ed2b09b27ed560ab87b34605d175d5c588f539c24e4
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
             envFrom:
               - secretRef:
                   name: garage-secret

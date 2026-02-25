@@ -29,7 +29,7 @@ spec:
               repository: ghcr.io/dgtlmoon/changedetection.io
               tag: "0.54.1@sha256:bda857dd1c0680eb2665366ef8fe7472593c5add6558c25825a28e241888c6ea"
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               PORT: &port 5000
               USE_X_SETTINGS: 1
               BASE_URL: &host changedetection.${SECRET_DOMAIN}

@@ -31,7 +31,7 @@ spec:
               repository: evcc/evcc
               tag: 0.301.1@sha256:caf946659e43b3a3f2aaeaa439a57602ff1636f938ae02da9cdc9075e10573fa
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
             envFrom:
               - secretRef:
                   name: evcc-secret

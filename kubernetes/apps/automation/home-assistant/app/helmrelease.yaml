@@ -40,7 +40,7 @@ spec:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2026.2.3@sha256:d73c9c53a8562e12211f24fd7303c422051220636972485df291dbec885d8a3d
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
               HASS_IP: 10.0.81.4
@@ -65,7 +65,7 @@ spec:
               repository: ghcr.io/coder/code-server
               tag: 4.109.2-39
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               GIT_AUTHOR_NAME: "Adam Petrovic"
             envFrom: *envFrom
             args:

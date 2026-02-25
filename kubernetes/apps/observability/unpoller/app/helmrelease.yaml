@@ -35,7 +35,7 @@ spec:
               - secretRef:
                   name: *secret
             env:
-              TZ: Australia/Sydney
+              TZ: ${TZ}
               UP_UNIFI_DEFAULT_ROLE: home-ops
               UP_UNIFI_DEFAULT_URL: https://unifi.${SECRET_DOMAIN}
               UP_UNIFI_DEFAULT_VERIFY_SSL: true
