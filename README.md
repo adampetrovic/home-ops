@@ -11,7 +11,7 @@ _A comprehensive Kubernetes-native home infrastructure platform_
 ![License](https://img.shields.io/github/license/adampetrovic/home-ops?color=blue&style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/adampetrovic/home-ops?style=flat-square)
 ![Kubernetes](https://img.shields.io/badge/k8s-v1.35.1-blue?style=flat-square)
-![Talos](https://img.shields.io/badge/talos-v1.12.3-orange?style=flat-square)
+![Talos](https://img.shields.io/badge/talos-v1.12.4-orange?style=flat-square)
 
 </div>
 
