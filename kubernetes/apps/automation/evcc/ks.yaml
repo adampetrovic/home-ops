@@ -1,6 +1,4 @@
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
-# ABOUTME: Flux Kustomization for evcc EV charging manager
-# ABOUTME: Defines deployment dependencies and variable substitution for evcc
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
