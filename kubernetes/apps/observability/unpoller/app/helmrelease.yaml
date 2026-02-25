@@ -5,7 +5,7 @@ kind: HelmRelease
 metadata:
   name: unifi-poller
 spec:
-  interval: 15m
+  interval: 30m
   chartRef:
     kind: OCIRepository
     name: app-template
