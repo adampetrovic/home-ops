@@ -56,7 +56,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.8.3@sha256:4e1d6a2ffbc81691a571efd3ccd37a7e3c82ade502c9b5abaef5634f5db8f11b
+              tag: 1.8.4@sha256:db3f16f2b3ad7eef870b36716e4ba65f0eda3074f5f4cd6db49fa889c292a848
               pullPolicy: Always
             env:
               SERVER_HOST: "0.0.0.0"
@@ -64,7 +64,7 @@ spec:
               APP_ENV: "production"
               LOG_LEVEL: "info"
               CACHE_TTL: "30m"
-              RATE_LIMIT_PER_MIN: "60"
+              RATE_LIMIT_PER_MIN: "600"
               SERVER_READ_TIMEOUT: "60s"
               SERVER_WRITE_TIMEOUT: "60s"
               MEDIA_DIR: /media/g
