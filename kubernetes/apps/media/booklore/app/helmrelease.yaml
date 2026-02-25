@@ -36,6 +36,13 @@ spec:
               GROUP_ID: "568"
               BOOKLORE_PORT: &port 6060
               SWAGGER_ENABLED: "false"
+              REMOTE_AUTH_ENABLED: "true"
+              REMOTE_AUTH_CREATE_NEW_USERS: "true"
+              REMOTE_AUTH_HEADER_USER: Remote-User
+              REMOTE_AUTH_HEADER_NAME: Remote-Name
+              REMOTE_AUTH_HEADER_EMAIL: Remote-Email
+              REMOTE_AUTH_HEADER_GROUPS: Remote-Groups
+              REMOTE_AUTH_ADMIN_GROUP: admin
               DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
               DATABASE_USERNAME:
                 valueFrom:
