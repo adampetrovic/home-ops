@@ -41,7 +41,7 @@ spec:
               tag: 2.3.2.5245@sha256:e2459e199564ab852c6e677e951cef36c172a8e71a0e1c90665631b5a0c57438
             envFrom: *envFrom
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
               PROWLARR__INSTANCENAME: Prowlarr
               PROWLARR__SERVER__PORT: &port 80
               PROWLARR__LOG_LEVEL: info

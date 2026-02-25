@@ -32,7 +32,7 @@ spec:
               tag: v0.107.72@sha256:4956b35b590286e5872fb4336d84a7862a2030c6efb4ca16442580c37d7ba32d
               pullPolicy: IfNotPresent
             env:
-              TZ: "Australia/Sydney"
+              TZ: "${TZ}"
             probes:
               liveness: &probe
                 type: HTTP
