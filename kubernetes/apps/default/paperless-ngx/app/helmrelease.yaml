@@ -69,7 +69,7 @@ spec:
               PAPERLESS_EXPORT_DIR: /data/export
               PAPERLESS_CONSUMER_POLLING: 60
               PAPERLESS_CONSUMER_IGNORE_PATTERNS: '[".DS_STORE/*", "._*", ".stfolder/*", "@eaDir/*"]'
-              PAPERLESS_TRUSTED_PROXIES: 10.42.0.0/16
+              PAPERLESS_TRUSTED_PROXIES: 10.69.0.0/16
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
               PAPERLESS_OCR_LANGUAGE: eng
