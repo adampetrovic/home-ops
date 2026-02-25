@@ -28,6 +28,9 @@ spec:
         enabled: true
         forceConflicts: true
     cleanPrometheusOperatorObjectNames: true
+    defaultRules:
+      disabled:
+        etcdMemberCommunicationSlow: true
     alertmanager:
       ingress:
         enabled: false
