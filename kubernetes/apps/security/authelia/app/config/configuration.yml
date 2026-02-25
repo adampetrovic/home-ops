@@ -33,6 +33,7 @@ access_control:
       subject:
         - 'group:users'
     - domain:
+        - "booklore.${SECRET_DOMAIN}"
         - "echo-server.${SECRET_DOMAIN}"
         - "shelfmark.petrovic.network"
       policy: one_factor
