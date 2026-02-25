@@ -30,7 +30,7 @@ spec:
     cleanPrometheusOperatorObjectNames: true
     defaultRules:
       disabled:
-        etcdMemberCommunicationSlow: true
+        etcdMemberCommunicationSlow: true # custom rule in prometheusrules/etcd-rules.yaml (250ms threshold)
     alertmanager:
       ingress:
         enabled: false
