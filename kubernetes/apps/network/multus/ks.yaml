@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *appname
   interval: 10m
   retryInterval: 1m
+  timeout: 5m
   path: "./kubernetes/apps/network/multus/app"
   prune: true
   sourceRef:
@@ -35,6 +36,7 @@ spec:
     - name: multus
   interval: 10m
   retryInterval: 1m
+  timeout: 5m
   path: "./kubernetes/apps/network/multus/config"
   prune: true
   sourceRef:
