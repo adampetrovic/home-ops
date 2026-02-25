@@ -12,6 +12,8 @@ spec:
     - name: external-secrets-stores
       namespace: external-secrets
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/network/envoy-gateway/certificates
   prune: true
   sourceRef:
@@ -31,6 +33,8 @@ spec:
   dependsOn:
     - name: envoy-gateway-certificates
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/network/envoy-gateway/app
   prune: true
   sourceRef:
@@ -50,6 +54,8 @@ spec:
   dependsOn:
     - name: envoy-gateway
   interval: 1h
+  retryInterval: 1m
+  timeout: 5m
   path: ./kubernetes/apps/network/envoy-gateway/proxy
   prune: true
   sourceRef:
