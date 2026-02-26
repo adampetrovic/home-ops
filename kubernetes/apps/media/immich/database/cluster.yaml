@@ -14,7 +14,7 @@ spec:
     storageClass: openebs-hostpath
   enableSuperuserAccess: true
   superuserSecret:
-    name: immich-db-secret
+    name: immich-db-superuser-secret
   postgresql:
     parameters:
       max_connections: "100"
