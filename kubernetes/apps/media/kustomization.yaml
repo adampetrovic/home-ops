@@ -7,6 +7,7 @@ components:
 resources:
   - ./bazarr/ks.yaml
   - ./booklore/ks.yaml
+  - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
