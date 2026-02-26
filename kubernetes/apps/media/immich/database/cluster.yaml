@@ -6,8 +6,7 @@ metadata:
   name: immich-postgres
 spec:
   instances: 1
-  # renovate: datasource=docker depName=ghcr.io/tensorchord/cloudnative-vectorchord
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.8-1.1.0@sha256:1bb77658b6ee347554e36a5d34f064e155f0bc39c16c3fd8a50fc3041c319e2f
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.8-1.1.0
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
