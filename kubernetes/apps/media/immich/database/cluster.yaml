@@ -6,8 +6,8 @@ metadata:
   name: immich-postgres
 spec:
   instances: 1
-  # renovate: datasource=docker depName=ghcr.io/tensorchord/cloudnative-pgvecto.rs
-  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:17.5-v0.4.0@sha256:cfa59ddef46bf642e3f6be9ad1878317ae5d4015707d02349bf1569d76b564e0
+  # renovate: datasource=docker depName=ghcr.io/immich-app/postgres
+  imageName: ghcr.io/immich-app/postgres:17-vectorchord0.5.3@sha256:22ec3c79ac1f411e7194b27d2fb1e6966f14576ebf114365d9e371894c485603
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
@@ -20,7 +20,7 @@ spec:
       max_connections: "100"
       shared_buffers: 256MB
     shared_preload_libraries:
-      - "vectors.so"
+      - "vchord.so"
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
