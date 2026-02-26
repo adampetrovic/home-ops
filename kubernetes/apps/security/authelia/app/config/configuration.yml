@@ -111,8 +111,10 @@ identity_providers:
         redirect_uris:
           - "https://photos.${SECRET_PUBLIC_DOMAIN}/auth/login"
           - "https://photos.${SECRET_PUBLIC_DOMAIN}/user-settings"
+          - "https://photos.${SECRET_PUBLIC_DOMAIN}/api/oauth/mobile-redirect"
           - "https://photos.${SECRET_DOMAIN}/auth/login"
           - "https://photos.${SECRET_DOMAIN}/user-settings"
+          - "https://photos.${SECRET_DOMAIN}/api/oauth/mobile-redirect"
           - "app.immich:///oauth-callback"
         access_token_signed_response_alg: none
         userinfo_signed_response_alg: none
