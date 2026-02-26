@@ -1,0 +1,43 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-postgres
+spec:
+  instances: 1
+  # renovate: datasource=docker depName=ghcr.io/tensorchord/cloudnative-pgvecto.rs
+  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:17.5-v0.4.0@sha256:cfa59ddef46bf642e3f6be9ad1878317ae5d4015707d02349bf1569d76b564e0
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 10Gi
+    storageClass: openebs-hostpath
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: immich-db-secret
+  postgresql:
+    parameters:
+      max_connections: "100"
+      shared_buffers: 256MB
+    shared_preload_libraries:
+      - "vectors.so"
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  enablePDB: false
+  resources:
+    requests:
+      cpu: 100m
+    limits:
+      memory: 2Gi
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
+      - { regex: cluster, action: labeldrop }
+  bootstrap:
+    initdb:
+      database: immich
+      owner: immich
+      secret:
+        name: immich-db-secret
