@@ -6,4 +6,5 @@ namespace: network
 resources:
   - ./certificate.yaml
   - ./helmrelease.yaml
+  - ./securitypolicy.yaml
 
