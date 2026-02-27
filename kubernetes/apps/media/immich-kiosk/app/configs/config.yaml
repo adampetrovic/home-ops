@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/damongolding/immich-kiosk/main/config.schema.json
+
+## Clock
+show_time: true
+time_format: 12
+show_date: true
+date_format: DD/MM/YYYY
+
+## Kiosk behaviour
+duration: 60
+disable_screensaver: true
+optimize_images: true
+use_gpu: true
+
+## Asset sources
+show_archived: false
+
+## UI
+show_progress_bar: true
+background_blur: true
+transition: fade
+show_image_time: true
+show_image_date: true
