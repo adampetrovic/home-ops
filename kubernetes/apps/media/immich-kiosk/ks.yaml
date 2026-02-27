@@ -15,6 +15,10 @@ spec:
       namespace: external-secrets
     - name: immich
       namespace: media
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: immich-kiosk-secret
   path: ./kubernetes/apps/media/immich-kiosk/app
   prune: true
   sourceRef:
