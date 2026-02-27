@@ -22,6 +22,18 @@ people:
 ## Asset sources
 show_archived: false
 
+## Weather
+weather:
+  locations:
+    - name: "${WEATHER_LOCATION_NAME}"
+      lat: ${WEATHER_LAT}
+      lon: ${WEATHER_LON}
+      api: "${OPENWEATHERMAP_API_KEY}"
+      unit: metric
+      round_temperature: true
+      lang: en
+      default: true
+
 ## UI
 show_progress_bar: true
 background_blur: true
