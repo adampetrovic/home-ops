@@ -5,6 +5,8 @@ kind: Kustomization
 metadata:
   name: &app immich-kiosk
   namespace: &namespace media
+  labels:
+    substitution.flux.home.arpa/disabled: "true"
 spec:
   targetNamespace: *namespace
   commonMetadata:
@@ -17,6 +19,8 @@ spec:
       namespace: media
   postBuild:
     substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
       - kind: Secret
         name: immich-kiosk-secret
   path: ./kubernetes/apps/media/immich-kiosk/app
