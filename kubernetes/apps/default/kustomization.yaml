@@ -8,6 +8,7 @@ resources:
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
   - ./filebrowser/ks.yaml
+  - ./koffan/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
