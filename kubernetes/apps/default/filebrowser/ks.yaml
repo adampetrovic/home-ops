@@ -5,6 +5,8 @@ kind: Kustomization
 metadata:
   name: &app filebrowser
   namespace: &namespace default
+  labels:
+    substitution.flux.home.arpa/disabled: "true"
 spec:
   targetNamespace: *namespace
   commonMetadata:
@@ -15,6 +17,8 @@ spec:
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: external-secrets-stores
+      namespace: external-secrets
   path: ./kubernetes/apps/default/filebrowser/app
   prune: true
   sourceRef:
@@ -30,3 +34,8 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_KOPIA_SCHEDULE: "50 * * * *"
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
+      - kind: Secret
+        name: filebrowser-secret
