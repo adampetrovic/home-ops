@@ -186,7 +186,6 @@ spec:
           server:
             app:
               - path: /mnt/shared-photos
-                readOnly: true
       cache:
         type: emptyDir
         advancedMounts:
