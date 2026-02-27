@@ -12,6 +12,13 @@ disable_screensaver: true
 optimize_images: true
 use_gpu: true
 
+## People
+people:
+  - "604e045c-cc3b-40f7-8323-5a5657151dc6" # Adam
+  - "62f9b0ad-8d29-404e-9ecb-3cf68aaa2dff" # Odette
+  - "68d71ad7-7f38-4d05-a942-fe7facde7bd8" # Zoey
+  - "8dee4843-1776-49ad-852c-ec16fa690321" # Eliza
+
 ## Asset sources
 show_archived: false
 
