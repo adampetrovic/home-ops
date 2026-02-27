@@ -8,6 +8,7 @@ resources:
   - ./bazarr/ks.yaml
   - ./booklore/ks.yaml
   - ./immich/ks.yaml
+  - ./immich-kiosk/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
