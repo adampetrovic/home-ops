@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/damongolding/immich-kiosk
-              tag: 0.33.1@sha256:b24455286d96daf83a0ceabc39da9d09acaead93c0701009125d274976a7e77f
+              tag: 0.33.2@sha256:32605e6959405c4e3e5ae3b7861662f8533346185f90e7c21ce22443110a0b1d
             env:
               TZ: ${TZ}
               KIOSK_IMMICH_URL: http://immich-server.media.svc.cluster.local:2283
