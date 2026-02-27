@@ -1,0 +1,13 @@
+---
+groups:
+  - name: filebrowser
+    rules:
+      - alert: FilebrowserUnknownWANAccess
+        expr: |
+          sum(count_over_time({app="envoy"} |= "files.${SECRET_PUBLIC_ANON_DOMAIN}" != "${FILEBROWSER_ALLOWED_WAN_1}" != "${FILEBROWSER_ALLOWED_WAN_2}" [5m])) > 0
+        for: 1m
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          summary: "An unknown WAN IP accessed filebrowser (files.${SECRET_PUBLIC_ANON_DOMAIN})"
