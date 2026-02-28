@@ -6,9 +6,6 @@ resources:
   - ./helmrelease.yaml
   - ./externalsecret.yaml
 configMapGenerator:
-  - name: filebrowser-configmap
-    files:
-      - ./config/config.yaml
   - name: filebrowser-loki-rules
     files:
       - filebrowser.yaml=./lokirule.yaml
