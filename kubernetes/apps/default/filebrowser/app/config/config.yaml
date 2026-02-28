@@ -5,3 +5,6 @@ server:
     - path: /mnt
       config:
         defaultEnabled: true
+
+auth:
+  tokenExpirationHours: 24
