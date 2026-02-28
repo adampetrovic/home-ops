@@ -141,6 +141,8 @@ spec:
       trustedCIDRs:
         - 10.69.0.0/16
   http2:
+    initialStreamWindowSize: 1048576
+    initialConnectionWindowSize: 2097152
     onInvalidMessage: TerminateStream
   http3: {}
   targetSelectors:
