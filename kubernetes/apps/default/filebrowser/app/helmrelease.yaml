@@ -81,10 +81,23 @@ spec:
         parentRefs:
           - name: envoy-external
             namespace: network
+    configMaps:
+      config:
+        data:
+          config.yaml: |
+            server:
+              database: /data/filebrowser.db
+              cacheDir: /tmp/.cache
+              sources:
+                - path: /mnt
+                  config:
+                    defaultEnabled: true
+            auth:
+              tokenExpirationHours: 24
     persistence:
       config:
         type: configMap
-        name: filebrowser-configmap
+        identifier: config
         globalMounts:
           - path: /config/config.yaml
             subPath: config.yaml
