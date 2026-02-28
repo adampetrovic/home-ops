@@ -37,5 +37,3 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
-      - kind: Secret
-        name: filebrowser-secret
