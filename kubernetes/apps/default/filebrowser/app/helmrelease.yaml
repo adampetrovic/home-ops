@@ -88,12 +88,20 @@ spec:
             server:
               database: /data/filebrowser.db
               cacheDir: /tmp/.cache
+              numImageProcessors: 8
               sources:
                 - path: /mnt
                   config:
                     defaultEnabled: true
+                    indexingIntervalMinutes: 5
+              indexSqlConfig:
+                walMode: true
             auth:
               tokenExpirationHours: 24
+            userDefaults:
+              fileLoading:
+                maxConcurrentUpload: 5
+                uploadChunkSizeMb: 10
     persistence:
       config:
         type: configMap
