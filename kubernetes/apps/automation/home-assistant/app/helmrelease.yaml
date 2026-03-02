@@ -63,7 +63,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.109.2-39
+              tag: 4.109.5-39
             env:
               TZ: "${TZ}"
               GIT_AUTHOR_NAME: "Adam Petrovic"
