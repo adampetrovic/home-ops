@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: docker.io/golift/unpackerr
-              tag: unstable@sha256:f8b25c9aae851239d7409d29e9d03fa87f5c079b9ac40b3c0c267611000210d7
+              tag: unstable@sha256:3a227ba1423721a3ed665bd4515c9be59c52dc78221c1dff5c955acaa35b5c17
             envFrom:
               - secretRef:
                   name: unpackerr-secret
