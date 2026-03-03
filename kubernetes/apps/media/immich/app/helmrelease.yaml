@@ -186,6 +186,14 @@ spec:
           server:
             app:
               - path: /mnt/shared-photos
+      archives:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/photos/archives
+        advancedMounts:
+          server:
+            app:
+              - path: /mnt/archives
       cache:
         type: emptyDir
         advancedMounts:
