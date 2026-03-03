@@ -34,7 +34,7 @@ spec:
               tag: 0.1.0@sha256:adab008cf2306af573f8211d5200bb688775fef9276ce180a6cfd108bd3baeb7
             env:
               TZ: "${TZ}"
-              NAS_URL: "https://${SECRET_NAS_IP}:5001"
+              NAS_URL: "https://${SECRET_NFS_DOMAIN}:5001"
               DEFAULT_SHARE: stash
               PORT: "8080"
             envFrom:
