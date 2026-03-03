@@ -85,40 +85,6 @@ spec:
                 memory: 32Mi
               limits:
                 memory: 2048Mi
-          nas-crypt:
-            image:
-              repository: ghcr.io/adampetrovic/nas-crypt
-              tag: 0.1.0@sha256:adab008cf2306af573f8211d5200bb688775fef9276ce180a6cfd108bd3baeb7
-            env:
-              TZ: "${TZ}"
-              NAS_URL: "https://${SECRET_NAS_IP}:5001"
-              DEFAULT_SHARE: stash
-              PORT: "8081"
-            envFrom:
-              - secretRef:
-                  name: nas-crypt-secret
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /healthz
-                    port: 8081
-                  periodSeconds: 30
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /healthz
-                    port: 8081
-            resources:
-              requests:
-                cpu: 10m
-                memory: 16Mi
-              limits:
-                memory: 64Mi
         pod:
           nodeSelector:
             intel.feature.node.kubernetes.io/gpu: "true"
@@ -135,12 +101,6 @@ spec:
           http:
             enabled: true
             port: 8080
-      nas-crypt:
-        controller: stash
-        ports:
-          http:
-            enabled: true
-            port: 8081
     route:
       app:
         hostnames:
@@ -158,16 +118,6 @@ spec:
                   value: /upload
             backendRefs:
               - identifier: uploader
-                port: http
-      nas-crypt:
-        hostnames:
-          - nas-crypt.${SECRET_DOMAIN}
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-        rules:
-          - backendRefs:
-              - identifier: nas-crypt
                 port: http
     persistence:
       stash:
