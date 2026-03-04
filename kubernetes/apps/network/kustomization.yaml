@@ -6,6 +6,7 @@ components:
   - ../../components/common
 resources:
   - ./adguard/ks.yaml
+  - ./certificates/ks.yaml
   - ./cloudflared/ks.yaml
   - ./echo-server/ks.yaml
   - ./envoy-gateway/ks.yaml
