@@ -31,6 +31,7 @@ spec:
     defaultRules:
       disabled:
         etcdMemberCommunicationSlow: true # custom rule in prometheusrules/etcd-rules.yaml (250ms threshold)
+        NodeSystemSaturation: true # custom rule in prometheusrules/node-rules.yaml (excludes NAS)
     alertmanager:
       ingress:
         enabled: false
