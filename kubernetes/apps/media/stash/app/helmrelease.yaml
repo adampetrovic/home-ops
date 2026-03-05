@@ -79,6 +79,21 @@ spec:
               TZ: "${TZ}"
               UPLOAD_DIR: /media
               PORT: "8080"
+            probes:
+              liveness: &uploaderProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 30
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+              readiness: *uploaderProbes
+              startup:
+                enabled: false
             resources:
               requests:
                 cpu: 10m
