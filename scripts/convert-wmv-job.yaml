@@ -1,0 +1,209 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: convert-wmv-script
+  namespace: media
+data:
+  convert.sh: |
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
+
+    MEDIA_DIR="/media"
+    LOG_FILE="/media/external/convert.log"
+    VAAPI_DEVICE="/dev/dri/renderD128"
+    AUDIO_BITRATE="192k"
+    GLOBAL_QUALITY=20
+
+    human_size() {
+        local bytes=$1
+        if (( bytes >= 1073741824 )); then
+            local whole=$(( bytes / 1073741824 ))
+            local frac=$(( (bytes % 1073741824) * 100 / 1073741824 ))
+            printf "%d.%02d GB" "$whole" "$frac"
+        elif (( bytes >= 1048576 )); then
+            local whole=$(( bytes / 1048576 ))
+            local frac=$(( (bytes % 1048576) * 10 / 1048576 ))
+            printf "%d.%d MB" "$whole" "$frac"
+        elif (( bytes >= 1024 )); then
+            local whole=$(( bytes / 1024 ))
+            local frac=$(( (bytes % 1024) * 10 / 1024 ))
+            printf "%d.%d KB" "$whole" "$frac"
+        else
+            printf "%d B" "$bytes"
+        fi
+    }
+
+    # Verify VAAPI is functional
+    echo "=== Checking VAAPI ==="
+    if ffmpeg -hide_banner -init_hw_device vaapi=va:${VAAPI_DEVICE} -filter_hw_device va -f lavfi -i nullsrc=s=256x256:d=1 -vf 'format=nv12,hwupload' -c:v h264_vaapi -frames:v 1 -f null - 2>/dev/null; then
+        echo "  VAAPI H.264 encoding: OK"
+        USE_VAAPI=true
+    else
+        echo "  VAAPI unavailable — falling back to software libx264"
+        USE_VAAPI=false
+    fi
+    echo ""
+
+    # Collect files
+    mapfile -t wmv_files < <(find "$MEDIA_DIR" -iname "*.wmv" -type f | sort)
+    total=${#wmv_files[@]}
+
+    if (( total == 0 )); then
+        echo "No WMV files found under $MEDIA_DIR"
+        exit 0
+    fi
+
+    if $USE_VAAPI; then
+        codec_info="H.264 VAAPI (global_quality $GLOBAL_QUALITY) + AAC ($AUDIO_BITRATE)"
+    else
+        codec_info="H.264 libx264 (CRF 18, preset slow) + AAC ($AUDIO_BITRATE)"
+    fi
+
+    echo "=== WMV → MP4 Conversion ==="
+    echo "  Source:  $MEDIA_DIR"
+    echo "  Files:   $total"
+    echo "  Codec:   $codec_info"
+    echo "  Log:     $LOG_FILE"
+    echo ""
+
+    : > "$LOG_FILE"
+
+    current=0
+    converted=0
+    skipped=0
+    failed=0
+    total_wmv_bytes=0
+    total_mp4_bytes=0
+
+    for wmv_file in "${wmv_files[@]}"; do
+        (( ++current ))
+        mp4_file="${wmv_file%.*}.mp4"
+        rel_path="${wmv_file#"$MEDIA_DIR"/}"
+
+        # Skip if MP4 already exists
+        if [[ -f "$mp4_file" ]]; then
+            echo "[$current/$total] SKIP (exists): $rel_path"
+            (( ++skipped ))
+            continue
+        fi
+
+        wmv_size=$(stat -c%s "$wmv_file")
+        echo "[$current/$total] Converting: $rel_path ($(human_size "$wmv_size"))"
+
+        mkdir -p "$(dirname "$mp4_file")"
+        tmp_file="${mp4_file}.tmp.mp4"
+
+        start_time=$(date +%s)
+        ok=false
+
+        # Try VAAPI first
+        if $USE_VAAPI; then
+            if ffmpeg -nostdin -y -hide_banner \
+                -vaapi_device "$VAAPI_DEVICE" \
+                -i "$wmv_file" \
+                -vf 'format=nv12,hwupload' \
+                -c:v h264_vaapi -global_quality "$GLOBAL_QUALITY" \
+                -c:a aac -b:a "$AUDIO_BITRATE" \
+                -movflags +faststart \
+                "$tmp_file" \
+                >> "$LOG_FILE" 2>&1; then
+                ok=true
+            else
+                echo "[$current/$total] VAAPI failed, trying software fallback..."
+                rm -f "$tmp_file"
+            fi
+        fi
+
+        # Software fallback
+        if ! $ok; then
+            if ffmpeg -nostdin -y -hide_banner \
+                -i "$wmv_file" \
+                -c:v libx264 -crf 18 -preset slow \
+                -pix_fmt yuv420p \
+                -c:a aac -b:a "$AUDIO_BITRATE" \
+                -movflags +faststart \
+                "$tmp_file" \
+                >> "$LOG_FILE" 2>&1; then
+                ok=true
+            else
+                rm -f "$tmp_file"
+            fi
+        fi
+
+        if $ok; then
+            mv "$tmp_file" "$mp4_file"
+            end_time=$(date +%s)
+            elapsed=$(( end_time - start_time ))
+            mp4_size=$(stat -c%s "$mp4_file")
+            ratio=$(( mp4_size * 100 / wmv_size ))
+            echo "[$current/$total] Done: ${rel_path%.*}.mp4 ($(human_size "$mp4_size"), ${ratio}% of original, ${elapsed}s)"
+            total_wmv_bytes=$((total_wmv_bytes + wmv_size))
+            total_mp4_bytes=$((total_mp4_bytes + mp4_size))
+            (( ++converted ))
+        else
+            echo "[$current/$total] FAILED: $rel_path (check $LOG_FILE)" >&2
+            (( ++failed ))
+        fi
+    done
+
+    echo ""
+    echo "=== Summary ==="
+    echo "  Converted: $converted"
+    echo "  Skipped:   $skipped"
+    echo "  Failed:    $failed"
+    echo "  Total:     $total"
+    if (( converted > 0 )); then
+        overall_ratio=$(( total_mp4_bytes * 100 / total_wmv_bytes ))
+        echo "  Size:      $(human_size $total_wmv_bytes) → $(human_size $total_mp4_bytes) (${overall_ratio}%)"
+    fi
+
+    if (( failed > 0 )); then
+        echo ""
+        echo "  Check $LOG_FILE for error details."
+        exit 1
+    fi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: convert-wmv
+  namespace: media
+spec:
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+      nodeSelector:
+        intel.feature.node.kubernetes.io/gpu: "true"
+      containers:
+        - name: ffmpeg
+          image: linuxserver/ffmpeg:latest
+          command: ["/bin/bash"]
+          args: ["/scripts/convert.sh"]
+          resources:
+            requests:
+              cpu: "2"
+              memory: 2Gi
+              gpu.intel.com/i915: "1"
+            limits:
+              memory: 4Gi
+              gpu.intel.com/i915: "1"
+          volumeMounts:
+            - name: media
+              mountPath: /media
+            - name: script
+              mountPath: /scripts
+      volumes:
+        - name: media
+          nfs:
+            server: nas-direct.petrovic.network
+            path: /volume2/stash/media
+        - name: script
+          configMap:
+            name: convert-wmv-script
+            defaultMode: 0755
