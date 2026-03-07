@@ -626,6 +626,8 @@ cameras:
     lpr:
       enabled: False
     review:
+      alerts:
+        labels: []
       detections:
         labels:
           - person
