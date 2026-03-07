@@ -31,7 +31,7 @@ semantic_search:
 
 lpr:
   enabled: True
-  format: "^(?:[A-Z]{3} [0-9]{3}|[A-Z]{3} [0-9]{2}[A-Z]|NSW [0-9]{2}[A-Z]{2}|[0-9]{3} [A-Z]{3}|[A-Z0-9]{4,6})$"
+  format: "^(?:[A-Z]{3}[0-9]{3}|[A-Z]{3}[0-9]{2}[A-Z]|NSW[0-9]{2}[A-Z]{2}|[0-9]{3}[A-Z]{3}|[A-Z0-9]{4,6})$"
   min_plate_length: 4
   replace_rules:
     - pattern: " "
@@ -44,8 +44,8 @@ lpr:
       - "FGM63O"
       - "FGM630"
     model3:
-      - "EVP71W"
-      - "EVP7LW"
+      - "EPV71W"
+      - "EPV7LW"
 
 auth:
   enabled: False
