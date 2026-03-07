@@ -442,9 +442,7 @@ cameras:
       alerts:
         labels: []
       detections:
-        labels:
-          - person
-          - dog
+        labels: []
     snapshots:
       enabled: True
       timestamp: False
