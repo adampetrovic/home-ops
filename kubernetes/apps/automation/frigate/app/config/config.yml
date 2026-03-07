@@ -121,6 +121,39 @@ detect:
   enabled: True
 
 cameras:
+  driveway:
+    ffmpeg:
+      inputs:
+        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/driveway_hq
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/driveway_lq
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    detect:
+      width: 704
+      height: 576
+      fps: 5
+    objects:
+      track:
+        - person
+        - face
+        - car
+        - dog
+        - license_plate
+    snapshots:
+      enabled: True
+      timestamp: False
+      bounding_box: True
+      crop: False
+    lpr:
+      enabled: True
+    mqtt:
+      enabled: True
+      timestamp: False
+      crop: True
   doorbell:
     ffmpeg:
       inputs:
