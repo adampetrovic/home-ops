@@ -274,7 +274,7 @@ cameras:
         - 0.316,0.536,0.464,0.773,0.669,0.624,0.629,0.545,0.509,0.52,0.417,0.51
         - 0.406,0.308,0.409,0.43,0.41,0.512,0.514,0.518,0.514,0.291,0.451,0.27
     zones:
-      driveway:
+      front_driveway:
         coordinates: 984,428,1280,576,1280,720,834,720,650,580
       front_door:
         coordinates: 0.14,0.054,0.152,0.219,0.154,0.574,0.073,0.608,0.045,0.09
@@ -287,7 +287,7 @@ cameras:
           - motorcycle
         required_zones:
           - front_door
-          - driveway
+          - front_driveway
       detections:
         labels:
           - person
@@ -297,7 +297,7 @@ cameras:
       bounding_box: True
       required_zones:
         - front_door
-        - driveway
+        - front_driveway
       crop: False
     mqtt:
       enabled: True
@@ -305,7 +305,7 @@ cameras:
       crop: True
       required_zones:
         - front_door
-        - driveway
+        - front_driveway
         - front_parking_space
   front_yard:
     ffmpeg:
@@ -359,7 +359,7 @@ cameras:
       mask:
         - 0.757,0.535,0.824,0.654,0.911,0.409,0.904,0.328,0.856,0.303
     zones:
-      driveway:
+      front_driveway:
         coordinates: 1004,274,1197,418,1280,504,1256,584,829,266
       front_grass:
         coordinates: 556,321,629,317,979,720,867,720,560,720,0,720,0,356,75,347
@@ -373,7 +373,7 @@ cameras:
           - person
         required_zones:
           - walkway
-          - driveway
+          - front_driveway
           - front_grass
       detections:
         labels:
@@ -391,7 +391,7 @@ cameras:
       crop: True
       required_zones:
         - walkway
-        - driveway
+        - front_driveway
         - front_grass
         - footpath
   garage:
