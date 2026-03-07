@@ -81,6 +81,9 @@ streams:
 
 # NOTE: when adding a new camera be sure to omit pairings the first time.
 homekit:
+  driveway_lq:
+    pin: "19550224"
+    name: Driveway
   doorbell_lq:
     pin: "19550224"
     name: Doorbell
