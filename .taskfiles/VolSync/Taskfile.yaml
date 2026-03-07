@@ -111,6 +111,47 @@ tasks:
       - test -f {{.VOLSYNC_TEMPLATES_DIR}}/unlock.tmpl.yaml
     silent: true
 
+  backup:
+    desc: Trigger an ad-hoc VolSync backup for an application
+    summary: |
+      Triggers an immediate VolSync backup for an application by patching the
+      ReplicationSource manual trigger. Runs each selected backend sequentially
+      and waits for completion.
+
+      Args:
+        app: Application name (required)
+        ns: Namespace the PVC is in (default: default)
+        type: Backend to trigger - kopia, r2, or all (default: kopia)
+    cmds:
+      - cmd: |
+          if [[ "{{.type}}" == "kopia" || "{{.type}}" == "all" ]]; then
+            echo "Triggering Kopia backup for {{.app}} in {{.ns}}..."
+            kubectl -n {{.ns}} patch replicationsources {{.app}} --type merge \
+              -p '{"spec":{"trigger":{"manual":"{{.now}}"}}}'
+            bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh volsync-src-{{.app}} {{.ns}}
+            kubectl -n {{.ns}} wait job/volsync-src-{{.app}} --for condition=complete --timeout=120m
+            echo "✓ Kopia backup completed for {{.app}}"
+          fi
+      - cmd: |
+          if [[ "{{.type}}" == "r2" || "{{.type}}" == "all" ]]; then
+            echo "Triggering R2 backup for {{.app}} in {{.ns}}..."
+            kubectl -n {{.ns}} patch replicationsources {{.app}}-r2 --type merge \
+              -p '{"spec":{"trigger":{"manual":"{{.now}}"}}}'
+            bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh volsync-src-{{.app}}-r2 {{.ns}}
+            kubectl -n {{.ns}} wait job/volsync-src-{{.app}}-r2 --for condition=complete --timeout=120m
+            echo "✓ R2 backup completed for {{.app}}"
+          fi
+    env: *env
+    requires:
+      vars: ["app"]
+    vars:
+      ns: '{{.ns | default "default"}}'
+      type: '{{.type | default "kopia"}}'
+      now: '{{now | date "150405"}}'
+    preconditions:
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh
+    silent: true
+
   # To run backup jobs in parallel for all replicationsources:
   #   - kubectl get replicationsources --all-namespaces --no-headers | awk '{print $2, $1}' | xargs --max-procs=4 -l bash -c 'task volsync:snapshot app=$0 ns=$1'
   snapshot:
