@@ -24,6 +24,10 @@ streams:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.56:554/Streaming/Channels/101/
   backyard_lq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.56:554/Streaming/Channels/103/
+  driveway_hq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.65:554/cam/realmonitor?channel=1&subtype=0
+  driveway_lq:
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.65:554/cam/realmonitor?channel=1&subtype=1
   doorbell_hq:
     - "ffmpeg:http://10.0.50.60/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
     - rtsp://10.0.50.60/Preview_01_sub
