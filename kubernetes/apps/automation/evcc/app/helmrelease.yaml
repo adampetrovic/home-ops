@@ -28,8 +28,8 @@ spec:
         containers:
           app:
             image:
-              repository: evcc/evcc
-              tag: 0.302.0@sha256:3583fed24e42576069f8282623b4f9320d77517e8321f0bfd258471253a37a5f
+              repository: ghcr.io/adampetrovic/evcc
+              tag: feat-iotawatt-meter@sha256:6fe42c113a347056cfc86b09d0ae0bfa01bc6f2ea7dbb622e3ff3b3579c339b3
             env:
               TZ: "${TZ}"
             envFrom:
