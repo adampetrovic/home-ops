@@ -55,9 +55,9 @@ streams:
   living_room_lq:
     - rtsps://10.0.0.1:7441/mYZztW3rCxSF95fB?enableSrtp
   office_hq:
-    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/101/
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.53:554/Streaming/Channels/101/
   office_lq:
-    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.61:554/Streaming/Channels/103/
+    - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.53:554/Streaming/Channels/103/
   side_walkway_hq:
     - rtsp://$${GO2RTC_USERNAME}:$${GO2RTC_PASSWORD}@10.0.50.55:554/Streaming/Channels/101/
   side_walkway_lq:
