@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/go2rtc
-              tag: feat-homekit-two-way-audio@sha256:590ac729c4c625a39986445b02b981cdc9e9b612e874cbe3010fb3c13ecdaf84
+              tag: feat-homekit-two-way-audio@sha256:0e872f2a0d6913ad8b785dc1454a95549cf9756e43bda3a29cc6bd9c3a356940
             envFrom:
               - secretRef:
                   name: go2rtc-secret
