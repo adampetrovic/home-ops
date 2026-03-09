@@ -7,6 +7,7 @@ components:
 resources:
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
+  - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
   - ./koffan/ks.yaml
   - ./memos/ks.yaml
