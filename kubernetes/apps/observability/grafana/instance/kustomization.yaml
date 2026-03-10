@@ -17,3 +17,6 @@ configMapGenerator:
   - name: grafana-dashboard-home-energy-pro
     files:
       - home-energy-pro.json=./dashboards/home-energy-pro.json
+  - name: grafana-dashboard-home-energy-roi
+    files:
+      - home-energy-roi.json=./dashboards/home-energy-roi.json
