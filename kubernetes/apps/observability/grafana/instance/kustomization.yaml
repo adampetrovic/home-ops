@@ -8,6 +8,8 @@ resources:
   - ./grafanadashboard.yaml
   - ./grafanadatasource.yaml
   - ./servicemonitor.yaml
+configurations:
+  - kustomizeconfig.yaml
 configMapGenerator:
   - name: grafana-dashboard-home-energy
     files:
@@ -15,5 +17,3 @@ configMapGenerator:
   - name: grafana-dashboard-home-energy-pro
     files:
       - home-energy-pro.json=./dashboards/home-energy-pro.json
-generatorOptions:
-  disableNameSuffixHash: true
