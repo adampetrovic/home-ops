@@ -83,6 +83,7 @@ spec:
       organization: "$${INFLUXDB_ORG_ID}"
       defaultBucket: default
       tlsSkipVerify: true
+      timeout: "60"
     secureJsonData:
       token: "$${GRAFANA_INFLUXDB_TOKEN}"
 ---
