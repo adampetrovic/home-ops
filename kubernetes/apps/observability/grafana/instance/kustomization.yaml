@@ -20,3 +20,6 @@ configMapGenerator:
   - name: grafana-dashboard-home-energy-roi
     files:
       - home-energy-roi.json=./dashboards/home-energy-roi.json
+  - name: grafana-dashboard-home-energy-battery
+    files:
+      - home-energy-battery.json=./dashboards/home-energy-battery.json
