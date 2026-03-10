@@ -742,7 +742,7 @@
             "pointSize": 1,
             "showPoints": "never",
             "stacking": {
-              "mode": "normal"
+              "mode": "none"
             },
             "spanNulls": false
           },
