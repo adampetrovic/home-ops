@@ -34,7 +34,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/energize
-              tag: main@sha256:0075baa7f8a7079051579d8ffaf447aef149b445ea2ff2d9f6962fd714b91cd1
+              tag: main@sha256:981db9311950456e8e86ec0f44c4260cd3d0b4dc7cae82228414e78d73d90214
             envFrom: *envFrom
             env:
               TZ: Australia/Sydney
