@@ -49,7 +49,9 @@ All dashboards query **InfluxDB** (Flux) with data from:
 > **URL:** [/d/home-power-live/](https://grafana.petrovic.network/d/home-power-live/)
 > **Purpose:** Real-time operational monitoring — the IoTaWatt web UI replacement.
 
-![Home Power — Live](screenshots/home-power-live.png)
+![Home Power — Live: Current Power + Power Flow](screenshots/home-power-live-1.png)
+![Home Power — Live: Per-Circuit + Phase Balance](screenshots/home-power-live-2.png)
+![Home Power — Live: Phase Current + Voltage/Frequency + Today's Energy](screenshots/home-power-live-3.png)
 
 ### How to read it
 
@@ -116,7 +118,7 @@ Running kWh totals since midnight (AEST):
 > **URL:** [/d/home-energy-tou/](https://grafana.petrovic.network/d/home-energy-tou/)
 > **Purpose:** Daily energy summary with TOU tariff cost breakdown. Default view is yesterday (completed day).
 
-![Home Energy](screenshots/home-energy.png)
+![Home Energy: Usage Summary + Circuit Breakdown](screenshots/home-energy.png)
 
 ### How to read it
 
@@ -140,7 +142,7 @@ Daily totals for the selected period: consumption, solar generation, grid import
 > **URL:** [/d/home-energy-pro/](https://grafana.petrovic.network/d/home-energy-pro/)
 > **Purpose:** Comprehensive energy analysis — power flow, cost analysis, solar performance, circuit breakdown, and trend projections over 7 days.
 
-![Home Energy Pro](screenshots/home-energy-pro.png)
+![Home Energy Pro: Real-Time Flow + Period Summary](screenshots/home-energy-pro.png)
 
 ### Key sections
 
@@ -160,7 +162,7 @@ Daily totals for the selected period: consumption, solar generation, grid import
 > **URL:** [/d/home-energy-battery/](https://grafana.petrovic.network/d/home-energy-battery/)
 > **Purpose:** Battery-specific performance monitoring and financial impact analysis.
 
-![Home Energy Battery](screenshots/home-energy-battery.png)
+![Home Energy Battery: Live Status (awaiting Sigenergy install)](screenshots/home-energy-battery.png)
 
 *All panels require sigenergy2mqtt data — will show "No data" until battery is installed.*
 
@@ -178,7 +180,7 @@ Daily totals for the selected period: consumption, solar generation, grid import
 > **URL:** [/d/home-energy-roi/](https://grafana.petrovic.network/d/home-energy-roi/)
 > **Purpose:** Long-term return on investment tracking for solar and battery systems.
 
-![Home Energy ROI](screenshots/home-energy-roi.png)
+![Home Energy ROI: Solar + Battery Payback](screenshots/home-energy-roi.png)
 
 *Battery ROI panels require sigenergy2mqtt data — will populate after install.*
 
@@ -229,8 +231,4 @@ Daily supply charge: $1.023/day
 
 ## Screenshots
 
-Screenshots are stored in `dashboards/screenshots/`. To update:
-1. Open the dashboard in Grafana
-2. Use the share menu or browser screenshot tool
-3. Save as `dashboards/screenshots/<dashboard-uid>.png`
-4. Commit and push
+Screenshots are stored in `dashboards/screenshots/`. To update, replace the PNGs and commit.
