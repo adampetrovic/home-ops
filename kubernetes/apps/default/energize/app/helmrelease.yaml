@@ -35,6 +35,7 @@ spec:
             image:
               repository: ghcr.io/adampetrovic/energize
               tag: main
+              pullPolicy: Always
             envFrom: *envFrom
             env:
               TZ: Australia/Sydney
