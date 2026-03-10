@@ -4105,17 +4105,935 @@
       "type": "stat"
     },
     {
-      "collapsed": true,
+      "type": "row",
+      "title": "\ud83d\udcb0 Investment ROI",
+      "collapsed": false,
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 96
+        "y": 96,
+        "w": 24,
+        "h": 1
       },
-      "id": 100,
-      "panels": [],
-      "title": "Blank Row",
-      "type": "row"
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Solar Cost",
+      "description": "Total solar system investment (7.4kW panels + 6kW Fronius, Dec 2022)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 97,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "array.from(rows: [{_value: float(v: $${solar_cost})}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Solar Savings (Data)",
+      "description": "Total solar savings from available IoTaWatt data (since Jan 2024)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 4,
+        "y": 97,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Query ALL available data (not just dashboard time range)\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\n// Self-consumed solar value (at TOU rate) + export credits (at FiT)\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Solar Savings (Est. Total)",
+      "description": "Estimated total solar savings since install (Dec 2022), extrapolated using daily average from data period",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 97,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\ntotalSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n\n// Calculate daily average then extrapolate to full period since install\nfirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\ndataDays = float(v: uint(v: now()) - uint(v: firstTime[0])) / float(v: uint(v: 1d))\ninstallDate = time(v: \"$${solar_install_date}T00:00:00Z\")\ntotalDays = float(v: uint(v: now()) - uint(v: installDate)) / float(v: uint(v: 1d))\n\ntotalSavings\n    |> map(fn: (r) => ({r with _value: (r._value / dataDays) * totalDays}))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Solar Daily Avg",
+      "description": "Average daily solar savings (self-consumption value + export credits)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 97,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\n// Total savings\ntotalSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n\n// Data range in days\nfirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\nrangeDays = float(v: uint(v: now()) - uint(v: firstTime[0])) / float(v: uint(v: 1d))\n\ntotalSavings\n    |> map(fn: (r) => ({r with _value: r._value / rangeDays}))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Solar Payback",
+      "description": "Percentage of $6,400 solar investment recovered through savings",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 97,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\ntotalSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n\n// Calculate daily average then extrapolate to full period since install\nfirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\ndataDays = float(v: uint(v: now()) - uint(v: firstTime[0])) / float(v: uint(v: 1d))\ninstallDate = time(v: \"$${solar_install_date}T00:00:00Z\")\ntotalDays = float(v: uint(v: now()) - uint(v: installDate)) / float(v: uint(v: 1d))\n\ntotalSavings\n    |> map(fn: (r) => ({r with _value: (r._value / dataDays) * totalDays}))\n    |> map(fn: (r) => ({r with _value: r._value / float(v: $${solar_cost}) * 100.0}))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              },
+              {
+                "value": 100,
+                "color": "dark-green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": false,
+        "orientation": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Solar Payback Date",
+      "description": "Estimated date when cumulative solar savings exceed system cost",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 97,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\ntotalSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nfirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\ndataDays = float(v: uint(v: now()) - uint(v: firstTime[0])) / float(v: uint(v: 1d))\ndailyAvg = totalSavings[0] / dataDays\ndaysToPayback = float(v: $${solar_cost}) / dailyAvg\ninstallDate = time(v: \"$${solar_install_date}T00:00:00Z\")\npaybackEpoch = uint(v: installDate) + uint(v: duration(v: string(v: int(v: math.round(x: daysToPayback))) + \"d\"))\n\n// Output the payback date as a single-row table\narray.from(rows: [{_time: time(v: paybackEpoch), _value: daysToPayback}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeFromNow",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cumulative Solar Savings",
+      "description": "Running total of monthly solar savings (self-consumption + export credits)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 101,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> cumulativeSum()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 30,
+            "lineWidth": 2,
+            "pointSize": 5,
+            "spanNulls": false,
+            "drawStyle": "line",
+            "gradientMode": "scheme",
+            "showPoints": "auto",
+            "axisLabel": "",
+            "lineInterpolation": "smooth"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Battery Cost",
+      "description": "Total battery system investment (Sigenergy 15.6kWh, $12,000)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 109,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"array\"\narray.from(rows: [{_value: float(v: $${battery_cost})}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Battery Savings",
+      "description": "Total battery savings since install (discharge value \u2212 charge cost at TOU rates)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 4,
+        "y": 109,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_discharging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_charging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nnetSavings = discharge[0] - charge[0]\ndaysActive = float(v: uint(v: now()) - uint(v: time(v: \"$${battery_install_date}T00:00:00Z\"))) / float(v: uint(v: 1d))\ndailyAvg = netSavings / daysActive\n\narray.from(rows: [{_value: netSavings}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Battery Daily Avg",
+      "description": "Average daily battery savings (grid import avoided at TOU rates)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 109,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_discharging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_charging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nnetSavings = discharge[0] - charge[0]\ndaysActive = float(v: uint(v: now()) - uint(v: time(v: \"$${battery_install_date}T00:00:00Z\"))) / float(v: uint(v: 1d))\ndailyAvg = netSavings / daysActive\n\narray.from(rows: [{_value: dailyAvg}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Battery Payback",
+      "description": "Percentage of $12,000 battery investment recovered through savings",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 109,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_discharging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_charging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nnetSavings = discharge[0] - charge[0]\ndaysActive = float(v: uint(v: now()) - uint(v: time(v: \"$${battery_install_date}T00:00:00Z\"))) / float(v: uint(v: 1d))\ndailyAvg = netSavings / daysActive\n\narray.from(rows: [{_value: netSavings / float(v: $${battery_cost}) * 100.0}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              },
+              {
+                "value": 100,
+                "color": "dark-green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": false,
+        "orientation": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Battery Payback Date",
+      "description": "Estimated date when cumulative battery savings exceed system cost",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 109,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_discharging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_charging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nnetSavings = discharge[0] - charge[0]\ndaysActive = float(v: uint(v: now()) - uint(v: time(v: \"$${battery_install_date}T00:00:00Z\"))) / float(v: uint(v: 1d))\ndailyAvg = netSavings / daysActive\n\ndaysToPayback = float(v: $${battery_cost}) / dailyAvg\ninstallDate = time(v: \"$${battery_install_date}T00:00:00Z\")\npaybackEpoch = uint(v: installDate) + uint(v: duration(v: string(v: int(v: math.round(x: daysToPayback))) + \"d\"))\narray.from(rows: [{_time: time(v: paybackEpoch), _value: daysToPayback}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dateTimeFromNow",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Cumulative Savings Over Time",
+      "description": "Monthly cumulative solar savings from IoTaWatt data. Battery savings will overlay once sigenergy2mqtt is active.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 101,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> cumulativeSum()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 30,
+            "lineWidth": 2,
+            "pointSize": 5,
+            "spanNulls": false,
+            "drawStyle": "line",
+            "gradientMode": "scheme",
+            "showPoints": "auto",
+            "axisLabel": "",
+            "lineInterpolation": "smooth"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Investment",
+      "description": "Combined solar ($6,400) + battery ($12,000) investment",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 113,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"array\"\narray.from(rows: [{_value: float(v: $${solar_cost}) + float(v: $${battery_cost})}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Combined Payback",
+      "description": "Percentage of total $18,400 investment recovered. Solar savings extrapolated from install date, battery savings from actual data.",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 4,
+        "y": 113,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\nimport \"array\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_discharging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: time(v: \"$${battery_install_date}T00:00:00Z\"))\n    |> filter(fn: (r) => r.entity_id =~ /battery_charging_power$/)\n    |> filter(fn: (r) => r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nnetSavings = discharge[0] - charge[0]\ndaysActive = float(v: uint(v: now()) - uint(v: time(v: \"$${battery_install_date}T00:00:00Z\"))) / float(v: uint(v: 1d))\ndailyAvg = netSavings / daysActive\n\n// Also get solar total savings (extrapolated)\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n    |> findColumn(fn: (key) => true, column: \"_value\")\n\nsolarFirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\nsolarDataDays = float(v: uint(v: now()) - uint(v: solarFirstTime[0])) / float(v: uint(v: 1d))\nsolarInstallDate = time(v: \"$${solar_install_date}T00:00:00Z\")\nsolarTotalDays = float(v: uint(v: now()) - uint(v: solarInstallDate)) / float(v: uint(v: 1d))\nsolarEstTotal = (solarSavings[0] / solarDataDays) * solarTotalDays\n\ntotalSavings = solarEstTotal + netSavings\ntotalCost = float(v: $${solar_cost}) + float(v: $${battery_cost})\n\narray.from(rows: [{_value: totalSavings / totalCost * 100.0}])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 50,
+                "color": "yellow"
+              },
+              {
+                "value": 80,
+                "color": "green"
+              },
+              {
+                "value": 100,
+                "color": "dark-green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdMarkers": true,
+        "showThresholdLabels": false,
+        "orientation": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Annual Savings Rate",
+      "description": "Projected annual solar savings based on daily average (battery savings will be added once active)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 113,
+        "w": 4,
+        "h": 3
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"math\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nsolarGen = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\nsolarExp = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false, timeSrc: \"_start\")\n\n// Total savings\ntotalSavings = join(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp) / 1000.0) * getPrice(timeVal: r._time)\n                + (r._value_exp / 1000.0) * feedin_tariff\n    }))\n    |> sum()\n\n// Data range in days\nfirstTime = from(bucket: \"iotawatt\")\n    |> range(start: 2024-01-01T00:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> first()\n    |> findColumn(fn: (key) => true, column: \"_time\")\n\nrangeDays = float(v: uint(v: now()) - uint(v: firstTime[0])) / float(v: uint(v: 1d))\n\ntotalSavings\n    |> map(fn: (r) => ({r with _value: r._value / rangeDays}))\n    |> map(fn: (r) => ({r with _value: r._value * 365.25}))",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      }
     }
   ],
   "refresh": "5m",
@@ -4338,6 +5256,106 @@
           {
             "text": "1.0039",
             "value": "1.0039",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "solar_cost",
+        "type": "constant",
+        "label": "Solar System Cost ($)",
+        "description": "Total cost of solar panel installation",
+        "query": "6400",
+        "hide": 2,
+        "current": {
+          "text": "6400",
+          "value": "6400",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "6400",
+            "value": "6400",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "battery_cost",
+        "type": "constant",
+        "label": "Battery System Cost ($)",
+        "description": "Total cost of battery installation",
+        "query": "12000",
+        "hide": 2,
+        "current": {
+          "text": "12000",
+          "value": "12000",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "12000",
+            "value": "12000",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "solar_install_date",
+        "type": "constant",
+        "label": "Solar Install Date",
+        "description": "Date solar panels were installed (YYYY-MM-DD)",
+        "query": "2022-12-01",
+        "hide": 2,
+        "current": {
+          "text": "2022-12-01",
+          "value": "2022-12-01",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "2022-12-01",
+            "value": "2022-12-01",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "battery_install_date",
+        "type": "constant",
+        "label": "Battery Install Date",
+        "description": "Date battery was installed (YYYY-MM-DD)",
+        "query": "2026-04-01",
+        "hide": 2,
+        "current": {
+          "text": "2026-04-01",
+          "value": "2026-04-01",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "2026-04-01",
+            "value": "2026-04-01",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "name": "sigenergy_bucket",
+        "type": "constant",
+        "label": "Sigenergy InfluxDB Bucket",
+        "description": "InfluxDB bucket for sigenergy2mqtt data",
+        "query": "sigenergy",
+        "hide": 2,
+        "current": {
+          "text": "sigenergy",
+          "value": "sigenergy",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "sigenergy",
+            "value": "sigenergy",
             "selected": false
           }
         ]
