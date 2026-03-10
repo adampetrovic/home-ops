@@ -805,7 +805,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"math\"\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_A\" or r._measurement == \"Solar_A\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> map(fn: (r) => ({r with _value: math.mMax(x: r._value, y: 0.0)}))\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_A\" or r._measurement == \"Solar_A\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -863,7 +863,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"math\"\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_B\" or r._measurement == \"Solar_B\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> map(fn: (r) => ({r with _value: math.mMax(x: r._value, y: 0.0)}))\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_B\" or r._measurement == \"Solar_B\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -921,7 +921,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"math\"\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_C\" or r._measurement == \"Solar_C\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> map(fn: (r) => ({r with _value: math.mMax(x: r._value, y: 0.0)}))\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_C\" or r._measurement == \"Solar_C\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -979,7 +979,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "gridA = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\nsolarA = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Solar_A\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\njoin(tables: {grid: gridA, solar: solarA}, on: [\"_time\"])\n    |> map(fn: (r) => ({_time: r._time, _value: r._value_grid + r._value_solar, _field: \"Phase A\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_A\" or r._measurement == \"Solar_A\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase A\"}))\n    |> group(columns: [\"_field\"])"
         },
         {
           "datasource": {
@@ -987,7 +987,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "B",
-          "query": "gridB = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_B\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\nsolarB = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Solar_B\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\njoin(tables: {grid: gridB, solar: solarB}, on: [\"_time\"])\n    |> map(fn: (r) => ({_time: r._time, _value: r._value_grid + r._value_solar, _field: \"Phase B\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_B\" or r._measurement == \"Solar_B\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase B\"}))\n    |> group(columns: [\"_field\"])"
         },
         {
           "datasource": {
@@ -995,7 +995,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "C",
-          "query": "gridC = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_C\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\nsolarC = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Solar_C\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n\njoin(tables: {grid: gridC, solar: solarC}, on: [\"_time\"])\n    |> map(fn: (r) => ({_time: r._time, _value: r._value_grid + r._value_solar, _field: \"Phase C\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_C\" or r._measurement == \"Solar_C\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase C\"}))\n    |> group(columns: [\"_field\"])"
         }
       ],
       "fieldConfig": {
