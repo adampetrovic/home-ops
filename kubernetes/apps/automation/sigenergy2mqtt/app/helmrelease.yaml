@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app sigenergy2mqtt
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 2
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      sigenergy2mqtt:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/seud0nym/sigenergy2mqtt
+              tag: 2026.1.20
+            env:
+              TZ: "${TZ}"
+
+              # ── Modbus ──
+              # TODO: Set inverter IP after hardware install
+              SIGENERGY2MQTT_MODBUS_HOST: "10.0.10.TBD"
+              SIGENERGY2MQTT_MODBUS_PORT: "502"
+              SIGENERGY2MQTT_MODBUS_INVERTER_DEVICE_ID: "1"
+
+              # ── MQTT ──
+              SIGENERGY2MQTT_MQTT_BROKER: "mosquitto.automation.svc.cluster.local"
+              SIGENERGY2MQTT_MQTT_PORT: "1883"
+
+              # ── Home Assistant ──
+              SIGENERGY2MQTT_HASS_ENABLED: "true"
+              SIGENERGY2MQTT_HASS_ENTITY_ID_PREFIX: "sigen"
+              SIGENERGY2MQTT_HASS_UNIQUE_ID_PREFIX: "sigen"
+
+              # ── InfluxDB v2 ──
+              SIGENERGY2MQTT_INFLUX_ENABLED: "true"
+              SIGENERGY2MQTT_INFLUX_HOST: "influxdb.observability.svc.cluster.local"
+              SIGENERGY2MQTT_INFLUX_PORT: "8086"
+              SIGENERGY2MQTT_INFLUX_BUCKET: "sigenergy"
+
+              # ── PVOutput — disabled (see TODO-ce04df1e) ──
+              SIGENERGY2MQTT_PVOUTPUT_ENABLED: "false"
+
+              # ── Logging ──
+              SIGENERGY2MQTT_LOG_LEVEL: "INFO"
+
+            envFrom:
+              - secretRef:
+                  name: sigenergy2mqtt-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            runAsNonRoot: true
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+
+    # Stateless — persistent state stored in /data
+    persistence:
+      data:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /data
+
+    # No web UI — no service or route needed
