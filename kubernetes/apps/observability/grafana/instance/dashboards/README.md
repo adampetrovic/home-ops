@@ -29,7 +29,7 @@ All dashboards query **InfluxDB** (Flux) with data from:
 **Direct CTs (raw, always accurate):**
 - `Grid_A`, `Grid_B`, `Grid_C` — per-phase grid power (Watts), current (Amps), frequency (Hz)
 - `Solar_A`, `Solar_B`, `Solar_C` — per-phase solar generation (Watts)
-- `GridA_V`, `GridB_V`, `GridC_V` — mains voltage (Volts, derived reference — same all phases)
+- `Grid_A`, `Grid_B`, `Grid_C` also carry voltage (Volts) and frequency (Hz) via unit tag
 - `Tesla` — EV charger (3-phase sum)
 - `AirConditioner` — ducted AC (3-phase sum)
 - `Pool` — pool pump
