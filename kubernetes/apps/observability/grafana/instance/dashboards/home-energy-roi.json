@@ -428,7 +428,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "dateTimeAsLocal",
+          "unit": "dateTimeFromNow",
           "decimals": 0,
           "color": {
             "mode": "fixed",
