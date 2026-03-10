@@ -99,6 +99,18 @@
       "tooltip": "Solar & battery ROI tracking",
       "type": "link",
       "url": "/d/home-energy-roi/home-energy-roi"
+    },
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "\ud83d\udd0b Battery Ops \u2192",
+      "tooltip": "Detailed battery operations dashboard",
+      "type": "link",
+      "url": "/d/home-energy-battery/home-energy-battery"
     }
   ],
   "panels": [
@@ -4116,6 +4128,393 @@
       "title": "Avg Daily Solar",
       "description": "Average daily solar generation over the last 30 days",
       "type": "stat"
+    },
+    {
+      "type": "row",
+      "title": "\ud83d\udd0b Battery",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 96
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "Battery SoC",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"%\" and r.entity_id == \"sigen_0_plant_battery_soc\" and r._field == \"value\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "green",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Battery Power",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_plant_battery_power\" and r._field == \"value\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "Positive = charging, Negative = discharging"
+    },
+    {
+      "type": "stat",
+      "title": "Battery Temp",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 8,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"\u00b0C\" and r.entity_id == \"sigen_0_inverter_1_average_cell_temperature\" and r._field == \"value\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 15
+              },
+              {
+                "color": "yellow",
+                "value": 35
+              },
+              {
+                "color": "red",
+                "value": 45
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Today Charged",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 11,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_daily_charge_energy\" and r._field == \"value\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kWh",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Today Discharged",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 14,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_daily_discharge_energy\" and r._field == \"value\")\n    |> last()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kWh",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Today Savings",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 17,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\ndischarge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: today())\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_battery_discharging_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_value\"])\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"discharge\", _value: r._value}))\n\ncharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: today())\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_battery_charging_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_value\"])\n    |> map(fn: (r) => ({_time: r._time, _measurement: \"charge\", _value: r._value}))\n\nunion(tables: [discharge, charge])\n    |> pivot(rowKey: [\"_time\"], columnKey: [\"_measurement\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: ((if exists r.discharge then r.discharge else 0.0)\n               - (if exists r.charge then r.charge else 0.0)) / 1000.0 * getPrice(timeVal: r._time)\n    }))\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "Net battery savings today (discharge value \u2212 charge cost at TOU rates)"
+    },
+    {
+      "type": "timeseries",
+      "title": "Power Flow (1h)",
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 21,
+        "y": 97
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -1h)\n    |> filter(fn: (r) => r._measurement == \"W\" and r._field == \"value\"\n        and (r.entity_id == \"sigen_0_total_pv_power\"\n          or r.entity_id == \"sigen_0_grid_sensor_import_power\"\n          or r.entity_id == \"sigen_0_battery_discharging_power\"\n          or r.entity_id == \"sigen_0_battery_charging_power\"\n          or r.entity_id == \"sigen_0_consumed_power\"))\n    |> aggregateWindow(every: 1m, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({\n        r with\n        _field: if r.entity_id == \"sigen_0_total_pv_power\" then \"Solar\"\n            else if r.entity_id == \"sigen_0_grid_sensor_import_power\" then \"Grid Import\"\n            else if r.entity_id == \"sigen_0_battery_discharging_power\" then \"Battery Out\"\n            else if r.entity_id == \"sigen_0_battery_charging_power\" then \"Battery In\"\n            else \"Consumption\"\n    }))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 1,
+            "pointSize": 1
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
     }
   ],
   "refresh": "5m",
@@ -4339,6 +4738,23 @@
             "text": "1.0039",
             "value": "1.0039",
             "selected": false
+          }
+        ]
+      },
+      {
+        "name": "sigenergy_bucket",
+        "type": "constant",
+        "label": "Sigenergy Bucket",
+        "query": "sigenergy",
+        "hide": 2,
+        "current": {
+          "text": "sigenergy",
+          "value": "sigenergy"
+        },
+        "options": [
+          {
+            "text": "sigenergy",
+            "value": "sigenergy"
           }
         ]
       }
