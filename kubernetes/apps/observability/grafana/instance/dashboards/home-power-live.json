@@ -93,7 +93,58 @@
   "version": 2,
   "weekStart": "",
   "templating": {
-    "list": []
+    "list": [
+      {
+        "name": "peak_tariff",
+        "query": "0.6127",
+        "type": "constant",
+        "hide": 2,
+        "current": {
+          "text": "0.6127",
+          "value": "0.6127"
+        }
+      },
+      {
+        "name": "offpeak_tariff",
+        "query": "0.4081",
+        "type": "constant",
+        "hide": 2,
+        "current": {
+          "text": "0.4081",
+          "value": "0.4081"
+        }
+      },
+      {
+        "name": "evoffpeak_tariff",
+        "query": "0.08",
+        "type": "constant",
+        "hide": 2,
+        "current": {
+          "text": "0.08",
+          "value": "0.08"
+        }
+      },
+      {
+        "name": "superoffpeak_tariff",
+        "query": "0.00",
+        "type": "constant",
+        "hide": 2,
+        "current": {
+          "text": "0.00",
+          "value": "0.00"
+        }
+      },
+      {
+        "name": "feedin_tariff",
+        "query": "0.028",
+        "type": "constant",
+        "hide": 2,
+        "current": {
+          "text": "0.028",
+          "value": "0.028"
+        }
+      }
+    ]
   },
   "panels": [
     {
@@ -632,7 +683,7 @@
       "description": "Live power draw per monitored circuit",
       "gridPos": {
         "h": 8,
-        "w": 10,
+        "w": 8,
         "x": 0,
         "y": 17
       },
@@ -702,14 +753,146 @@
       }
     },
     {
+      "type": "bargauge",
+      "title": "kWh Today by Circuit",
+      "description": "Energy consumed today per circuit",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 17
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "A",
+          "query": "import \"timezone\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> group(columns: [\"_measurement\"])\n    |> sum()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value / 1000.0, _field: r._measurement}))\n    |> group(columns: [\"_field\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "kwatth",
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3
+              },
+              {
+                "color": "red",
+                "value": 8
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Cost Today by Circuit",
+      "description": "Out-of-pocket cost today per circuit (pro-rata solar attribution, TOU tariff)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 17
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "A",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: ${peak_tariff}},\n    {key: \"offpeak\", value: ${offpeak_tariff}},\n    {key: \"evoffpeak\", value: ${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: ${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode: \"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\ncircuit_usage = join(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import)}))\n    |> drop(columns: [\"_value_grid_import\", \"_value_solar_generation\"])\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: r._measurement}))\n    |> group(columns: [\"_field\"])\n    |> sort(columns: [\"_value\"], desc: true)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyAUD",
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
       "type": "timeseries",
       "title": "Circuit Power Over Time",
       "description": "Per-circuit power draw history",
       "gridPos": {
         "h": 8,
-        "w": 14,
-        "x": 10,
-        "y": 17
+        "w": 24,
+        "x": 0,
+        "y": 25
       },
       "datasource": {
         "type": "influxdb",
@@ -780,7 +963,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 33
       },
       "collapsed": false
     },
@@ -792,7 +975,7 @@
         "h": 5,
         "w": 4,
         "x": 0,
-        "y": 26
+        "y": 34
       },
       "datasource": {
         "type": "influxdb",
@@ -850,7 +1033,7 @@
         "h": 5,
         "w": 4,
         "x": 4,
-        "y": 26
+        "y": 34
       },
       "datasource": {
         "type": "influxdb",
@@ -908,7 +1091,7 @@
         "h": 5,
         "w": 4,
         "x": 8,
-        "y": 26
+        "y": 34
       },
       "datasource": {
         "type": "influxdb",
@@ -966,7 +1149,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 26
+        "y": 34
       },
       "datasource": {
         "type": "influxdb",
@@ -1038,7 +1221,7 @@
         "h": 5,
         "w": 4,
         "x": 0,
-        "y": 31
+        "y": 39
       },
       "datasource": {
         "type": "influxdb",
@@ -1101,7 +1284,7 @@
         "h": 5,
         "w": 4,
         "x": 4,
-        "y": 31
+        "y": 39
       },
       "datasource": {
         "type": "influxdb",
@@ -1164,7 +1347,7 @@
         "h": 5,
         "w": 4,
         "x": 8,
-        "y": 31
+        "y": 39
       },
       "datasource": {
         "type": "influxdb",
@@ -1227,7 +1410,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 31
+        "y": 39
       },
       "datasource": {
         "type": "influxdb",
@@ -1285,7 +1468,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "datasource": {
         "type": "influxdb",
@@ -1359,7 +1542,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 36
+        "y": 44
       },
       "datasource": {
         "type": "influxdb",
@@ -1437,7 +1620,7 @@
         "h": 3,
         "w": 16,
         "x": 8,
-        "y": 36
+        "y": 44
       },
       "datasource": {
         "type": "influxdb",
@@ -1552,7 +1735,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 47
       },
       "collapsed": false
     },
@@ -1563,7 +1746,7 @@
         "h": 3,
         "w": 6,
         "x": 0,
-        "y": 40
+        "y": 48
       },
       "datasource": {
         "type": "influxdb",
@@ -1620,7 +1803,7 @@
         "h": 3,
         "w": 6,
         "x": 6,
-        "y": 40
+        "y": 48
       },
       "datasource": {
         "type": "influxdb",
@@ -1677,7 +1860,7 @@
         "h": 3,
         "w": 6,
         "x": 12,
-        "y": 40
+        "y": 48
       },
       "datasource": {
         "type": "influxdb",
@@ -1734,7 +1917,7 @@
         "h": 3,
         "w": 6,
         "x": 18,
-        "y": 40
+        "y": 48
       },
       "datasource": {
         "type": "influxdb",
