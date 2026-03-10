@@ -4136,7 +4136,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "array.from(rows: [{_value: float(v: $${solar_cost})}])",
+          "query": "import \"array\"\n\narray.from(rows: [{_value: float(v: $${solar_cost})}])",
           "refId": "A"
         }
       ],
