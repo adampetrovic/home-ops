@@ -122,7 +122,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -171,7 +171,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -183,7 +183,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -232,7 +232,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -244,7 +244,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -293,7 +293,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -305,7 +305,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -354,7 +354,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -366,7 +366,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -416,7 +416,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r[\"_measurement\"] == \"GridImport\" and r[\"unit\"] == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time),\n    }))\n    |> sum()",
           "refId": "A"
@@ -428,7 +428,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -478,7 +478,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\n\ndailySupplyCharge = $${daily_supply_charge}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else \n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n    |> yield()",
           "refId": "A"
@@ -490,7 +490,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -540,7 +540,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "feedInTariff = $${feedin_tariff}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * feedInTariff * -1.0\n    }))",
           "refId": "A"
@@ -552,7 +552,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -602,7 +602,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_kwh\",\n        _value: r._value / 1000.0\n    }))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n    |> map(fn: (r) => ({\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_cost\",\n        _value: r._value\n    }))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({\n        _measurement: r._measurement,\n        _field: \"cost_per_kwh\",\n        _value: r.total_cost / r.total_kwh\n    }))\n    |> keep(columns: [\"_value\"])\n    |> yield()",
           "refId": "A"
@@ -614,7 +614,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -664,7 +664,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Aggregate data first to reduce processing\ndata = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"GridImport\" or r._measurement == \"SolarExport\") and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\n// Import Cost with pre-aggregated data\nimportCost = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else \n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\n// Feed In Credit with pre-aggregated data\nfeedInCredit = data\n    |> filter(fn: (r) => r._measurement == \"SolarExport\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * feedInTariff * -1.0\n    }))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
           "refId": "A"
@@ -689,7 +689,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -739,7 +739,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -751,7 +751,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -800,7 +800,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -812,7 +812,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -862,7 +862,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -874,7 +874,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -923,7 +923,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"strings\"\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
           "refId": "A"
@@ -935,7 +935,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -985,7 +985,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r[\"_measurement\"] == \"GridImport\" and r[\"unit\"] == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time),\n    }))\n    |> sum()",
           "refId": "A"
@@ -997,7 +997,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1047,7 +1047,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\n\ndailySupplyCharge = $${daily_supply_charge}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else \n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n    |> yield()",
           "refId": "A"
@@ -1059,7 +1059,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1109,7 +1109,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"strings\"\n\nfeedInTariff = $${feedin_tariff}\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * feedInTariff * -1.0\n    }))",
           "refId": "A"
@@ -1121,7 +1121,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1171,7 +1171,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_kwh\",\n        _value: r._value / 1000.0\n    }))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n    |> map(fn: (r) => ({\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_cost\",\n        _value: r._value\n    }))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({\n        _measurement: r._measurement,\n        _field: \"cost_per_kwh\",\n        _value: r.total_cost / r.total_kwh\n    }))\n    |> keep(columns: [\"_value\"])\n    |> yield()",
           "refId": "A"
@@ -1183,7 +1183,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1233,7 +1233,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nrelativeTime = string(v: v.timeRangeStart)\nshiftDuration = if strings.hasPrefix(v: relativeTime, prefix: \"-\") then\n    strings.trimPrefix(v: relativeTime, prefix: \"-\")\nelse\n    // Default to full range as duration\n    string(v: int(v: uint(v: v.timeRangeStop) - uint(v: v.timeRangeStart)) / 1000000000) + \"s\"\n\ncomparisonStart = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStart)\ncomparisonStop = date.sub(d: duration(v: shiftDuration), from: v.timeRangeStop)\n\n// Aggregate data first to reduce processing\ndata = from(bucket: \"iotawatt\")\n    |> range(start: comparisonStart, stop: comparisonStop)\n    |> filter(fn: (r) => (r._measurement == \"GridImport\" or r._measurement == \"SolarExport\") and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\n// Import Cost with pre-aggregated data\nimportCost = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else \n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\n\n// Feed In Credit with pre-aggregated data\nfeedInCredit = data\n    |> filter(fn: (r) => r._measurement == \"SolarExport\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_export}}))\n    |> sum()\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * feedInTariff * -1.0\n    }))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
           "refId": "A"
@@ -1258,7 +1258,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1318,7 +1318,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode:\"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\n \ncircuit_usage = join(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import)}))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\"])\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0)}))\n    |> group(columns: [\"_measurement\"], mode:\"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"usage\")",
           "refId": "A"
@@ -1330,7 +1330,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1391,7 +1391,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode:\"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\n \ncircuit_usage = join(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import)}))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\"])\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> group(columns: [\"_measurement\"], mode:\"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"cost\")",
           "refId": "A"
@@ -1403,7 +1403,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1464,7 +1464,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\nimport \"strings\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> group(columns: [\"_field\"], mode:\"by\")\n    |> drop(columns: [\"_field\", \"_start\", \"_stop\", \"ct\", \"device\", \"unit\"])\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\ncircuit_savings = join(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with \n        _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_solar_generation)\n    }))\n    |> drop(columns: [\"_value_total_consumption\", \"_value_grid_import\", \"_value_solar_generation\"])\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> group(columns: [\"_measurement\"], mode:\"by\")\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)\n    |> yield(name: \"savings\")",
           "refId": "A"
@@ -1476,7 +1476,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1557,7 +1557,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ngetTariffType = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then \"evoffpeak\"\n    else if isSuperOffPeak then \"superoffpeak\"\n    else if isPeakTime and isPeakSeason then \"peak\"\n    else \"offpeak\"\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0),\n        tariff: getTariffType(timeVal: r._time),\n    }))\n    |> group(columns: [\"tariff\"])\n    |> sum()\n    |> group()\n    |> sort(columns: [\"_value\"], desc: true)",
           "refId": "A"
@@ -1578,7 +1578,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1703,7 +1703,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r[\"_measurement\"] == \"GridImport\" and r[\"unit\"] == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time),\n    }))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n",
           "refId": "A"
@@ -1728,7 +1728,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1884,7 +1884,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_kwh\",\n        _value: r._value / 1000.0\n    }))\n\ncost = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({\n        r with \n        _value: (r._value / 1000.0) * getPrice(timeVal: r._time)\n    }))\n    |> aggregateWindow(every: 1d, fn: sum, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _measurement: \"cost_per_kwh\",\n        _field: \"total_cost\",\n        _value: r._value\n    }))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_time\", \"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _measurement: r._measurement,\n        _field: \"cost_per_kwh\",\n        _value: r.total_cost / r.total_kwh\n    }))\n    |> yield()",
           "refId": "A"
@@ -1922,7 +1922,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "$${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2014,7 +2014,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "$${DS_INFLUXDB}"
           },
           "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ndailySupplyCharge = $${daily_supply_charge}\nfeedInTariff = $${feedin_tariff}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\n// Pricing function based on time of day/week/season\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Get total consumption data for calculating proportions\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_import}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> map(fn: (r) => ({r with _value: r._value * $${cal_solar}}))\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n\n// Get circuit data\ncircuits = from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement !~ /(Grid|Branch|Solar)/ and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, createEmpty: false)\n    |> group(columns: [\"_measurement\"])\n\n// Join consumption data\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\n// Calculate circuit costs\ncircuit_costs = join(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with \n        _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import) / 1000.0 * getPrice(timeVal: r._time)\n    }))\n    |> keep(columns: [\"_time\", \"_measurement\", \"_value\"])\n    |> sort(columns: [\"_time\"])\n    |> yield()",
           "refId": "A"
@@ -2165,7 +2165,7 @@
         "name": "cal_import",
         "type": "constant",
         "label": "Import Cal Factor",
-        "description": "IoTaWatt→revenue meter multiplier for GridImport",
+        "description": "IoTaWatt\u2192revenue meter multiplier for GridImport",
         "query": "0.9916",
         "hide": 2,
         "current": {
@@ -2185,7 +2185,7 @@
         "name": "cal_export",
         "type": "constant",
         "label": "Export Cal Factor",
-        "description": "IoTaWatt→revenue meter multiplier for SolarExport",
+        "description": "IoTaWatt\u2192revenue meter multiplier for SolarExport",
         "query": "1.0161",
         "hide": 2,
         "current": {
@@ -2205,7 +2205,7 @@
         "name": "cal_solar",
         "type": "constant",
         "label": "Solar Cal Factor",
-        "description": "IoTaWatt→estimated multiplier for SolarGeneration",
+        "description": "IoTaWatt\u2192estimated multiplier for SolarGeneration",
         "query": "1.0039",
         "hide": 2,
         "current": {
