@@ -1278,13 +1278,281 @@
       }
     },
     {
+      "type": "stat",
+      "title": "Grid Voltage",
+      "description": "Mains voltage (derived reference, same all phases)",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 36
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "A",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"GridA_V\" and r.unit == \"Volts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "volt",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 216
+              },
+              {
+                "color": "green",
+                "value": 226
+              },
+              {
+                "color": "yellow",
+                "value": 254
+              },
+              {
+                "color": "red",
+                "value": 264
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "orientation": "auto",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Grid Frequency",
+      "description": "Mains frequency \u2014 nominal 50Hz. Below 49.85Hz indicates grid stress.",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 36
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "A",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Hz\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "hertz",
+          "decimals": 3,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 49.75
+              },
+              {
+                "color": "yellow",
+                "value": 49.85
+              },
+              {
+                "color": "green",
+                "value": 49.95
+              },
+              {
+                "color": "yellow",
+                "value": 50.05
+              },
+              {
+                "color": "orange",
+                "value": 50.15
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "orientation": "auto",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Grid Voltage & Frequency",
+      "description": "Mains voltage and frequency over time",
+      "gridPos": {
+        "h": 3,
+        "w": 16,
+        "x": 8,
+        "y": 36
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_INFLUXDB}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "V",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridA_V\" and r.unit == \"Volts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Voltage\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "refId": "Hz",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Hz\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Frequency\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 5,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            },
+            "spanNulls": false
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Voltage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "volt"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frequency"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "hertz"
+              },
+              {
+                "id": "decimals",
+                "value": 3
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
       "type": "row",
       "title": "Today's Energy",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 39
       },
       "collapsed": false
     },
@@ -1295,7 +1563,7 @@
         "h": 3,
         "w": 6,
         "x": 0,
-        "y": 37
+        "y": 40
       },
       "datasource": {
         "type": "influxdb",
@@ -1352,7 +1620,7 @@
         "h": 3,
         "w": 6,
         "x": 6,
-        "y": 37
+        "y": 40
       },
       "datasource": {
         "type": "influxdb",
@@ -1409,7 +1677,7 @@
         "h": 3,
         "w": 6,
         "x": 12,
-        "y": 37
+        "y": 40
       },
       "datasource": {
         "type": "influxdb",
@@ -1466,7 +1734,7 @@
         "h": 3,
         "w": 6,
         "x": 18,
-        "y": 37
+        "y": 40
       },
       "datasource": {
         "type": "influxdb",
