@@ -8,7 +8,7 @@ Custom Grafana dashboards for whole-house energy monitoring, powered by IoTaWatt
 
 | Dashboard | UID | Refresh | Default Range | Purpose |
 |---|---|---|---|---|
-| [Home Power — Live](#home-power--live) | `home-power-live` | 10s | Last 1h | Real-time power monitoring |
+| [Home Energy Live](#home-energy-live) | `home-power-live` | 10s | Last 1h | Real-time power monitoring |
 | [Home Energy](#home-energy) | `home-energy-tou` | Manual | Yesterday | Daily energy & cost summary |
 | [Home Energy Pro](#home-energy-pro) | `home-energy-pro` | 5m | Last 7d | Detailed energy analysis |
 | [Home Energy Battery](#home-energy-battery) | `home-energy-battery` | Manual | Last 7d | Battery performance & health |
@@ -44,7 +44,7 @@ All dashboards query **InfluxDB** (Flux) with data from:
 
 ---
 
-## Home Power — Live
+## Home Energy Live
 
 > **URL:** [/d/home-power-live/](https://grafana.petrovic.network/d/home-power-live/)
 > **Purpose:** Real-time operational monitoring — the IoTaWatt web UI replacement.
