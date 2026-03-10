@@ -2163,7 +2163,7 @@
       },
       {
         "name": "cal_import",
-        "type": "textbox",
+        "type": "constant",
         "label": "Import Cal Factor",
         "description": "Multiplier for GridImport readings (IoTaWatt → revenue meter)",
         "query": "0.9916",
@@ -2172,11 +2172,11 @@
           "value": "0.9916",
           "selected": false
         },
-        "hide": 0
+        "hide": 2
       },
       {
         "name": "cal_export",
-        "type": "textbox",
+        "type": "constant",
         "label": "Export Cal Factor",
         "description": "Multiplier for SolarExport readings (IoTaWatt → revenue meter)",
         "query": "1.0161",
@@ -2185,11 +2185,11 @@
           "value": "1.0161",
           "selected": false
         },
-        "hide": 0
+        "hide": 2
       },
       {
         "name": "cal_solar",
-        "type": "textbox",
+        "type": "constant",
         "label": "Solar Cal Factor",
         "description": "Multiplier for SolarGeneration readings (IoTaWatt → estimated)",
         "query": "1.0039",
@@ -2198,7 +2198,7 @@
           "value": "1.0039",
           "selected": false
         },
-        "hide": 0
+        "hide": 2
       }
     ]
   },
