@@ -14,6 +14,6 @@ resources:
   - ./home-assistant/ks.yaml
   - ./mosquitto/ks.yaml
   - ./nas-crypt/ks.yaml
-  - ./sigenergy2mqtt/ks.yaml
+  # - ./sigenergy2mqtt/ks.yaml  # TODO: enable after hardware install + set Modbus IP
   - ./teslamate/ks.yaml
   - ./zigbee2mqtt/ks.yaml
