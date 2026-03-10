@@ -1120,8 +1120,8 @@
       "description": "When discharge energy was used \u2014 peak offset is the most valuable"
     },
     {
-      "type": "heatmap",
-      "title": "SoC Heatmap (Hour \u00d7 Day)",
+      "type": "timeseries",
+      "title": "SoC Pattern (Hourly Avg)",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -1149,24 +1149,45 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "red",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "transparent",
+                "value": 60
               }
             ]
-          }
+          },
+          "custom": {
+            "fillOpacity": 30,
+            "lineWidth": 2,
+            "gradientMode": "scheme",
+            "thresholdsStyle": {
+              "mode": "dashed+area"
+            }
+          },
+          "min": 0,
+          "max": 100
         },
         "overrides": []
       },
       "options": {
-        "calculate": false,
-        "color": {
-          "scheme": "Oranges",
-          "fill": "dark-orange",
-          "mode": "scheme",
-          "exponent": 0.5
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "min",
+            "max"
+          ]
         },
-        "yAxis": {
-          "unit": "short"
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "description": "Battery SoC patterns \u2014 spot charge/discharge cycles, see if strategy is working"
