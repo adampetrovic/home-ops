@@ -676,3 +676,19 @@ cameras:
       enabled: True
       timestamp: False
       crop: True
+
+classification:
+  custom:
+    Side Gate Status:
+      enabled: true
+      name: Side Gate Status
+      threshold: 0.8
+      state_config:
+        cameras:
+          side_walkway:
+            crop:
+              - 0.298196505105491
+              - 0.07907672397866773
+              - 0.466946505105491
+              - 0.37907672397866776
+        motion: true
