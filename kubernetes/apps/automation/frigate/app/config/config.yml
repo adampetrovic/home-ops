@@ -136,6 +136,9 @@ cameras:
       width: 704
       height: 576
       fps: 5
+    motion:
+      threshold: 60
+      contour_area: 30
     objects:
       track:
         - person
