@@ -147,17 +147,19 @@ cameras:
       front_driveway:
         coordinates: 0.336,0.258,0.066,0.958,0.982,0.941,0.714,0.264
         objects:
+          - person
           - car
           - license_plate
     review:
       alerts:
         labels:
           - person
-      detections:
-        labels:
-          - car
         required_zones:
           - front_driveway
+      detections:
+        labels:
+          - person
+          - car
     snapshots:
       enabled: True
       timestamp: False
