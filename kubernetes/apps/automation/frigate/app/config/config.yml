@@ -159,7 +159,6 @@ cameras:
       detections:
         labels:
           - person
-          - car
     snapshots:
       enabled: True
       timestamp: False
