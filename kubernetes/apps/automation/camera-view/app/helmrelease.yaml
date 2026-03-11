@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/camera-view
-              tag: latest@sha256:7aec390e90c3015589c59d28d135c8e1700edb8eb6130106711f97fc50d529bb
+              tag: latest@sha256:e591d3d666ece720a734c82011bb7d42232ba9b43d48a0160bc7c14a4cb0e813
             probes:
               liveness: &probes
                 enabled: true
