@@ -36,7 +36,7 @@ spec:
               PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/?stealth=1&--disable-web-security=true
           browser:
             image:
-              repository: docker.io/browserless/chrome
+              repository: mirror.gcr.io/browserless/chrome
               tag: 1-chrome-stable
             env:
               - {name: SCREEN_WIDTH, value: "1920"}
