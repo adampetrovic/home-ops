@@ -35,7 +35,7 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/golift/unpackerr
+              repository: mirror.gcr.io/golift/unpackerr
               tag: unstable@sha256:4120b06f7c88eaf142d875ba8b56be96352dd89071bbb9d661c032cdf2268b66
             envFrom:
               - secretRef:

@@ -31,7 +31,7 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/1password/connect-api
+              repository: mirror.gcr.io/1password/connect-api
               tag: 1.8.2@sha256:e915c0c843972f02b0e7e2de502bda8bd4a092288b3f1866098a857bd715a281
             env:
               XDG_DATA_HOME: &configDir /config
@@ -75,7 +75,7 @@ spec:
                 memory: 256M
           sync:
             image:
-              repository: docker.io/1password/connect-sync
+              repository: mirror.gcr.io/1password/connect-sync
               tag: 1.8.1@sha256:d5e937b2b7e314dbbaffacf469dc8f30376b5954a3ad836c8d96e6cb579d7fab
             env:
               XDG_DATA_HOME: *configDir
