@@ -97,5 +97,14 @@
         commitMessageTopic: "{{{groupName}}} group",
       },
     },
+    {
+      description: "Vector Group",
+      groupName: "Vector",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/vector/"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
   ],
 }
