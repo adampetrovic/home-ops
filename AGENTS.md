@@ -127,6 +127,7 @@ Both `VOLSYNC_KOPIA_SCHEDULE` and `VOLSYNC_R2_SCHEDULE` can be overridden per-ap
 - Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback`
 - Use YAML anchors (`&app`, `&port`, `*envFrom`) to reduce duplication
 - Container images should include both tag and digest: `tag: v1.0.0@sha256:abc123...`
+- **Never use `docker.io` directly** — use `mirror.gcr.io` as a pull-through mirror instead. For Docker Hub images, replace the `docker.io/` prefix with `mirror.gcr.io/` (e.g., `mirror.gcr.io/cloudflare/cloudflared`). For Docker Official Images (e.g., `nginx`, `redis`), use `mirror.gcr.io/library/<image>`. Renovate's `registryAliases` config maps `mirror.gcr.io` back to `docker.io` for version lookups.
 - Apply security contexts: `readOnlyRootFilesystem: true`, `allowPrivilegeEscalation: false`, `capabilities: {drop: ["ALL"]}`
 - Set `runAsNonRoot: true` in defaultPodOptions where possible
 
