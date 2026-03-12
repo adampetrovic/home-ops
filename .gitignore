@@ -22,6 +22,7 @@ Brewfile.lock.json
 # claude
 .claude
 # pi
-.pi
+.pi/*
+!.pi/skills/
 # wiki
 wiki
