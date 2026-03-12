@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/golift/unpackerr
-              tag: unstable@sha256:4120b06f7c88eaf142d875ba8b56be96352dd89071bbb9d661c032cdf2268b66
+              tag: unstable@sha256:fb6264ea1b93f40e63f36d30a8c733ce00124751cdbf4ed40859962a4602eadf
             envFrom:
               - secretRef:
                   name: unpackerr-secret
