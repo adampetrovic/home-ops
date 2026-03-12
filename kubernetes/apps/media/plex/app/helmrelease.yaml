@@ -60,7 +60,7 @@ spec:
                 memory: 16Gi
           vector:
             image:
-              repository: timberio/vector
+              repository: mirror.gcr.io/timberio/vector
               tag: 0.53.0-alpine
             args:
               - --config-yaml

@@ -16,7 +16,7 @@ spec:
         container:
           # Pin to v1.36 until https://github.com/envoyproxy/gateway/issues/8202 is fixed
           # v1.37 strips Location header on ext_authz denial, breaking auth redirects
-          image: docker.io/envoyproxy/envoy:distroless-v1.36.4
+          image: mirror.gcr.io/envoyproxy/envoy:distroless-v1.36.4
           resources:
             requests:
               cpu: 100m

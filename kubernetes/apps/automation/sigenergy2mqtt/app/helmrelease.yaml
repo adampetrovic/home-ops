@@ -28,7 +28,7 @@ spec:
         containers:
           app:
             image:
-              repository: docker.io/seud0nym/sigenergy2mqtt
+              repository: mirror.gcr.io/seud0nym/sigenergy2mqtt
               tag: 2026.1.20
             env:
               TZ: "${TZ}"
