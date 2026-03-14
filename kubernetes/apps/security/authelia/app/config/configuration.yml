@@ -26,9 +26,6 @@ access_control:
         - "radarr4k.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
-    - domain: "booklore.${SECRET_DOMAIN}"
-      policy: bypass
-      resources: ["^/api/(koreader|v1/opds)([?/].*)?$"]  # KOReader sync & OPDS use their own basic auth
     - domain:
         - "paperless.${SECRET_DOMAIN}"
         - "memos.${SECRET_DOMAIN}"
@@ -36,7 +33,6 @@ access_control:
       subject:
         - 'group:users'
     - domain:
-        - "booklore.${SECRET_DOMAIN}"
         - "echo-server.${SECRET_DOMAIN}"
         - "shelfmark.petrovic.network"
       policy: one_factor
