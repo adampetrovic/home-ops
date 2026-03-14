@@ -80,8 +80,6 @@ spec:
         existingClaim: kavita
         globalMounts:
           - path: /kavita/config
-      tmp:
-        type: emptyDir
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
