@@ -6,8 +6,8 @@ components:
   - ../../components/common
 resources:
   - ./bazarr/ks.yaml
-  - ./booklore/ks.yaml
   - ./immich/ks.yaml
+  - ./kavita/ks.yaml
   - ./immich-kiosk/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
