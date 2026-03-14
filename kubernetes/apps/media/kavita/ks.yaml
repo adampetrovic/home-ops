@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app booklore
+  name: &app kavita
   namespace: &namespace media
 spec:
   targetNamespace: *namespace
@@ -17,7 +17,7 @@ spec:
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
-  path: ./kubernetes/apps/media/booklore/app
+  path: ./kubernetes/apps/media/kavita/app
   prune: true
   sourceRef:
     kind: GitRepository
