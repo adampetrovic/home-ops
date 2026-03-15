@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/evcc
-              tag: feat-iotawatt-meter@sha256:cd16933f5239c3516f89d951f54b7b929ccbd49fa0b527138a717cc7b1e33b28
+              tag: feat-iotawatt-template@sha256:4918b22226b13ccf45f2cf2f0d6bcfbe285afc264bba7cf4de24fde155f39172
             env:
               TZ: "${TZ}"
             envFrom:
