@@ -136,6 +136,9 @@ cameras:
       width: 704
       height: 576
       fps: 5
+      stationary:
+        interval: 50
+        threshold: 100
     motion:
       threshold: 60
       contour_area: 30
@@ -146,9 +149,14 @@ cameras:
         - car
         - dog
         - license_plate
+      filters:
+        car:
+          min_score: 0.5
+          threshold: 0.75
     zones:
       front_driveway:
         coordinates: 0.297,0.313,0.025,1,1,1,0.912,0.301
+        inactivity_timeout: 300
         objects:
           - person
           - car
