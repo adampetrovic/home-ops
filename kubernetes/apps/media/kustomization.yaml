@@ -22,6 +22,6 @@ resources:
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
-  - ./tango/ks.yaml
+  - ./stash/ks.yaml
   - ./unpackerr/ks.yaml
   - ./xteve/ks.yaml
