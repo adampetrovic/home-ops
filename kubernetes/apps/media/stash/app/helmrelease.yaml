@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: tango
+  name: stash
 spec:
   interval: 30m
   chartRef:
@@ -24,7 +24,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-private
     controllers:
-      tango:
+      stash:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
@@ -37,19 +37,19 @@ spec:
               - -c
               - |
                 apk add --no-cache git
-                rm -rf /tmp/tango-plugins
-                git clone --depth 1 https://github.com/adampetrovic/stash-plugins.git /tmp/tango-plugins
-                for plugin in /tmp/tango-plugins/plugins/*/; do
+                rm -rf /tmp/stash-plugins
+                git clone --depth 1 https://github.com/adampetrovic/stash-plugins.git /tmp/stash-plugins
+                for plugin in /tmp/stash-plugins/plugins/*/; do
                   name=$(basename "$plugin")
                   mkdir -p "/root/.stash/plugins/$name"
                   cp -r "$plugin"* "/root/.stash/plugins/$name/"
                   echo "Installed plugin: $name"
                 done
-                rm -rf /tmp/tango-plugins
+                rm -rf /tmp/stash-plugins
         containers:
           app:
             image:
-              repository: ghcr.io/adampetrovic/tango
+              repository: ghcr.io/adampetrovic/stash
               tag: v0.30.1@sha256:bb98adb1eafd83f6bfc67b58fe98cde87d063d1bd1612b28f6dbfa870320a71f
             env:
               TZ: "${TZ}"
@@ -105,13 +105,13 @@ spec:
             intel.feature.node.kubernetes.io/gpu: "true"
     service:
       app:
-        controller: tango
+        controller: stash
         ports:
           http:
             enabled: true
             port: 9999
       uploader:
-        controller: tango
+        controller: stash
         ports:
           http:
             enabled: true
@@ -119,7 +119,7 @@ spec:
     route:
       app:
         hostnames:
-          - tango.${SECRET_DOMAIN}
+          - stash.${SECRET_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -142,9 +142,9 @@ spec:
               - identifier: uploader
                 port: http
     persistence:
-      tango:
+      stash:
         enabled: true
-        existingClaim: tango
+        existingClaim: stash
         globalMounts:
           - path: /root/.stash
       media:
