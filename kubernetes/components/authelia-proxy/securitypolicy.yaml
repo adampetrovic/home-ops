@@ -8,7 +8,6 @@ spec:
     headersToExtAuth:
       - accept
       - cookie
-      - location
       - authorization
       - proxy-authorization
       - x-forwarded-proto
