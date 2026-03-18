@@ -28,7 +28,7 @@ spec:
               printf "%-14s  %-22s  %s\n" "previous" "restoreAsOf (UTC)" "root"
               printf "%-14s  %-22s  %s\n" "--------" "-----------------" "----"
               kopia snapshot list ${app}@${ns}:/data 2>/dev/null \
-                | awk 'BEGIN{n=0} / UTC /{gsub(/^ +/,""); printf "%-14s  %-22s  %s\n", "previous=" n, $1"T"$2"Z", $4; n++}'
+                | awk '/ UTC /{gsub(/^ +/,""); lines[n++]=$0} END{for(i=n-1;i>=0;i--) {split(lines[i],f); printf "%-14s  %-22s  %s\n", "previous=" (n-1-i), f[1]"T"f[2]"Z", f[4]}}'
           env:
             - name: KOPIA_PASSWORD
               valueFrom:
