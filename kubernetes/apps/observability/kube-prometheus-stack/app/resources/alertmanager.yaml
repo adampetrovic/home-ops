@@ -16,6 +16,10 @@ route:
       continue: true
       matchers:
         - severity = "critical"
+    - receiver: homeassistant
+      matchers:
+        - alertname = "WANDown"
+      continue: true
 inhibit_rules:
   - equal: ["alertname", "namespace"]
     source_matchers:
@@ -40,6 +44,10 @@ inhibit_rules:
       - namespace = "network"
 receivers:
   - name: "null"
+  - name: homeassistant
+    webhook_configs:
+      - url: "http://home-assistant.automation.svc.cluster.local:8123/api/webhook/wan-status"
+        send_resolved: true
   - name: telegram
     telegram_configs:
       - send_resolved: true
