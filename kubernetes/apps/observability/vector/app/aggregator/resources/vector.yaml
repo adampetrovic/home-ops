@@ -1,5 +1,6 @@
 ---
 data_dir: /vector-data-dir
+timezone: "${TZ}"
 api:
   enabled: true
   address: 0.0.0.0:8686
@@ -23,13 +24,18 @@ sources:
     type: syslog
     address: 0.0.0.0:6020
     mode: udp
-    timezone: "${TZ}"
 
 #
 # Transforms
 #
 
 transforms:
+  syslog_remap:
+    type: remap
+    inputs: ["syslog_source"]
+    source: |
+      .hostname = del(.host)
+
   kubernetes_remap:
     type: remap
     inputs: ["kubernetes_source"]
@@ -133,7 +139,7 @@ sinks:
       source: 'kubernetes'
 
   syslog:
-    inputs: ["syslog_source"]
+    inputs: ["syslog_remap"]
     type: loki
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
@@ -141,4 +147,5 @@ sinks:
     remove_label_fields: true
     remove_timestamp: true
     labels:
+      hostname: '{{ hostname }}'
       source: 'syslog'
