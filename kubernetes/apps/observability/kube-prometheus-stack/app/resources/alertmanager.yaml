@@ -16,6 +16,10 @@ route:
       continue: true
       matchers:
         - severity = "critical"
+    # WANDown → Home Assistant webhook for local push notifications.
+    # Telegram won't work during an outage (no internet), but HA can
+    # deliver notifications via local push over the WebSocket API
+    # without needing Apple/Google push services.
     - receiver: homeassistant
       matchers:
         - alertname = "WANDown"
