@@ -23,6 +23,7 @@ sources:
     type: syslog
     address: 0.0.0.0:6020
     mode: udp
+    timezone: "${TZ}"
 
 #
 # Transforms
