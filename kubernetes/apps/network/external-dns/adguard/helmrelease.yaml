@@ -1,0 +1,60 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app adguard-dns
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: external-dns
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    fullnameOverride: *app
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: ghcr.io/muhlba91/external-dns-provider-adguard
+          tag: v11.0.2@sha256:162561ce7af084ee736a4c62c0bd3c0f12a3842d0ca8d96ac3665c15ef05add8
+        env:
+          - name: ADGUARD_URL
+            value: "http://adguard.network.svc.cluster.local"
+          - name: ADGUARD_USER
+            value: ""
+          - name: ADGUARD_PASSWORD
+            value: ""
+          - name: LOG_LEVEL
+            value: info
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+    extraArgs:
+      - --gateway-name=envoy-internal
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
+    policy: sync
+    sources: ["gateway-httproute", "service"]
+    txtPrefix: k8s.
+    txtOwnerId: kubernetes-home-adguard
+    domainFilters:
+      - "${SECRET_DOMAIN}"
+    serviceMonitor:
+      enabled: true
