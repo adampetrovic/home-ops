@@ -15,8 +15,92 @@
     },
     {
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisLabel": "",
+            "barAlignment": 0,
+            "drawStyle": "points",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "lineWidth": 0,
+            "pointSize": 10,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "always",
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "unit": "short",
+          "mappings": [
+            { "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } }, "type": "value" }
+          ]
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "WAN Down" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
+          { "matcher": { "id": "byName", "options": "WAN Up" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] },
+          { "matcher": { "id": "byName", "options": "WAN Unknown" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }] }
+        ]
+      },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 1 },
       "id": 1,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "title": "WAN Failover State Changes",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is down\" [$__auto])",
+          "legendFormat": "WAN Down",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is up\" [$__auto])",
+          "legendFormat": "WAN Up",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is unknown\" [$__auto])",
+          "legendFormat": "WAN Unknown",
+          "refId": "C"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 6 },
+      "id": 13,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "title": "WAN Problems & Recovery",
+      "description": "WAN failover state changes, IP loss/recovery, DHCP bound/deconfig, dpinger, DNS monitor failures",
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"(wan-failover|wan_update_ip|dpinger|could not resolve|dhcp-client.*(bound|deconfig|leasefail)|ubios-udhcpc-decline|linkcheck.*(speedtest|Completed))\" | json | line_format \"{{.message}}\"",
+          "refId": "A"
+        }
+      ],
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "id": 14,
       "options": {
         "dedupStrategy": "signature",
         "enableLogDetails": true,
@@ -27,11 +111,12 @@
         "sortOrder": "Descending",
         "wrapLogMessage": true
       },
-      "title": "WAN Events (DHCP lease, connectivity, carrier)",
+      "title": "WAN DHCP Lease Activity",
+      "description": "eth4 DHCP lease renewals, binds, and offers",
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"(udhcpc|dhcp-client|carrier|pppoe|eth4.*link|eth9.*link)\" !~ \"DESCR=\" | json | line_format \"{{.message}}\"",
+          "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"(dhcp-client.*eth4|udhcpc.*(ACK|NAK|renew|bound|deconfig|lease)|ubios-udhcpc-decline)\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
       ],
@@ -108,7 +193,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "sum by (in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | pattern `<_>IN=<in_iface> OUT=<_>` [$__auto]))",
+          "expr": "sum by (in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\" | pattern `<_>IN=<in_iface> OUT=<_>` [$__auto]))",
           "legendFormat": "{{ in_iface }}",
           "refId": "A"
         }
@@ -148,7 +233,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "topk(25, sum by (src, dst, proto, dpt, in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | pattern `<_>IN=<in_iface> OUT=<_> <_>SRC=<src> DST=<dst> <_> PROTO=<proto> <_>DPT=<dpt> <_>` [$__range])))",
+          "expr": "topk(25, sum by (src, dst, proto, dpt, in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\" | pattern `<_>IN=<in_iface> OUT=<_> <_>SRC=<src> DST=<dst> <_> PROTO=<proto> <_>DPT=<dpt> <_>` [$__range])))",
           "legendFormat": "",
           "refId": "A"
         }
@@ -177,7 +262,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | pattern `<_>DESCR=\"<rule>\" IN=<in> OUT=<out> <_>SRC=<src> DST=<dst> <_> PROTO=<proto> <_>DPT=<dpt> <_>` | line_format \"{{.rule}} | {{.in}} {{.src}}→{{.dst}}:{{.dpt}} {{.proto}}\"",
+          "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
       ],
@@ -223,7 +308,7 @@
       "targets": [
         {
           "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-          "expr": "sum by (event) (count_over_time({source=\"syslog\"} |~ \"CEF.*Client\" | json | pattern `<_>|<_>|<event>|<_>` [$__auto]))",
+          "expr": "sum by (event) (count_over_time({source=\"syslog\"} |~ \"CEF.*Client\" | json | line_format \"{{.message}}\" | pattern `<_>|<_>|<_>|<_>|<_>|<event>|<_>` [$__auto]))",
           "legendFormat": "{{ event }}",
           "refId": "A"
         }
