@@ -99,7 +99,7 @@ Once Talos is bootstrapped, the script sets up core Kubernetes components:
 
 4. **Sync Helm releases**: Deploys core infrastructure components using Helmfile in order:
    ```
-   Cilium → CoreDNS (built-in) → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
+   Cilium → CoreDNS (Helm) → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
    ```
    ```bash
    helmfile --file bootstrap/helmfile.yaml sync --hide-notes
