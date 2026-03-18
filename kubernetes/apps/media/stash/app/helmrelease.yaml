@@ -102,6 +102,7 @@ spec:
                 memory: 2048Mi
         pod:
           nodeSelector:
+            node-role.kubernetes.io/worker: ""
             intel.feature.node.kubernetes.io/gpu: "true"
     service:
       app:
