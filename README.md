@@ -136,7 +136,8 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Cilium](https://cilium.io)** - eBPF-based CNI and security
 - **[Envoy Gateway](https://gateway.envoyproxy.io)** - Gateway API-based ingress (Internal + External gateways)
 - **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
-- **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management
+- **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management (Cloudflare for external, UniFi for internal)
+- **[CoreDNS](https://coredns.io)** - Cluster DNS with conditional forwarding for internal domains
 - **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
 - **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
 - **NTPd** - Network time protocol server
@@ -243,7 +244,7 @@ graph TD
 - **CNI**: Cilium with eBPF for high-performance networking (deployed without kube-proxy)
 - **Load Balancing**: Cilium LB IPAM for bare-metal LoadBalancer services
 - **Ingress**: Envoy Gateway with dual Gateways (internal + external) using the Kubernetes Gateway API
-- **DNS**: AdGuard Home for network-wide filtering, Cloudflare for both internal and external DNS management
+- **DNS**: AdGuard Home for network-wide filtering, UniFi for internal DNS records, Cloudflare for external DNS, CoreDNS with conditional forwarding for in-cluster resolution
 - **Multi-Homing**: Multus CNI for additional network interfaces (IoT VLAN access)
 - **Tunnel**: Cloudflared for secure external access through Cloudflare
 
@@ -376,7 +377,7 @@ app-name/
 
 - **Hardware**: Minimum 3x bare-metal servers or VMs with 16GB+ RAM
 - **Network**: VLAN-capable switch and router/firewall
-- **DNS**: Domain name with Cloudflare DNS management
+- **DNS**: Domain name with Cloudflare DNS management (external), UniFi gateway for internal DNS
 - **Secrets**: 1Password account for secrets management
 - **Tools**: `talosctl`, `kubectl`, `flux`, `task`, `age` (for SOPS)
 
