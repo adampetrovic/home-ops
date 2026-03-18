@@ -3,38 +3,6 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &internalApp external-dns-internal
-  namespace: &namespace network
-spec:
-  targetNamespace: *namespace
-  commonMetadata:
-    labels:
-      app.kubernetes.io/name: *internalApp
-  healthChecks:
-    - apiVersion: helm.toolkit.fluxcd.io/v2
-      kind: HelmRelease
-      name: internal-dns
-      namespace: *namespace
-    - apiVersion: apiextensions.k8s.io/v1
-      kind: CustomResourceDefinition
-      name: dnsendpoints.externaldns.k8s.io
-  dependsOn:
-    - name: external-secrets-stores
-      namespace: external-secrets
-  path: ./kubernetes/apps/network/external-dns/internal
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-    namespace: flux-system
-  wait: false
-  interval: 30m
-  retryInterval: 1m
-  timeout: 5m
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
   name: &externalApp external-dns-external
   namespace: &namespace network
 spec:
@@ -76,7 +44,7 @@ spec:
     labels:
       app.kubernetes.io/name: *unifiApp
   dependsOn:
-    - name: external-dns-internal
+    - name: external-dns-external
       namespace: network
     - name: external-secrets-stores
       namespace: external-secrets
