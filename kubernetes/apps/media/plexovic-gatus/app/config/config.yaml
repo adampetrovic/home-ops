@@ -33,58 +33,55 @@ endpoints:
         send-on-resolved: true
 
   # plex
-  - name: Plex - Healthcheck
+  - name: Plex
     group: plex
-    url: http://plex.media.svc.cluster.local:32400/connections?X-Plex-Token=${PLEX_TOKEN}
+    url: http://plex.media.svc.cluster.local:32400/library/sections/1/all?X-Plex-Container-Size=1&X-Plex-Token=${PLEX_TOKEN}
+    headers:
+      Accept: application/json
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: true
+      hide-hostname: true
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
+      - "[BODY].MediaContainer.size >= 1"
+      - "[RESPONSE_TIME] < 5000"
     alerts:
       - type: telegram
         send-on-resolved: true
-
-  - name: Plex - Port Check
-    group: plex
-    url: tcp://plex.media.svc.cluster.local:32400
-    interval: 1m
-    ui:
-        hide-hostname: true
-        hide-url: true
-    conditions:
-      - "[CONNECTED] == true"
-    alerts:
-      - type: telegram
-        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
 
   # downloaders
   - name: Sonarr - TV Downloader
-    group: automations
-    url: http://sonarr.media.svc.cluster.local/api/v3/health
-    headers:
-      X-Api-Key: ${SONARR_API_KEY}
+    group: downloaders
+    url: http://sonarr.media.svc.cluster.local/ping
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: true
+      hide-hostname: true
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY]) < 2"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
 
   - name: Radarr - Movies Downloader
-    group: automations
-    url: http://radarr.media.svc.cluster.local/api/v3/health
-    headers:
-      X-Api-Key: ${RADARR_API_KEY}
+    group: downloaders
+    url: http://radarr.media.svc.cluster.local/ping
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: true
+      hide-hostname: true
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY]) < 2"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
 
 
   - name: QBT - Torrent Downloader
@@ -100,7 +97,7 @@ endpoints:
       - type: telegram
         send-on-resolved: true
 
-  - name: SabNZBd - Torrent Downloader
+  - name: SABnzbd - Usenet Downloader
     group: downloaders
     url: http://sabnzbd.media.svc.cluster.local/api?mode=version
     interval: 1m
