@@ -1,5 +1,7 @@
 machine:
   kubelet:
+    clusterDNS:
+      - 10.96.0.10
     extraArgs:
       image-gc-low-threshold: 50
       image-gc-high-threshold: 55
