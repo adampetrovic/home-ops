@@ -1,0 +1,10 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: internal-dns
+spec:
+  endpoints:
+    - dnsName: "iota.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.0.22.9"]
