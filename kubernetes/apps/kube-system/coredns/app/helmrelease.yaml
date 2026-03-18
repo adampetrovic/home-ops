@@ -36,7 +36,11 @@ spec:
         plugins:
           - name: errors
           - name: cache
-            parameters: 30
+            parameters: 3600
+            configBlock: |-
+              success 9984 3600
+              denial 9984 30
+              serve_stale 86400s
           - name: forward
             parameters: . 10.0.0.1
           - name: log
