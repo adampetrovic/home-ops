@@ -5,6 +5,7 @@ namespace: observability
 components:
   - ../../components/common
 resources:
+  - ./blackbox-exporter/ks.yaml
   - ./grafana/ks.yaml
   - ./influxdb/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
