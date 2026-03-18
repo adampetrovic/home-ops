@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: unifi-syslog
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Loki
+      inputName: DS_LOKI
+  configMapRef:
+    name: grafana-dashboard-unifi-syslog
+    key: unifi-syslog-dashboard.json
