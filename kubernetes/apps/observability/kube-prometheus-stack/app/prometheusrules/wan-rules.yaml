@@ -14,7 +14,7 @@ spec:
         - alert: WANDown
           annotations:
             summary: "Internet connectivity is down — all WAN probes failing"
-          expr: avg(probe_success{job="wan-probe"}) == 0
+          expr: avg(probe_success{probe="wan"}) == 0
           for: 2m
           labels:
             severity: critical
