@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app blackbox-exporter
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      blackbox-exporter:
+        containers:
+          app:
+            image:
+              repository: quay.io/prometheus/blackbox-exporter
+              tag: v0.25.0@sha256:5fb2ccf417dbf3254e7c36b6b8af1a532a02bef100e48dafa41b301354c1a6c3
+            args:
+              - --config.file=/config/blackbox.yaml
+            probes:
+              liveness:
+                type: HTTP
+                path: /health
+                port: &port 9115
+              readiness:
+                type: HTTP
+                path: /health
+                port: *port
+              startup:
+                type: HTTP
+                path: /health
+                port: *port
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+
+    service:
+      app:
+        forceRename: *app
+        controller: blackbox-exporter
+        ports:
+          http:
+            port: *port
+
+    serviceMonitor:
+      app:
+        serviceName: *app
+        endpoints:
+          - port: http
+            interval: 30s
+
+    persistence:
+      config:
+        type: configMap
+        name: blackbox-exporter
+        globalMounts:
+          - path: /config/blackbox.yaml
+            subPath: blackbox.yaml
+            readOnly: true
+
+    configMaps:
+      config:
+        data:
+          blackbox.yaml: |
+            modules:
+              http_2xx:
+                prober: http
+                timeout: 5s
+                http:
+                  valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+                  follow_redirects: true
+                  preferred_ip_protocol: ip4
+              icmp:
+                prober: icmp
+                timeout: 5s
+                icmp:
+                  preferred_ip_protocol: ip4
+              dns_udp:
+                prober: dns
+                timeout: 5s
+                dns:
+                  query_name: "google.com"
+                  query_type: "A"
+                  transport_protocol: udp
+                  preferred_ip_protocol: ip4
