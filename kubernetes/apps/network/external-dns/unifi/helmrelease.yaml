@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app adguard-internal-dns
+  name: &app unifi-internal-dns
 spec:
   interval: 30m
   chartRef:
@@ -23,27 +23,30 @@ spec:
       name: webhook
       webhook:
         image:
-          repository: ghcr.io/muhlba91/external-dns-provider-adguard
-          tag: v11.0.2@sha256:162561ce7af084ee736a4c62c0bd3c0f12a3842d0ca8d96ac3665c15ef05add8
+          repository: ghcr.io/kashalls/external-dns-unifi-webhook
+          tag: v0.8.2
         env:
-          - name: ADGUARD_URL
-            value: "http://adguard.network.svc.cluster.local"
-          - name: ADGUARD_USER
-            value: ""
-          - name: ADGUARD_PASSWORD
-            value: ""
+          - name: UNIFI_HOST
+            value: "https://10.0.0.1"
+          - name: UNIFI_EXTERNAL_CONTROLLER
+            value: "false"
+          - name: UNIFI_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: unifi-dns-secret
+                key: api-key
           - name: LOG_LEVEL
             value: info
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 8080
+            port: http-webhook
           initialDelaySeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /healthz
-            port: 8080
+            path: /readyz
+            port: http-webhook
           initialDelaySeconds: 10
           timeoutSeconds: 5
     extraArgs:
@@ -53,8 +56,10 @@ spec:
     policy: sync
     sources: ["gateway-httproute", "service"]
     txtPrefix: k8s.
-    txtOwnerId: kubernetes-home-adguard
+    txtOwnerId: kubernetes-home-unifi
     domainFilters:
       - "${SECRET_DOMAIN}"
     serviceMonitor:
       enabled: true
+    podAnnotations:
+      secret.reloader.stakater.com/reload: unifi-dns-secret
