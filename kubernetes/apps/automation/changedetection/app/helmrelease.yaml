@@ -33,11 +33,11 @@ spec:
               PORT: &port 5000
               USE_X_SETTINGS: 1
               BASE_URL: &host changedetection.${SECRET_DOMAIN}
-              PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/?stealth=1&--disable-web-security=true
+              PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/chromium?stealth=1&--disable-web-security=true
           browser:
             image:
-              repository: mirror.gcr.io/browserless/chrome
-              tag: 1-chrome-stable
+              repository: ghcr.io/browserless/chromium
+              tag: v2.38.1@sha256:78afaada9f7b049783bfed624e6b5e9a2d3438fc04bb46801ed777e82ae1501f
             env:
               - {name: SCREEN_WIDTH, value: "1920"}
               - {name: SCREEN_HEIGHT, value: "1024"}
