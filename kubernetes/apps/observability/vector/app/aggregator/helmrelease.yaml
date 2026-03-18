@@ -54,6 +54,7 @@ spec:
             port: 6010
           syslog:
             port: 6020
+            protocol: UDP
     persistence:
       config:
         enabled: true

@@ -22,7 +22,7 @@ sources:
   syslog_source:
     type: syslog
     address: 0.0.0.0:6020
-    mode: tcp
+    mode: udp
 
 #
 # Transforms
