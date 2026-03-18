@@ -1,5 +1,7 @@
 cluster:
   allowSchedulingOnControlPlanes: true
+  coreDNS:
+    disabled: true
   apiServer:
     extraArgs:
       feature-gates: MutatingAdmissionPolicy=true
