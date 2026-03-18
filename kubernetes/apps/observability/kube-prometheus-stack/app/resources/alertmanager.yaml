@@ -30,22 +30,29 @@ inhibit_rules:
       - severity = "critical"
     target_matchers:
       - severity = "warning"
-  # During WAN outage, suppress Flux alerts (can't pull OCI artifacts)
+  # During WAN outage (and for 10 min after recovery), suppress downstream
+  # alerts. Uses WANDownBuffer which persists beyond WANDown to cover the
+  # recovery window while pods restart, Flux re-reconciles, and targets
+  # come back online. WANDown is also kept as a source so that inhibition
+  # starts immediately (WANDownBuffer has for: 0s, but belt-and-suspenders).
+  #
+  # Flux: can't pull OCI artifacts without internet
   - source_matchers:
-      - alertname = "WANDown"
+      - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "KustomizationReconciliationFailure|FluxInstanceNotReady"
-  # During WAN outage, suppress alertmanager send failures (can't reach Telegram)
+  # Alertmanager: can't reach Telegram API without internet
   - source_matchers:
-      - alertname = "WANDown"
+      - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "AlertmanagerFailedToSendAlerts|AlertmanagerClusterFailedToSendAlerts"
-  # During WAN outage, suppress crash/replica/target alerts for internet-dependent services
+  # Pods/deployments/targets: services in ANY namespace may crash-loop or
+  # become unavailable when internet is down (image pulls, cloud APIs, DNS).
+  # Previously restricted to namespace=network which let media alerts through.
   - source_matchers:
-      - alertname = "WANDown"
+      - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
-      - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|TargetDown"
-      - namespace = "network"
+      - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubePodNotReady|TargetDown"
 receivers:
   - name: "null"
   - name: homeassistant
