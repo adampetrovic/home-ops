@@ -34,6 +34,9 @@ transforms:
     type: remap
     inputs: ["syslog_source"]
     source: |
+      # Global timezone setting doesn't apply to BSD syslog (RFC 3164)
+      # timestamps. Use receive time instead — syslog is near-real-time.
+      .timestamp = now()
       .hostname = del(.host)
 
   kubernetes_remap:
