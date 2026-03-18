@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app adguard-edns
+  name: &app adguard-internal-dns
 spec:
   interval: 30m
   chartRef:
