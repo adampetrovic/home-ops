@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: wan-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: wan
+      rules:
+        - alert: WANDown
+          annotations:
+            summary: "Internet connectivity is down — all WAN probes failing"
+          expr: avg(probe_success{job="wan-probe"}) == 0
+          for: 2m
+          labels:
+            severity: critical

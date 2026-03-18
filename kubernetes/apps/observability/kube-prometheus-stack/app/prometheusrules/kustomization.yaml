@@ -6,3 +6,4 @@ resources:
   - ./etcd-rules.yaml
   - ./node-rules.yaml
   - ./prometheusrule.yaml
+  - ./wan-rules.yaml

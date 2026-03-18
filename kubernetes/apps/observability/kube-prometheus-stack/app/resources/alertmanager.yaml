@@ -22,6 +22,22 @@ inhibit_rules:
       - severity = "critical"
     target_matchers:
       - severity = "warning"
+  # During WAN outage, suppress Flux alerts (can't pull OCI artifacts)
+  - source_matchers:
+      - alertname = "WANDown"
+    target_matchers:
+      - alertname =~ "KustomizationReconciliationFailure|FluxInstanceNotReady"
+  # During WAN outage, suppress alertmanager send failures (can't reach Telegram)
+  - source_matchers:
+      - alertname = "WANDown"
+    target_matchers:
+      - alertname =~ "AlertmanagerFailedToSendAlerts|AlertmanagerClusterFailedToSendAlerts"
+  # During WAN outage, suppress crash/replica/target alerts for internet-dependent services
+  - source_matchers:
+      - alertname = "WANDown"
+    target_matchers:
+      - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|TargetDown"
+      - namespace = "network"
 receivers:
   - name: "null"
   - name: telegram

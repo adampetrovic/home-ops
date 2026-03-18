@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: wan-probe
+spec:
+  scrapeInterval: 30s
+  metricsPath: /probe
+  params:
+    module: ["dns_udp"]
+  staticConfigs:
+    - targets:
+        - "1.1.1.1"
+        - "8.8.8.8"
+      labels:
+        probe: wan
+  relabelings:
+    - action: replace
+      sourceLabels: [__address__]
+      targetLabel: __param_target
+    - action: replace
+      sourceLabels: [__param_target]
+      targetLabel: instance
+    - action: replace
+      targetLabel: __address__
+      replacement: blackbox-exporter.observability.svc.cluster.local:9115
