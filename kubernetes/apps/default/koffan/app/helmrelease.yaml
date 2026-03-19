@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/pansalut/koffan
-              tag: v2.1.1@sha256:3a1d5995d41a75a85c3924e6984cdf80f0c1292dd6c8f10c5bd8fc2c60b93ede
+              tag: v2.3.0@sha256:eb9ee2a79d1d5367f43508b1778a28e0a73caef1be0a12c222f99d2c8dcebbd8
             env:
               TZ: ${TZ}
               APP_ENV: production
