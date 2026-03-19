@@ -92,7 +92,7 @@ function apply_crds() {
         # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
         https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/experimental-install.yaml
         # renovate: datasource=github-releases depName=prometheus-operator/prometheus-operator
-        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.89.0/stripped-down-crds.yaml
+        https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.90.0/stripped-down-crds.yaml
         # renovate: datasource=github-releases depName=k8snetworkplumbingwg/network-attachment-definition-client
         https://raw.githubusercontent.com/k8snetworkplumbingwg/network-attachment-definition-client/refs/tags/v1.7.7/artifacts/networks-crd.yaml
         # renovate: datasource=github-releases depName=cloudnative-pg/plugin-barman-cloud
