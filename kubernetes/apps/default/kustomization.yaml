@@ -5,6 +5,7 @@ namespace: default
 components:
   - ../../components/common
 resources:
+  - ./actual-budget/ks.yaml
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
   - ./energize/ks.yaml
