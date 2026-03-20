@@ -42,7 +42,7 @@ spec:
           codeserver:
             image:
               repository: ghcr.io/coder/code-server
-              tag: 4.111.0-39@sha256:e89c3fca9fd805332209b5631c91bcafc44d15ace3fee8a7f955fcefc0f327d7
+              tag: 4.112.0-39@sha256:bec7def6de6a9954f670df5c2c3103295f6ca30af1931afb7d4a470f1b1bbf1d
             env:
               TZ: "${TZ}"
               GIT_AUTHOR_NAME: "Adam Petrovic"
