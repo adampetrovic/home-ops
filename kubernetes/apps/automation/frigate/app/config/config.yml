@@ -460,7 +460,6 @@ cameras:
     objects:
       track:
         - person
-        - dog
       filters:
         person:
           min_area: 5000
@@ -473,7 +472,6 @@ cameras:
       detections:
         labels:
           - person
-          - dog
     snapshots:
       enabled: True
       timestamp: False
@@ -503,14 +501,12 @@ cameras:
     objects:
       track:
         - person
-        - dog
     review:
       alerts:
         labels: []
       detections:
         labels:
           - person
-          - dog
     snapshots:
       enabled: True
       timestamp: False
