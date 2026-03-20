@@ -10,6 +10,7 @@ resources:
   - ./babybuddy/ks.yaml
   - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
+  - ./homebox/ks.yaml
   - ./koffan/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
