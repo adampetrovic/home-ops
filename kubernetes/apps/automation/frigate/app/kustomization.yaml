@@ -5,6 +5,8 @@ namespace: automation
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+components:
+  - ../../../../components/authelia-proxy
 configMapGenerator:
   - name: frigate-configmap
     files:
