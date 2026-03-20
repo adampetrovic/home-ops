@@ -32,10 +32,10 @@ endpoints:
       - type: telegram
         send-on-resolved: true
 
-  # plex
+  # plex - lightweight health check
   - name: Plex
     group: plex
-    url: http://plex.media.svc.cluster.local:32400/library/sections/1/all?X-Plex-Container-Size=1&X-Plex-Token=${PLEX_TOKEN}
+    url: http://plex.media.svc.cluster.local:32400/identity?X-Plex-Token=${PLEX_TOKEN}
     headers:
       Accept: application/json
     interval: 1m
@@ -44,8 +44,27 @@ endpoints:
       hide-url: true
     conditions:
       - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 2000"
+    alerts:
+      - type: telegram
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  # plex - library availability (less frequent, higher tolerance)
+  - name: Plex Library
+    group: plex
+    url: http://plex.media.svc.cluster.local:32400/library/sections/1/all?X-Plex-Container-Size=1&X-Plex-Token=${PLEX_TOKEN}
+    headers:
+      Accept: application/json
+    interval: 15m
+    ui:
+      hide-hostname: true
+      hide-url: true
+    conditions:
+      - "[STATUS] == 200"
       - "[BODY].MediaContainer.size >= 1"
-      - "[RESPONSE_TIME] < 5000"
+      - "[RESPONSE_TIME] < 10000"
     alerts:
       - type: telegram
         send-on-resolved: true
