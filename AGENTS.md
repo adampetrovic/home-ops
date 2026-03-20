@@ -369,6 +369,21 @@ flux reconcile ks <app-name> -n flux-system --with-source
 8. If persistent storage needed: add volsync component to `ks.yaml`
 9. Add the `ks.yaml` reference to the namespace's `kustomization.yaml`
 
+### Pull Request CI Checks
+
+After creating a PR, **always wait for CI checks to pass before merging or telling the user it's ready**. Use `gh pr checks <number>` to monitor status. The key checks are:
+
+- **Flux Local - Test**: Runs `flux-local test` which renders all HelmReleases and Kustomizations with Helm and validates the output. This catches template errors, invalid YAML, and malformed Kubernetes resources.
+- **Flux Local - Diff**: Shows the rendered diff of HelmReleases and Kustomizations vs the main branch. Review this to verify the change produces the expected output.
+- **Image Pull**: Validates that all container images referenced in the change can actually be pulled.
+
+```bash
+# Check PR status (repeat until all checks complete)
+gh pr checks <pr-number>
+```
+
+If any check fails, inspect the failure with `gh run view <run-id> --log-failed`, fix the issue, and push again before merging.
+
 ### Modifying an Existing Application
 
 - Edit the `helmrelease.yaml` for configuration changes
