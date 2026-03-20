@@ -41,6 +41,11 @@ spec:
               HBOX_WEB_PORT: "7745"
               HBOX_LOG_LEVEL: info
               HBOX_STORAGE_PREFIX_PATH: /data
+              HBOX_MAILER_HOST: smtp-relay.network.svc.cluster.local
+              HBOX_MAILER_PORT: "25"
+              HBOX_MAILER_FROM: homebox@${SECRET_DOMAIN}
+              HBOX_MAILER_USERNAME: unused
+              HBOX_MAILER_PASSWORD: unused
             probes:
               liveness: &probes
                 enabled: true
