@@ -38,7 +38,7 @@ spec:
               tag: 0.24.2-rootless@sha256:22a7246fd304ae65df25abbc531b36bb231f36916cc9504f909877d03ae40839
             env:
               TZ: ${TZ}
-              HBOX_WEB_PORT: &port "7745"
+              HBOX_WEB_PORT: "7745"
               HBOX_LOG_LEVEL: info
               HBOX_STORAGE_PREFIX_PATH: /data
             probes:
@@ -48,7 +48,7 @@ spec:
                 spec:
                   httpGet:
                     path: /api/v1/status
-                    port: *port
+                    port: &port 7745
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
