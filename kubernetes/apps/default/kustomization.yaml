@@ -11,7 +11,6 @@ resources:
   - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
   - ./homebox/ks.yaml
-  - ./koffan/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
