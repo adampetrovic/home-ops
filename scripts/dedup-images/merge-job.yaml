@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: merge-images
+  namespace: media
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-private
+      containers:
+        - name: merge
+          image: python:3.12-slim
+          command:
+            - sh
+            - -c
+            - |
+              pip install --quiet --no-cache-dir urllib3 &&
+              python3 /scripts/merge.py \
+                --duplicates=/input/duplicates.json \
+                --stash-url=http://stash-app.media.svc.cluster.local:9999 \
+                --api-key="$(cat /secrets/STASH_API_KEY)" \
+                --output=/output/merge-report.json
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: input
+              mountPath: /input
+              readOnly: true
+            - name: output
+              mountPath: /output
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: merge-scripts
+        - name: input
+          nfs:
+            server: nas-direct.petrovic.network
+            path: /volume2/stash/dedup-output
+            readOnly: true
+        - name: output
+          nfs:
+            server: nas-direct.petrovic.network
+            path: /volume2/stash/dedup-output
+        - name: secrets
+          secret:
+            secretName: stash-api-key
+            items:
+              - key: STASH_API_KEY
+                path: STASH_API_KEY

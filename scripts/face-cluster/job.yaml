@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: face-cluster
+  namespace: media
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: ghcr-private
+      # Prefer node-5 (20 CPU, 96GB RAM)
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k8s-node-5
+      containers:
+        - name: cluster
+          image: ghcr.io/adampetrovic/face-cluster:v4
+          args:
+            - --media-dir=/media
+            - --output=/output/face-output/clusters.json
+            - --cache-dir=/output/face-output/cache
+            - --eps=0.6
+            - --min-samples=2
+            - --limit=2000
+
+          resources:
+            requests:
+              cpu: "4"
+              memory: 16Gi
+            limits:
+              cpu: "16"
+              memory: 48Gi
+
+          volumeMounts:
+            - name: media
+              mountPath: /media
+              readOnly: true
+            - name: output
+              mountPath: /output
+      volumes:
+        - name: media
+          nfs:
+            server: nas-direct.petrovic.network
+            path: /volume2/stash/media
+            readOnly: true
+        - name: output
+          nfs:
+            server: nas-direct.petrovic.network
+            path: /volume2/stash
