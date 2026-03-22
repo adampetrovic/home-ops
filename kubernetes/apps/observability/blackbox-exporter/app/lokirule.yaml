@@ -1,0 +1,18 @@
+---
+groups:
+  - name: wan
+    rules:
+      # ── UCG WAN DHCP gap detector ───────────────────────────────────
+      # The UCG renews its WAN DHCP lease every 15 minutes. If no renewal
+      # is seen for 20 minutes, the WAN link is likely down at the ISP/
+      # physical layer. This corroborates the blackbox probe alerts and
+      # helps distinguish real outages from transient probe failures.
+      - alert: WANDHCPRenewalMissing
+        expr: |
+          count_over_time({hostname="cloudkey"} |~ "dhcp-client: Synchronizing eth4 DHCP lease"[20m]) == 0
+        for: 0s
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          summary: "UCG has not renewed its WAN DHCP lease in 20 minutes — possible ISP/physical layer outage"
