@@ -11,5 +11,11 @@ configMapGenerator:
   - name: go2rtc-configmap
     files:
       - go2rtc.yaml=./resources/go2rtc.yaml
+  - name: go2rtc-loki-rules
+    files:
+      - go2rtc.yaml=./lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true
