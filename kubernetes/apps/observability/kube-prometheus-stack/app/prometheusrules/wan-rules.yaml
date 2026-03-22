@@ -32,10 +32,14 @@ spec:
         # inhibit rules continue to suppress dependent alerts while pods
         # restart, Flux re-reconciles, and targets come back online.
         # Used as the inhibition source instead of WANDown directly.
+        # Requires 2m sustained failure (matching WANDown) to avoid
+        # false positives from transient probe blips.
+        # See also: WANDHCPRenewalMissing Loki alert for UCG-side
+        # corroboration of real ISP/physical layer outages.
         - alert: WANDownBuffer
           annotations:
             summary: "WAN outage active or recently recovered — suppressing dependent alerts"
           expr: min_over_time(wan:probe_success:avg[10m]) == 0
-          for: 0s
+          for: 2m
           labels:
             severity: none
