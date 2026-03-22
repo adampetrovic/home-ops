@@ -5,3 +5,14 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./scrapeconfig.yaml
+configMapGenerator:
+  - name: blackbox-exporter-loki-rules
+    files:
+      - wan.yaml=./lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
