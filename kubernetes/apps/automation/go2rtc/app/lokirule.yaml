@@ -1,0 +1,22 @@
+---
+groups:
+  - name: go2rtc
+    rules:
+      - alert: Go2RTCCameraDisconnected
+        expr: |
+          sum by (camera) (
+            count_over_time(
+              {app="go2rtc"}
+                | logfmt
+                | level = `WRN`
+                | error =~ `.*(i/o timeout|connection refused).*`
+                | regexp `stream=(?P<camera>\w+)`
+              [5m]
+            )
+          ) > 0
+        for: 5m
+        labels:
+          severity: critical
+          category: logs
+        annotations:
+          summary: "Camera {{ $labels.camera }} has been disconnected for more than 5 minutes"
