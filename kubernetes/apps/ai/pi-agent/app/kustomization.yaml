@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./agents-configmap.yaml
+  - ./config/agents-configmap.yaml
