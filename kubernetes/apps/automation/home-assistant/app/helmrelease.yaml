@@ -63,7 +63,7 @@ spec:
           pi-agent:
             image:
               repository: ghcr.io/adampetrovic/pi-agent-rpc-server
-              tag: sha-376dfc9
+              tag: sha-bc561fd
             env:
               PI_RPC_PORT: "3100"
               PI_CODING_AGENT_DIR: /data/pi-agent
