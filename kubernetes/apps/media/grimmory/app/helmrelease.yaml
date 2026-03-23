@@ -24,7 +24,7 @@ spec:
     controllers:
       grimmory:
         annotations:
-          reloader.stakater.com/auto: "true"
+          reloader.stakater.com/auto: 'true'
         containers:
           app:
             image:
@@ -34,14 +34,43 @@ spec:
               TZ: "${TZ}"
               USER_ID: "568"
               GROUP_ID: "568"
+              BOOKLORE_PORT: &port 6060
+              SWAGGER_ENABLED: "false"
+              REMOTE_AUTH_ENABLED: "true"
+              REMOTE_AUTH_CREATE_NEW_USERS: "true"
+              REMOTE_AUTH_HEADER_USER: Remote-User
+              REMOTE_AUTH_HEADER_NAME: Remote-Name
+              REMOTE_AUTH_HEADER_EMAIL: Remote-Email
+              REMOTE_AUTH_HEADER_GROUPS: Remote-Groups
+              REMOTE_AUTH_ADMIN_GROUP: admin
+              DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
+              DATABASE_USERNAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: grimmory-secret
+                    key: MYSQL_USER
+              DATABASE_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: grimmory-secret
+                    key: MYSQL_PASSWORD
+            envFrom:
+              - secretRef:
+                  name: grimmory-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /actuator/health
-                    port: &port 6060
+                    path: /
+                    port: *port
                   initialDelaySeconds: 30
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -49,12 +78,24 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
+          mariadb:
+            image:
+              repository: lscr.io/linuxserver/mariadb
+              tag: 11.4.9
+            env:
+              TZ: "${TZ}"
+              PUID: "568"
+              PGID: "568"
+              MYSQL_DATABASE: "booklore"
+            envFrom:
+              - secretRef:
+                  name: grimmory-secret
             resources:
               requests:
                 cpu: 10m
-                memory: 256Mi
+                memory: 128Mi
               limits:
-                memory: 1Gi
+                memory: 512Mi
         pod:
           securityContext:
             fsGroup: 568
@@ -75,16 +116,30 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-
     persistence:
-      data:
+      config:
         enabled: true
         existingClaim: grimmory
-        globalMounts:
-          - path: /app/data
+        advancedMounts:
+          grimmory:
+            app:
+              - path: /app/data
+            mariadb:
+              - path: /config
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          grimmory:
+            app:
+              - path: /tmp
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/books
-        globalMounts:
-          - path: /books
+        advancedMounts:
+          grimmory:
+            app:
+              - path: /books
+                subPath: library
+              - path: /bookdrop
+                subPath: bookdrop
