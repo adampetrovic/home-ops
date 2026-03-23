@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: kavita
+  name: grimmory
 spec:
   interval: 30m
   chartRef:
@@ -22,25 +22,27 @@ spec:
     keepHistory: false
   values:
     controllers:
-      kavita:
+      grimmory:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
             image:
-              repository: ghcr.io/kareadita/kavita
-              tag: 0.8.9@sha256:1f2acae7466d022f037ea09f7989eb7c487f916b881174c7a6de33dbfa8acb39
+              repository: ghcr.io/grimmory-tools/grimmory
+              tag: v2.3.0@sha256:9014247f591074529894f81115ca40f899db697e89f72c2fe91ec530e3f19597
             env:
               TZ: "${TZ}"
+              USER_ID: "568"
+              GROUP_ID: "568"
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/health
-                    port: &port 5000
-                  initialDelaySeconds: 15
+                    path: /actuator/health
+                    port: &port 6060
+                  initialDelaySeconds: 30
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
@@ -61,7 +63,7 @@ spec:
 
     service:
       app:
-        controller: kavita
+        controller: grimmory
         ports:
           http:
             port: *port
@@ -69,17 +71,17 @@ spec:
     route:
       main:
         hostnames:
-          - kavita.${SECRET_DOMAIN}
+          - grimmory.${SECRET_DOMAIN}
         parentRefs:
           - name: envoy-internal
             namespace: network
 
     persistence:
-      config:
+      data:
         enabled: true
-        existingClaim: kavita
+        existingClaim: grimmory
         globalMounts:
-          - path: /kavita/config
+          - path: /app/data
       books:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
