@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/pi-agent-rpc-server
-              tag: 0.1.0
+              tag: 0.1.0@sha256:0cc310708229a08f347a685cc78bb69eed83b75cf621be55e4245d8243630da6
             env:
               PI_RPC_PORT: "3100"
               PI_CODING_AGENT_DIR: /data/pi-agent
