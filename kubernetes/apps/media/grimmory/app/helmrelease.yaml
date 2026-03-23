@@ -44,6 +44,7 @@ spec:
               REMOTE_AUTH_HEADER_GROUPS: Remote-Groups
               REMOTE_AUTH_ADMIN_GROUP: admin
               REMOTE_AUTH_GROUPS_DELIMITER: ","
+              DISK_TYPE: "NETWORK"
               DATABASE_URL: "jdbc:mariadb://localhost:3306/booklore"
               DATABASE_USERNAME:
                 valueFrom:
