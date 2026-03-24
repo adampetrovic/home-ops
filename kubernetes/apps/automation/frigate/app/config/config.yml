@@ -356,6 +356,8 @@ cameras:
         - package
         - license_plate
       filters:
+        face:
+          min_score: 0.5
         person:
           min_area: 4000
           max_area: 50000
