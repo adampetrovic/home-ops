@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/unpoller/unpoller
-              tag: v2.34.0@sha256:73423ddfe304e866b2cda2d3ecf8e68c15317c93a22945ad7d941d3ca3a6d022
+              tag: v2.37.0@sha256:f730b383f9c84fcf02665f793ad270eae7d5447cdc3f799794885d8d67334568
             envFrom:
               - secretRef:
                   name: *secret
