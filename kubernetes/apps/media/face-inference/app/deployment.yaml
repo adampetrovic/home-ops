@@ -17,7 +17,7 @@ spec:
         - name: ghcr-private
       containers:
         - name: face-inference
-          image: ghcr.io/adampetrovic/face-inference:v1
+          image: ghcr.io/adampetrovic/face-inference:v2
           ports:
             - containerPort: 8000
           env:
@@ -28,10 +28,10 @@ spec:
           resources:
             requests:
               cpu: "500m"
-              memory: "2Gi"
+              memory: "6Gi"
             limits:
               cpu: "4"
-              memory: "4Gi"
+              memory: "12Gi"
           readinessProbe:
             httpGet:
               path: /health
