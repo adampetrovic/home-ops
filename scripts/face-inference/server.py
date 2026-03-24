@@ -11,11 +11,13 @@ Endpoints:
 """
 
 import json
+import gc
 import os
 import sys
 import time
 import traceback
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 
 import cv2
 import numpy as np
@@ -44,20 +46,31 @@ def init_model():
     print(f"Model loaded in {elapsed:.1f}s", flush=True)
 
 
+MAX_IMAGE_DIM = int(os.environ.get("MAX_IMAGE_DIM", "4096"))
+MAX_FACES = int(os.environ.get("MAX_FACES", "10"))
+
+
 def extract_faces(image_path):
     """Extract face embeddings from an image file."""
     img = cv2.imread(image_path)
     if img is None:
         return None, f"Failed to read image: {image_path}"
 
+    # Resize oversized images to avoid OOM
+    h, w = img.shape[:2]
+    if max(h, w) > MAX_IMAGE_DIM:
+        scale = MAX_IMAGE_DIM / max(h, w)
+        img = cv2.resize(img, (int(w * scale), int(h * scale)))
+
     faces = face_app.get(img)
     results = []
     for i, face in enumerate(faces):
+        if i >= MAX_FACES:
+            break
         result = {
             "embedding": face.embedding.tolist(),
             "det_score": float(face.det_score),
         }
-        # Bounding box as {x, y, w, h}
         bbox = face.bbox.astype(int).tolist()
         result["bbox"] = {
             "x": bbox[0],
@@ -66,6 +79,10 @@ def extract_faces(image_path):
             "h": bbox[3] - bbox[1],
         }
         results.append(result)
+
+    # Free image memory immediately
+    del img
+    gc.collect()
 
     return results, None
 
@@ -123,10 +140,14 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(f"{self.client_address[0]} - {format % args}", flush=True)
 
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
+
+
 def main():
     init_model()
-    server = HTTPServer(("0.0.0.0", LISTEN_PORT), RequestHandler)
-    print(f"Face inference sidecar listening on :{LISTEN_PORT}", flush=True)
+    server = ThreadedHTTPServer(("0.0.0.0", LISTEN_PORT), RequestHandler)
+    print(f"Face inference sidecar listening on :{LISTEN_PORT} (threaded)", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
