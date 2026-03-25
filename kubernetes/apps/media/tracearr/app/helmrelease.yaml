@@ -1,0 +1,158 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tracearr
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      tracearr:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/connorgallopo/tracearr
+              tag: 1.4.24@sha256:39cd3f0145f841fa7b4434c3ffd02cfcec83acbc17f7d405995109b06ffab715
+            env:
+              NODE_ENV: production
+              PORT: &port 3000
+              HOST: 0.0.0.0
+              TZ: "${TZ}"
+              REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
+              CORS_ORIGIN: "*"
+              LOG_LEVEL: info
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-secret
+                    key: DATABASE_URL
+              JWT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-secret
+                    key: JWT_SECRET
+              COOKIE_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-secret
+                    key: COOKIE_SECRET
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 1536Mi
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            runAsNonRoot: true
+            fsGroupChangePolicy: OnRootMismatch
+
+      db:
+        containers:
+          timescale:
+            image:
+              repository: timescale/timescaledb-ha
+              tag: pg18.1-ts2.25.0@sha256:9dcbd18e5cb966398ae19f3882fd5fb2e19b3cb98be54d290ab9f69c75bf0a8b
+            args:
+              - postgres
+              - -c
+              - timescaledb.max_tuples_decompressed_per_dml_transaction=0
+              - -c
+              - max_locks_per_transaction=4096
+              - -c
+              - timescaledb.telemetry_level=off
+            env:
+              POSTGRES_USER: tracearr
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-secret
+                    key: DB_PASSWORD
+              POSTGRES_DB: tracearr
+              PGDATA: /var/lib/postgresql/data/pgdata
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["pg_isready", "-U", "tracearr"]
+                  periodSeconds: 10
+                  failureThreshold: 6
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["pg_isready", "-U", "tracearr"]
+                  periodSeconds: 10
+                  failureThreshold: 6
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+
+    service:
+      app:
+        controller: tracearr
+        ports:
+          http:
+            port: *port
+      db:
+        controller: db
+        ports:
+          postgres:
+            port: 5432
+
+    route:
+      main:
+        hostnames:
+          - tracearr.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+
+    persistence:
+      db-data:
+        enabled: true
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 10Gi
+        storageClass: openebs-hostpath
+        advancedMounts:
+          db:
+            timescale:
+              - path: /var/lib/postgresql/data
+      backups:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          tracearr:
+            app:
+              - path: /data/backup
