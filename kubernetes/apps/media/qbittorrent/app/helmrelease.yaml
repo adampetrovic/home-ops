@@ -56,7 +56,7 @@ spec:
             resources:
               requests:
                 cpu: 505m
-                memory: 2014Mi
+                memory: 4Gi
               limits:
                 memory: 8Gi
             probes:

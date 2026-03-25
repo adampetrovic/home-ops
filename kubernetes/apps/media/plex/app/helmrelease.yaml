@@ -55,9 +55,10 @@ spec:
             resources:
               requests:
                 cpu: 100m
+                memory: 3Gi
               limits:
                 gpu.intel.com/i915: 1
-                memory: 16Gi
+                memory: 6Gi
           vector:
             image:
               repository: mirror.gcr.io/timberio/vector
