@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app abb-cvc
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  interval: 30m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    controllers:
+      abb-cvc:
+        type: cronjob
+        cronjob:
+          schedule: "0 15 * * *" # 01:00 AEST (graphs show previous day)
+          timeZone: "Australia/Sydney"
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+          ttlSecondsAfterFinished: 86400
+          backoffLimit: 3
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            runAsNonRoot: true
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/abb-cvc-extract
+              tag: 1.2.0@sha256:2a658d42795044cc13c922a4ffdf78ea64b22ff7d6b0501ffc1251812f55dec2
+            args:
+              - --poi
+              - peakhurst
+              - --poi
+              - peakhurstlink2
+              - --poi
+              - peakhurstlink4
+              - --yesterday
+              - --write-influxdb
+            envFrom:
+              - secretRef:
+                  name: abb-cvc-secret
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop:
+                  - ALL
