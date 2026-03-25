@@ -47,9 +47,9 @@ spec:
               SOURCE: mms
             resources:
               requests:
-                memory: 1Gi
+                memory: 3Gi
               limits:
-                memory: 8Gi
+                memory: 4Gi
         pod:
           restartPolicy: Never
           securityContext:
@@ -79,9 +79,9 @@ spec:
               SOURCE: mso
             resources:
               requests:
-                memory: 1Gi
+                memory: 3Gi
               limits:
-                memory: 8Gi
+                memory: 4Gi
         pod:
           restartPolicy: Never
           securityContext:
@@ -111,9 +111,9 @@ spec:
               SOURCE: usag
             resources:
               requests:
-                memory: 1Gi
+                memory: 3Gi
               limits:
-                memory: 8Gi
+                memory: 4Gi
         pod:
           restartPolicy: Never
           securityContext:
