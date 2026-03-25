@@ -22,7 +22,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: extract
-              image: python:3.13-slim@sha256:f41a75c9cee9391c09e0139f7b49d4b1fbb119944ec740ecce4040626dc07bed
+              image: python:3.13-slim@sha256:739e7213785e88c0f702dcdc12c0973afcbd606dbf021a589cab77d6b00b579d
               command:
                 - /bin/bash
                 - -c
