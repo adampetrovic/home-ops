@@ -29,8 +29,9 @@ spec:
   resources:
     requests:
       cpu: 100m
+      memory: 768Mi
     limits:
-      memory: 2Gi
+      memory: 1Gi
   monitoring:
     enablePodMonitor: true
     podMonitorMetricRelabelings:
