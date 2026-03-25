@@ -112,8 +112,9 @@ def extract_line(
 ) -> list[tuple[int, int]]:
     """Extract a colored line's y-coordinate at each x position.
 
-    Returns list of (x, y) tuples. Uses column-wise scanning to find
-    the topmost pixel matching the color mask at each x.
+    Returns list of (x, y) tuples. Uses column-wise scanning with
+    cluster-based detection to find the line and reject stray pixels
+    (e.g. title text, axis labels, or other artifacts).
     """
     points = []
     for x in range(x_left, x_right + 1):
@@ -121,8 +122,22 @@ def extract_line(
         mask = color_mask_fn(col)
         matches = np.where(mask)[0]
         if len(matches) > 0:
-            # Use the median y to handle line thickness
-            y = int(np.median(matches)) + y_search_top
+            # Find the largest contiguous cluster of matching pixels.
+            # This rejects stray pixels from title text or other artifacts
+            # that would otherwise skew the median.
+            clusters = []
+            current = [matches[0]]
+            for i in range(1, len(matches)):
+                if matches[i] - matches[i - 1] <= 3:  # allow small gaps (anti-aliasing)
+                    current.append(matches[i])
+                else:
+                    clusters.append(current)
+                    current = [matches[i]]
+            clusters.append(current)
+
+            # Use the largest cluster (the actual line)
+            largest = max(clusters, key=len)
+            y = int(np.median(largest)) + y_search_top
             points.append((x, y))
     return points
 
@@ -341,9 +356,14 @@ def extract_graph(
     def blue_mask(col):
         return (col[:, 0] < 110) & (col[:, 1] > 140) & (col[:, 2] > 180)
 
-    black_points = extract_line(rgb, x_left, x_right, black_mask, 50, gridlines[-1] + 10)
-    green_points = extract_line(rgb, x_left, x_right, green_mask, gridlines[-3], gridlines[-1] + 10)
-    blue_points = extract_line(rgb, x_left, x_right, blue_mask, 50, gridlines[-1] + 10)
+    # Constrain search to within gridline bounds (with small margin).
+    # Using gridlines[0] avoids title text and other artifacts above the plot area.
+    y_top = gridlines[0] - 5
+    y_bot = gridlines[-1] + 10
+
+    black_points = extract_line(rgb, x_left, x_right, black_mask, y_top, y_bot)
+    green_points = extract_line(rgb, x_left, x_right, green_mask, gridlines[-3], y_bot)
+    blue_points = extract_line(rgb, x_left, x_right, blue_mask, y_top, y_bot)
 
     print(
         f"info: extracted {len(black_points)} download, "
