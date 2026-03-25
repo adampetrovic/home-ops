@@ -26,3 +26,6 @@ configMapGenerator:
   - name: grafana-dashboard-home-power-live
     files:
       - home-power-live.json=./dashboards/home-power-live.json
+  - name: grafana-dashboard-abb-cvc
+    files:
+      - abb-cvc.json=./dashboards/abb-cvc.json
