@@ -113,10 +113,10 @@ spec:
                   failureThreshold: 6
             resources:
               requests:
-                cpu: 50m
-                memory: 512Mi
+                cpu: 25m
+                memory: 256Mi
               limits:
-                memory: 2Gi
+                memory: 1Gi
 
     service:
       app:
