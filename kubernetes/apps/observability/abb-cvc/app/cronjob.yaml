@@ -22,7 +22,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: extract
-              image: ghcr.io/adampetrovic/abb-cvc-extract:1.0.0@sha256:12b4df321782d17e23bfdbbef80d1c09ac91c26b0fa045dc97429996f861f37d
+              image: ghcr.io/adampetrovic/abb-cvc-extract:1.1.0@sha256:a6ce7721ee7c7af654b762861aec68be93bd61be6702c5313d092f8ffcc194c6
               command:
                 - /bin/bash
                 - -c
@@ -33,7 +33,7 @@ spec:
                   DATE=$(python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=11) - timedelta(days=1)).strftime('%Y-%m-%d'))")
                   echo "Extracting CVC data for $DATE"
 
-                  # Process each POI
+                  # Process each POI from config
                   while IFS= read -r poi; do
                     [ -z "$poi" ] && continue
                     echo "Processing POI: $poi"
