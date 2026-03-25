@@ -60,10 +60,10 @@ spec:
             resources:
               requests:
                 cpu: 500m
-                memory: 750Mi
+                memory: 4Gi
               limits:
                 gpu.intel.com/i915: 1
-                memory: 8Gi
+                memory: 6Gi
             lifecycle:
               postStart:
                 exec:
