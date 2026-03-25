@@ -30,11 +30,17 @@ spec:
                   set -euo pipefail
 
                   # Install dependencies
-                  pip install --quiet --no-cache-dir opencv-python-headless numpy
+                  pip install --quiet --no-cache-dir opencv-python-headless numpy urllib3
 
                   # Download the extraction script from the gist
-                  curl -sL "https://gist.githubusercontent.com/adampetrovic/da34ce978d2a65d6d55626bc108c2cf4/raw/abb-cvc-extract.py" \
-                    -o /tmp/abb-cvc-extract.py
+                  python3 -c "
+                  import urllib.request
+                  urllib.request.urlretrieve(
+                    'https://gist.githubusercontent.com/adampetrovic/da34ce978d2a65d6d55626bc108c2cf4/raw/abb-cvc-extract.py',
+                    '/tmp/abb-cvc-extract.py'
+                  )
+                  print('Downloaded extraction script')
+                  "
 
                   # Yesterday's date (graphs show previous day)
                   DATE=$(python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=11) - timedelta(days=1)).strftime('%Y-%m-%d'))")
@@ -53,11 +59,17 @@ spec:
                     # Write to InfluxDB
                     LINES=$(wc -l < /tmp/data.txt | tr -d ' ')
                     if [ "$LINES" -gt 0 ]; then
-                      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-                        "${INFLUXDB_URL}/api/v2/write?org=${INFLUXDB_ORG}&bucket=${INFLUXDB_BUCKET}&precision=s" \
-                        -H "Authorization: Token ${INFLUXDB_TOKEN}" \
-                        --data-binary @/tmp/data.txt)
-                      echo "  $poi: wrote $LINES points, HTTP $HTTP_CODE"
+                      python3 -c "
+                  import urllib.request, os
+                  data = open('/tmp/data.txt', 'rb').read()
+                  url = f'{os.environ[\"INFLUXDB_URL\"]}/api/v2/write?org={os.environ[\"INFLUXDB_ORG\"]}&bucket={os.environ[\"INFLUXDB_BUCKET\"]}&precision=s'
+                  req = urllib.request.Request(url, data=data, method='POST', headers={
+                      'Authorization': f'Token {os.environ[\"INFLUXDB_TOKEN\"]}',
+                      'Content-Type': 'text/plain'
+                  })
+                  resp = urllib.request.urlopen(req)
+                  print(f'  wrote {len(data)} bytes, HTTP {resp.status}')
+                  "
                     else
                       echo "  $poi: no data extracted"
                     fi
