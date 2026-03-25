@@ -1,0 +1,83 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: abb-cvc
+spec:
+  # Run daily at 01:00 AEST (15:00 UTC previous day)
+  # Graphs are published once per day showing the previous day's data
+  schedule: "0 15 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: abb-cvc
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: extract
+              image: python:3.13-slim@sha256:f41a75c9cee9391c09e0139f7b49d4b1fbb119944ec740ecce4040626dc07bed
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  set -euo pipefail
+
+                  # Install dependencies
+                  pip install --quiet --no-cache-dir opencv-python-headless numpy
+
+                  # Download the extraction script from the gist
+                  curl -sL "https://gist.githubusercontent.com/adampetrovic/da34ce978d2a65d6d55626bc108c2cf4/raw/abb-cvc-extract.py" \
+                    -o /tmp/abb-cvc-extract.py
+
+                  # Yesterday's date (graphs show previous day)
+                  DATE=$(python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=11) - timedelta(days=1)).strftime('%Y-%m-%d'))")
+                  echo "Extracting CVC data for $DATE"
+
+                  # Process each POI
+                  while IFS= read -r poi; do
+                    [ -z "$poi" ] && continue
+                    echo "Processing POI: $poi"
+                    OUTPUT=$(python3 /tmp/abb-cvc-extract.py --poi "$poi" --date "$DATE" 2>&1 1>/tmp/data.txt) || {
+                      echo "Warning: failed to extract $poi: $OUTPUT"
+                      continue
+                    }
+                    echo "$OUTPUT" >&2
+
+                    # Write to InfluxDB
+                    LINES=$(wc -l < /tmp/data.txt | tr -d ' ')
+                    if [ "$LINES" -gt 0 ]; then
+                      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                        "${INFLUXDB_URL}/api/v2/write?org=${INFLUXDB_ORG}&bucket=${INFLUXDB_BUCKET}&precision=s" \
+                        -H "Authorization: Token ${INFLUXDB_TOKEN}" \
+                        --data-binary @/tmp/data.txt)
+                      echo "  $poi: wrote $LINES points, HTTP $HTTP_CODE"
+                    else
+                      echo "  $poi: no data extracted"
+                    fi
+                  done < /config/pois.txt
+
+                  echo "Done"
+              envFrom:
+                - secretRef:
+                    name: abb-cvc-secret
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: config
+              configMap:
+                name: abb-cvc-script
