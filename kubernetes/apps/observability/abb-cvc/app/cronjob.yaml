@@ -22,61 +22,22 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: extract
-              image: ghcr.io/adampetrovic/abb-cvc-extract:1.1.0@sha256:a6ce7721ee7c7af654b762861aec68be93bd61be6702c5313d092f8ffcc194c6
-              command:
-                - /bin/bash
-                - -c
-                - |
-                  set -euo pipefail
-
-                  # Yesterday's date (graphs show previous day)
-                  DATE=$(python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=11) - timedelta(days=1)).strftime('%Y-%m-%d'))")
-                  echo "Extracting CVC data for $DATE"
-
-                  # Process each POI from config
-                  while IFS= read -r poi; do
-                    [ -z "$poi" ] && continue
-                    echo "Processing POI: $poi"
-                    python3 /app/abb_cvc_extract.py --poi "$poi" --date "$DATE" > /tmp/data.txt 2>&1 || {
-                      echo "Warning: failed to extract $poi"
-                      cat /tmp/data.txt >&2
-                      continue
-                    }
-
-                    # Write to InfluxDB
-                    LINES=$(wc -l < /tmp/data.txt | tr -d ' ')
-                    if [ "$LINES" -gt 0 ]; then
-                      python3 -c "
-                  import urllib.request, os
-                  data = open('/tmp/data.txt', 'rb').read()
-                  url = f'{os.environ[\"INFLUXDB_URL\"]}/api/v2/write?org={os.environ[\"INFLUXDB_ORG\"]}&bucket={os.environ[\"INFLUXDB_BUCKET\"]}&precision=s'
-                  req = urllib.request.Request(url, data=data, method='POST', headers={
-                      'Authorization': f'Token {os.environ[\"INFLUXDB_TOKEN\"]}',
-                      'Content-Type': 'text/plain'
-                  })
-                  resp = urllib.request.urlopen(req)
-                  print(f'  wrote {len(data)} bytes, HTTP {resp.status}')
-                  "
-                    else
-                      echo "  $poi: no data extracted"
-                    fi
-                  done < /config/pois.txt
-
-                  echo "Done"
+              image: ghcr.io/adampetrovic/abb-cvc-extract:1.2.0@sha256:2a658d42795044cc13c922a4ffdf78ea64b22ff7d6b0501ffc1251812f55dec2
+              args:
+                - --poi
+                - peakhurst
+                - --poi
+                - peakhurstlink2
+                - --poi
+                - peakhurstlink4
+                - --yesterday
+                - --write-influxdb
               envFrom:
                 - secretRef:
                     name: abb-cvc-secret
-              volumeMounts:
-                - name: config
-                  mountPath: /config
-                  readOnly: true
               resources:
                 requests:
                   cpu: 100m
                   memory: 256Mi
                 limits:
                   memory: 512Mi
-          volumes:
-            - name: config
-              configMap:
-                name: abb-cvc-script
