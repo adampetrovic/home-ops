@@ -22,25 +22,12 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: extract
-              image: python:3.13-slim@sha256:f41a75c9cee9391c09e0139f7b49d4b1fbb119944ec740ecce4040626dc07bed
+              image: ghcr.io/adampetrovic/abb-cvc-extract:1.0.0@sha256:12b4df321782d17e23bfdbbef80d1c09ac91c26b0fa045dc97429996f861f37d
               command:
                 - /bin/bash
                 - -c
                 - |
                   set -euo pipefail
-
-                  # Install dependencies
-                  pip install --quiet --no-cache-dir opencv-python-headless numpy urllib3
-
-                  # Download the extraction script from the gist
-                  python3 -c "
-                  import urllib.request
-                  urllib.request.urlretrieve(
-                    'https://gist.githubusercontent.com/adampetrovic/da34ce978d2a65d6d55626bc108c2cf4/raw/abb-cvc-extract.py',
-                    '/tmp/abb-cvc-extract.py'
-                  )
-                  print('Downloaded extraction script')
-                  "
 
                   # Yesterday's date (graphs show previous day)
                   DATE=$(python3 -c "from datetime import datetime, timedelta, timezone; print((datetime.now(timezone.utc) + timedelta(hours=11) - timedelta(days=1)).strftime('%Y-%m-%d'))")
@@ -50,11 +37,11 @@ spec:
                   while IFS= read -r poi; do
                     [ -z "$poi" ] && continue
                     echo "Processing POI: $poi"
-                    OUTPUT=$(python3 /tmp/abb-cvc-extract.py --poi "$poi" --date "$DATE" 2>&1 1>/tmp/data.txt) || {
-                      echo "Warning: failed to extract $poi: $OUTPUT"
+                    python3 /app/abb_cvc_extract.py --poi "$poi" --date "$DATE" > /tmp/data.txt 2>&1 || {
+                      echo "Warning: failed to extract $poi"
+                      cat /tmp/data.txt >&2
                       continue
                     }
-                    echo "$OUTPUT" >&2
 
                     # Write to InfluxDB
                     LINES=$(wc -l < /tmp/data.txt | tr -d ' ')
