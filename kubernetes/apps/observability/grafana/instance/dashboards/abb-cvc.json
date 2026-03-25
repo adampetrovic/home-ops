@@ -15,7 +15,7 @@
     },
     {
       "type": "timeseries",
-      "title": "CVC Bandwidth — ${poi}",
+      "title": "CVC Bandwidth — $${poi}",
       "description": "Download, upload, and provisioned CVC capacity",
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 1 },
       "fieldConfig": {
@@ -81,18 +81,18 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Download\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Download\")",
           "refId": "Download"
         },
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"upload\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Upload\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"upload\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Upload\")",
           "refId": "Upload"
         },
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Capacity\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"Capacity\")",
           "refId": "Capacity"
         }
       ]
@@ -131,8 +131,8 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")",
           "refId": "A"
         }
       ]
@@ -164,8 +164,8 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")",
           "refId": "A"
         }
       ]
@@ -189,8 +189,8 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()",
           "refId": "A"
         }
       ]
@@ -227,8 +227,8 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "download = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")\n  |> max()\n  |> findRecord(fn: (key) => true, idx: 0)\n\ncapacity = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()\n  |> findRecord(fn: (key) => true, idx: 0)\n\nfrom(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()\n  |> map(fn: (r) => ({r with _value: download._value / capacity._value * 100.0}))",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "download = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"download\")\n  |> max()\n  |> findRecord(fn: (key) => true, idx: 0)\n\ncapacity = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()\n  |> findRecord(fn: (key) => true, idx: 0)\n\nfrom(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\")\n  |> filter(fn: (r) => r.poi == \"$${poi}\")\n  |> filter(fn: (r) => r.metric == \"capacity\")\n  |> last()\n  |> map(fn: (r) => ({r with _value: download._value / capacity._value * 100.0}))",
           "refId": "A"
         }
       ]
@@ -279,8 +279,8 @@
       },
       "targets": [
         {
-          "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
-          "query": "download = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\" and r.poi == \"${poi}\" and r.metric == \"download\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n\ncapacity = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\" and r.poi == \"${poi}\" and r.metric == \"capacity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n\njoin(tables: {download: download, capacity: capacity}, on: [\"_time\"])\n  |> map(fn: (r) => ({r with _value: r._value_download / r._value_capacity * 100.0}))\n  |> yield(name: \"Utilisation\")",
+          "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
+          "query": "download = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\" and r.poi == \"$${poi}\" and r.metric == \"download\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n\ncapacity = from(bucket: \"abb-cvc\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"abb_cvc\" and r.poi == \"$${poi}\" and r.metric == \"capacity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n\njoin(tables: {download: download, capacity: capacity}, on: [\"_time\"])\n  |> map(fn: (r) => ({r with _value: r._value_download / r._value_capacity * 100.0}))\n  |> yield(name: \"Utilisation\")",
           "refId": "A"
         }
       ]
@@ -293,7 +293,7 @@
     "list": [
       {
         "current": {},
-        "datasource": { "type": "influxdb", "uid": "${DS_INFLUXDB}" },
+        "datasource": { "type": "influxdb", "uid": "$${DS_INFLUXDB}" },
         "definition": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: \"abb-cvc\", tag: \"poi\", predicate: (r) => r._measurement == \"abb_cvc\", start: -30d)",
         "includeAll": false,
         "multi": false,
