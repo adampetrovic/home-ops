@@ -38,9 +38,9 @@ spec:
               tag: 26.3.0-alpine@sha256:88da05c05de64c3e2b597ffb8fdb9abb50605d64200ad470516da895251bbf9c
             env:
               TZ: ${TZ}
-              ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB: "100"
-              ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB: "100"
-              ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB: "100"
+              ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB: "500"
+              ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB: "500"
+              ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB: "500"
               ACTUAL_OPENID_DISCOVERY_URL: "https://auth.${SECRET_DOMAIN}/.well-known/openid-configuration"
               ACTUAL_OPENID_CLIENT_ID: actual-budget
               ACTUAL_OPENID_SERVER_HOSTNAME: "https://actual.${SECRET_DOMAIN}"
