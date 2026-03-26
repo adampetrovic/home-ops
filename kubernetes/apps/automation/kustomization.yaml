@@ -5,7 +5,6 @@ namespace: automation
 components:
   - ../../components/common
 resources:
-  - ./camera-view/ks.yaml
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml
   - ./evcc/ks.yaml
