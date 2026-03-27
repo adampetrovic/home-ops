@@ -32,7 +32,9 @@ spec:
               READECK_LOG_FORMAT: text
               READECK_SERVER_HOST: 0.0.0.0
               READECK_SERVER_PORT: &port 8000
-              READECK_AUTH_FORWARDED_ENABLED: "false"
+              READECK_AUTH_FORWARDED_ENABLED: "true"
+              READECK_AUTH_FORWARDED_PROVISIONING: "true"
+              READECK_AUTH_FORWARDED_HEADER_GROUP: Remote-Group
             envFrom:
               - secretRef:
                   name: readeck-secret
