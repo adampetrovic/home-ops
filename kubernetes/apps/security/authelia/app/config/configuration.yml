@@ -26,7 +26,7 @@ access_control:
         - "radarr4k.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
-    - domain: "readeck.${SECRET_DOMAIN}"
+    - domain: "readeck.${SECRET_PUBLIC_DOMAIN}"
       policy: bypass
       resources: ["^/(api|bm|opds)([?/].*)?$"]
     - domain: "grimmory.${SECRET_DOMAIN}"
