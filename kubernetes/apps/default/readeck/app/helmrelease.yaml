@@ -32,8 +32,17 @@ spec:
               READECK_LOG_FORMAT: text
               READECK_SERVER_HOST: 0.0.0.0
               READECK_SERVER_PORT: &port 8000
+              # Authelia forwarded auth for web UI SSO.
+              # IMPORTANT: /api, /bm, and /opds must be excluded from ext-auth
+              # in your Authelia access_control rules. Readeck serves article
+              # images from /bm/*, OPDS feeds from /opds/*, and the iOS app +
+              # browser extension authenticate directly against /api/*.
+              # See: authelia config & components/authelia-proxy
               READECK_AUTH_FORWARDED_ENABLED: "true"
               READECK_AUTH_FORWARDED_PROVISIONING: "true"
+              # Use singular Remote-Group to avoid multi-group rejection.
+              # Readeck expects exactly one group (user/staff/admin) but Authelia
+              # sends all LDAP groups comma-separated. See: codeberg.org/readeck/readeck/issues/1155
               READECK_AUTH_FORWARDED_HEADER_GROUP: Remote-Group
             envFrom:
               - secretRef:
