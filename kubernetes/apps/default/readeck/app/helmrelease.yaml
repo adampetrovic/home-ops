@@ -72,9 +72,9 @@ spec:
     route:
       app:
         hostnames:
-          - "readeck.${SECRET_DOMAIN}"
+          - "readeck.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
-          - name: envoy-internal
+          - name: envoy-external
             namespace: network
     persistence:
       data:
