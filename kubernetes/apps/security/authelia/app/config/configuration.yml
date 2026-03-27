@@ -28,7 +28,7 @@ access_control:
       resources: ["^/api([?/].*)?$"]
     - domain: "readeck.${SECRET_DOMAIN}"
       policy: bypass
-      resources: ["^/(api|bm)([?/].*)?$"]
+      resources: ["^/(api|bm|opds)([?/].*)?$"]
     - domain: "grimmory.${SECRET_DOMAIN}"
       policy: bypass
       resources: ["^/api/(koreader|v1/opds)([?/].*)?$"]  # KOReader sync & OPDS use their own basic auth
