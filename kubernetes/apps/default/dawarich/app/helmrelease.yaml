@@ -158,7 +158,7 @@ spec:
                 subPath: watched
       initdb:
         type: configMap
-        name: dawarich-initdb
+        identifier: initdb
         advancedMounts:
           dawarich:
             init-db:
