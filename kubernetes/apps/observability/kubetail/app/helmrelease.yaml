@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app kubetail
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: kubetail
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    kubetail:
+      dashboard:
+        enabled: true
+        authMode: auto
+        image:
+          registry: ghcr.io
+          repository: kubetail-org/kubetail-dashboard
+          tag: "0.10.1"
+          digest: sha256:df90535c52dc0ed7a8516d183addf0e410de05b40e2c1af4d62df737dff92cff
+        container:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            runAsUser: 1000
+            runAsGroup: 1000
+        runtimeConfig:
+          csrf:
+            enabled: false
+          session:
+            cookie:
+              secure: true
+        service:
+          ports:
+            http: 8080
+
+      clusterAPI:
+        enabled: true
+        image:
+          registry: ghcr.io
+          repository: kubetail-org/kubetail-cluster-api
+          tag: "0.5.3"
+          digest: sha256:414fbbc6f9fc19d275ab81fc89b102d42bd6ec1b8576f9925896a2f1ffc9410f
+        container:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            runAsUser: 1000
+            runAsGroup: 1000
+
+      clusterAgent:
+        enabled: true
+        image:
+          registry: ghcr.io
+          repository: kubetail-org/kubetail-cluster-agent
+          tag: "0.6.2"
+          digest: sha256:ad165e792222a37666f216e8dede798cb4ffd9598330888c96c2e3b2f4e823d8
+        container:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              add:
+                - DAC_READ_SEARCH
+              drop:
+                - ALL
+            runAsUser: 1000
+            runAsGroup: 1000
+        podTemplate:
+          securityContext:
+            fsGroup: 0
+          tolerations:
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule

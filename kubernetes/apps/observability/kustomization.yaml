@@ -10,6 +10,7 @@ resources:
   - ./grafana/ks.yaml
   - ./influxdb/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
+  - ./kubetail/ks.yaml
   - ./loki/ks.yaml
   - ./silence-operator/ks.yaml
   - ./unpoller/ks.yaml
