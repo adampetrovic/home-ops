@@ -42,7 +42,7 @@ spec:
               RAILS_ENV: production
               REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
               APPLICATION_HOSTS: "dawarich.${SECRET_DOMAIN}"
-              APPLICATION_PROTOCOL: https
+              APPLICATION_PROTOCOL: http
               TIME_ZONE: "${TZ}"
               SELF_HOSTED: "true"
               STORE_GEODATA: "true"
@@ -83,7 +83,7 @@ spec:
               RAILS_ENV: production
               REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
               APPLICATION_HOSTS: "dawarich.${SECRET_DOMAIN}"
-              APPLICATION_PROTOCOL: https
+              APPLICATION_PROTOCOL: http
               TIME_ZONE: "${TZ}"
               SELF_HOSTED: "true"
               STORE_GEODATA: "true"
