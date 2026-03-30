@@ -25,7 +25,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-dashboard
-          tag: "0.10.1"
+          tag: "0.10.2"
           digest: sha256:df90535c52dc0ed7a8516d183addf0e410de05b40e2c1af4d62df737dff92cff
         container:
           securityContext:
