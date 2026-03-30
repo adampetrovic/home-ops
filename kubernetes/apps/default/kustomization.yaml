@@ -8,6 +8,7 @@ resources:
   - ./actual-budget/ks.yaml
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
+  - ./dawarich/ks.yaml
   - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
   - ./homebox/ks.yaml
