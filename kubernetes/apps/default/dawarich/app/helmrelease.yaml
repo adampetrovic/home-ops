@@ -48,6 +48,12 @@ spec:
               STORE_GEODATA: "true"
               RAILS_LOG_TO_STDOUT: "true"
               PROMETHEUS_EXPORTER_ENABLED: "false"
+              OIDC_CLIENT_ID: dawarich
+              OIDC_ISSUER: "https://auth.${SECRET_DOMAIN}"
+              OIDC_REDIRECT_URI: "https://dawarich.${SECRET_DOMAIN}/users/auth/openid_connect/callback"
+              OIDC_PROVIDER_NAME: "Authelia"
+              OIDC_AUTO_REGISTER: "true"
+              ALLOW_EMAIL_PASSWORD_REGISTRATION: "false"
             probes:
               liveness: &probes
                 enabled: true
@@ -90,6 +96,12 @@ spec:
               RAILS_LOG_TO_STDOUT: "true"
               BACKGROUND_PROCESSING_CONCURRENCY: "5"
               PROMETHEUS_EXPORTER_ENABLED: "false"
+              OIDC_CLIENT_ID: dawarich
+              OIDC_ISSUER: "https://auth.${SECRET_DOMAIN}"
+              OIDC_REDIRECT_URI: "https://dawarich.${SECRET_DOMAIN}/users/auth/openid_connect/callback"
+              OIDC_PROVIDER_NAME: "Authelia"
+              OIDC_AUTO_REGISTER: "true"
+              ALLOW_EMAIL_PASSWORD_REGISTRATION: "false"
             probes:
               liveness:
                 enabled: true
