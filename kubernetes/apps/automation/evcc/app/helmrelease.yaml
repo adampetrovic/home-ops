@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/evcc/evcc
-              tag: 0.303.2@sha256:8dd2019927b537181ced8cc934876fca02ab63bb0b3a731e156113509925f4fd
+              tag: 0.304.0@sha256:2fe15a1cf526a5b68335eee5de45784872b9d5a8fbbb8ac5a8cb05b085100474
             env:
               TZ: "${TZ}"
             envFrom:
