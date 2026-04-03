@@ -11,3 +11,12 @@ groups:
             {{ $labels.app }} is unable to reach MQTT
         labels:
           severity: critical
+      - alert: ZigbeeCoordinatorUnreachable
+        expr: |
+          sum by (app) (count_over_time({app="zigbee2mqtt"} |~ "(?i)Failed to connect to the adapter"[2m])) > 0
+        for: 2m
+        annotations:
+          summary: >-
+            {{ $labels.app }} cannot reach the Zigbee coordinator — power cycle the Tube ZB PoE adapter
+        labels:
+          severity: critical
