@@ -112,15 +112,48 @@ kubectl get nodes -w
 
 ### 7. Shut down control plane nodes
 
-Shut down one at a time, leaving one node up until the end to maintain API access:
+Control plane nodes can hang during graceful shutdown because etcd blocks trying to transfer
+leadership as quorum shrinks. Use `--force` to bypass the cordon/drain and set a timeout so the
+command doesn't hang indefinitely. Shut down two non-leader nodes first, then the leader last.
+
+Identify the current etcd leader:
 
 ```bash
-talosctl shutdown --nodes 10.0.80.11
-talosctl shutdown --nodes 10.0.80.12
-
-# Last control plane node — after this, kubectl will stop working
-talosctl shutdown --nodes 10.0.80.10
+talosctl -n 10.0.80.10 etcd members | grep -i "learner\|true"
+# Or check which node responds fastest — the leader is usually the most responsive
 ```
+
+Shut down the **non-leader** control plane nodes first with `--force` and a timeout.
+After each, verify the node is actually unreachable before proceeding:
+
+```bash
+# First non-leader
+talosctl shutdown --nodes 10.0.80.11 --force --timeout 3m
+# Verify it's actually down
+until ! ping -c 1 -W 2 10.0.80.11 &>/dev/null; do echo "Waiting for 10.0.80.11 to power off..."; sleep 5; done
+echo "10.0.80.11 is down"
+
+# Second non-leader
+talosctl shutdown --nodes 10.0.80.12 --force --timeout 3m
+until ! ping -c 1 -W 2 10.0.80.12 &>/dev/null; do echo "Waiting for 10.0.80.12 to power off..."; sleep 5; done
+echo "10.0.80.12 is down"
+
+# Last control plane node (leader) — after this, kubectl will stop working
+talosctl shutdown --nodes 10.0.80.10 --force --timeout 3m
+until ! ping -c 1 -W 2 10.0.80.10 &>/dev/null; do echo "Waiting for 10.0.80.10 to power off..."; sleep 5; done
+echo "10.0.80.10 is down"
+```
+
+> **If a node doesn't power off** (still pingable after the timeout), try an emergency reset:
+>
+> ```bash
+> # Force an immediate reboot (use only if shutdown --force hangs)
+> talosctl reboot --nodes <ip> --mode powercycle
+> ```
+>
+> If `talosctl` is completely unresponsive on the stuck node, you must **physically power off**
+> the machine (pull power or press and hold the power button). Intel NUCs don't have IPMI/BMC
+> for remote power control.
 
 ### 8. Shut down supporting infrastructure
 
