@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: multus-config
+      namespace: network
   interval: 1h
   path: ./kubernetes/apps/automation/go2rtc/app
   prune: true
