@@ -36,3 +36,4 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 5Gi
       VOLSYNC_KOPIA_SCHEDULE: "37 * * * *"
+      VOLSYNC_R2_SCHEDULE: "5 1 * * *"

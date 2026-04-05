@@ -30,7 +30,7 @@ spec:
         initContainers:
           install-plugins:
             image:
-              repository: alpine
+              repository: mirror.gcr.io/library/alpine
               tag: 3.23
             command:
               - /bin/sh

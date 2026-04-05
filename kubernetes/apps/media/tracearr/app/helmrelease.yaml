@@ -75,7 +75,7 @@ spec:
         containers:
           timescale:
             image:
-              repository: timescale/timescaledb-ha
+              repository: mirror.gcr.io/timescale/timescaledb-ha
               tag: pg18.1-ts2.25.0@sha256:9dcbd18e5cb966398ae19f3882fd5fb2e19b3cb98be54d290ab9f69c75bf0a8b
             args:
               - postgres
