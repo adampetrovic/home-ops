@@ -16,6 +16,7 @@ spec:
     cleanupOnFail: true
     remediation:
       retries: 3
+      strategy: rollback
   uninstall:
     keepHistory: false
   values:
@@ -26,7 +27,7 @@ spec:
         containers:
           app:
             image:
-              repository: cturra/ntp
+              repository: mirror.gcr.io/cturra/ntp
               tag: latest@sha256:7224d4e7c7833aabbcb7dd70c46c8a8dcccda365314c6db047b9b10403ace3bc
               pullPolicy: Always
             env:
