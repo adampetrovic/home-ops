@@ -11,6 +11,10 @@ spec:
   storage:
     size: 10Gi
     storageClass: openebs-hostpath
+  bootstrap:
+    initdb:
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS timescaledb
   enableSuperuserAccess: true
   superuserSecret:
     name: tracearr-postgres-secret
