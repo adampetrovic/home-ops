@@ -34,6 +34,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_KOPIA_SCHEDULE: "50 * * * *"
+      VOLSYNC_R2_SCHEDULE: "18 1 * * *"
     substituteFrom:
       - kind: Secret
         name: cluster-secrets

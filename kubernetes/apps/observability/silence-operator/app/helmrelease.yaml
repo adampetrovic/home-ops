@@ -8,6 +8,9 @@ spec:
   chartRef:
     kind: OCIRepository
     name: silence-operator
+  install:
+    remediation:
+      retries: -1
   interval: 1h
   values:
     alertmanagerAddress: http://kube-prometheus-stack-alertmanager:9093

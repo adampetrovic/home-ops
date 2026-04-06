@@ -32,6 +32,7 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
       VOLSYNC_KOPIA_SCHEDULE: "38 * * * *"
+      VOLSYNC_R2_SCHEDULE: "55 3 * * *"
       VOLSYNC_ACCESSMODES: ReadWriteMany
       VOLSYNC_STORAGECLASS: ceph-filesystem
       VOLSYNC_SNAPSHOTCLASS: csi-ceph-filesystem

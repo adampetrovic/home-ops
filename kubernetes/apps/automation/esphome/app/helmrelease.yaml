@@ -26,7 +26,7 @@ spec:
         containers:
           app:
             image:
-              repository: esphome/esphome
+              repository: mirror.gcr.io/esphome/esphome
               tag: 2026.3.2@sha256:8a7d3c79736500061b4b7b24aa84515c642291093acb44127e5cd3eee6ef0feb
             env:
               ESPHOME_DASHBOARD_USE_PING: true
