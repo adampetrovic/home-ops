@@ -32,29 +32,6 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: tracearr-secret
-            env:
-              INIT_POSTGRES_HOST: tracearr-postgres-rw.media.svc.cluster.local
-              INIT_POSTGRES_SUPER_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: tracearr-postgres-secret
-                    key: username
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: tracearr-postgres-secret
-                    key: password
-              INIT_POSTGRES_DBNAME: tracearr
-              INIT_POSTGRES_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: tracearr-postgres-secret
-                    key: username
-              INIT_POSTGRES_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: tracearr-postgres-secret
-                    key: password
         containers:
           app:
             image:
