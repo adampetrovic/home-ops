@@ -32,13 +32,13 @@ spec:
         containers:
           gotenburg:
             image:
-              repository: thecodingmachine/gotenberg
+              repository: mirror.gcr.io/thecodingmachine/gotenberg
               tag: 8.28.0@sha256:f172b1ce5ec7516ab9452d33bfe3f198d778d3de39655825aa550f4a33946666
             env:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
           tika:
             image:
-              repository: apache/tika
+              repository: mirror.gcr.io/apache/tika
               tag: latest-full@sha256:ecdd37e204308266b1f8e28569f8516ebd5b96d7a4518a71d3904710b20c03b3
           app:
             image:

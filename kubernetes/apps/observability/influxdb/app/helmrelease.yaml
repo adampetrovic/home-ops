@@ -28,7 +28,7 @@ spec:
         containers:
           app:
             image:
-              repository: influxdb
+              repository: mirror.gcr.io/library/influxdb
               tag: 2.8.0@sha256:7500f5825d4cdda41befbafca3582ae606b984d33aa1aaf8ae22675dd12d8457
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3g

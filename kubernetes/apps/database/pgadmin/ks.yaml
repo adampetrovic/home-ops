@@ -10,17 +10,19 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/volsync
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   path: ./kubernetes/apps/database/pgadmin/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  dependsOn:
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
-    - name: external-secrets-stores
-      namespace: external-secrets
   wait: false
   interval: 30m
   retryInterval: 1m
@@ -30,5 +32,6 @@ spec:
       APP: *app
       VOLSYNC_CAPACITY: 2Gi
       VOLSYNC_KOPIA_SCHEDULE: "42 * * * *"
+      VOLSYNC_R2_SCHEDULE: "39 0 * * *"
       VOLSYNC_UID: "5050"
       VOLSYNC_GID: "5050"
