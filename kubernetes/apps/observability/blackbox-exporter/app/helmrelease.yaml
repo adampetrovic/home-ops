@@ -25,8 +25,8 @@ spec:
         containers:
           app:
             image:
-              repository: quay.io/prometheus/blackbox-exporter
-              tag: v0.28.0@sha256:e753ff9f3fc458d02cca5eddab5a77e1c175eee484a8925ac7d524f04366c2fc
+              repository: ghcr.io/adampetrovic/blackbox-exporter
+              tag: v0.28.0
             args:
               - --config.file=/config/blackbox.yaml
             probes:
