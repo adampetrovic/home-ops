@@ -18,7 +18,7 @@ spec:
     extensions:
       - name: timescaledb
         image:
-          reference: ghcr.io/adampetrovic/timescaledb-cnpg:2.26.1-18-trixie
+          reference: ghcr.io/adampetrovic/timescaledb-cnpg:2.26.1-tsl-18-trixie
     shared_preload_libraries:
       - timescaledb
     parameters:
