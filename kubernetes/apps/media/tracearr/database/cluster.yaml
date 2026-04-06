@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: tracearr-postgres
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 10Gi
+    storageClass: openebs-hostpath
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: tracearr-postgres-secret
+  postgresql:
+    extensions:
+      - name: timescaledb
+        image:
+          reference: ghcr.io/adampetrovic/timescaledb-cnpg:2.26.1-18-trixie
+    shared_preload_libraries:
+      - timescaledb
+    parameters:
+      max_connections: "100"
+      shared_buffers: 256MB
+      max_locks_per_transaction: "4096"
+      timescaledb.license: "timescale"
+      timescaledb.max_tuples_decompressed_per_dml_transaction: "0"
+      timescaledb.telemetry_level: "off"
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  # https://github.com/cloudnative-pg/cloudnative-pg/issues/2570
+  enablePDB: false
+  resources:
+    requests:
+      cpu: 25m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
+      - { regex: cluster, action: labeldrop }
