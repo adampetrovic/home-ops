@@ -8,6 +8,9 @@ spec:
   chartRef:
     kind: OCIRepository
     name: envoy-gateway
+  install:
+    remediation:
+      retries: -1
   interval: 1h
   values:
     config:

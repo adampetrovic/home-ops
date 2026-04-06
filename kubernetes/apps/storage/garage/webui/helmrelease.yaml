@@ -11,12 +11,12 @@ spec:
     name: app-template
   install:
     remediation:
-      retries: 3
+      retries: -1
   upgrade:
     cleanupOnFail: true
     remediation:
       strategy: rollback
-      retries: 3
+      retries: -1
   values:
     controllers:
       garage-webui:
@@ -25,7 +25,7 @@ spec:
         containers:
           app:
             image:
-              repository: khairul169/garage-webui
+              repository: mirror.gcr.io/khairul169/garage-webui
               tag: 1.1.0@sha256:17c793551873155065bf9a022dabcde874de808a1f26e648d4b82e168806439c
             env:
               API_BASE_URL: http://garage.storage.svc.cluster.local:3903
