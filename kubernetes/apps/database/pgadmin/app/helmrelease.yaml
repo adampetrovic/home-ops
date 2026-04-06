@@ -34,7 +34,7 @@ spec:
         containers:
           app:
             image:
-              repository: dpage/pgadmin4
+              repository: mirror.gcr.io/dpage/pgadmin4
               tag: 9.14@sha256:ff557f69d9808085dc3554f56c1b06a36ac8cddabe4485212920b9604261abdb
             env:
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
