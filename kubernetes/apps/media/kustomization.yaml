@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: media
@@ -6,15 +7,14 @@ components:
   - ../../components/common
 resources:
   - ./bazarr/ks.yaml
-  - ./immich/ks.yaml
   - ./grimmory/ks.yaml
+  - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./qui/ks.yaml
-  - ./tracearr/ks.yaml
   - ./radarr/ks.yaml
   - ./radarr-4k/ks.yaml
   - ./sabnzbd/ks.yaml
@@ -23,5 +23,6 @@ resources:
   - ./sonarr-4k/ks.yaml
   - ./stash/ks.yaml
   - ./tautulli/ks.yaml
+  - ./tracearr/ks.yaml
   - ./unpackerr/ks.yaml
   - ./xteve/ks.yaml

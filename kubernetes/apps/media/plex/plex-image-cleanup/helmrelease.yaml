@@ -8,6 +8,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      strategy: rollback
+      retries: 3
   interval: 30m
   values:
     controllers:
@@ -38,7 +45,7 @@ spec:
         containers:
           app:
             image:
-              repository: kometateam/imagemaid
+              repository: mirror.gcr.io/kometateam/imagemaid
               tag: v1.1.1@sha256:fbec331b36c1473f8a9c4214f55e5b097860476c8a5274eb61a2b85df89e56cc
             env:
               PLEX_URL: http://plex.media.svc.cluster.local:32400
