@@ -24,6 +24,37 @@ spec:
       tracearr:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 16@sha256:217c47c886965474f5c234b5a35ed008f53b39ea90a3088b31c0da98e1f9284d
+            envFrom: &envFrom
+              - secretRef:
+                  name: tracearr-secret
+            env:
+              INIT_POSTGRES_HOST: tracearr-postgres-rw.media.svc.cluster.local
+              INIT_POSTGRES_SUPER_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-postgres-secret
+                    key: username
+              INIT_POSTGRES_SUPER_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-postgres-secret
+                    key: password
+              INIT_POSTGRES_DBNAME: tracearr
+              INIT_POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-postgres-secret
+                    key: username
+              INIT_POSTGRES_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: tracearr-postgres-secret
+                    key: password
         containers:
           app:
             image:
@@ -71,64 +102,12 @@ spec:
             runAsNonRoot: true
             fsGroupChangePolicy: OnRootMismatch
 
-      db:
-        containers:
-          timescale:
-            image:
-              repository: timescale/timescaledb-ha
-              tag: pg18.1-ts2.25.0@sha256:9dcbd18e5cb966398ae19f3882fd5fb2e19b3cb98be54d290ab9f69c75bf0a8b
-            args:
-              - postgres
-              - -c
-              - timescaledb.max_tuples_decompressed_per_dml_transaction=0
-              - -c
-              - max_locks_per_transaction=4096
-              - -c
-              - timescaledb.telemetry_level=off
-            env:
-              POSTGRES_USER: tracearr
-              POSTGRES_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: tracearr-secret
-                    key: DB_PASSWORD
-              POSTGRES_DB: tracearr
-              PGDATA: /var/lib/postgresql/data/pgdata
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  exec:
-                    command: ["pg_isready", "-U", "tracearr"]
-                  periodSeconds: 10
-                  failureThreshold: 6
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  exec:
-                    command: ["pg_isready", "-U", "tracearr"]
-                  periodSeconds: 10
-                  failureThreshold: 6
-            resources:
-              requests:
-                cpu: 25m
-                memory: 2Gi
-              limits:
-                memory: 3Gi
-
     service:
       app:
         controller: tracearr
         ports:
           http:
             port: *port
-      db:
-        controller: db
-        ports:
-          postgres:
-            port: 5432
 
     route:
       main:
@@ -143,16 +122,6 @@ spec:
                 port: http
 
     persistence:
-      db-data:
-        enabled: true
-        type: persistentVolumeClaim
-        accessMode: ReadWriteOnce
-        size: 10Gi
-        storageClass: openebs-hostpath
-        advancedMounts:
-          db:
-            timescale:
-              - path: /var/lib/postgresql/data
       backups:
         enabled: true
         type: emptyDir
