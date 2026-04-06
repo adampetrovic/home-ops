@@ -13,7 +13,7 @@ spec:
     storageClass: openebs-hostpath
   bootstrap:
     initdb:
-      postInitApplicationSQL:
+      postInitTemplateSQL:
         - CREATE EXTENSION IF NOT EXISTS timescaledb
   enableSuperuserAccess: true
   superuserSecret:
