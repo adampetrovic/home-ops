@@ -94,6 +94,10 @@ spec:
                 subPath: welcome-bg.svg
               - path: /usr/share/nginx/html/logo.svg
                 subPath: logo.svg
+              - path: /usr/share/nginx/html/custom.css
+                subPath: custom.css
+              - path: /etc/nginx/templates/default.conf.template
+                subPath: default.conf.template
       # nginx entrypoint writes the rendered default.conf here from a template
       nginx-conf:
         type: emptyDir
