@@ -10,6 +10,7 @@ resources:
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
   - ./dawarich/ks.yaml
+  - ./element-web/ks.yaml
   - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
   - ./homebox/ks.yaml
@@ -18,3 +19,4 @@ resources:
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
   - ./readeck/ks.yaml
+  - ./synapse/ks.yaml
