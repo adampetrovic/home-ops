@@ -47,10 +47,10 @@ spec:
                 spec:
                   httpGet:
                     path: /
-                    port: &port 8080
-                  initialDelaySeconds: 0
+                    port: &port 80
+                  initialDelaySeconds: 5
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 2
                   failureThreshold: 3
               readiness: *probes
             resources:
