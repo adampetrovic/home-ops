@@ -1,0 +1,144 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app element-web
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      element-web:
+        replicas: 2
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/vectorim/element-web
+              tag: v1.12.13@sha256:5107e63026c13ed014f743e485821b7d4b56d275a41e76303859bb14f5f94eb6
+            env:
+              TZ: ${TZ}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames:
+          - "chat.${SECRET_PUBLIC_ANON_DOMAIN}"
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+    persistence:
+      # Element Web config.json — hardcodes the homeserver so no .well-known
+      # lookups happen at login time (federation is off anyway).
+      config:
+        type: configMap
+        identifier: config
+        advancedMounts:
+          element-web:
+            app:
+              - path: /usr/share/nginx/html/config.json
+                subPath: config.json
+      # nginx needs writable tmp / cache / run dirs under readOnlyRootFilesystem
+      nginx-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /var/cache/nginx
+      nginx-run:
+        type: emptyDir
+        globalMounts:
+          - path: /var/run
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+    configMaps:
+      config:
+        data:
+          config.json: |
+            {
+              "default_server_config": {
+                "m.homeserver": {
+                  "base_url": "https://matrix.${SECRET_PUBLIC_ANON_DOMAIN}",
+                  "server_name": "${SECRET_PUBLIC_ANON_DOMAIN}"
+                }
+              },
+              "brand": "Element",
+              "default_country_code": "AU",
+              "show_labs_settings": true,
+              "room_directory": {
+                "servers": ["${SECRET_PUBLIC_ANON_DOMAIN}"]
+              },
+              "enable_presence_by_hs_url": {
+                "https://matrix.${SECRET_PUBLIC_ANON_DOMAIN}": true
+              },
+              "disable_custom_urls": true,
+              "disable_guests": true,
+              "disable_login_language_selector": false,
+              "disable_3pid_login": true,
+              "features": {
+                "feature_video_rooms": false,
+                "feature_new_room_decoration_ui": true
+              },
+              "setting_defaults": {
+                "breadcrumbs": true,
+                "UIFeature.feedback": false,
+                "UIFeature.registration": false,
+                "UIFeature.passwordReset": false,
+                "UIFeature.deactivate": false,
+                "UIFeature.thirdPartyId": false
+              },
+              "default_theme": "dark",
+              "jitsi": {
+                "preferred_domain": "meet.element.io"
+              }
+            }
