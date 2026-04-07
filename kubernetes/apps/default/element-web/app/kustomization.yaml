@@ -4,3 +4,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: element-web-assets
+    files:
+      - resources/config.json
+      - resources/welcome.html
+      - resources/welcome-bg.svg
+      - resources/logo.svg
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    app.kubernetes.io/name: element-web
