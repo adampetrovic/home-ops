@@ -1,35 +1,60 @@
 <!--
-  Instant redirect to the login page.
-
-  Element loads this file via fetch() and inserts it into its auth layout
-  with dangerouslySetInnerHTML. <script> tags are NOT executed by React's
-  dangerouslySetInnerHTML, but inline event handlers on elements (e.g.
-  <img onerror>) ARE processed by the browser when the element is parsed
-  into the DOM. We use that to trigger an instant location.replace().
-
-  A full-screen dark div is layered on top to hide any flash before the
-  navigation completes.
+  Minimal welcome page: dark background + single amber Login button.
+  Element loads this via dangerouslySetInnerHTML; <a href="#/login">
+  works because Element's React Router picks up hash changes natively.
 -->
 <style>
-  .ch-redirect-mask {
-    position: fixed;
-    inset: 0;
-    background: #0a0a0b;
-    z-index: 2147483647;
-    pointer-events: none;
-  }
-  /* Ensure Element's auth page background matches during the brief flash */
+  /* Bump specificity above Element's mx_AuthPage rules */
+  .ch-w a { text-decoration: none !important; }
   .mx_AuthPage,
   .mx_Welcome,
   .mx_EmbeddedPage,
   .mx_EmbeddedPage_body {
     background: #0a0a0b !important;
   }
+
+  .ch-w {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0a0a0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .ch-w a.ch-w-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    padding: 18px 48px;
+    background: #e5a820;
+    color: #0a0a0b !important;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid #e5a820;
+    border-radius: 0;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ch-w a.ch-w-btn:hover {
+    background: #f0b435;
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 12px 28px -10px rgba(229, 168, 32, 0.45);
+  }
+  .ch-w a.ch-w-btn:active {
+    transform: translateY(0);
+  }
 </style>
-<div class="ch-redirect-mask" aria-hidden="true"></div>
-<img
-  src="x"
-  alt=""
-  style="display:none"
-  onerror="window.location.replace(window.location.pathname + '#/login')"
-/>
+
+<div class="ch-w">
+  <a href="#/login" class="ch-w-btn">Login</a>
+</div>

@@ -1,52 +1,32 @@
 /*
  * Custom CSS injected into Element Web's index.html via nginx sub_filter.
  * Loaded on every page so it persists across React route changes.
+ *
+ * Kept deliberately minimal — Element's default dark theme is well-tuned.
+ * We only override two specific things:
+ *   1. The homeserver display in the auth UI (leaks the bare anon domain)
+ *   2. The primary Sign-in submit button colour to match our amber accent
  */
 
 /* ── Hide server picker / homeserver display ─────────────────
-   We use disable_custom_urls: true so this is purely informational,
-   and we don't want to leak the bare anon domain in the auth UI.
+   We use disable_custom_urls: true so this is purely informational
+   and there's no reason to show it.
 */
-.mx_ServerPicker {
+.mx_AuthPage .mx_ServerPicker {
   display: none !important;
 }
 
-/* ── Tighten up the auth body now that the picker is gone ──── */
-.mx_AuthBody h1,
-.mx_AuthBody h2 {
-  margin-bottom: 24px;
-}
-
-/* ── Force amber on the primary CTA in case Compound vars miss ─ */
-.mx_AccessibleButton_kind_primary,
-.mx_AuthBody button[type="submit"],
-button.mx_Login_submit,
-button[data-kind="primary"] {
+/* ── Amber primary button on auth pages only ───────────────── */
+.mx_AuthPage .mx_AccessibleButton_kind_primary,
+.mx_AuthPage button[type="submit"],
+.mx_AuthPage button.mx_Login_submit {
   background-color: #e5a820 !important;
   color: #0a0a0b !important;
   border-color: #e5a820 !important;
 }
-.mx_AccessibleButton_kind_primary:hover,
-.mx_AuthBody button[type="submit"]:hover,
-button.mx_Login_submit:hover,
-button[data-kind="primary"]:hover {
+.mx_AuthPage .mx_AccessibleButton_kind_primary:hover,
+.mx_AuthPage button[type="submit"]:hover,
+.mx_AuthPage button.mx_Login_submit:hover {
   background-color: #f0b435 !important;
   color: #0a0a0b !important;
-}
-
-/* ── Subtle dark surface for input fields ──────────────────── */
-.mx_Field input,
-.mx_Field select,
-.mx_Field textarea {
-  background-color: #111113 !important;
-  border-color: #1c1c1f !important;
-  color: #e5e5e7 !important;
-}
-.mx_Field input:focus,
-.mx_Field select:focus,
-.mx_Field textarea:focus {
-  border-color: #e5a820 !important;
-}
-.mx_Field label {
-  color: #71717a !important;
 }
