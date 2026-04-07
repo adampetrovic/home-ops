@@ -1,0 +1,541 @@
+<!--
+  Custom welcome page for the chat homeserver.
+  Rendered into Element's auth layout via dangerouslySetInnerHTML.
+  Scoped under .ch-w to avoid leaking styles into Element's UI.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+  .ch-w {
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #0a0a0b;
+    color: #e5e5e7;
+    font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .ch-w *, .ch-w *::before, .ch-w *::after { box-sizing: border-box; }
+
+  /* Background: warm radial glow + dot grid */
+  .ch-w::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 60% 50% at 78% 50%, rgba(229, 168, 32, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 18% 100%, rgba(229, 168, 32, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ch-w::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: -1px -1px;
+    pointer-events: none;
+    z-index: 0;
+    -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, #000 30%, transparent 100%);
+    mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, #000 30%, transparent 100%);
+  }
+
+  .ch-w-container {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 32px 28px;
+    gap: 48px;
+  }
+  @media (min-width: 1024px) {
+    .ch-w-container {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 80px;
+      padding: 56px 64px;
+    }
+  }
+
+  /* ── Left column ─────────────────────────────────────────── */
+  .ch-w-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 56px;
+    min-width: 0;
+    animation: ch-fade-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes ch-fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ch-w-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ch-w-mark {
+    width: 26px;
+    height: 26px;
+    color: #e5a820;
+    flex-shrink: 0;
+  }
+  .ch-w-brand {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    color: #f5f5f7;
+    text-transform: uppercase;
+  }
+  .ch-w-build {
+    margin-left: auto;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 10px;
+    color: #52525b;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ch-w-build-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+    animation: ch-pulse 2.8s ease-in-out infinite;
+  }
+  @keyframes ch-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12); }
+    50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgba(74, 222, 128, 0.04); }
+  }
+
+  .ch-w-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 32px;
+    max-width: 600px;
+  }
+
+  .ch-w-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #e5a820;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .ch-w-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5a820);
+  }
+
+  .ch-w-title {
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: clamp(40px, 6.4vw, 80px);
+    line-height: 0.94;
+    letter-spacing: -0.038em;
+    color: #f5f5f7;
+    margin: 0;
+  }
+  .ch-w-title em {
+    font-style: normal;
+    font-weight: 300;
+    color: #71717a;
+  }
+
+  .ch-w-lead {
+    font-family: 'Geist', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: #a1a1aa;
+    max-width: 54ch;
+    margin: 0;
+  }
+  .ch-w-lead strong {
+    color: #e5e5e7;
+    font-weight: 500;
+  }
+
+  .ch-w-actions {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .ch-w-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px 30px 17px 32px;
+    background: #e5a820;
+    color: #0a0a0b;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border: 1px solid #e5a820;
+    border-radius: 0;
+    cursor: pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 0 0 1px rgba(229, 168, 32, 0.0);
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  .ch-w-cta:hover {
+    background: #f0b435;
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 1px rgba(229, 168, 32, 0.4),
+      0 12px 32px -12px rgba(229, 168, 32, 0.45);
+  }
+  .ch-w-cta:active {
+    transform: translateY(0);
+    transition-duration: 0.08s;
+  }
+  .ch-w-cta-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ch-w-cta:hover .ch-w-cta-arrow { transform: translateX(5px); }
+
+  .ch-w-secondary {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: #71717a;
+    letter-spacing: 0.04em;
+  }
+  .ch-w-secondary kbd {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 1px solid #27272a;
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    background: #18181b;
+    color: #e5e5e7;
+    font-family: inherit;
+    font-size: 10px;
+    margin: 0 3px;
+    line-height: 1.4;
+  }
+
+  .ch-w-footer {
+    border-top: 1px solid #1c1c1f;
+    padding-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #52525b;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ch-w-footer-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ch-w-footer-item::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: #e5a820;
+    border-radius: 50%;
+    opacity: 0.55;
+  }
+
+  /* ── Right column: encrypted transmission panel ──────────── */
+  .ch-w-right {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .ch-w-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      animation: ch-fade-up 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    }
+  }
+
+  .ch-w-panel {
+    border: 1px solid #1c1c1f;
+    background: linear-gradient(180deg, #0d0d0f 0%, #0a0a0b 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 0 0 1px rgba(229, 168, 32, 0.04),
+      0 32px 80px -32px rgba(229, 168, 32, 0.18),
+      0 8px 24px -8px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ch-w-panel-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid #1c1c1f;
+    background: #0c0c0e;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+  }
+  .ch-w-panel-dots {
+    display: flex;
+    gap: 6px;
+    margin-right: 16px;
+  }
+  .ch-w-panel-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #27272a;
+  }
+  .ch-w-panel-title {
+    color: #71717a;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+  .ch-w-panel-title strong {
+    color: #e5a820;
+    font-weight: 500;
+  }
+  .ch-w-panel-status {
+    margin-left: auto;
+    color: #71717a;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ch-w-panel-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+  }
+
+  .ch-w-panel-body {
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+  .ch-w-panel-stream {
+    padding: 18px 22px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.95;
+    color: #52525b;
+    animation: ch-stream 80s linear infinite;
+    will-change: transform;
+  }
+  @keyframes ch-stream {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .ch-w-stream-line {
+    white-space: nowrap;
+  }
+  .ch-w-time { color: #3f3f46; margin-right: 12px; }
+  .ch-w-tag-tx { color: #e5a820; font-weight: 500; margin-right: 8px; }
+  .ch-w-tag-rx { color: #4ade80; font-weight: 500; margin-right: 8px; }
+  .ch-w-tag-sys { color: #71717a; margin-right: 8px; }
+  .ch-w-meta { color: #71717a; }
+  .ch-w-bytes { color: #52525b; }
+  .ch-w-ok { color: #4ade80; }
+  .ch-w-divider { color: #27272a; }
+
+  .ch-w-panel-footer {
+    border-top: 1px solid #1c1c1f;
+    padding: 12px 18px;
+    background: #0c0c0e;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: #52525b;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    letter-spacing: 0.04em;
+  }
+  .ch-w-panel-footer-cursor {
+    display: inline-block;
+    width: 6px;
+    height: 11px;
+    background: #e5a820;
+    margin-left: 2px;
+    animation: ch-blink 1.1s steps(2) infinite;
+  }
+  @keyframes ch-blink {
+    50% { opacity: 0; }
+  }
+
+  /* ── Mobile tweaks ───────────────────────────────────────── */
+  @media (max-width: 1023px) {
+    .ch-w-container { padding: 28px 24px; gap: 36px; }
+    .ch-w-left { gap: 36px; }
+    .ch-w-title { font-size: clamp(36px, 9vw, 56px); }
+    .ch-w-footer { gap: 14px 18px; }
+  }
+
+  /* ── Reduced motion ──────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .ch-w-build-dot,
+    .ch-w-panel-stream,
+    .ch-w-panel-footer-cursor,
+    .ch-w-left,
+    .ch-w-right { animation: none !important; }
+  }
+</style>
+
+<div class="ch-w" role="main" aria-label="Welcome">
+  <div class="ch-w-container">
+    <!-- ───── Left ───── -->
+    <section class="ch-w-left">
+      <header class="ch-w-header">
+        <svg class="ch-w-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 4 L4 20 M4 4 L9 4 M4 20 L9 20 M20 4 L20 20 M20 4 L15 4 M20 20 L15 20"
+                stroke="currentColor" stroke-width="2" stroke-linecap="square"/>
+          <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+        </svg>
+        <span class="ch-w-brand">Chat</span>
+        <span class="ch-w-build"><span class="ch-w-build-dot"></span>node operational</span>
+      </header>
+
+      <main class="ch-w-main">
+        <p class="ch-w-eyebrow">Invite only &middot; End to end encrypted</p>
+        <h1 class="ch-w-title">A quieter place<br><em>to say everything.</em></h1>
+        <p class="ch-w-lead">A private network for people who'd rather talk away from the algorithm. Every message is <strong>encrypted on your device, decrypted on theirs</strong>. Nobody in the middle &mdash; not the network, not the server, not the people who run it.</p>
+        <div class="ch-w-actions">
+          <a href="#/login" class="ch-w-cta">
+            Sign in to continue
+            <svg class="ch-w-cta-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M2 8 H14 M9 3 L14 8 L9 13" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"/>
+            </svg>
+          </a>
+          <span class="ch-w-secondary">Need an account? Ask the person who sent you here.</span>
+        </div>
+      </main>
+
+      <footer class="ch-w-footer">
+        <span class="ch-w-footer-item">AES-256-GCM</span>
+        <span class="ch-w-footer-item">Curve25519</span>
+        <span class="ch-w-footer-item">Ed25519 signing</span>
+        <span class="ch-w-footer-item">MSC4186 sliding sync</span>
+        <span class="ch-w-footer-item">Self hosted</span>
+        <span class="ch-w-footer-item">No federation</span>
+        <span class="ch-w-footer-item">No telemetry</span>
+      </footer>
+    </section>
+
+    <!-- ───── Right: terminal panel ───── -->
+    <aside class="ch-w-right" aria-hidden="true">
+      <div class="ch-w-panel">
+        <div class="ch-w-panel-header">
+          <div class="ch-w-panel-dots">
+            <span class="ch-w-panel-dot"></span>
+            <span class="ch-w-panel-dot"></span>
+            <span class="ch-w-panel-dot"></span>
+          </div>
+          <span class="ch-w-panel-title"><strong>~/</strong>session.olm.recv</span>
+          <span class="ch-w-panel-status">live</span>
+        </div>
+        <div class="ch-w-panel-body">
+          <div class="ch-w-panel-stream">
+            <!-- Block A — duplicated below for seamless loop -->
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:08</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">channel open &middot; curve25519 &middot; ed25519</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:08</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">peer fingerprint <span class="ch-w-ok">verified</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:09</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">4f a3 21 18 d8 ea 9e 22 9b 47 c0 1f 88 5e 13 fa</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:09</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">87 c1 0d 5b 7e 33 a6 fc 1a 92 04 ee 38 71 b8 6c</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:10</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">e0 92 7c 2a 6e 41 b3 5d 7f 18 cb 90 22 a4 6f 11</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:10</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-divider">────</span> <span class="ch-w-meta">megolm session rotated</span> <span class="ch-w-divider">────</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:11</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">3a 7f e0 1c 84 d2 99 b1 4e 26 9c 5b f0 c3 18 75</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:11</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">b8 49 21 fa 03 6d 7e 5c 92 18 0a 44 ee 71 c5 23</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:12</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">28 e9 7b 5f 12 a0 d3 6e 84 b1 49 cc 02 7d 18 95</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:12</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">device cross-signed &middot; emoji-sas <span class="ch-w-ok">match</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:13</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">15 c3 88 71 4a fb 27 9e 60 d8 0b 53 ec 1a 7c 84</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:14</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">f0 6c 1d 92 a7 38 b4 5e 81 27 cb 04 79 ee 13 6a</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:14</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">key backup uploaded &middot; v3 &middot; <span class="ch-w-ok">ok</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:15</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">9b 41 e7 2c 58 d0 16 fe 73 89 4a c1 2d 65 b8 17</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:15</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">2e 84 51 f9 60 ba 18 dc 73 4f 2a 91 e8 05 7c 33</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:16</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-divider">────</span> <span class="ch-w-meta">olm session refreshed</span> <span class="ch-w-divider">────</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:17</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">61 d8 04 ba 39 7c 18 e2 95 4f 0b 23 a7 6e cc 81</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:17</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">c4 19 6f 7d ab 32 e0 58 71 9c 04 e5 28 b1 4d 87</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:18</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">7a 2c 91 e0 38 65 cd 1f 84 b3 49 06 dd 71 28 95</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:19</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">peer disconnected &middot; cleanly</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:20</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">awaiting next handshake</span></div>
+            <!-- Block A duplicate (seamless loop) -->
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:08</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">channel open &middot; curve25519 &middot; ed25519</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:08</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">peer fingerprint <span class="ch-w-ok">verified</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:09</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">4f a3 21 18 d8 ea 9e 22 9b 47 c0 1f 88 5e 13 fa</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:09</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">87 c1 0d 5b 7e 33 a6 fc 1a 92 04 ee 38 71 b8 6c</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:10</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">e0 92 7c 2a 6e 41 b3 5d 7f 18 cb 90 22 a4 6f 11</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:10</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-divider">────</span> <span class="ch-w-meta">megolm session rotated</span> <span class="ch-w-divider">────</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:11</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">3a 7f e0 1c 84 d2 99 b1 4e 26 9c 5b f0 c3 18 75</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:11</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">b8 49 21 fa 03 6d 7e 5c 92 18 0a 44 ee 71 c5 23</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:12</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">28 e9 7b 5f 12 a0 d3 6e 84 b1 49 cc 02 7d 18 95</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:12</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">device cross-signed &middot; emoji-sas <span class="ch-w-ok">match</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:13</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">15 c3 88 71 4a fb 27 9e 60 d8 0b 53 ec 1a 7c 84</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:14</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">f0 6c 1d 92 a7 38 b4 5e 81 27 cb 04 79 ee 13 6a</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:14</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">key backup uploaded &middot; v3 &middot; <span class="ch-w-ok">ok</span></span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:15</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">9b 41 e7 2c 58 d0 16 fe 73 89 4a c1 2d 65 b8 17</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:15</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">2e 84 51 f9 60 ba 18 dc 73 4f 2a 91 e8 05 7c 33</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:16</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-divider">────</span> <span class="ch-w-meta">olm session refreshed</span> <span class="ch-w-divider">────</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:17</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">61 d8 04 ba 39 7c 18 e2 95 4f 0b 23 a7 6e cc 81</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:17</span><span class="ch-w-tag-rx">rx</span><span class="ch-w-bytes">c4 19 6f 7d ab 32 e0 58 71 9c 04 e5 28 b1 4d 87</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:18</span><span class="ch-w-tag-tx">tx</span><span class="ch-w-bytes">7a 2c 91 e0 38 65 cd 1f 84 b3 49 06 dd 71 28 95</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:19</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">peer disconnected &middot; cleanly</span></div>
+            <div class="ch-w-stream-line"><span class="ch-w-time">02:14:20</span><span class="ch-w-tag-sys">sys</span><span class="ch-w-meta">awaiting next handshake</span></div>
+          </div>
+        </div>
+        <div class="ch-w-panel-footer">
+          <span>02:14:21</span>
+          <span>~/</span>
+          <span>peer$</span>
+          <span class="ch-w-panel-footer-cursor"></span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
