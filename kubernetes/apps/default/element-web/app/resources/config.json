@@ -40,21 +40,9 @@
         "name": "Chat Dark",
         "is_dark": true,
         "colors": {
-          "accent": "#e5a820",
           "accent-color": "#e5a820",
           "primary-color": "#e5a820",
-          "username-colors": [
-            "#e5a820",
-            "#4ade80",
-            "#60a5fa",
-            "#f472b6",
-            "#a78bfa",
-            "#fb923c",
-            "#34d399",
-            "#facc15"
-          ],
           "warning-color": "#ef4444",
-          "alert": "#ef4444",
           "sidebar-color": "#0c0c0e",
           "roomlist-background-color": "#0a0a0b",
           "roomlist-text-color": "#e5e5e7",
@@ -67,29 +55,6 @@
           "timeline-highlights-color": "#16161a",
           "focus-bg-color": "#1c1c1f",
           "togglesw-off-color": "#3f3f46"
-        },
-        "compound": {
-          "--cpd-color-text-action-accent": "#e5a820",
-          "--cpd-color-text-action-primary": "#0a0a0b",
-          "--cpd-color-bg-action-primary-rest": "#e5a820",
-          "--cpd-color-bg-action-primary-hovered": "#f0b435",
-          "--cpd-color-bg-action-primary-pressed": "#caa01b",
-          "--cpd-color-bg-action-primary-disabled": "#3f3f46",
-          "--cpd-color-bg-accent-rest": "#e5a820",
-          "--cpd-color-bg-accent-hovered": "#f0b435",
-          "--cpd-color-bg-accent-pressed": "#caa01b",
-          "--cpd-color-icon-accent-primary": "#e5a820",
-          "--cpd-color-icon-on-solid-primary": "#0a0a0b",
-          "--cpd-color-text-action-primary-rest": "#0a0a0b",
-          "--cpd-color-text-link-external": "#e5a820",
-          "--cpd-color-bg-canvas-default": "#0a0a0b",
-          "--cpd-color-bg-canvas-disabled": "#0c0c0e",
-          "--cpd-color-bg-subtle-primary": "#16161a",
-          "--cpd-color-bg-subtle-secondary": "#0c0c0e",
-          "--cpd-color-text-primary": "#e5e5e7",
-          "--cpd-color-text-secondary": "#9ca3af",
-          "--cpd-color-border-interactive-primary": "#27272a",
-          "--cpd-color-border-interactive-hovered": "#3f3f46"
         }
       }
     ]
