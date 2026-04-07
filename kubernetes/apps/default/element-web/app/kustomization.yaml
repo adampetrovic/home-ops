@@ -11,6 +11,8 @@ configMapGenerator:
       - resources/welcome.html
       - resources/welcome-bg.svg
       - resources/logo.svg
+      - resources/custom.css
+      - resources/default.conf.template
 generatorOptions:
   disableNameSuffixHash: true
   labels:
