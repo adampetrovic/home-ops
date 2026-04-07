@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/element-hq/synapse
-              tag: v1.100.0@sha256:0f050ebb925851a4e4b7c9ab451388ed944aeabe5132107782fd41dd05a50f88
+              tag: v1.122.0@sha256:925534da6deefc83d3b82bdb08acd7bedfd34ca29f8d47a27c386c0ece9a0515
             # Bypass the start.py wrapper so it doesn't try to regenerate
             # keys / touch mounted read-only files.
             command: ["python"]
