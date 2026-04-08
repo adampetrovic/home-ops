@@ -91,13 +91,34 @@ kubectl get ns -o jsonpath='{.items[*].metadata.name}' \
   | xargs -n1 -I {} flux suspend kustomization --all -n {}
 ```
 
+### 6. Cordon all nodes
+
+Mark every node `unschedulable` so that on startup the kube-scheduler cannot pile every
+pending pod onto whichever node becomes `Ready` first. We've hit this before: the first node
+back hits the kubelet `maxPods=110` ceiling and the rest of the workloads stay `Pending`
+indefinitely until manually rescheduled.
+
+```bash
+kubectl cordon k8s-node-1 k8s-node-2 k8s-node-3 k8s-node-4 k8s-node-5
+```
+
+The cordon state lives on the `Node` object in etcd and persists across the shutdown. After
+all five nodes are back `Ready` we'll uncordon them simultaneously (step 12) so the
+scheduler distributes the backlog evenly in one shot.
+
+> Cordon only blocks **new** pod assignments — DaemonSets (Cilium, Ceph OSD, etc.) and
+> static pods (etcd, kube-apiserver) still come up normally on cordoned nodes, and pods
+> that were already bound to a specific node before shutdown still resume on that node.
+> What it stops is the eviction-driven cascade where pods that can't return to their
+> original node all land on the same replacement.
+
 ---
 
 ## Shutdown Procedure
 
 **Order matters.** Shut down workers first, then control plane nodes.
 
-### 6. Shut down worker nodes
+### 7. Shut down worker nodes
 
 ```bash
 talosctl shutdown --nodes 10.0.80.13
@@ -110,7 +131,7 @@ Wait for the nodes to disappear from `kubectl get nodes` (they will show `NotRea
 kubectl get nodes -w
 ```
 
-### 7. Shut down control plane nodes
+### 8. Shut down control plane nodes
 
 Control plane nodes can hang during graceful shutdown because etcd blocks trying to transfer
 leadership as quorum shrinks. Use `--force` to bypass the cordon/drain and set a timeout so the
@@ -186,7 +207,7 @@ is to power-cycle the stuck node. **Expect this to happen on the last node or tw
 shutdown**; it is not a failure of the procedure, and physical power-off is the standard
 escalation.
 
-### 8. Shut down supporting infrastructure
+### 9. Shut down supporting infrastructure
 
 Power off any other relevant infrastructure:
 
@@ -198,58 +219,96 @@ Power off any other relevant infrastructure:
 
 ## Startup Procedure
 
-**Reverse order.** Network infrastructure first, then control plane, then workers.
+Bring up supporting infrastructure first, then wake all 5 nodes in parallel via WoL.
+Parallel boot keeps the "first node `Ready`" window short and pairs with the pre-shutdown
+cordon to avoid the scheduling cascade we hit previously.
 
-### 9. Power on infrastructure
+### 10. Power on infrastructure
 
 1. **Network switches / router** — wait for full convergence
 2. **Synology NAS** — wait for NFS exports to be available
 3. **UPS** — ensure it's online and charging
 
-### 10. Power on control plane nodes
+### 11. Wake all nodes via Wake-on-LAN
 
-Power on all 3 control plane nodes. Talos nodes boot automatically when power is applied (no manual intervention needed beyond powering on the hardware).
+Wake every node simultaneously instead of staging control plane → workers. Bringing all
+five up in parallel keeps the "first node `Ready`" window short, which (combined with the
+pre-shutdown cordon from step 6) prevents the kube-scheduler from cascading every pending
+pod onto whichever node won the boot race.
+
+**One-time prerequisites:**
+
+- WoL enabled in BIOS on every node (`Power → Wake on LAN`); disable any "Deep Sleep" /
+  "ErP" / "EuP" power-saving option that cuts NIC standby power, otherwise the magic
+  packet is silently dropped.
+- `wakeonlan` installed locally: `brew install wakeonlan`.
+- You must run this from a host on the same broadcast domain as the cluster
+  (`10.0.80.0/21`). VPN/Tailscale **will not** carry WoL — you have to be on LAN.
+
+Wake all 5 nodes:
+
+```bash
+./scripts/wake-cluster.sh
+```
+
+The script sends magic packets to every node MAC (sourced from `talos/talconfig.yaml`).
+Talos boots automatically once power is applied — expect the nodes to be reachable within
+60-90 seconds.
+
+> **k8s-node-5 caveat:** it uses an Intel X710 NIC (`i40e` driver) which has limited WoL
+> support compared to the Intel I225/I226 (`igc`) NICs in the other four NUCs. If
+> `k8s-node-5` doesn't come up after a couple of minutes, power it on manually (physical
+> button or smart plug). Everything else should wake reliably.
 
 Wait for the API to become reachable:
 
 ```bash
-# Retry until the API responds (may take 2-5 minutes)
+# Control plane usually responds first; the API needs etcd quorum (2 of 3 CP nodes)
 until talosctl health --nodes 10.0.80.10 --wait-timeout=10m --server=false 2>/dev/null; do
     echo "Waiting for control plane..."
     sleep 15
 done
-```
 
-Once etcd has quorum (2 of 3 nodes), the Kubernetes API will become available:
-
-```bash
 # Verify etcd membership
 talosctl -n 10.0.80.10 etcd members
-
-# Verify API access
-kubectl get nodes
 ```
 
-### 11. Power on worker nodes
-
-Power on both worker nodes. They will automatically join the cluster once the API server is reachable.
-
-```bash
-# Watch nodes come back
-kubectl get nodes -w
-```
-
-Wait for all 5 nodes to show `Ready`:
+Wait for **all 5 nodes** to be `Ready` before moving on — do not skip this step or the
+cordon-release in step 12 will only spread pods across whichever nodes happen to be back:
 
 ```bash
 kubectl wait --for=condition=Ready nodes --all --timeout=10m
+kubectl get nodes -o wide
 ```
+
+If any node is still `NotReady` after 10 minutes, debug it before continuing
+([troubleshooting](#etcd-wont-form-quorum)).
 
 ---
 
 ## Post-Startup Recovery
 
-### 12. Verify Ceph health
+### 12. Uncordon all nodes
+
+With every node back `Ready`, release the pre-shutdown cordon so the kube-scheduler can
+distribute the pending workload across all 5 nodes in one shot:
+
+```bash
+kubectl uncordon k8s-node-1 k8s-node-2 k8s-node-3 k8s-node-4 k8s-node-5
+```
+
+Watch pods start landing on every node (you should see roughly even counts):
+
+```bash
+kubectl get pods -A -o wide --field-selector=status.phase!=Succeeded \
+  | awk 'NR>1 {print $8}' | sort | uniq -c | sort -rn
+```
+
+If one node is dramatically heavier than the others, something tolerated the cordon (look
+for pods with `tolerations: node.kubernetes.io/unschedulable`) — usually fine, but worth a
+glance.
+
+### 13. Verify Ceph health
 
 Ceph should recover automatically once all OSD nodes are back. This can take a few minutes:
 
@@ -267,7 +326,7 @@ until kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph health 2>/dev/nul
 done
 ```
 
-### 13. Unset Ceph flags
+### 14. Unset Ceph flags
 
 ```bash
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd unset noout
@@ -280,7 +339,7 @@ Verify Ceph returns to `HEALTH_OK`:
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
 ```
 
-### 14. Unset CNPG maintenance mode
+### 15. Unset CNPG maintenance mode
 
 ```bash
 kubectl cnpg maintenance unset --reusePVC --all-namespaces
@@ -293,7 +352,7 @@ kubectl -n database get cluster postgres
 kubectl -n database get pods -l cnpg.io/cluster=postgres
 ```
 
-### 15. Resume Flux
+### 16. Resume Flux
 
 ```bash
 kubectl get ns -o jsonpath='{.items[*].metadata.name}' \
@@ -306,7 +365,7 @@ Flux will begin reconciling all resources. Monitor progress:
 flux get kustomization --all-namespaces -w
 ```
 
-### 16. Clean up failed pods
+### 17. Clean up failed pods
 
 Some pods may have failed during the shutdown/startup cycle:
 
@@ -314,7 +373,7 @@ Some pods may have failed during the shutdown/startup cycle:
 task k8s:delete-failed-pods
 ```
 
-### 17. Final verification
+### 18. Final verification
 
 ```bash
 # All nodes Ready
@@ -450,3 +509,4 @@ Wait for the NAS to fully boot before expecting VolSync and media pods to recove
 - **NUT client**: All nodes have `nut-client` configured. For _unplanned_ outages, the UPS will signal a graceful shutdown automatically via NUT. This runbook is for _planned_ shutdowns where you want a cleaner process.
 - **Estimated downtime**: Shutdown takes ~5 minutes. Startup and full recovery typically takes 10-15 minutes once power is restored.
 - **Synology NAS**: The NAS is external to the cluster but critical for NFS-backed storage (Kopia backups, media). Ensure it's powered on before the cluster nodes.
+
