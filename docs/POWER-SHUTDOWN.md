@@ -144,16 +144,47 @@ until ! ping -c 1 -W 2 10.0.80.10 &>/dev/null; do echo "Waiting for 10.0.80.10 t
 echo "10.0.80.10 is down"
 ```
 
-> **If a node doesn't power off** (still pingable after the timeout), try an emergency reset:
+> **⚠️ If a node hangs past the shutdown timeout, do NOT re-run `talosctl shutdown` on it.**
+> Talos holds an internal shutdown lock for the duration of the first attempt, and a second
+> call will fail with `[talos] shutdown failed: failed to acquire lock: timeout` while
+> potentially wedging the node further. The first shutdown is usually still running — it's
+> stuck at `unmountPodMounts` (see [Why shutdown can hang](#why-shutdown-can-hang) below).
 >
-> ```bash
-> # Force an immediate reboot (use only if shutdown --force hangs)
-> talosctl reboot --nodes <ip> --mode powercycle
-> ```
+> **Preferred escalation: physical power-off.** Hold the power button on the stuck NUC for
+> ~5 seconds until the power LED goes out, then confirm with ping. This is a safe and
+> expected part of this runbook because:
 >
-> If `talosctl` is completely unresponsive on the stuck node, you must **physically power off**
-> the machine (pull power or press and hold the power button). Intel NUCs don't have IPMI/BMC
-> for remote power control.
+> - Ceph's `noout`/`norebalance` flags are already set (no rebalance storm on restart).
+> - Ceph OSDs replay their journals on boot and are designed to tolerate hard power loss.
+> - Postgres (CNPG) handles crash recovery via WAL replay.
+>
+> **If you're off-site**, `talosctl reboot --nodes <ip> --mode powercycle` will hard-reset
+> the stuck node, clearing the shutdown lock. Note that this causes the node to briefly boot
+> back into the cluster before you can try `talosctl shutdown` again — it's slower than a
+> physical power-off if you can reach the rack. Intel NUCs have no IPMI/BMC for remote power
+> control, so there's no other remote option.
+
+### Why shutdown can hang
+
+This cluster is **converged** — every node is both a Ceph OSD (serving storage) and a Ceph
+client (mounting RBD/CephFS PVCs on behalf of pods). During shutdown, Talos runs the
+`unmountPodMounts` task to unmount all pod volumes before halting. When nodes shut down in
+sequence, the Ceph daemons on the earlier nodes go away, and the kernel's Ceph client on the
+later nodes hangs trying to contact the now-dead monitors/OSDs to cleanly close those
+mounts.
+
+Visible symptoms on the Talos dashboard of a hung node:
+
+- `STAGE: Shutting down`, `KUBELET: Unhealthy`
+- Kernel log full of `libceph: mon/osd ... socket closed (con state V2_BANNER_PREFIX)` warnings
+- `block.MountController` stuck on `unmountPodMounts` / `/usr` / `/opt`
+- The shutdown sequence never advances past `phase: umount`
+
+`--force` skips cordon/drain but does **not** bypass the unmount phase, so it doesn't help
+here. There is no clean remote recovery once the peer OSDs are gone — the only way forward
+is to power-cycle the stuck node. **Expect this to happen on the last node or two of any
+shutdown**; it is not a failure of the procedure, and physical power-off is the standard
+escalation.
 
 ### 8. Shut down supporting infrastructure
 
@@ -329,6 +360,31 @@ If a member is stuck, try restarting the etcd service:
 ```bash
 talosctl -n <problem-node> service etcd restart
 ```
+
+### `talosctl shutdown` fails with "failed to acquire lock: timeout"
+
+This error appears on the Talos dashboard (or in `talosctl dmesg`) as:
+
+```
+[talos] shutdown failed: failed to acquire lock: timeout
+```
+
+**Cause:** `talosctl shutdown --force` has been called a second time on a node that is still
+in the middle of its first shutdown attempt. Talos holds a single shutdown lock per boot,
+and the second call times out waiting for the first to release it. The `talosctl` client
+may have appeared to "fail" on the first attempt (timeout, connection reset, etc.) but the
+actual shutdown sequence on the node is still running — almost certainly stuck at
+`unmountPodMounts` because of the Ceph unmount hang described in [Why shutdown can
+hang](#why-shutdown-can-hang).
+
+**Fix:** Do not retry `talosctl shutdown`. Either wait longer for the first attempt to
+finish, or go directly to **physical power-off** (hold the power button on the NUC for ~5
+seconds). Ceph, etcd, and Postgres all tolerate hard power loss from this state because
+`noout`/`norebalance` are set and no writes are in flight.
+
+If you need the node recovered remotely without power-off, `talosctl reboot --nodes <ip>
+--mode powercycle` will hard-reset it and clear the lock — at the cost of a brief reboot
+into the cluster before you can try shutting down again.
 
 ### Ceph stuck in HEALTH_WARN / HEALTH_ERR
 
