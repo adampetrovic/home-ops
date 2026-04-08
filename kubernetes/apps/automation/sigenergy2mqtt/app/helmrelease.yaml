@@ -29,13 +29,12 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/seud0nym/sigenergy2mqtt
-              tag: 2026.4.4
+              tag: 2026.4.4@sha256:a84ca2b07f7ac1a2ad69ab1c65ccea4f6015ba5d9a3add3e0c44f727e854d37b
             env:
               TZ: "${TZ}"
 
               # ── Modbus ──
-              # TODO: Set inverter IP after hardware install
-              SIGENERGY2MQTT_MODBUS_HOST: "10.0.10.TBD"
+              SIGENERGY2MQTT_MODBUS_HOST: "10.0.22.130"
               SIGENERGY2MQTT_MODBUS_PORT: "502"
               SIGENERGY2MQTT_MODBUS_INVERTER_DEVICE_ID: "1"
 
