@@ -143,6 +143,18 @@
           "text": "0.028",
           "value": "0.028"
         }
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "sigenergy",
+          "value": "sigenergy"
+        },
+        "hide": 2,
+        "name": "sigenergy_bucket",
+        "query": "sigenergy",
+        "skipUrlSync": false,
+        "type": "constant"
       }
     ]
   },
@@ -179,7 +191,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_consumed_power\" and r._field == \"value\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -248,7 +260,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_total_pv_power\" and r._field == \"value\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -317,7 +329,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Watts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_import_power\" and r._field == \"value\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -386,7 +398,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Watts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_export_power\" and r._field == \"value\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -538,7 +550,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "solar",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Solar\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_total_pv_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Solar\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
         },
         {
           "datasource": {
@@ -546,7 +558,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "import",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Grid Import\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_import_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Grid Import\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
         },
         {
           "datasource": {
@@ -554,7 +566,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "export",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Grid Export\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_export_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Grid Export\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
         },
         {
           "datasource": {
@@ -562,7 +574,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "consumption",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Consumption\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
+          "query": "from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_consumed_power\" and r._field == \"value\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Consumption\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -864,7 +876,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "B",
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\nsolar_generation = from(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> aggregateWindow(every: 1h, fn: sum, timeSrc: \"_start\", createEmpty: false)\n\ncircuits = from(bucket: \"homeassistant\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"W\" and r._field == \"value\" and (\n        r.entity_id == \"coffee_power\"\n        or r.entity_id == \"dishwasher_switch_power\"\n        or r.entity_id == \"switch_washing_machine_power\"\n        or r.entity_id == \"dryer_switch_power\"\n        or r.entity_id == \"server_rack_power\"\n        or r.entity_id == \"tesla_wall_connector_power\"\n    ))\n    |> aggregateWindow(every: 1h, fn: mean, timeSrc: \"_start\", createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _measurement:\n        if r.entity_id == \"coffee_power\" then \"Coffee\"\n        else if r.entity_id == \"dishwasher_switch_power\" then \"Dishwasher\"\n        else if r.entity_id == \"switch_washing_machine_power\" then \"Washing Machine\"\n        else if r.entity_id == \"dryer_switch_power\" then \"Dryer\"\n        else if r.entity_id == \"server_rack_power\" then \"Server\"\n        else \"Tesla\"\n    }))\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import)}))\n    |> drop(columns: [\"_value_grid_import\", \"_value_solar_generation\"])\n    |> map(fn: (r) => ({r with _value: (r._value / 1000.0) * getPrice(timeVal: r._time)}))\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: now(), _value: r._value, _field: r._measurement}))\n    |> sort(columns: [\"_value\"], desc: true)\n    |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> drop(columns: [\"_time\"])"
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngrid_import = from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, timeSrc: \"_start\", createEmpty: false)\n    |> difference(nonNegative: true)\n\nsolar_generation = from(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, timeSrc: \"_start\", createEmpty: false)\n    |> difference(nonNegative: true)\n\ncircuits = from(bucket: \"homeassistant\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"W\" and r._field == \"value\" and (\n        r.entity_id == \"coffee_power\"\n        or r.entity_id == \"dishwasher_switch_power\"\n        or r.entity_id == \"switch_washing_machine_power\"\n        or r.entity_id == \"dryer_switch_power\"\n        or r.entity_id == \"server_rack_power\"\n        or r.entity_id == \"tesla_wall_connector_power\"\n    ))\n    |> aggregateWindow(every: 1h, fn: mean, timeSrc: \"_start\", createEmpty: false)\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _measurement:\n        if r.entity_id == \"coffee_power\" then \"Coffee\"\n        else if r.entity_id == \"dishwasher_switch_power\" then \"Dishwasher\"\n        else if r.entity_id == \"switch_washing_machine_power\" then \"Washing Machine\"\n        else if r.entity_id == \"dryer_switch_power\" then \"Dryer\"\n        else if r.entity_id == \"server_rack_power\" then \"Server\"\n        else \"Tesla\"\n    }))\n    |> group()\n\ntotal_consumption = join(tables: {grid_import: grid_import, solar_generation: solar_generation}, on: [\"_time\"])\n    |> keep(columns: [\"_time\", \"_value_grid_import\", \"_value_solar_generation\"])\n\njoin(tables: {circuits: circuits, total_consumption: total_consumption}, on: [\"_time\"])\n    |> map(fn: (r) => ({r with _value: ((r._value / (r._value_grid_import + r._value_solar_generation)) * r._value_grid_import)}))\n    |> drop(columns: [\"_value_grid_import\", \"_value_solar_generation\"])\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> group(columns: [\"_measurement\"], mode: \"by\")\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: now(), _value: r._value, _field: r._measurement}))\n    |> sort(columns: [\"_value\"], desc: true)\n    |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> drop(columns: [\"_time\"])"
         }
       ],
       "fieldConfig": {
@@ -983,778 +995,6 @@
     },
     {
       "type": "row",
-      "title": "Phase Balance",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 33
-      },
-      "collapsed": false
-    },
-    {
-      "type": "gauge",
-      "title": "Phase A",
-      "description": "Consumption on Phase A (Grid_A + Solar_A)",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 0,
-        "y": 34
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_A\" or r._measurement == \"Solar_A\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "watt",
-          "min": 0,
-          "max": 7500,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 3000
-              },
-              {
-                "color": "red",
-                "value": 5000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "gauge",
-      "title": "Phase B",
-      "description": "Consumption on Phase B (Grid_B + Solar_B)",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 4,
-        "y": 34
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_B\" or r._measurement == \"Solar_B\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "watt",
-          "min": 0,
-          "max": 7500,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 3000
-              },
-              {
-                "color": "red",
-                "value": 5000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "gauge",
-      "title": "Phase C",
-      "description": "Consumption on Phase C (Grid_C + Solar_C)",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 8,
-        "y": 34
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => (r._measurement == \"Grid_C\" or r._measurement == \"Solar_C\") and r.unit == \"Watts\")\n    |> last()\n    |> group()\n    |> sum()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "watt",
-          "min": 0,
-          "max": 7500,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 3000
-              },
-              {
-                "color": "red",
-                "value": 5000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Phase Power Over Time",
-      "description": "Per-phase consumption (Grid + Solar per phase)",
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_A\" or r._measurement == \"Solar_A\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase A\"}))\n    |> group(columns: [\"_field\"])"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "B",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_B\" or r._measurement == \"Solar_B\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase B\"}))\n    |> group(columns: [\"_field\"])"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "C",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => (r._measurement == \"Grid_C\" or r._measurement == \"Solar_C\") and r.unit == \"Watts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> group(columns: [\"_time\"])\n    |> sum()\n    |> group()\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Phase C\"}))\n    |> group(columns: [\"_field\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "watt",
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            },
-            "spanNulls": false
-          },
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": [
-            "mean"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "gauge",
-      "title": "Phase A Current",
-      "description": "Grid current draw on Phase A",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 0,
-        "y": 39
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Amps\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "amp",
-          "min": 0,
-          "max": 40,
-          "decimals": 1,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "orange",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 35
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "gauge",
-      "title": "Phase B Current",
-      "description": "Grid current draw on Phase B",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 4,
-        "y": 39
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_B\" and r.unit == \"Amps\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "amp",
-          "min": 0,
-          "max": 40,
-          "decimals": 1,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "orange",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 35
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "gauge",
-      "title": "Phase C Current",
-      "description": "Grid current draw on Phase C",
-      "gridPos": {
-        "h": 5,
-        "w": 4,
-        "x": 8,
-        "y": 39
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_C\" and r.unit == \"Amps\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "amp",
-          "min": 0,
-          "max": 40,
-          "decimals": 1,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "orange",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 35
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Phase Current Over Time",
-      "description": "Per-phase grid current (Amps)",
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 39
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement =~ /^Grid_[ABC]$/ and r.unit == \"Amps\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field:\n        if r._measurement == \"Grid_A\" then \"Phase A\"\n        else if r._measurement == \"Grid_B\" then \"Phase B\"\n        else \"Phase C\"\n    }))\n    |> group(columns: [\"_field\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "amp",
-          "decimals": 1,
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            },
-            "spanNulls": false
-          },
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "stat",
-      "title": "Grid Voltage",
-      "description": "Mains voltage (derived reference, same all phases)",
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 0,
-        "y": 44
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Volts\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "volt",
-          "decimals": 1,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 216
-              },
-              {
-                "color": "green",
-                "value": 226
-              },
-              {
-                "color": "yellow",
-                "value": 254
-              },
-              {
-                "color": "red",
-                "value": 264
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "orientation": "auto",
-        "justifyMode": "auto"
-      }
-    },
-    {
-      "type": "stat",
-      "title": "Grid Frequency",
-      "description": "Mains frequency \u2014 nominal 50Hz. Below 49.85Hz indicates grid stress.",
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 4,
-        "y": 44
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "A",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: -2m)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Hz\")\n    |> last()\n    |> keep(columns: [\"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "hertz",
-          "decimals": 3,
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 49.75
-              },
-              {
-                "color": "yellow",
-                "value": 49.85
-              },
-              {
-                "color": "green",
-                "value": 49.95
-              },
-              {
-                "color": "yellow",
-                "value": 50.05
-              },
-              {
-                "color": "orange",
-                "value": 50.15
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto",
-        "orientation": "auto",
-        "justifyMode": "auto"
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Grid Voltage & Frequency",
-      "description": "Mains voltage and frequency over time",
-      "gridPos": {
-        "h": 3,
-        "w": 16,
-        "x": 8,
-        "y": 44
-      },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "V",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Volts\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Voltage\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "refId": "Hz",
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Grid_A\" and r.unit == \"Hz\")\n    |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n    |> map(fn: (r) => ({_time: r._time, _value: r._value, _field: \"Frequency\"}))\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 5,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "stacking": {
-              "mode": "none"
-            },
-            "spanNulls": false
-          },
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Voltage"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "volt"
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "left"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Frequency"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "hertz"
-              },
-              {
-                "id": "decimals",
-                "value": 3
-              },
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "calcs": [
-            "mean",
-            "min",
-            "max"
-          ]
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      }
-    },
-    {
-      "type": "row",
       "title": "Today's Energy",
       "gridPos": {
         "h": 1,
@@ -1784,7 +1024,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"SolarGeneration\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))\n    |> keep(columns: [\"_value\"])"
+          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -1841,7 +1081,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"GridImport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))\n    |> keep(columns: [\"_value\"])"
+          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -1898,7 +1138,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"SolarExport\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))\n    |> keep(columns: [\"_value\"])"
+          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
@@ -1955,7 +1195,7 @@
             "uid": "${DS_INFLUXDB}"
           },
           "refId": "A",
-          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"iotawatt\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"Branch\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))\n    |> keep(columns: [\"_value\"])"
+          "query": "import \"timezone\"\n\noption location = timezone.location(name: \"Australia/Sydney\")\n\nfrom(bucket: \"${sigenergy_bucket}\")\n    |> range(start: today(), stop: now())\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> keep(columns: [\"_value\"])"
         }
       ],
       "fieldConfig": {
