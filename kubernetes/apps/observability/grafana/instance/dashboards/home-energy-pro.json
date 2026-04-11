@@ -1346,7 +1346,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Tesla\" and r.unit == \"Wh\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))",
+          "query": "from(bucket: \"iotawatt\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"Tesla\" and r.unit == \"Watts\")\n    |> aggregateWindow(every: 1h, fn: mean, createEmpty: false, timeSrc: \"_start\")\n    |> map(fn: (r) => ({r with _value: r._value / 1000.0}))\n    |> integral(unit: 1h)",
           "refId": "A"
         }
       ],
