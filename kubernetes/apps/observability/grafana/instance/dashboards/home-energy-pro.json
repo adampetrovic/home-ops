@@ -82,7 +82,7 @@
       }
     ]
   },
-  "description": "Comprehensive home energy monitoring: real-time power flow, cost analysis, solar performance, circuit breakdown, battery readiness, and trend projections.",
+  "description": "Home energy monitoring: real-time power flow, period KPIs, cost analysis, solar & battery performance, circuit breakdown, and trend projections.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -95,7 +95,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": false,
-      "title": "\ud83d\udcb0 Investment ROI \u2192",
+      "title": "💰 Investment ROI →",
       "tooltip": "Solar & battery ROI tracking",
       "type": "link",
       "url": "/d/home-energy-roi/home-energy-roi"
@@ -107,7 +107,7 @@
       "keepTime": true,
       "tags": [],
       "targetBlank": false,
-      "title": "\ud83d\udd0b Battery Ops \u2192",
+      "title": "🔋 Battery Ops →",
       "tooltip": "Detailed battery operations dashboard",
       "type": "link",
       "url": "/d/home-energy-battery/home-energy-battery"
@@ -124,7 +124,7 @@
       },
       "id": 1,
       "panels": [],
-      "title": "\u26a1 Real-Time Power Flow",
+      "title": "⚡ Real-Time Power Flow",
       "type": "row"
     },
     {
@@ -651,7 +651,7 @@
               "options": {
                 "0": {
                   "color": "blue",
-                  "text": "\ud83d\udd0c EV Off-Peak ($0.08)"
+                  "text": "🔌 EV Off-Peak ($0.08)"
                 }
               },
               "type": "value"
@@ -660,7 +660,7 @@
               "options": {
                 "1": {
                   "color": "super-light-green",
-                  "text": "\ud83c\udd93 Super Off-Peak ($0.00)"
+                  "text": "🆓 Super Off-Peak ($0.00)"
                 }
               },
               "type": "value"
@@ -678,7 +678,7 @@
               "options": {
                 "3": {
                   "color": "red",
-                  "text": "\u26a0\ufe0f PEAK ($0.6127)"
+                  "text": "⚠️ PEAK ($0.6127)"
                 }
               },
               "type": "value"
@@ -735,6 +735,8 @@
       "type": "stat"
     },
     {
+      "type": "row",
+      "title": "📊 Period Highlights",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -742,10 +744,72 @@
         "x": 0,
         "y": 7
       },
-      "id": 10,
       "panels": [],
-      "title": "\ud83d\udcca Period Summary",
-      "type": "row"
+      "id": 201
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\nfeedInTariff = feedin_tariff\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndata = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r._field == \"value\" and (r.entity_id == \"sigen_0_si_total_imported_energy\" or r.entity_id == \"sigen_0_si_total_exported_energy\"))\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\nimportCost = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_imported_energy\")\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_imported_energy\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nfeedInCredit = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_exported_energy\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * feedInTariff * -1.0}))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Net Cost",
+      "type": "stat",
+      "description": "Total electricity cost for the period (import + supply − feed-in credit)"
     },
     {
       "datasource": {
@@ -772,9 +836,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 0,
+        "h": 5,
+        "w": 6,
+        "x": 6,
         "y": 8
       },
       "id": 11,
@@ -792,7 +856,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -807,7 +871,8 @@
         }
       ],
       "title": "Consumption",
-      "type": "stat"
+      "type": "stat",
+      "description": "Total energy consumed by the home"
     },
     {
       "datasource": {
@@ -834,9 +899,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 3,
+        "h": 5,
+        "w": 6,
+        "x": 12,
         "y": 8
       },
       "id": 12,
@@ -854,7 +919,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -868,8 +933,100 @@
           "refId": "A"
         }
       ],
-      "title": "PV Generation",
-      "type": "stat"
+      "title": "Solar Generation",
+      "type": "stat",
+      "description": "Total solar energy generated"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "solarGen = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarExp = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nconsumption = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nselfConsumed = solarGen._value - solarExp._value\nrate = if consumption._value > 0.0 then (selfConsumed / consumption._value) * 100.0 else 0.0\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> map(fn: (r) => ({r with _value: rate}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Self-Sufficiency",
+      "type": "stat",
+      "description": "Percentage of consumption met by solar (not from the grid)"
+    },
+    {
+      "type": "row",
+      "title": "⚡ Energy Balance",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "panels": [],
+      "id": 202
     },
     {
       "datasource": {
@@ -897,9 +1054,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 2,
-        "x": 6,
-        "y": 8
+        "w": 4,
+        "x": 0,
+        "y": 14
       },
       "id": 13,
       "options": {
@@ -916,7 +1073,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -930,8 +1087,9 @@
           "refId": "A"
         }
       ],
-      "title": "Import",
-      "type": "stat"
+      "title": "Grid Import",
+      "type": "stat",
+      "description": "Total energy imported from the grid"
     },
     {
       "datasource": {
@@ -959,9 +1117,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 2,
-        "x": 8,
-        "y": 8
+        "w": 4,
+        "x": 4,
+        "y": 14
       },
       "id": 14,
       "options": {
@@ -978,7 +1136,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -992,8 +1150,9 @@
           "refId": "A"
         }
       ],
-      "title": "Export",
-      "type": "stat"
+      "title": "Grid Export",
+      "type": "stat",
+      "description": "Total energy exported to the grid"
     },
     {
       "datasource": {
@@ -1036,9 +1195,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 2,
-        "x": 10,
-        "y": 8
+        "w": 4,
+        "x": 8,
+        "y": 14
       },
       "id": 15,
       "options": {
@@ -1055,7 +1214,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -1069,526 +1228,9 @@
           "refId": "A"
         }
       ],
-      "title": "Self-Consume",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 30
-              },
-              {
-                "color": "yellow",
-                "value": 60
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 12,
-        "y": 8
-      },
-      "id": 16,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "solarGen = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nsolarExp = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nconsumption = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> findRecord(fn: (key) => true, idx: 0)\n\nselfConsumed = solarGen._value - solarExp._value\nrate = if consumption._value > 0.0 then (selfConsumed / consumption._value) * 100.0 else 0.0\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> map(fn: (r) => ({r with _value: rate}))",
-          "refId": "A"
-        }
-      ],
-      "title": "Self-Sufficient",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 14,
-        "y": 8
-      },
-      "id": 17,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()",
-          "refId": "A"
-        }
-      ],
-      "title": "Import $",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 16,
-        "y": 8
-      },
-      "id": 18,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else\n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n    |> yield()",
-          "refId": "A"
-        }
-      ],
-      "title": "Supply $",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 18,
-        "y": 8
-      },
-      "id": 19,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "peak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\nfeedInTariff = feedin_tariff\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * feedInTariff * -1.0}))",
-          "refId": "A"
-        }
-      ],
-      "title": "Feed-In $",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "light-green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 20,
-        "y": 8
-      },
-      "id": 20,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Calculate what solar self-consumption saved (kWh used from solar * grid price at that time)\nsolarGen = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\nsolarExp = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp)) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * -1.0}))",
-          "refId": "A"
-        }
-      ],
-      "title": "Solar Saved",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 2,
-        "x": 22,
-        "y": 8
-      },
-      "id": 21,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\nfeedInTariff = feedin_tariff\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ndata = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r._field == \"value\" and (r.entity_id == \"sigen_0_si_total_imported_energy\" or r.entity_id == \"sigen_0_si_total_exported_energy\"))\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\nimportCost = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_imported_energy\")\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_imported_energy\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nfeedInCredit = data\n    |> filter(fn: (r) => r.entity_id == \"sigen_0_si_total_exported_energy\")\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * feedInTariff * -1.0}))\n    |> sum()\n\nunion(tables: [importCost, supplyCharge, feedInCredit])\n    |> group()\n    |> sum()",
-          "refId": "A"
-        }
-      ],
-      "title": "Net Cost $",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 0,
-        "y": 11
-      },
-      "id": 22,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Cost WITHOUT solar = all consumption at grid rates + supply charge\nconsumption = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nunion(tables: [consumption, supplyCharge])\n    |> group()\n    |> sum()",
-          "refId": "A"
-        }
-      ],
-      "title": "No Solar Cost",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 3,
-        "y": 11
-      },
-      "id": 23,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\nfeedInTariff = feedin_tariff\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value}))\n\ncost = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_measurement: r._measurement, _field: \"cost_per_kwh\", _value: r.total_cost / r.total_kwh}))\n    |> keep(columns: [\"_value\"])\n    |> yield()",
-          "refId": "A"
-        }
-      ],
-      "title": "Avg $/kWh",
-      "type": "stat"
+      "title": "Self-Consumption",
+      "type": "stat",
+      "description": "Percentage of solar generation used on-site (not exported)"
     },
     {
       "datasource": {
@@ -1617,9 +1259,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 6,
-        "y": 11
+        "w": 4,
+        "x": 12,
+        "y": 14
       },
       "id": 24,
       "options": {
@@ -1636,7 +1278,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -1651,7 +1293,8 @@
         }
       ],
       "title": "Solar Self-Used",
-      "type": "stat"
+      "type": "stat",
+      "description": "Solar energy consumed directly by the home"
     },
     {
       "datasource": {
@@ -1680,9 +1323,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 9,
-        "y": 11
+        "w": 4,
+        "x": 16,
+        "y": 14
       },
       "id": 25,
       "options": {
@@ -1699,7 +1342,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -1714,193 +1357,8 @@
         }
       ],
       "title": "Solar Yield",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "orange",
-                "value": null
-              }
-            ]
-          },
-          "unit": "watt"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 12,
-        "y": 11
-      },
-      "id": 26,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_total_pv_power\" and r._field == \"value\")\n    |> max()",
-          "refId": "A"
-        }
-      ],
-      "title": "Peak Solar (W)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "watt"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 15,
-        "y": 11
-      },
-      "id": 27,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_consumed_power\" and r._field == \"value\")\n    |> max()",
-          "refId": "A"
-        }
-      ],
-      "title": "Peak Demand (W)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          },
-          "unit": "watt"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 18,
-        "y": 11
-      },
-      "id": 28,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_import_power\" and r._field == \"value\")\n    |> max()",
-          "refId": "A"
-        }
-      ],
-      "title": "Peak Import (W)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Energy generated per kW of solar capacity (kWh/kWp)"
     },
     {
       "datasource": {
@@ -1929,9 +1387,9 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 21,
-        "y": 11
+        "w": 4,
+        "x": 20,
+        "y": 14
       },
       "id": 29,
       "options": {
@@ -1948,7 +1406,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -1963,17 +1421,428 @@
         }
       ],
       "title": "EV Charging",
-      "type": "stat"
+      "type": "stat",
+      "description": "Total energy consumed by EV charging"
+    },
+    {
+      "type": "row",
+      "title": "💰 Costs & Savings",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "panels": [],
+      "id": 203
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 18
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Import Cost",
+      "type": "stat",
+      "description": "Cost of grid electricity imported (time-of-use tariffs applied)"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 18
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then\n            dailySupplyCharge\n        else\n            dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Supply Charge",
+      "type": "stat",
+      "description": "Daily supply charge from the retailer"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 18
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "peak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\nfeedInTariff = feedin_tariff\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * feedInTariff * -1.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Feed-In Revenue",
+      "type": "stat",
+      "description": "Credit received for exporting solar to the grid"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 18
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Calculate what solar self-consumption saved (kWh used from solar * grid price at that time)\nsolarGen = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_third_party_pv_generation\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\nsolarExp = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_exported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n\njoin(tables: {gen: solarGen, exp: solarExp}, on: [\"_time\"])\n    |> map(fn: (r) => ({\n        r with\n        _value: ((r._value_gen - r._value_exp)) * getPrice(timeVal: r._time)\n    }))\n    |> sum()\n    |> map(fn: (r) => ({r with _value: r._value * -1.0}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Solar Savings",
+      "type": "stat",
+      "description": "Money saved by using solar instead of buying from the grid"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 18
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\n// Cost WITHOUT solar = all consumption at grid rates + supply charge\nconsumption = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n\nsupplyCharge = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_common_load_consumption\" and r._field == \"value\")\n    |> limit(n: 1)\n    |> map(fn: (r) => ({\n        _time: v.timeRangeStop,\n        _value: if v.timeRangeStart >= date.truncate(t: v.timeRangeStop, unit: 1d) then dailySupplyCharge\n        else dailySupplyCharge * float(v: (uint(v: date.truncate(t: v.timeRangeStop, unit: 1d)) - uint(v: date.truncate(t: v.timeRangeStart, unit: 1d)))) / float(v: uint(v: 1d))\n    }))\n\nunion(tables: [consumption, supplyCharge])\n    |> group()\n    |> sum()",
+          "refId": "A"
+        }
+      ],
+      "title": "Without Solar",
+      "type": "stat",
+      "description": "What the electricity bill would be without solar or battery"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 18
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\n\npeak_tariff = $${peak_tariff}\noffpeak_tariff = $${offpeak_tariff}\nevoffpeak_tariff = $${evoffpeak_tariff}\nsuperoffpeak_tariff = $${superoffpeak_tariff}\nfeedin_tariff = $${feedin_tariff}\ndaily_supply_charge = $${daily_supply_charge}\n\ndailySupplyCharge = daily_supply_charge\nfeedInTariff = feedin_tariff\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: peak_tariff},\n    {key: \"offpeak\", value: offpeak_tariff},\n    {key: \"evoffpeak\", value: evoffpeak_tariff},\n    {key: \"superoffpeak\", value: superoffpeak_tariff}\n])\n\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    isEVTime = hour >= 0 and hour < 6\n    isSuperOffPeak = hour >= 11 and hour < 14\n    isPeakTime = hour >= 15 and hour < 21\n    return if isEVTime then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if isSuperOffPeak then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if isPeakTime and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\nkwh = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_kwh\", _value: r._value}))\n\ncost = from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_imported_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> map(fn: (r) => ({r with _value: r._value * getPrice(timeVal: r._time)}))\n    |> sum()\n    |> map(fn: (r) => ({_measurement: \"cost_per_kwh\", _field: \"total_cost\", _value: r._value}))\n\nunion(tables: [kwh, cost])\n    |> pivot(rowKey: [\"_measurement\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n    |> map(fn: (r) => ({_measurement: r._measurement, _field: \"cost_per_kwh\", _value: r.total_cost / r.total_kwh}))\n    |> keep(columns: [\"_value\"])\n    |> yield()",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Cost/kWh",
+      "type": "stat",
+      "description": "Average effective cost per kWh of imported electricity"
+    },
+    {
+      "type": "row",
+      "title": "🔋 Battery",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "panels": [],
+      "id": 204
     },
     {
       "type": "stat",
-      "title": "Batt Charged",
+      "title": "Charged",
       "id": 102,
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 5,
         "x": 0,
-        "y": 14
+        "y": 22
       },
       "datasource": {
         "type": "influxdb",
@@ -2008,23 +1877,24 @@
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "textMode": "value_and_name",
+        "textMode": "value",
         "reduceOptions": {
           "calcs": [
             "sum"
           ]
         }
-      }
+      },
+      "description": "Total energy charged into the battery"
     },
     {
       "type": "stat",
-      "title": "Batt Discharged",
+      "title": "Discharged",
       "id": 103,
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 3,
-        "y": 14
+        "w": 5,
+        "x": 5,
+        "y": 22
       },
       "datasource": {
         "type": "influxdb",
@@ -2059,23 +1929,24 @@
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "textMode": "value_and_name",
+        "textMode": "value",
         "reduceOptions": {
           "calcs": [
             "sum"
           ]
         }
-      }
+      },
+      "description": "Total energy discharged from the battery"
     },
     {
       "type": "stat",
-      "title": "Batt Saved",
+      "title": "Battery Savings",
       "id": 104,
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 6,
-        "y": 14
+        "w": 5,
+        "x": 10,
+        "y": 22
       },
       "datasource": {
         "type": "influxdb",
@@ -2093,7 +1964,7 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyAUD",
+          "unit": "currencyUSD",
           "decimals": 2,
           "thresholds": {
             "mode": "absolute",
@@ -2110,23 +1981,24 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "value_and_name",
+        "textMode": "value",
         "reduceOptions": {
           "calcs": [
             "sum"
           ]
         }
-      }
+      },
+      "description": "Money saved by discharging battery during expensive tariff periods"
     },
     {
       "type": "stat",
-      "title": "Batt Efficiency",
+      "title": "Efficiency",
       "id": 105,
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 9,
-        "y": 14
+        "w": 5,
+        "x": 15,
+        "y": 22
       },
       "datasource": {
         "type": "influxdb",
@@ -2171,23 +2043,24 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "value_and_name",
+        "textMode": "value",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ]
         }
-      }
+      },
+      "description": "Round-trip efficiency (discharged ÷ charged)"
     },
     {
       "type": "stat",
-      "title": "Batt Cycles",
+      "title": "Cycles",
       "id": 106,
       "gridPos": {
         "h": 3,
-        "w": 2,
-        "x": 12,
-        "y": 14
+        "w": 4,
+        "x": 20,
+        "y": 22
       },
       "datasource": {
         "type": "influxdb",
@@ -2221,13 +2094,216 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "value_and_name",
+        "textMode": "value",
         "reduceOptions": {
           "calcs": [
             "sum"
           ]
         }
-      }
+      },
+      "description": "Equivalent full battery cycles (discharged ÷ capacity)"
+    },
+    {
+      "type": "row",
+      "title": "📈 Peak Records",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "panels": [],
+      "id": 205
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 26
+      },
+      "id": 26,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_total_pv_power\" and r._field == \"value\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Solar",
+      "type": "stat",
+      "description": "Maximum instantaneous solar generation"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 26
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_consumed_power\" and r._field == \"value\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Demand",
+      "type": "stat",
+      "description": "Maximum instantaneous home power consumption"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "$${DS_INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "watt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 26
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "$${DS_INFLUXDB}"
+          },
+          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_import_power\" and r._field == \"value\")\n    |> max()",
+          "refId": "A"
+        }
+      ],
+      "title": "Peak Grid Import",
+      "type": "stat",
+      "description": "Maximum instantaneous grid import"
     },
     {
       "collapsed": true,
@@ -2235,7 +2311,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 29
       },
       "id": 30,
       "panels": [
@@ -2265,9 +2341,9 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 3,
+            "w": 5,
             "x": 0,
-            "y": 18
+            "y": 30
           },
           "id": 31,
           "options": {
@@ -2284,7 +2360,7 @@
               "values": false
             },
             "showPercentChange": false,
-            "textMode": "auto",
+            "textMode": "value",
             "wideLayout": true
           },
           "pluginVersion": "11.6.0",
@@ -2298,7 +2374,7 @@
               "refId": "A"
             }
           ],
-          "title": "Consumption (prev)",
+          "title": "Consumption",
           "type": "stat"
         },
         {
@@ -2327,9 +2403,9 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 3,
-            "x": 3,
-            "y": 18
+            "w": 5,
+            "x": 5,
+            "y": 30
           },
           "id": 32,
           "options": {
@@ -2346,7 +2422,7 @@
               "values": false
             },
             "showPercentChange": false,
-            "textMode": "auto",
+            "textMode": "value",
             "wideLayout": true
           },
           "pluginVersion": "11.6.0",
@@ -2360,7 +2436,7 @@
               "refId": "A"
             }
           ],
-          "title": "PV Generation (prev)",
+          "title": "Solar Generation",
           "type": "stat"
         },
         {
@@ -2389,9 +2465,9 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 2,
-            "x": 6,
-            "y": 18
+            "w": 5,
+            "x": 10,
+            "y": 30
           },
           "id": 33,
           "options": {
@@ -2408,7 +2484,7 @@
               "values": false
             },
             "showPercentChange": false,
-            "textMode": "auto",
+            "textMode": "value",
             "wideLayout": true
           },
           "pluginVersion": "11.6.0",
@@ -2422,7 +2498,7 @@
               "refId": "A"
             }
           ],
-          "title": "Import (prev)",
+          "title": "Grid Import",
           "type": "stat"
         },
         {
@@ -2451,9 +2527,9 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 2,
-            "x": 8,
-            "y": 18
+            "w": 5,
+            "x": 15,
+            "y": 30
           },
           "id": 34,
           "options": {
@@ -2470,7 +2546,7 @@
               "values": false
             },
             "showPercentChange": false,
-            "textMode": "auto",
+            "textMode": "value",
             "wideLayout": true
           },
           "pluginVersion": "11.6.0",
@@ -2484,7 +2560,7 @@
               "refId": "A"
             }
           ],
-          "title": "Export (prev)",
+          "title": "Grid Export",
           "type": "stat"
         },
         {
@@ -2514,9 +2590,9 @@
           },
           "gridPos": {
             "h": 3,
-            "w": 3,
-            "x": 10,
-            "y": 18
+            "w": 4,
+            "x": 20,
+            "y": 30
           },
           "id": 35,
           "options": {
@@ -2533,7 +2609,7 @@
               "values": false
             },
             "showPercentChange": false,
-            "textMode": "auto",
+            "textMode": "value",
             "wideLayout": true
           },
           "pluginVersion": "11.6.0",
@@ -2547,11 +2623,11 @@
               "refId": "A"
             }
           ],
-          "title": "Total Cost (prev)",
+          "title": "Net Cost",
           "type": "stat"
         }
       ],
-      "title": "\ud83d\udcc8 Previous Period Comparison",
+      "title": "📈 Previous Period Comparison",
       "type": "row"
     },
     {
@@ -2560,11 +2636,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 30
       },
       "id": 50,
       "panels": [],
-      "title": "\ud83d\udcc9 Energy Flow Over Time",
+      "title": "📉 Energy Flow Over Time",
       "type": "row"
     },
     {
@@ -2711,7 +2787,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 31
       },
       "id": 51,
       "options": {
@@ -2779,7 +2855,7 @@
     },
     {
       "type": "row",
-      "title": "\ud83d\udd0b Battery Performance",
+      "title": "🔋 Battery Performance",
       "id": 110,
       "collapsed": false,
       "panels": [],
@@ -2787,7 +2863,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 41
       }
     },
     {
@@ -2798,7 +2874,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 42
       },
       "datasource": {
         "type": "influxdb",
@@ -2884,7 +2960,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 42
       },
       "datasource": {
         "type": "influxdb",
@@ -2987,7 +3063,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 50
       },
       "datasource": {
         "type": "influxdb",
@@ -3044,7 +3120,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 50
       },
       "datasource": {
         "type": "influxdb",
@@ -3126,11 +3202,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 58
       },
       "id": 60,
       "panels": [],
-      "title": "\ud83d\udcb0 Cost Analysis",
+      "title": "💰 Cost Analysis",
       "type": "row"
     },
     {
@@ -3204,7 +3280,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 47
+        "y": 59
       },
       "id": 61,
       "interval": "1d",
@@ -3316,7 +3392,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 47
+        "y": 59
       },
       "id": 62,
       "interval": "1d",
@@ -3410,7 +3486,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 56
+        "y": 68
       },
       "id": 63,
       "options": {
@@ -3503,7 +3579,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 56
+        "y": 68
       },
       "id": 64,
       "options": {
@@ -3575,7 +3651,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 68
       },
       "id": 65,
       "options": {
@@ -3634,7 +3710,7 @@
           "refId": "A"
         }
       ],
-      "title": "Import Heatmap (Hour \u00d7 Day)",
+      "title": "Import Heatmap (Hour × Day)",
       "type": "heatmap"
     },
     {
@@ -3643,11 +3719,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 77
       },
       "id": 70,
       "panels": [],
-      "title": "\u2600\ufe0f Solar Performance",
+      "title": "☀️ Solar Performance",
       "type": "row"
     },
     {
@@ -3726,7 +3802,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 66
+        "y": 78
       },
       "id": 71,
       "options": {
@@ -3822,7 +3898,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 66
+        "y": 78
       },
       "id": 72,
       "interval": "1d",
@@ -3950,7 +4026,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 86
       },
       "id": 73,
       "options": {
@@ -3998,11 +4074,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 82
+        "y": 94
       },
       "id": 80,
       "panels": [],
-      "title": "\ud83d\udd0c Circuit Breakdown",
+      "title": "🔌 Circuit Breakdown",
       "type": "row"
     },
     {
@@ -4037,7 +4113,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 83
+        "y": 95
       },
       "id": 81,
       "options": {
@@ -4111,7 +4187,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 83
+        "y": 95
       },
       "id": 82,
       "options": {
@@ -4185,7 +4261,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 83
+        "y": 95
       },
       "id": 83,
       "options": {
@@ -4275,7 +4351,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 92
+        "y": 104
       },
       "id": 84,
       "options": {
@@ -4320,11 +4396,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 112
       },
       "id": 90,
       "panels": [],
-      "title": "\ud83d\udcc5 Trends & Projections",
+      "title": "📅 Trends & Projections",
       "type": "row"
     },
     {
@@ -4398,7 +4474,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 101
+        "y": 113
       },
       "id": 91,
       "interval": "30d",
@@ -4535,7 +4611,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 101
+        "y": 113
       },
       "id": 92,
       "interval": "30d",
@@ -4630,9 +4706,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 6,
         "x": 0,
-        "y": 110
+        "y": 122
       },
       "id": 93,
       "options": {
@@ -4649,7 +4725,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -4694,9 +4770,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 8,
-        "y": 110
+        "w": 6,
+        "x": 6,
+        "y": 122
       },
       "id": 94,
       "options": {
@@ -4713,7 +4789,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -4758,9 +4834,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 4,
-        "x": 16,
-        "y": 110
+        "w": 6,
+        "x": 12,
+        "y": 122
       },
       "id": 95,
       "options": {
@@ -4777,7 +4853,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -4822,9 +4898,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 4,
-        "x": 20,
-        "y": 110
+        "w": 6,
+        "x": 18,
+        "y": 122
       },
       "id": 96,
       "options": {
@@ -4841,7 +4917,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "11.6.0",
@@ -5028,7 +5104,7 @@
         "name": "cal_import",
         "type": "constant",
         "label": "Import Cal Factor",
-        "description": "IoTaWatt\u2192revenue meter multiplier for GridImport",
+        "description": "IoTaWatt→revenue meter multiplier for GridImport",
         "query": "0.9916",
         "hide": 2,
         "current": {
@@ -5048,7 +5124,7 @@
         "name": "cal_export",
         "type": "constant",
         "label": "Export Cal Factor",
-        "description": "IoTaWatt\u2192revenue meter multiplier for SolarExport",
+        "description": "IoTaWatt→revenue meter multiplier for SolarExport",
         "query": "1.0161",
         "hide": 2,
         "current": {
@@ -5068,7 +5144,7 @@
         "name": "cal_solar",
         "type": "constant",
         "label": "Solar Cal Factor",
-        "description": "IoTaWatt\u2192estimated multiplier for SolarGeneration",
+        "description": "IoTaWatt→estimated multiplier for SolarGeneration",
         "query": "1.0039",
         "hide": 2,
         "current": {
