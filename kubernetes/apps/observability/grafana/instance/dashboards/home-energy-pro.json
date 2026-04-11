@@ -198,7 +198,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Demand",
+      "title": "Demand",
       "type": "gauge"
     },
     {
@@ -272,16 +272,16 @@
           "refId": "A"
         }
       ],
-      "title": "Solar Generation",
+      "title": "Solar",
       "type": "gauge"
     },
     {
       "type": "gauge",
-      "title": "Battery SoC",
+      "title": "Battery",
       "id": 100,
       "gridPos": {
         "h": 6,
-        "w": 2,
+        "w": 3,
         "x": 8,
         "y": 1
       },
@@ -337,12 +337,12 @@
     },
     {
       "type": "stat",
-      "title": "Battery",
+      "title": "Batt Power",
       "id": 101,
       "gridPos": {
         "h": 6,
-        "w": 2,
-        "x": 10,
+        "w": 3,
+        "x": 11,
         "y": 1
       },
       "datasource": {
@@ -454,7 +454,7 @@
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 12,
+        "x": 14,
         "y": 1
       },
       "id": 4,
@@ -486,77 +486,7 @@
           "refId": "A"
         }
       ],
-      "title": "Grid Import (W)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "$${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "semi-dark-blue",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 500
-              },
-              {
-                "color": "super-light-green",
-                "value": 3000
-              }
-            ]
-          },
-          "unit": "watt"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 3,
-        "x": 15,
-        "y": 1
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "$${DS_INFLUXDB}"
-          },
-          "query": "from(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: -5m)\n    |> filter(fn: (r) => r._measurement == \"W\" and r.entity_id == \"sigen_0_grid_sensor_export_power\" and r._field == \"value\")\n    |> last()",
-          "refId": "A"
-        }
-      ],
-      "title": "Grid Export (W)",
+      "title": "Grid Import",
       "type": "stat"
     },
     {
@@ -600,8 +530,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 2,
-        "x": 18,
+        "w": 3,
+        "x": 17,
         "y": 1
       },
       "id": 6,
@@ -698,7 +628,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 2,
+        "w": 4,
         "x": 20,
         "y": 1
       },
@@ -731,7 +661,7 @@
           "refId": "A"
         }
       ],
-      "title": "Current Tariff",
+      "title": "Tariff",
       "type": "stat"
     },
     {
