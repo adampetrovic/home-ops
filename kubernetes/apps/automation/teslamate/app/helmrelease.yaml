@@ -21,9 +21,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    defaultPodOptions:
-      imagePullSecrets:
-        - name: ghcr-private
     controllers:
       teslamate:
         annotations:
@@ -58,7 +55,7 @@ spec:
           agile:
             image:
               repository: ghcr.io/adampetrovic/teslamateagile
-              tag: fix-non-numeric@sha256:683531facf096348acb8a5cdd0cbbf4e1471307a1931d0db68417f7bb7369548
+              tag: latest@sha256:62df243eb341f4857e103473afd1afea47570d40ef3751c1163fc89faa849cf3
             env:
               TeslaMate__UpdateIntervalSeconds: 300
               TeslaMate__GeofenceId: 4
