@@ -55,7 +55,7 @@ spec:
           agile:
             image:
               repository: ghcr.io/adampetrovic/teslamateagile
-              tag: latest@sha256:62df243eb341f4857e103473afd1afea47570d40ef3751c1163fc89faa849cf3
+              tag: latest@sha256:8ad1f303b10b4cbf11bd08eccd641e4a9fec17d14ae55921132dfba81fe23eb9
             env:
               TeslaMate__UpdateIntervalSeconds: 300
               TeslaMate__GeofenceId: 4
