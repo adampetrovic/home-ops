@@ -54,8 +54,8 @@ spec:
                 memory: 1024Mi
           agile:
             image:
-              repository: ghcr.io/adampetrovic/teslamateagile
-              tag: latest@sha256:8ad1f303b10b4cbf11bd08eccd641e4a9fec17d14ae55921132dfba81fe23eb9
+              repository: ghcr.io/amyjeanes/teslamateagile
+              tag: v1.22.0@sha256:9a5faa27cfbb190815a22b141d456307eaefabd81d07408d835d9e0ca4e5c72d
             env:
               TeslaMate__UpdateIntervalSeconds: 300
               TeslaMate__GeofenceId: 4
