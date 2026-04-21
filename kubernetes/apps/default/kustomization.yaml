@@ -13,6 +13,7 @@ resources:
   - ./element-web/ks.yaml
   - ./energize/ks.yaml
   - ./filebrowser/ks.yaml
+  - ./hister/ks.yaml
   - ./homebox/ks.yaml
   - ./marginalia/ks.yaml
   - ./memos/ks.yaml
