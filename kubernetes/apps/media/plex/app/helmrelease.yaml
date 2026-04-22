@@ -62,7 +62,7 @@ spec:
           vector:
             image:
               repository: mirror.gcr.io/timberio/vector
-              tag: 0.54.0-alpine@sha256:0a5568d7fe54ef565c9e83a8c20ecf0bc7289d1923d78cd5fbe192158a495267
+              tag: 0.55.0-alpine@sha256:faf14cdafb5526a94b478b2a51055b774b92761c2a22ce3af1fa416a67b75939
             args:
               - --config-yaml
               - /etc/vector/vector.yaml
