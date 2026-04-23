@@ -35,52 +35,32 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/ggml-org/llama.cpp
-              tag: server-b8882@sha256:0dcaeed8a5c0792b9c33b73e4a518ffc14c8b83277d524d963679bfe732756b3
+              repository: mirror.gcr.io/ollama/ollama
+              tag: latest@sha256:cd33c5656285ca365c9c5495fe0240a70aef642088c6427c461fd54b62f80ffb
             env:
               TZ: ${TZ}
-              HOME: /cache
-              XDG_CACHE_HOME: /cache/.cache
-              HF_HOME: /cache/huggingface
-              HUGGINGFACE_HUB_CACHE: /cache/huggingface/hub
-            args:
-              - -hf
-              - unsloth/Qwen3.6-27B-GGUF:Q4_K_M
-              - --alias
-              - qwen3.6-27b
-              - --host
-              - 0.0.0.0
-              - --port
-              - "8080"
-              - -t
-              - "16"
-              - --threads-http
-              - "4"
-              - -np
-              - "1"
+              HOME: /models
+              OLLAMA_HOST: 0.0.0.0:11434
+              OLLAMA_MODELS: /models
+            command:
+              - /bin/sh
               - -c
-              - "32768"
-              - --jinja
-              - --temp
-              - "0.6"
-              - --top-p
-              - "0.95"
-              - --top-k
-              - "20"
-              - --min-p
-              - "0.0"
-              - --presence-penalty
-              - "0.0"
-              - --repeat-penalty
-              - "1.0"
-              - --metrics
+            args:
+              - >-
+                set -euo pipefail;
+                ollama serve &
+                pid=$!;
+                trap 'kill ${pid}; wait ${pid}' EXIT INT TERM;
+                until ollama list >/dev/null 2>&1; do sleep 2; done;
+                ollama pull qwen3.6:27b;
+                wait ${pid}
             probes:
-              liveness: &probes
+              liveness:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /health
+                    path: /api/version
                     port: http
                   periodSeconds: 30
                   timeoutSeconds: 2
@@ -89,32 +69,35 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /health
-                    port: http
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - ollama list | grep -q '^qwen3.6:27b'
                   periodSeconds: 10
-                  timeoutSeconds: 2
+                  timeoutSeconds: 5
                   failureThreshold: 3
               startup:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /health
-                    port: http
+                  exec:
+                    command:
+                      - /bin/sh
+                      - -c
+                      - ollama list | grep -q '^qwen3.6:27b'
                   periodSeconds: 10
-                  timeoutSeconds: 2
+                  timeoutSeconds: 5
                   failureThreshold: 180
             resources:
               requests:
-                cpu: 4
+                cpu: 2
                 memory: 20Gi
               limits:
                 cpu: 16
-                memory: 36Gi
+                memory: 40Gi
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
               capabilities:
                 drop:
                   - ALL
@@ -127,16 +110,7 @@ spec:
         ports:
           http:
             primary: true
-            port: 8080
-    serviceMonitor:
-      app:
-        serviceName: *app
-        endpoints:
-          - port: http
-            scheme: http
-            path: /metrics
-            interval: 1m
-            scrapeTimeout: 10s
+            port: 11434
     route:
       app:
         hostnames:
@@ -145,10 +119,10 @@ spec:
           - name: envoy-internal
             namespace: network
     persistence:
-      cache:
+      models:
         existingClaim: *app
         globalMounts:
-          - path: /cache
+          - path: /models
       tmp:
         type: emptyDir
         globalMounts:
