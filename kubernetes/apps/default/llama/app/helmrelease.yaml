@@ -47,7 +47,7 @@ spec:
               - -c
             args:
               - >-
-                set -euo pipefail;
+                set -eu;
                 ollama serve &
                 pid=$!;
                 trap 'kill ${pid}; wait ${pid}' EXIT INT TERM;
