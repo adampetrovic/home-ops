@@ -15,6 +15,7 @@ resources:
   - ./filebrowser/ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
+  - ./llama/ks.yaml
   - ./marginalia/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
