@@ -50,7 +50,7 @@ spec:
               - --host
               - 0.0.0.0
               - --port
-              - &port "8080"
+              - "8080"
               - --fit
               - "on"
               - -t
@@ -88,7 +88,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: http
                   periodSeconds: 30
                   timeoutSeconds: 2
                   failureThreshold: 3
@@ -98,7 +98,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: http
                   periodSeconds: 10
                   timeoutSeconds: 2
                   failureThreshold: 3
@@ -108,7 +108,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: http
                   periodSeconds: 10
                   timeoutSeconds: 2
                   failureThreshold: 180
@@ -134,7 +134,7 @@ spec:
         ports:
           http:
             primary: true
-            port: *port
+            port: 8080
     serviceMonitor:
       app:
         serviceName: *app
