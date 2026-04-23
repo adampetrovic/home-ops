@@ -44,7 +44,6 @@ spec:
             args:
               - -hf
               - unsloth/Qwen3.6-27B-GGUF:Q4_K_M
-              - --no-mmproj
               - --alias
               - qwen3.6-27b
               - --host
