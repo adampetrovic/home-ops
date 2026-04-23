@@ -39,6 +39,8 @@ spec:
               tag: server-b4735@sha256:479891625d5894c7d027b773026fd3f8778e6c5d8ab130e719835d14095f2291
             env:
               TZ: ${TZ}
+              HOME: /cache
+              XDG_CACHE_HOME: /cache/.cache
               HF_HOME: /cache/huggingface
               HUGGINGFACE_HUB_CACHE: /cache/huggingface/hub
             args:
