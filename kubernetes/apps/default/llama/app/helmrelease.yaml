@@ -58,8 +58,6 @@ spec:
               - "1"
               - -c
               - "32768"
-              - --cache-ram
-              - "2048"
               - --jinja
               - --temp
               - "0.6"
@@ -73,10 +71,6 @@ spec:
               - "0.0"
               - --repeat-penalty
               - "1.0"
-              - --reasoning
-              - "on"
-              - --chat-template-kwargs
-              - '{"preserve_thinking": true}'
               - --metrics
             probes:
               liveness: &probes
