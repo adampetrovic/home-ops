@@ -184,6 +184,13 @@ spec:
         globalMounts:
           - path: /tv-kids
             readOnly: false
+      sports:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/sports
+        globalMounts:
+          - path: /sports
+            readOnly: false
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
