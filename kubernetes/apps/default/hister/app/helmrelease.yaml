@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/asciimoo/hister
-              tag: v0.12.0@sha256:e88a55123dd06e239cd6f71fe9a5efd43bb35f7be98c3df839dc338d68888b76
+              tag: v0.13.0@sha256:c65b147bb7c6b71c7b98f792dc9f875c119935103088c865ebb8c9663b61cde9
             env:
               TZ: ${TZ}
               HISTER__SERVER__ADDRESS: 0.0.0.0:4433
