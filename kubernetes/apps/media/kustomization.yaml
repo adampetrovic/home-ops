@@ -21,6 +21,7 @@ resources:
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
+  - ./sportarr/ks.yaml
   - ./removed-media-app/ks.yaml
   - ./tautulli/ks.yaml
   - ./tracearr/ks.yaml
