@@ -118,7 +118,6 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Miniflux](https://miniflux.app)** - Minimalist RSS reader
 - **[Paperless-NGX](https://paperless-ngx.readthedocs.io)** - Document management system
 - **[Baby Buddy](https://github.com/babybuddy/babybuddy)** - Baby care tracking
-- **[Filebrowser](https://filebrowser.org)** - Web-based file manager
 
 ### 🗄️ Database & Storage
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
