@@ -172,9 +172,3 @@ spec:
         path: /volume2/books
         globalMounts:
           - path: /mnt/books
-      removed-media-app:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/removed-media-app/media
-        globalMounts:
-          - path: /mnt/removed-media-app
