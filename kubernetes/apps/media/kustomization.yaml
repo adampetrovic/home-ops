@@ -10,6 +10,7 @@ resources:
   - ./grimmory/ks.yaml
   - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
+  - ./maintainerr/ks.yaml
   - ./plex/ks.yaml
   - ./plexovic-gatus/ks.yaml
   - ./prowlarr/ks.yaml
