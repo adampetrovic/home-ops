@@ -10,7 +10,6 @@ resources:
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
   - ./element-web/ks.yaml
-  - ./filebrowser/ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
   - ./memos/ks.yaml
