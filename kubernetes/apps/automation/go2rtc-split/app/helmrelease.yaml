@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/go2rtc-split
-              tag: v0.1.0@sha256:2caf039074a6950cb7853e0904e035f17b6052b2b94c3252b4945ef157d4c2f8
+              tag: v0.1.2@sha256:817f3c1c35603c46ec015e7b7ccdf9eb8f38583e8afc467d274789f1d26e2ae3
             env:
               TZ: ${TZ}
               PORT: "8080"
