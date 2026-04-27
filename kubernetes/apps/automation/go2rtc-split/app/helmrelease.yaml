@@ -1,0 +1,98 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app go2rtc-split
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      go2rtc-split:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/go2rtc-split
+              tag: v0.1.0@sha256:2caf039074a6950cb7853e0904e035f17b6052b2b94c3252b4945ef157d4c2f8
+            env:
+              TZ: ${TZ}
+              PORT: "8080"
+              BASE_PATH: /split
+              APP_NAME: Kids Monitor
+              PAGE_TITLE: Kids Monitor
+              GO2RTC_STREAMS: "zoey_hq:Zoey,eliza_hq:Eliza"
+              GO2RTC_WS_PATH: /api/ws
+              LAYOUT: auto
+              OBJECT_FIT: contain
+              AUDIO_MODE: mixed
+              START_MUTED: "false"
+              DEFAULT_VOLUME: "1"
+              AUDIO_METERS: "true"
+              SHOW_CONTROLS: "true"
+              SHOW_STATUS: "true"
+              WAKE_LOCK: "true"
+              FULLSCREEN_BUTTON: "true"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    route:
+      split:
+        hostnames:
+          - "go2rtc.${SECRET_DOMAIN}"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /split
+            backendRefs:
+              - identifier: app
+                port: http
