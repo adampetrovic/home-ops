@@ -1,8 +1,0 @@
-{
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "xhigh",
-  "enableInstallTelemetry": false,
-  "packages": [],
-  "sessionDir": "/config/.pi/agent/sessions"
-}
