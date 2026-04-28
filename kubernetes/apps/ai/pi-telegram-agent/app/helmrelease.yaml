@@ -75,6 +75,21 @@ spec:
         globalMounts:
           - path: /config/code
             subPath: code
+      ssh:
+        existingClaim: *app
+        globalMounts:
+          - path: /config/.ssh
+            subPath: ssh
+      cache:
+        existingClaim: *app
+        globalMounts:
+          - path: /config/.cache
+            subPath: cache
+      home-config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config/.config
+            subPath: config
       pi-agent:
         existingClaim: *app
         globalMounts:
