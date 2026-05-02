@@ -57,17 +57,17 @@ spec:
               - |-
                 set -eu
                 config=/config/sabnzbd.ini
-                if [ ! -f "${config}" ]; then
+                if [ ! -f "$config" ]; then
                   mkdir -p /config/sabnzbd
-                  cp /defaults/sabnzbd.ini "${config}"
+                  cp /defaults/sabnzbd.ini "$config"
                 fi
                 set_config() {
                   key="$1"
                   value="$2"
-                  if grep -q "^${key} *=" "${config}"; then
-                    sed -i "s|^${key} *=.*$|${key} = ${value}|g" "${config}"
+                  if grep -q "^$key *=" "$config"; then
+                    sed -i "s|^$key *=.*$|$key = $value|g" "$config"
                   else
-                    printf '%s = %s\n' "${key}" "${value}" >> "${config}"
+                    printf '%s = %s\n' "$key" "$value" >> "$config"
                   fi
                 }
                 # SABnzbd v5 Direct Write is not recommended for SMB/NFS-backed downloads.
