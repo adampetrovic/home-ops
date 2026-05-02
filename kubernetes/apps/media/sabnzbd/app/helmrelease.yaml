@@ -46,19 +46,42 @@ spec:
       sabnzbd:
         annotations:
           reloader.stakater.com/auto: 'true'
-        containers:
-          app:
-            image:
+        initContainers:
+          config-safety:
+            image: &image
               repository: ghcr.io/home-operations/sabnzbd
               tag: 5.0.1@sha256:c22ada9eb6f6306a4e94d3372c784a5330818f2021b2fa9233ff4ae92d9f3582
+            command:
+              - /bin/sh
+              - -c
+              - |-
+                set -eu
+                config=/config/sabnzbd.ini
+                if [ ! -f "${config}" ]; then
+                  mkdir -p /config/sabnzbd
+                  cp /defaults/sabnzbd.ini "${config}"
+                fi
+                set_config() {
+                  key="$1"
+                  value="$2"
+                  if grep -q "^${key} *=" "${config}"; then
+                    sed -i "s|^${key} *=.*$|${key} = ${value}|g" "${config}"
+                  else
+                    printf '%s = %s\n' "${key}" "${value}" >> "${config}"
+                  fi
+                }
+                # SABnzbd v5 Direct Write is not recommended for SMB/NFS-backed downloads.
+                set_config direct_write 0
+                set_config verify_xff_header 0
+        containers:
+          app:
+            image: *image
             envFrom:
               - secretRef:
                   name: sabnzbd-secret
             env:
               TZ: "${TZ}"
               SABNZBD__PORT: &port 80
-              SABNZBD__DIRECT_WRITE: "0"
-              SABNZBD__VERIFY_XFF_HEADER: "0"
               SABNZBD__HOST_WHITELIST_ENTRIES: >-
                 sabnzbd,
                 sabnzbd.media,
