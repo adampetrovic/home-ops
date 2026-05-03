@@ -12,7 +12,44 @@ This is a three-phase workflow:
 
 ---
 
+## Model Routing Policy
+
+The workflow may be run by a human, the main Pi agent, or a Pi command/extension that delegates subtasks to subagents. Route each subtask to the cheapest model tier that is likely to be reliable, and reserve high-cost frontier models for judgment-heavy risk analysis.
+
+### Default model tiers
+
+| Subtask | Default tier | Suggested model |
+|---------|--------------|-----------------|
+| Gather PR list, labels, titles, branches, changed files | Low-cost | `openai-codex/gpt-5.3-codex-spark:minimal` or `openai-codex/gpt-5.4-mini:low` |
+| Detect bump type, component namespace/app, obvious split-image/grouping issues | Low-cost | `openai-codex/gpt-5.4-mini:low` |
+| Summarise minor release notes for leaf applications | Low/medium | `openai-codex/gpt-5.4-mini:low` or `openai-codex/gpt-5.4-mini:medium` |
+| Run repository greps and config cross-references | Low-cost for mechanical search | `openai-codex/gpt-5.4-mini:low` |
+| Interpret major releases, infra/storage/network updates, or known breaking changes | Frontier | `openai-codex/gpt-5.5:high` |
+| Build the merge-wave plan for simple all-low-risk batches | Medium | `openai-codex/gpt-5.4-mini:medium` |
+| Build the merge-wave plan for approval-gated or coupled PR batches | Frontier | `openai-codex/gpt-5.5:high` |
+| Execute merges and routine health checks | Low-cost/current | No frontier model required |
+| Triage persistent post-merge failures | Frontier | `openai-codex/gpt-5.5:high` or `openai-codex/gpt-5.5:xhigh` |
+
+### Escalation criteria
+
+Use a high-cost frontier model only when at least one of these is true:
+
+- The PR is a **major** version bump.
+- The PR touches Talos, Kubernetes, Cilium, Rook-Ceph, Flux, cert-manager, CloudNativePG, Envoy Gateway, External Secrets, VolSync, or another platform dependency.
+- Release notes mention breaking changes, migrations, removed configuration, changed defaults, auth/security changes, CRD/API changes, UID/security-context changes, storage behaviour, or networking behaviour.
+- Multiple Renovate PRs must be merged together, or the same component is split across chart/image/registry-prefix PRs.
+- The merge plan has approval-gated waves or multiple infrastructure/storage/network components whose order matters.
+- Post-merge health checks show persistent failures or ambiguous symptoms.
+
+Stay on lower-cost models for mechanical or low-risk work: PR inventory, `gh pr diff --name-only`, patch/digest leaf-app updates, table formatting, command execution, routine `kubectl`/`flux`/`gh` checks, and final summaries when health checks are normal.
+
+Do **not** run a frontier model once per PR by default. Batch low-risk PRs through a cheaper model, then escalate only the specific PRs, release-note excerpts, or failure symptoms that meet the criteria above.
+
+---
+
 ## Phase 1: Analyse
+
+Start with a cheap, mechanical pre-screen. The first pass should gather metadata, detect obvious low-risk updates, and identify only the PRs that need deeper release-note or breaking-change analysis.
 
 ### 1.1 Gather PRs
 
@@ -23,7 +60,7 @@ gh pr list --json number,title,headRefName,labels,body \
 
 ### 1.2 Classify each PR
 
-For every PR, determine:
+Use a low-cost model for this pass unless the PR already meets an escalation criterion. For every PR, determine:
 
 | Field | How to determine |
 |-------|-----------------|
@@ -34,6 +71,8 @@ For every PR, determine:
 | **Grouping issues** | Check if the same image is split across multiple PRs (different registry prefixes like `docker.io/` vs bare name). If so, flag for the user. |
 
 ### 1.3 Fetch release notes for non-trivial updates
+
+Do this selectively. Use low/medium-cost analysis for routine minor leaf-application updates. Escalate to a frontier model for major bumps, infrastructure/storage/network updates, approval-gated components, or release notes that mention breaking changes.
 
 For any PR that is **minor** or **major** bump, or touches infrastructure components, fetch upstream release notes:
 
@@ -50,7 +89,7 @@ Look specifically for:
 
 ### 1.4 Cross-reference with current config
 
-For each flagged breaking change, check whether it affects this repo:
+Use cheap mechanical search first, then escalate only if interpreting the match requires judgment. For each flagged breaking change, check whether it affects this repo:
 
 ```bash
 # Example: check if a deprecated Helm value is used
@@ -70,7 +109,7 @@ Flag these as **must merge together** in the plan.
 
 ### 1.6 Present analysis
 
-Output a summary table:
+Keep the table-generation step on a low-cost/current model unless the analysis itself is still unresolved. Output a summary table:
 
 ```
 | PR | Update | Bump | Risk | Notes |
@@ -120,6 +159,8 @@ Order merges by dependency depth — infrastructure first, leaf apps last. Allow
 | **7** | Applications | All leaf apps (media, automation, default namespace) | No downstream dependents |
 
 ### Present the plan
+
+Use a medium-cost model for simple all-low-risk batches. Use a frontier model for plan synthesis only if the batch includes approval-gated PRs, coupled chart/image PRs, major updates, or more than one infrastructure/storage/network component.
 
 Output the merge plan as a table grouped by wave:
 
@@ -187,6 +228,8 @@ For each wave:
 4. **Health check** — Run the monitoring commands below. If any **new** alerts fire or HelmReleases/Kustomizations fail, **stop and report** before continuing to the next wave.
 
 ### 3.4 Health monitoring between waves
+
+Routine monitoring and command execution do not need a frontier model. Escalate only when a health check shows a persistent or ambiguous new failure.
 
 ```bash
 # New firing alerts (compare against pre-flight baseline)
