@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/go2rtc-split
-              tag: v0.1.4@sha256:3aa318247602aa024f51b3f163ab4df0994836b1b6037e59ef491cf598e2bb0b
+              tag: v0.1.5@sha256:6899e3a8385c83345998868b159e3f69367533a6de2fd071677fd183820cefa5
             env:
               TZ: ${TZ}
               PORT: "8080"
@@ -51,6 +51,8 @@ spec:
               SHOW_STATUS: "true"
               WAKE_LOCK: "true"
               FULLSCREEN_BUTTON: "true"
+              DOCUMENT_FULLSCREEN_BUTTON: "false"
+              STREAM_FULLSCREEN_BUTTON: "true"
             probes:
               liveness: &probes
                 enabled: true
