@@ -17,6 +17,8 @@ spec:
     remediation:
       retries: 3
   values:
+    global:
+      createDefaultServiceAccount: false
     controllers:
       barman-cloud:
         containers:
@@ -69,6 +71,7 @@ spec:
         serviceAccount:
           name: *app
     defaultPodOptions:
+      automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
