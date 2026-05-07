@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+
+# Copyright 2026 The Kubetail Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -u
+
+# Bootstrap before anything that could fail: we need response::* to emit
+# any error envelope back to the agent.
+if [ -z "${KSTACK_ROOT:-}" ]; then
+  printf '{"kstack":"1","status":"error","kind":"infra","message":"KSTACK_ROOT not set; run this script via the skill entrypoint."}\n'
+  exit 0
+fi
+
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/response.sh"
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/kube-cache.sh"
+
+if [ -z "${KSTACK_KUBE_CONTEXT:-}" ]; then
+  response::infra_error "KSTACK_KUBE_CONTEXT not set; run this script via the skill entrypoint."
+  exit 0
+fi
+
+main() {
+  local ttl="5m" refresh="false"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --refresh) refresh="true"; shift ;;
+      --ttl=*) ttl="${1#--ttl=}"; shift ;;
+      --ttl)
+        if [ $# -lt 2 ]; then
+          response::user_error "Flag --ttl requires a value."
+          exit 0
+        fi
+        ttl="$2"; shift 2 ;;
+      *)
+        response::user_error "Unknown flag \`$1\`. Run \`/${KSTACK_SKILL_NAME:-events} --help\` for usage."
+        exit 0 ;;
+    esac
+  done
+
+  local init_args=(--ttl="$ttl")
+  [ "$refresh" = "true" ] && init_args+=(--refresh)
+  if ! kube_cache::init "${init_args[@]}"; then
+    case "$KUBE_CACHE_ERROR_KIND" in
+      user) response::user_error "$KUBE_CACHE_ERROR" ;;
+      *)    response::infra_error "$KUBE_CACHE_ERROR" ;;
+    esac
+    exit 0
+  fi
+
+  local snapshot_start
+  snapshot_start="$(date +%s)"
+
+  kube_cache::ensure_list events --all-namespaces || kube_cache::die 'events'
+
+  local events_file="$KUBE_CACHE_DIR/events.json"
+  local now
+  now="$(date +%s)"
+
+  local err_tmp
+  err_tmp="$(mktemp 2>/dev/null || echo "/tmp/kstack-ev-err-$$")"
+  # shellcheck disable=SC2064  # expand err_tmp now so trap fires with the right value
+  trap "rm -f '$err_tmp'" EXIT
+
+  local content
+  if ! content="$(jq -r --argjson now "$now" --arg ctx "$KUBE_CACHE_CONTEXT" '
+
+    def ts_to_epoch(ts):
+      if ts == "" or ts == null then 0
+      else
+        (ts | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime) //
+        (ts[0:19] | strptime("%Y-%m-%dT%H:%M:%S") | mktime) //
+        0
+      end;
+
+    def format_age(secs):
+      if secs <= 0 then "?"
+      elif secs < 60 then "\(secs)s"
+      elif secs < 3600 then "\(secs / 60 | floor)m"
+      elif secs < 86400 then "\(secs / 3600 | floor)h"
+      else "\(secs / 86400 | floor)d"
+      end;
+
+    def padright(n; s):
+      (s | .[0:n]) as $t |
+      (n - ($t | length)) as $p |
+      $t + (if $p > 0 then " " * $p else "" end);
+
+    [.items[] | {
+      type:        (.type          // "Unknown"),
+      reason:      (.reason        // "Unknown"),
+      kind:        (.involvedObject.kind // "Unknown"),
+      namespace:   (.metadata.namespace // ""),
+      count:       (.count         // 1),
+      last_ts:     (.lastTimestamp // .firstTimestamp // ""),
+      message:     (.message       // ""),
+      object_name: (.involvedObject.name // "")
+    }] |
+    group_by([.type, .reason, .kind, .namespace]) |
+    map({
+      type:        .[0].type,
+      reason:      .[0].reason,
+      kind:        .[0].kind,
+      namespace:   .[0].namespace,
+      total_count: ([.[].count] | add),
+      last_ts:     ([.[].last_ts | select(. != "")] | sort | last // ""),
+      message:     (sort_by(.last_ts) | last | .message),
+      objects:     ([.[].object_name | select(. != "")] | unique)
+    }) |
+
+    map(. + {
+      epoch: ts_to_epoch(.last_ts),
+      category: (
+        if .type == "Warning" then "warn"
+        elif .type == "Normal" then
+          if (.reason | test("^(Killing|Preempting|NodeNotReady|Rebooted|FailedScheduling|OOMKilling|FreeDiskSpaceFailed|Evicted|BackoffLimitExceeded)$"))
+          then "note"
+          elif (.reason | test("^(Pulled|Pulling|Created|Started|Scheduled|SuccessfulCreate)$"))
+          then "chatty"
+          else "note"
+          end
+        else "other"
+        end
+      )
+    }) |
+    map(. + {
+      age_str:  (if .epoch > 0 then "\(format_age($now - .epoch)) ago" else "?" end),
+      ns_kind:  (if .namespace == "" then .kind else "\(.namespace)/\(.kind)" end)
+    }) |
+    sort_by(-.epoch) |
+
+    . as $all |
+    ([$all[] | select(.category == "warn")]) as $warn |
+    ([$all[] | select(.category == "note")]) as $note |
+    ([$all[] | select(.category == "chatty") | .total_count] |
+      if length == 0 then 0 else add end) as $chatty_count |
+
+    ([$all[] | select(.epoch > 0) | .epoch] |
+      if length == 0 then $now else min end) as $oldest_epoch |
+
+    (
+      [
+        if ($warn | length) > 0
+        then "\($warn | length) warning group\(if ($warn | length) == 1 then "" else "s" end)"
+        else empty end,
+        if ($note | length) > 0 then "\($note | length) notable" else empty end
+      ] | if length == 0 then "none" else join(", ") end
+    ) as $summary |
+
+    def fmt_row(lbl; g):
+      padright(22; g.ns_kind)  as $nk  |
+      padright(18; g.reason)   as $r   |
+      padright(4;  "\(g.total_count)×") as $c   |
+      padright(9;  g.age_str)  as $a   |
+      ((g.message | .[0:80]) + (if (g.message | length) > 80 then "…" else "" end)) as $m |
+      "\(lbl)  \($nk) \($r) \($c)  \($a)  \"\($m)\"";
+
+    (
+      [
+        "Events: \($ctx)\(if $oldest_epoch < $now then " · \(format_age($now - $oldest_epoch))" else "" end) · \($summary)",
+        ""
+      ]
+      + (
+        if (($warn | length) + ($note | length)) == 0 then
+          ["No Warning or notable Normal events in the current window."]
+        else
+          [$warn[] | fmt_row("WARN"; .)]
+          + (if ($warn | length) > 0 and ($note | length) > 0 then [""] else [] end)
+          + [$note[] | fmt_row("NOTE"; .)]
+          + (if $chatty_count > 0
+             then ["", "…and \($chatty_count) Normal events (Pulled, Created, Started, Scheduled) suppressed."]
+             else [] end)
+        end
+      )
+    ) | .[]
+
+  ' "$events_file" 2>"$err_tmp")"; then
+    response::infra_error "$(cat "$err_tmp")"
+    exit 0
+  fi
+
+  local freshness
+  freshness="$(kube_cache::freshness_line "$snapshot_start" "$ttl" "$events_file")"
+  # shellcheck disable=SC2016  # backticks render as inline code in markdown
+  content+=$'\n\n'"$freshness"$' Ask to drill in — e.g. "only payments", "events on pod/checkout-7c9", "show suppressed".'
+
+  local dir_esc agent_ctx
+  dir_esc="$(printf '%s' "$KUBE_CACHE_DIR" | response::_escape)"
+  agent_ctx="$(printf '{"cache_dir":"%s"}' "$dir_esc")"
+
+  response::ok_verbatim "$content" "$agent_ctx"
+  exit 0
+}
+
+main "$@"
