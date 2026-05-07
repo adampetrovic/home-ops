@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# Copyright 2026 The Kubetail Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+if [ -z "${KSTACK_ROOT:-}" ]; then
+  printf '{"kstack":"1","status":"error","kind":"infra","message":"KSTACK_ROOT not set; run this script via the skill entrypoint."}\n'
+  exit 0
+fi
+
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/response.sh"
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/kube-cache.sh"
+# shellcheck source=lib/version-skew.sh
+. "$SCRIPT_DIR/lib/version-skew.sh"
+
+if [ -z "${KSTACK_KUBE_CONTEXT:-}" ]; then
+  response::infra_error "KSTACK_KUBE_CONTEXT not set; run this script via the skill entrypoint."
+  exit 0
+fi
+
+wait_or_die() {
+  local noun="$1" pid="$2"
+  wait "$pid" && return 0
+  # shellcheck disable=SC2016
+  response::infra_error "$(printf 'Unable to fetch %s for context `%s`.' "$noun" "$KUBE_CACHE_CONTEXT")"
+  exit 0
+}
+
+main() {
+  local ttl="15m" refresh="false"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --refresh) refresh="true"; shift ;;
+      --ttl=*) ttl="${1#--ttl=}"; shift ;;
+      --ttl)
+        if [ $# -lt 2 ]; then
+          response::user_error "Flag --ttl requires a value."
+          exit 0
+        fi
+        ttl="$2"; shift 2 ;;
+      *)
+        response::user_error "Unknown flag \`$1\`. Run \`/${KSTACK_SKILL_NAME:-audit-outdated} --help\` for usage."
+        exit 0 ;;
+    esac
+  done
+
+  local init_args=(--ttl="$ttl")
+  [ "$refresh" = "true" ] && init_args+=(--refresh)
+  if ! kube_cache::init "${init_args[@]}"; then
+    case "$KUBE_CACHE_ERROR_KIND" in
+      user) response::user_error "$KUBE_CACHE_ERROR" ;;
+      *)    response::infra_error "$KUBE_CACHE_ERROR" ;;
+    esac
+    exit 0
+  fi
+
+  local pid_v pid_n
+  kube_cache::ensure_version &
+  pid_v=$!
+  kube_cache::ensure_list nodes &
+  pid_n=$!
+  wait_or_die 'cluster version' "$pid_v"
+  wait_or_die 'nodes'           "$pid_n"
+
+  local err_tmp block
+  err_tmp="$(mktemp 2>/dev/null || echo "/tmp/kstack-vs-err-$$")"
+  # shellcheck disable=SC2064
+  trap "rm -f '$err_tmp'" EXIT
+
+  if ! block="$(version_skew::render "$KUBE_CACHE_DIR/cluster.json" "$KUBE_CACHE_DIR/nodes.json" 2>"$err_tmp")"; then
+    response::infra_error "$(cat "$err_tmp")"
+    exit 0
+  fi
+
+  local dir_esc agent_ctx
+  dir_esc="$(printf '%s' "$KUBE_CACHE_DIR" | response::_escape)"
+  agent_ctx="$(printf '{"cache_dir":"%s"}' "$dir_esc")"
+
+  response::ok_verbatim "Version Skew:"$'\n'"$block" "$agent_ctx"
+  exit 0
+}
+
+main "$@"
