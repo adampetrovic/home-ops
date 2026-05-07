@@ -55,6 +55,8 @@ spec:
             args: ["--config", "/etc/vector/vector.yaml"]
             securityContext:
               privileged: true
+    defaultPodOptions:
+      automountServiceAccountToken: true
     serviceAccount:
       vector-agent: {}
     persistence:
