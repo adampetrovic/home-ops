@@ -21,6 +21,7 @@ spec:
       runAsUser: 568
       runAsGroup: 568
       fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
     repository: ${APP}-volsync-secret
     sourceIdentity:
       sourceName: ${APP}
