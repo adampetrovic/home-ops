@@ -75,6 +75,8 @@ spec:
               labelSelector:
                 matchLabels:
                   app.kubernetes.io/name: *app
+    defaultPodOptions:
+      automountServiceAccountToken: true
     service:
       app:
         controller: *app

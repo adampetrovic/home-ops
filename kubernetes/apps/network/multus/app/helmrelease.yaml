@@ -40,6 +40,7 @@ spec:
         serviceAccount:
           identifier: *app
     defaultPodOptions:
+      automountServiceAccountToken: true
       hostNetwork: true
     persistence:
       etc-cni-net-d:
