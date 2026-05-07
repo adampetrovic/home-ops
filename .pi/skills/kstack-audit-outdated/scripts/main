@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+
+# Copyright 2026 The Kubetail Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -u
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+if [ -z "${KSTACK_ROOT:-}" ]; then
+  printf '{"kstack":"1","status":"error","kind":"infra","message":"KSTACK_ROOT not set; run this script via the skill entrypoint."}\n'
+  exit 0
+fi
+
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/response.sh"
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/kube-cache.sh"
+# shellcheck source=/dev/null
+. "$KSTACK_ROOT/lib/state.sh"
+# shellcheck source=lib/version-skew.sh
+. "$SCRIPT_DIR/lib/version-skew.sh"
+# shellcheck source=lib/deprecated-apis.sh
+. "$SCRIPT_DIR/lib/deprecated-apis.sh"
+
+if [ -z "${KSTACK_KUBE_CONTEXT:-}" ]; then
+  response::infra_error "KSTACK_KUBE_CONTEXT not set; run this script via the skill entrypoint."
+  exit 0
+fi
+
+# State key for the user's preferred deprecated-apis backend. Stored globally
+# by default (tool availability is a workstation property), with a per-context
+# override honored when present (e.g. a restricted cluster where the user
+# prefers a different backend). Values: pluto | kubent | web | skip.
+_STATE_BACKEND_KEY="audit-outdated/deprecated-apis-backend"
+
+wait_or_die() {
+  local noun="$1" pid="$2"
+  wait "$pid" && return 0
+  # shellcheck disable=SC2016
+  response::infra_error "$(printf 'Unable to fetch %s for context `%s`.' "$noun" "$KUBE_CACHE_CONTEXT")"
+  exit 0
+}
+
+# backend_tool_available <backend>
+backend_tool_available() {
+  case "$1" in
+    pluto)  command -v pluto  >/dev/null 2>&1 ;;
+    kubent) command -v kubent >/dev/null 2>&1 ;;
+    web)    command -v curl   >/dev/null 2>&1 ;;
+    skip)   return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# read_cached_backend
+#   Echoes the stored backend preference (context override → global) or
+#   empty string if unset. Does NOT validate that the tool is still available;
+#   caller does that separately so it can distinguish "unset" from "stale".
+read_cached_backend() {
+  local v
+  v="$(state::get context "$_STATE_BACKEND_KEY")"
+  if [ -n "$v" ]; then printf '%s' "$v"; return 0; fi
+  state::get global "$_STATE_BACKEND_KEY"
+}
+
+main() {
+  local ttl="15m" refresh="false"
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --refresh) refresh="true"; shift ;;
+      --ttl=*) ttl="${1#--ttl=}"; shift ;;
+      --ttl)
+        if [ $# -lt 2 ]; then
+          response::user_error "Flag --ttl requires a value."
+          exit 0
+        fi
+        ttl="$2"; shift 2 ;;
+      *)
+        response::user_error "Unknown flag \`$1\`. Run \`/${KSTACK_SKILL_NAME:-audit-outdated} --help\` for usage."
+        exit 0 ;;
+    esac
+  done
+
+  local init_args=(--ttl="$ttl")
+  [ "$refresh" = "true" ] && init_args+=(--refresh)
+  if ! kube_cache::init "${init_args[@]}"; then
+    case "$KUBE_CACHE_ERROR_KIND" in
+      user) response::user_error "$KUBE_CACHE_ERROR" ;;
+      *)    response::infra_error "$KUBE_CACHE_ERROR" ;;
+    esac
+    exit 0
+  fi
+
+  if ! state::init_context; then
+    response::"${STATE_ERROR_KIND}_error" "$STATE_ERROR"
+    exit 0
+  fi
+
+  # Shared data fetch.
+  local pid_v pid_n
+  kube_cache::ensure_version &
+  pid_v=$!
+  kube_cache::ensure_list nodes &
+  pid_n=$!
+  wait_or_die 'cluster version' "$pid_v"
+  wait_or_die 'nodes'           "$pid_n"
+
+  local server_version server_minor
+  server_version="$(jq -r '.serverVersion.gitVersion' "$KUBE_CACHE_DIR/cluster.json")" || {
+    response::infra_error "Unable to parse cluster version from cache."
+    exit 0
+  }
+  local _tmp="${server_version#v}"; server_minor="${_tmp%.*}"
+
+  local err_tmp
+  err_tmp="$(mktemp 2>/dev/null || echo "/tmp/kstack-ao-err-$$")"
+  # shellcheck disable=SC2064
+  trap "rm -f '$err_tmp'" EXIT
+
+  # --- Workflow 1: Version skew ---
+  local skew_block
+  if ! skew_block="$(version_skew::render "$KUBE_CACHE_DIR/cluster.json" "$KUBE_CACHE_DIR/nodes.json" 2>"$err_tmp")"; then
+    response::infra_error "$(cat "$err_tmp")"
+    exit 0
+  fi
+
+  # --- Workflow 2: Deprecated APIs (cached preference or first-run prompt) ---
+  local cached backend=""
+  cached="$(read_cached_backend)"
+
+  if [ -n "$cached" ] && backend_tool_available "$cached"; then
+    backend="$cached"
+  fi
+
+  local dir_esc agent_ctx
+  dir_esc="$(printf '%s' "$KUBE_CACHE_DIR" | response::_escape)"
+
+  # --- Hot path: cached preference is still usable ---
+  if [ -n "$backend" ]; then
+    if [ "$backend" = "skip" ]; then
+      agent_ctx="$(printf '{"cache_dir":"%s","deprecated_apis":{"status":"skipped","backend":"skip"}}' "$dir_esc")"
+      local content
+      content="Version Skew:"$'\n'"$skew_block"$'\n\n'"Deprecated APIs:"$'\n'"  Skipped (no backend configured — run \`/${KSTACK_SKILL_NAME:-audit-outdated} --reconfigure\` to change)."
+      response::ok_verbatim "$content" "$agent_ctx"
+      exit 0
+    fi
+
+    local api_block_file="$err_tmp.api"
+    if ! deprecated_apis::render_backend "$backend" "$server_minor" > "$api_block_file" 2>"$err_tmp"; then
+      response::infra_error "$(cat "$err_tmp")"
+      exit 0
+    fi
+
+    agent_ctx="$(printf '{"cache_dir":"%s","deprecated_apis":{"status":"ok","backend":"%s"}}' \
+      "$dir_esc" "$backend")"
+
+    if [ "$DEPRECATED_APIS_AGENT_NEEDED" = "true" ]; then
+      # Cached choice was web → need agent to cross-reference the raw guide.
+      local agent_content
+      agent_content="Version Skew:"$'\n'"$skew_block"$'\n\n'
+      agent_content+="---"$'\n\n'
+      agent_content+="## Deprecated API Detection (via kubernetes.io)"$'\n\n'
+      agent_content+="Cross-reference the cluster's active API versions against the deprecation guide below."$'\n'
+      agent_content+="Report any active API versions the guide marks as removed or deprecated at cluster version $server_version."$'\n\n'
+      agent_content+="### Active API versions on this cluster"$'\n\n'
+      agent_content+='```'$'\n'"$DEPRECATED_APIS_ACTIVE_VERSIONS"$'\n''```'$'\n\n'
+      agent_content+="### Kubernetes Deprecation Guide (raw)"$'\n\n'
+      agent_content+="$DEPRECATED_APIS_RAW_PAGE"
+      response::ok_agent "$agent_content" "$agent_ctx"
+      exit 0
+    fi
+
+    local api_block content
+    api_block="$(cat "$api_block_file")"
+    content="Version Skew:"$'\n'"$skew_block"$'\n\n'"Deprecated APIs:"$'\n'"$api_block"
+    response::ok_verbatim "$content" "$agent_ctx"
+    exit 0
+  fi
+
+  # --- First run (or stale preference): ask the user which backend to use ---
+  # Inventory: what's actually available on this workstation right now.
+  local has_pluto=false has_kubent=false has_curl=false
+  backend_tool_available pluto  && has_pluto=true
+  backend_tool_available kubent && has_kubent=true
+  backend_tool_available web    && has_curl=true
+
+  local stale_note=""
+  if [ -n "$cached" ]; then
+    stale_note="The previously saved preference (\`$cached\`) is no longer usable — that tool isn't on \$PATH. "
+  fi
+
+  local agent_content
+  agent_content="Version Skew:"$'\n'"$skew_block"$'\n\n'
+  agent_content+="---"$'\n\n'
+  agent_content+="## Deprecated API Detection — first-run setup"$'\n\n'
+  agent_content+="${stale_note}Ask the user to pick a backend for detecting deprecated API versions. The answer will be saved and reused on future runs (no re-prompting). Present the available options based on what's installed:"$'\n\n'
+
+  if $has_pluto; then
+    agent_content+="- **pluto** (installed) — structured output, fastest. Recommended if available."$'\n'
+  else
+    agent_content+="- ~~pluto~~ (not installed) — structured output. Install from https://pluto.docs.fairwinds.com/"$'\n'
+  fi
+  if $has_kubent; then
+    agent_content+="- **kubent** (installed) — structured output."$'\n'
+  else
+    agent_content+="- ~~kubent~~ (not installed) — structured output. Install from https://github.com/doitintl/kube-no-trouble"$'\n'
+  fi
+  if $has_curl; then
+    agent_content+="- **web** (curl available) — fetches the Kubernetes deprecation guide from kubernetes.io. Works without extra tooling but requires a network call to a public site. Ask before choosing."$'\n'
+  else
+    agent_content+="- ~~web~~ (curl not found) — would fetch from kubernetes.io."$'\n'
+  fi
+  agent_content+="- **skip** — don't run deprecated-API detection. Version skew still works."$'\n\n'
+
+  agent_content+="Once the user picks, invoke the deprecated-apis script with their choice, e.g.:"$'\n'
+  agent_content+="    $KSTACK_SKILL_DIR/scripts/deprecated-apis --backend=<pluto|kubent|web|skip>"$'\n\n'
+  agent_content+="(Use the skill entrypoint as usual — the script persists the choice itself.)"$'\n\n'
+  agent_content+="Display the Version Skew block above as-is; it's already formatted."$'\n'
+
+  # Structured inventory so the agent doesn't have to re-parse prose.
+  local installed_json
+  installed_json="$(
+    {
+      $has_pluto  && printf '"pluto"\n'
+      $has_kubent && printf '"kubent"\n'
+      $has_curl   && printf '"web"\n'
+    } | paste -sd, -
+  )"
+  local stale_field="null"
+  [ -n "$cached" ] && stale_field="\"$cached\""
+
+  agent_ctx="$(printf '{"cache_dir":"%s","deprecated_apis":{"status":"needs_setup","installed":[%s],"stale_preference":%s,"rerun_script":"deprecated-apis"}}' \
+    "$dir_esc" "$installed_json" "$stale_field")"
+  response::ok_agent "$agent_content" "$agent_ctx"
+  exit 0
+}
+
+main "$@"
