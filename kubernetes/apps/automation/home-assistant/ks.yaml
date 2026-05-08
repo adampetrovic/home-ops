@@ -19,7 +19,7 @@ spec:
       namespace: rook-ceph
     - name: multus-config
       namespace: network
-    - name: zigbee2mqtt
+    - name: mosquitto
       namespace: automation
   path: ./kubernetes/apps/automation/home-assistant/app
   prune: true

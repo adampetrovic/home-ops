@@ -41,6 +41,18 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+            probes:
+              liveness: &mqttProbe
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 1883
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *mqttProbe
             resources:
               requests:
                 cpu: 10m
@@ -88,3 +100,10 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /mosquitto/external_config
+      data:
+        enabled: true
+        storageClass: ceph-block
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        globalMounts:
+          - path: /mosquitto/data
