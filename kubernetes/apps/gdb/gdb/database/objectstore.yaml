@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://schemas.hydaz.com/barmancloud.cnpg.io/objectstore_v1.json
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: gdb-garage
+spec:
+  retentionPolicy: 7d
+  configuration:
+    destinationPath: s3://postgres/
+    endpointURL: https://s3.${SECRET_DOMAIN}
+    s3Credentials:
+      accessKeyId:
+        name: gdb-postgres-secret
+        key: aws-access-key-id
+      secretAccessKey:
+        name: gdb-postgres-secret
+        key: aws-secret-access-key
+    wal:
+      compression: bzip2
+      maxParallel: 8
+    data:
+      compression: bzip2
