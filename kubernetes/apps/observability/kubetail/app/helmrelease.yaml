@@ -26,7 +26,7 @@ spec:
           registry: ghcr.io
           repository: kubetail-org/kubetail-dashboard
           tag: "0.15.0"
-          digest: sha256:df90535c52dc0ed7a8516d183addf0e410de05b40e2c1af4d62df737dff92cff
+          digest: sha256:d1b0a9a6aaef33b7593d84b2c0a5eb92a2877fd9bd9dfaaf8baa190d746ea0ed
         container:
           securityContext:
             allowPrivilegeEscalation: false
@@ -52,7 +52,7 @@ spec:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-api
           tag: "0.8.0"
-          digest: sha256:414fbbc6f9fc19d275ab81fc89b102d42bd6ec1b8576f9925896a2f1ffc9410f
+          digest: sha256:c61d0b75f42a9f28fb847e48f8dc314ea318c6f9891a86d67fec93573c9b9705
         container:
           securityContext:
             allowPrivilegeEscalation: false
@@ -69,7 +69,7 @@ spec:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-agent
           tag: "0.7.0"
-          digest: sha256:ad165e792222a37666f216e8dede798cb4ffd9598330888c96c2e3b2f4e823d8
+          digest: sha256:45bfb342be220c84dd844b6a633bb42defac408e902693b4729eda2bd658b0b4
         container:
           securityContext:
             allowPrivilegeEscalation: false
