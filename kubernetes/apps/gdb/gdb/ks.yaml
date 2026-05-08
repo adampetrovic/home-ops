@@ -6,7 +6,6 @@ metadata:
   name: &app gdb
   namespace: &namespace gdb
 spec:
-  suspend: true
   targetNamespace: *namespace
   commonMetadata:
     labels:
