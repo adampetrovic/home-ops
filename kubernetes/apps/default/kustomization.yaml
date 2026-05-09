@@ -11,6 +11,7 @@ resources:
   - ./babybuddy/ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
+  - ./marginalia/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
