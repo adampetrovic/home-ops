@@ -27,3 +27,4 @@ spec:
   allowFirstLastIPs: "Yes"
   blocks:
     - cidr: "10.0.80.0/21"
+    - cidr: "10.0.88.0/24"

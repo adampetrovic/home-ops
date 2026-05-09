@@ -76,6 +76,7 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
   - Pod CIDR: `10.69.0.0/16`
   - Service CIDR: `10.96.0.0/16`
   - LoadBalancer VIP: `10.0.80.99`
+  - Routed LoadBalancer prefix: `10.0.88.0/24`
 
 ---
 
