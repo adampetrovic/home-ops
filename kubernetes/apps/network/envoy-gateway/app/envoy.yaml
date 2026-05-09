@@ -52,7 +52,7 @@ spec:
   gatewayClassName: envoy
   infrastructure:
     annotations:
-      io.cilium/lb-ipam-ips: "10.0.80.200"
+      io.cilium/lb-ipam-ips: "10.0.88.200"
   listeners:
     - name: http
       protocol: HTTP
@@ -83,7 +83,7 @@ spec:
   infrastructure:
     annotations:
       external-dns.alpha.kubernetes.io/hostname: *hostname
-      io.cilium/lb-ipam-ips: "10.0.80.201"
+      io.cilium/lb-ipam-ips: "10.0.88.201"
   listeners:
     - name: http
       protocol: HTTP
