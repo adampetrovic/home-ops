@@ -27,3 +27,53 @@ spec:
     - action: replace
       targetLabel: __address__
       replacement: blackbox-exporter.observability.svc.cluster.local:9115
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: envoy-vip-tcp-probe
+spec:
+  scrapeInterval: 30s
+  metricsPath: /probe
+  params:
+    module: ["tcp_connect"]
+  staticConfigs:
+    - targets:
+        - "10.0.88.200:80"
+      labels:
+        probe: envoy-vip
+        gateway: envoy-internal
+        vip: "10.0.88.200"
+        port: "80"
+    - targets:
+        - "10.0.88.200:443"
+      labels:
+        probe: envoy-vip
+        gateway: envoy-internal
+        vip: "10.0.88.200"
+        port: "443"
+    - targets:
+        - "10.0.88.201:80"
+      labels:
+        probe: envoy-vip
+        gateway: envoy-external
+        vip: "10.0.88.201"
+        port: "80"
+    - targets:
+        - "10.0.88.201:443"
+      labels:
+        probe: envoy-vip
+        gateway: envoy-external
+        vip: "10.0.88.201"
+        port: "443"
+  relabelings:
+    - action: replace
+      sourceLabels: [__address__]
+      targetLabel: __param_target
+    - action: replace
+      sourceLabels: [__param_target]
+      targetLabel: instance
+    - action: replace
+      targetLabel: __address__
+      replacement: blackbox-exporter.observability.svc.cluster.local:9115
