@@ -160,8 +160,8 @@ resources:
 
 Ingress is handled by **Envoy Gateway** using the Kubernetes **Gateway API** — there are no legacy `Ingress` resources. Two `Gateway` resources are defined in the `network` namespace:
 
-- **`envoy-internal`** (`10.0.80.200`): For apps accessible only within the local network. Uses `${SECRET_DOMAIN}`.
-- **`envoy-external`** (`10.0.80.201`): For apps exposed to the internet via **Cloudflare Tunnel**. Uses `${SECRET_PUBLIC_DOMAIN}`.
+- **`envoy-internal`** (`10.0.88.200`): For apps accessible only within the local network. Uses `${SECRET_DOMAIN}`.
+- **`envoy-external`** (`10.0.88.201`): For apps exposed to the internet via **Cloudflare Tunnel**. Uses `${SECRET_PUBLIC_DOMAIN}`.
 
 Both Gateways terminate TLS on port 443 with a wildcard certificate and redirect HTTP→HTTPS automatically.
 
@@ -340,13 +340,18 @@ task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo (R2)
 - **Pod CIDR:** `10.69.0.0/16`
 - **Service CIDR:** `10.96.0.0/16`
 - **LoadBalancer VIP:** `10.0.80.99`
+- **Routed Kubernetes LoadBalancer prefix:** `10.0.88.0/24` (BGP-advertised; Envoy VIPs live here)
 - **Node IPs:** `10.0.80.10-14` (Management VLAN 80)
 - **Trusted VLAN 10:** `10.0.10.0/24` (secondary interfaces for IoT access)
 - CNI is **Cilium** (eBPF-based, deployed without kube-proxy)
 
 ### Post-upgrade LoadBalancer/L2 sanity check
 
-After any Talos or Kubernetes rollout (especially Tuppr upgrades), explicitly check Cilium L2 announcement leases for `LoadBalancer` Services using `externalTrafficPolicy: Local`. A stale or unlucky L2 holder can announce a VIP from a node with no local ready endpoint, causing `connection refused` even though pods, Services, HTTPRoutes, and Envoy look healthy. Pay special attention to `network/envoy-internal` (`10.0.80.200`) and `network/envoy-external` (`10.0.80.201`).
+After any Talos or Kubernetes rollout (especially Tuppr upgrades), explicitly check north/south `LoadBalancer` services using `externalTrafficPolicy: Local`.
+
+For BGP-advertised services such as `network/envoy-internal` (`10.0.88.200`) and `network/envoy-external` (`10.0.88.201`), ensure UCG BGP next-hops only include nodes with ready local endpoints. A stale or premature next-hop can cause `connection refused` even though pods, Services, HTTPRoutes, and Envoy look healthy.
+
+For any services still using Cilium L2 announcements, ensure the `cilium-l2announce-<namespace>-<service>` lease holder has at least one ready local endpoint for Services with `externalTrafficPolicy: Local`.
 
 Recommended read-only checks:
 
