@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/marginalia
-              tag: 0.5.1@sha256:7043d2252d0d17d4d6e5eb97c70d6abb126938440a9fb9d923d5eeb40a23ebe3
+              tag: 0.6.0@sha256:c60ab61018bd9c3738a48b242c3341360f63be746bf771a15a5c6f43a34749ed
             env:
               DATABASE_URL: /data/marginalia.db
               MARGINALIA_PORT: &port 8080
