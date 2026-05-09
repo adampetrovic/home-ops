@@ -41,7 +41,6 @@ spec:
       service:
         addresses:
           - LoadBalancerIP
-        aggregationLengthIPv4: 32
       selector:
         matchExpressions:
           - key: io.kubernetes.service.namespace
