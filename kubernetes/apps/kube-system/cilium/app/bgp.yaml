@@ -1,0 +1,55 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPPeerConfig
+metadata:
+  name: ucg-fiber
+spec:
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: bgp-envoy
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: ucg-fiber
+spec:
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/os: linux
+  bgpInstances:
+    - name: cilium
+      localASN: 64514
+      peers:
+        - name: ucg-fiber
+          peerASN: 64513
+          peerAddress: "10.0.87.1"
+          peerConfigRef:
+            name: ucg-fiber
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: envoy-loadbalancers
+  labels:
+    advertise: bgp-envoy
+spec:
+  advertisements:
+    - advertisementType: Service
+      service:
+        addresses:
+          - LoadBalancerIP
+        aggregationLengthIPv4: 32
+      selector:
+        matchExpressions:
+          - key: io.kubernetes.service.namespace
+            operator: In
+            values:
+              - network
+          - key: io.kubernetes.service.name
+            operator: In
+            values:
+              - envoy-internal
+              - envoy-external
