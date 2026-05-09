@@ -344,6 +344,21 @@ task volsync:unlock app=<name> ns=<namespace>     # Unlock restic repo (R2)
 - **Trusted VLAN 10:** `10.0.10.0/24` (secondary interfaces for IoT access)
 - CNI is **Cilium** (eBPF-based, deployed without kube-proxy)
 
+### Post-upgrade LoadBalancer/L2 sanity check
+
+After any Talos or Kubernetes rollout (especially Tuppr upgrades), explicitly check Cilium L2 announcement leases for `LoadBalancer` Services using `externalTrafficPolicy: Local`. A stale or unlucky L2 holder can announce a VIP from a node with no local ready endpoint, causing `connection refused` even though pods, Services, HTTPRoutes, and Envoy look healthy. Pay special attention to `network/envoy-internal` (`10.0.80.200`) and `network/envoy-external` (`10.0.80.201`).
+
+Recommended read-only checks:
+
+```bash
+kubectl get svc -A --field-selector spec.type=LoadBalancer
+kubectl get leases -n kube-system | grep cilium-l2announce
+kubectl get endpointslice -n <namespace> -l kubernetes.io/service-name=<service> -o wide
+kubectl get pods -n <namespace> -o wide
+```
+
+For every `cilium-l2announce-<namespace>-<service>` lease whose Service has `externalTrafficPolicy: Local`, ensure the lease holder node has at least one ready local endpoint for that Service. If not, a targeted lease delete can force Cilium to re-elect a holder, but confirm before running `kubectl delete lease ...` because it mutates cluster state.
+
 ## GitOps Reconciliation
 
 Flux reconciles cluster state from Git automatically. A **GitHub webhook** notifies the Flux Notification Controller on every push to `main`, triggering an immediate reconciliation — there is no need to wait for the default polling interval. This means pushing a fix to a broken HelmRelease will be picked up within seconds, not minutes.
