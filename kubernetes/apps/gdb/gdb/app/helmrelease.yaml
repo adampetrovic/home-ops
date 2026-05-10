@@ -50,14 +50,6 @@ spec:
             envFrom:
               - secretRef:
                   name: gdb-secret
-          02-init-media-dir:
-            image:
-              repository: mirror.gcr.io/library/alpine
-              tag: 3.23
-            command:
-              - /bin/sh
-              - -c
-              - mkdir -p /media/gdb-web && chmod 0777 /media/gdb-web
         containers:
           app:
             image:
@@ -70,7 +62,7 @@ spec:
               APP_ENV: "production"
               LOG_LEVEL: "info"
               CACHE_TTL: "30m"
-              MEDIA_DIR: /media/gdb-web
+              MEDIA_DIR: /media/g
               RATE_LIMIT_PER_MIN: "600"
               SERVER_READ_TIMEOUT: "60s"
               SERVER_WRITE_TIMEOUT: "60s"
