@@ -37,7 +37,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.59@sha256:2e1550216dfa7539529067cfe2c05d1a0e96de020ff6405819ff5be58342b7a1
+              tag: 0.1.60@sha256:9172be439407d82702573769e08e47099ed579db5cb5d154e3e4650403b4eb1c
             envFrom:
               - secretRef:
                   name: gdb-secret
