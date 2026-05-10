@@ -107,6 +107,6 @@ spec:
       media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/stash/media
+        path: /volume2/stash/media/g
         globalMounts:
-          - path: /media
+          - path: /media/g
