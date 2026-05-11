@@ -37,7 +37,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.63@sha256:eccaae3a519b18aa9324b6d87d13bffd0854da45e4718eb158e9f855a62d3f5d
+              tag: 0.1.64@sha256:57f6651a3b8543a1d69876f7ca80b346d512ead97cc5b5624807fde1c24419e1
             envFrom:
               - secretRef:
                   name: gdb-secret
@@ -45,6 +45,13 @@ spec:
               OUTPUT_DIR: /export
               MODE: incremental
               SOURCE: mms
+              MMS_INCREMENTAL_STRATEGY: new-only
+              MMS_INCREMENTAL_LOOKBACK_DAYS: "120"
+              MMS_INCREMENTAL_MANIFEST_ENABLED: "true"
+              MMS_INCREMENTAL_MANIFEST_DIR: /export/mms-cache/manifests
+              MMS_PARSED_CACHE_ENABLED: "true"
+              MMS_PARSED_CACHE_DIR: /export/mms-cache/parsed-meets
+              MMS_PARSED_CACHE_VALIDATE_GYMNAST_COUNT: "true"
             resources:
               requests:
                 memory: 3Gi
