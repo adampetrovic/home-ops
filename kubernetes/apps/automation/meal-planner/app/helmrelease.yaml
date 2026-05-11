@@ -19,6 +19,8 @@ spec:
       strategy: rollback
   values:
     defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
