@@ -37,7 +37,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.70@sha256:232c9029bc4861eb3738714070d54c4ade62b8cd1afacbc69252b9ac59545b19
+              tag: 0.1.71@sha256:f4c71bf51b68f12e45a6c1afa810a62f0df787baf0819af8829ac5b5a62fb811
             envFrom:
               - secretRef:
                   name: gdb-secret
@@ -102,7 +102,7 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
-      mso:
+      mso-fetch-cache:
         type: cronjob
         cronjob:
           schedule: "0 18 * * 3"      # Wednesday 6pm AEST
@@ -121,6 +121,55 @@ spec:
               OUTPUT_DIR: /export
               MODE: incremental
               SOURCE: mso
+              MSO_CACHE_MODE: fetch-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              CONCURRENT_REQUESTS: "10"
+              http_proxy:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              https_proxy:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+      mso-replay-cache:
+        type: cronjob
+        cronjob:
+          schedule: "0 0 * * 4"       # Thursday midnight AEST
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+              MODE: incremental
+              SOURCE: mso
+              MSO_CACHE_MODE: replay-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              MSO_OFFLINE_REPLAY: "true"
             resources:
               requests:
                 memory: 3Gi
