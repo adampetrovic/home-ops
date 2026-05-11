@@ -13,6 +13,7 @@ resources:
   - ./go2rtc/ks.yaml
   - ./go2rtc-split/ks.yaml
   - ./home-assistant/ks.yaml
+  - ./meal-planner/ks.yaml
   - ./mosquitto/ks.yaml
   - ./sigenergy2mqtt/ks.yaml
   - ./teslamate/ks.yaml
