@@ -84,8 +84,6 @@ spec:
             port: *port
       streams:
         type: LoadBalancer
-        labels:
-          lb-transport: bgp
         annotations:
           external-dns.alpha.kubernetes.io/hostname: cameras.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.88.14
