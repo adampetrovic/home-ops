@@ -66,7 +66,20 @@ spec:
             runAsNonRoot: true
     service:
       app:
+        forceRename: echo-server
+        primary: true
         controller: echo-server
+        ports:
+          http:
+            port: *port
+      bgp-canary:
+        controller: echo-server
+        type: LoadBalancer
+        labels:
+          lb-transport: bgp
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: echo-bgp-canary.${SECRET_DOMAIN}
+          io.cilium/lb-ipam-ips: 10.0.88.10
         ports:
           http:
             port: *port
@@ -87,9 +100,17 @@ spec:
         parentRefs:
           - name: envoy-external
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
       internal:
         hostnames:
           - "{{ .Release.Name }}.${SECRET_DOMAIN}"
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
