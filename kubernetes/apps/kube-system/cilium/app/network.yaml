@@ -1,28 +1,4 @@
 ---
-# https://docs.cilium.io/en/latest/network/l2-announcements
-apiVersion: cilium.io/v2alpha1
-kind: CiliumL2AnnouncementPolicy
-metadata:
-  name: policy
-spec:
-  loadBalancerIPs: true
-  serviceSelector:
-    matchExpressions:
-      - key: gateway.networking.k8s.io/gateway-name
-        operator: NotIn
-        values:
-          - envoy-internal
-          - envoy-external
-      - key: lb-transport
-        operator: NotIn
-        values:
-          - bgp
-  interfaces:
-    - bond0
-  nodeSelector:
-    matchLabels:
-      kubernetes.io/os: linux
----
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
@@ -30,5 +6,4 @@ metadata:
 spec:
   allowFirstLastIPs: "Yes"
   blocks:
-    - cidr: "10.0.80.0/21"
     - cidr: "10.0.88.0/24"
