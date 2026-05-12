@@ -9,7 +9,7 @@ spec:
       safi: unicast
       advertisements:
         matchLabels:
-          advertise: bgp-envoy
+          advertise: bgp
 ---
 apiVersion: cilium.io/v2
 kind: CiliumBGPClusterConfig
@@ -32,9 +32,9 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumBGPAdvertisement
 metadata:
-  name: envoy-loadbalancers
+  name: loadbalancers
   labels:
-    advertise: bgp-envoy
+    advertise: bgp
 spec:
   advertisements:
     - advertisementType: Service
@@ -43,28 +43,8 @@ spec:
           - LoadBalancerIP
       selector:
         matchExpressions:
-          - key: io.kubernetes.service.namespace
-            operator: In
-            values:
-              - network
+          # Match all Services. Only Services with LoadBalancer IPs are advertised.
           - key: io.kubernetes.service.name
-            operator: In
+            operator: NotIn
             values:
-              - envoy-internal
-              - envoy-external
----
-apiVersion: cilium.io/v2
-kind: CiliumBGPAdvertisement
-metadata:
-  name: labelled-loadbalancers
-  labels:
-    advertise: bgp-envoy
-spec:
-  advertisements:
-    - advertisementType: Service
-      service:
-        addresses:
-          - LoadBalancerIP
-      selector:
-        matchLabels:
-          lb-transport: bgp
+              - never-used-service-name
