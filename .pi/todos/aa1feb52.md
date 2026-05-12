@@ -10,7 +10,7 @@
     "loadbalancer",
     "reliability"
   ],
-  "status": "open",
+  "status": "closed",
   "created_at": "2026-05-11T20:58:50.866Z"
 }
 
@@ -266,3 +266,18 @@ After every intended LoadBalancer is BGP-backed and stable:
 - [ ] Cilium advertises only approved LoadBalancer VIPs.
 - [ ] No LoadBalancer depends on Cilium L2 announcements.
 - [ ] Monitoring and docs reflect the final route count/budget and future app workflow.
+
+### 2026-05-12 — Closed as completed/superseded
+
+This older migration TODO was left open after the work moved to TODO-c7ae6934 / GitHub issue #2625.
+
+Final outcome is complete and healthy:
+
+- All Kubernetes LoadBalancer Services now use routed Cilium BGP VIPs in `10.0.88.0/24`.
+- No legacy `10.0.81.x` LoadBalancer VIPs remain.
+- BGP advertisement remains opt-in via `lb-transport=bgp` for non-Envoy Services.
+- UCG inbound filtering allows only `10.0.88.0/24` host routes (`ge 32 le 32`).
+- Cilium advertises 15 routes per node; sessions are established on all five nodes.
+- No Cilium L2 leases exist for BGP-labelled Services.
+- Configured blackbox probes are healthy and no relevant BGP/Envoy/Cilium/TargetDown alerts are firing.
+- GitHub issue #2625 was closed; final notes are in TODO-c7ae6934.
