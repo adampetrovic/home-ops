@@ -52,3 +52,19 @@ spec:
             values:
               - envoy-internal
               - envoy-external
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: labelled-loadbalancers
+  labels:
+    advertise: bgp-envoy
+spec:
+  advertisements:
+    - advertisementType: Service
+      service:
+        addresses:
+          - LoadBalancerIP
+      selector:
+        matchLabels:
+          lb-transport: bgp

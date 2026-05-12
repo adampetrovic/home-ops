@@ -13,6 +13,10 @@ spec:
         values:
           - envoy-internal
           - envoy-external
+      - key: lb-transport
+        operator: NotIn
+        values:
+          - bgp
   interfaces:
     - bond0
   nodeSelector:
