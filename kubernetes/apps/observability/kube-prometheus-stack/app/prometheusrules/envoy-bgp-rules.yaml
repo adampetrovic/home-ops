@@ -58,7 +58,7 @@ spec:
 
         - alert: CiliumBGPAdvertisedRoutesExceeded
           annotations:
-            summary: "Cilium BGP pod {{ $labels.pod }} is advertising more than the five approved BGP LoadBalancer routes"
+            summary: "Cilium BGP pod {{ $labels.pod }} is advertising more than the eight approved BGP LoadBalancer routes"
             description: |
               Cilium BGP should only advertise the approved LoadBalancer VIPs during this phase:
                 - 10.0.88.200/32
@@ -66,9 +66,12 @@ spec:
                 - 10.0.88.10/32
                 - 10.0.88.8/32
                 - 10.0.88.15/32
+                - 10.0.88.6/32
+                - 10.0.88.9/32
+                - 10.0.88.12/32
 
               This pod reports {{ $value }} advertised routes. The UCG inbound prefix-list should reject unexpected prefixes, but Cilium advertisement scope may have drifted and should be investigated before expanding BGP further.
-          expr: cilium_bgp_control_plane_advertised_routes > 5
+          expr: cilium_bgp_control_plane_advertised_routes > 8
           for: 2m
           labels:
             severity: critical

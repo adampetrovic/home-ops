@@ -146,6 +146,34 @@ spec:
         service: gdb-postgres
         vip: "10.0.88.15"
         port: "5432"
+    - targets:
+        - "10.0.88.6:25"
+      labels:
+        probe: bgp-loadbalancer
+        service: smtp-relay
+        vip: "10.0.88.6"
+        port: "25"
+    - targets:
+        - "10.0.88.6:9749"
+      labels:
+        probe: bgp-loadbalancer
+        service: smtp-relay
+        vip: "10.0.88.6"
+        port: "9749"
+    - targets:
+        - "10.0.88.9:8086"
+      labels:
+        probe: bgp-loadbalancer
+        service: influxdb
+        vip: "10.0.88.9"
+        port: "8086"
+    - targets:
+        - "10.0.88.12:5432"
+      labels:
+        probe: bgp-loadbalancer
+        service: postgres
+        vip: "10.0.88.12"
+        port: "5432"
   relabelings:
     - action: replace
       sourceLabels: [__address__]
