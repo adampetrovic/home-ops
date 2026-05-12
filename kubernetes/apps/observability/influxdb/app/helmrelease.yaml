@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/library/influxdb
-              tag: 2.9.0@sha256:05ea1901ea421acf031b74e65b737fc911500e7f61189380596f84da18963fd1
+              tag: 2.9.1@sha256:044d60447880093b9837d5de56ea0699b0db79a3e48fb94edf0f9e0eb9f4b95c
             env:
               INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: 3g
               TZ: "${TZ}"
