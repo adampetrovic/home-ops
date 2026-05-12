@@ -17,7 +17,6 @@ This repository uses **Jujutsu (jj)** as the version control system (with a Git 
 ```
 kubernetes/
 ├── apps/                    # Application deployments organized by namespace
-│   ├── actions-runner-system/ # GitHub Actions self-hosted runners
 │   ├── automation/          # Home Assistant, Frigate, Zigbee2MQTT, etc.
 │   ├── cert-manager/        # TLS certificate management
 │   ├── database/            # CloudNative-PG, Dragonfly, PgAdmin
@@ -396,7 +395,6 @@ CI checks are useful validation but are **not a default merge gate**. Do not wai
 
 - **Flux Local - Test**: Runs `flux-local test` which renders all HelmReleases and Kustomizations with Helm and validates the output. This catches template errors, invalid YAML, and malformed Kubernetes resources.
 - **Flux Local - Diff**: Shows the rendered diff of HelmReleases and Kustomizations vs the main branch. Review this to verify the change produces the expected output.
-- **Image Pull**: Validates that all container images referenced in the change can actually be pulled.
 
 ```bash
 # Optional PR status check
