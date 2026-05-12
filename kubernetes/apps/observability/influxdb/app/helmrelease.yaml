@@ -56,8 +56,6 @@ spec:
       app:
         type: LoadBalancer
         controller: influxdb
-        labels:
-          lb-transport: bgp
         annotations:
           external-dns.alpha.kubernetes.io/hostname: influx-direct.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.88.9
