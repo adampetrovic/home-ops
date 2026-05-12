@@ -8,15 +8,6 @@
       enabled: false,
     },
     {
-      description: "Actions Runner Controller Group",
-      groupName: "Actions Runner Controller",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
-    },
-    {
       description: "Barman Cloud Group",
       groupName: "Barman Cloud",
       matchDatasources: ["docker", "github-releases"],
