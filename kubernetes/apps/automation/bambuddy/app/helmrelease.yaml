@@ -72,6 +72,9 @@ spec:
                 memory: 1Gi
         pod:
           securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            runAsNonRoot: true
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
     service:
