@@ -196,13 +196,6 @@ spec:
         vip: "10.0.88.4"
         port: "8123"
     - targets:
-        - "10.0.88.4:21065"
-      labels:
-        probe: bgp-loadbalancer
-        service: home-assistant
-        vip: "10.0.88.4"
-        port: "21065"
-    - targets:
         - "10.0.88.7:50413"
       labels:
         probe: bgp-loadbalancer
