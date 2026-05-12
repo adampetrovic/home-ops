@@ -86,8 +86,10 @@ spec:
         controller: qbittorrent
         type: LoadBalancer
         externalTrafficPolicy: Cluster
+        labels:
+          lb-transport: bgp
         annotations:
-          io.cilium/lb-ipam-ips: 10.0.81.7
+          io.cilium/lb-ipam-ips: 10.0.88.7
         ports:
           http:
             port: *port
