@@ -6,4 +6,3 @@ machine:
         - os:admin
       allowedKubernetesNamespaces:
         - system-upgrade
-        - actions-runner-system
