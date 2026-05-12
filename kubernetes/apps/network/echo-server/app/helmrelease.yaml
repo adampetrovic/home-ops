@@ -72,17 +72,6 @@ spec:
         ports:
           http:
             port: *port
-      bgp-canary:
-        controller: echo-server
-        type: LoadBalancer
-        labels:
-          lb-transport: bgp
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: echo-bgp-canary.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.88.10
-        ports:
-          http:
-            port: *port
     serviceMonitor:
       app:
         enabled: true
