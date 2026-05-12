@@ -41,17 +41,34 @@ spec:
           labels:
             severity: critical
 
+        - alert: BGPLoadBalancerProbeDown
+          annotations:
+            summary: "BGP LoadBalancer VIP probe failing for {{ $labels.service }} at {{ $labels.instance }}"
+            description: |
+              Blackbox TCP probing cannot connect to BGP LoadBalancer VIP {{ $labels.vip }} port {{ $labels.port }}.
+
+              Check UCG BGP routes and the affected Service endpoints:
+                ssh root@10.0.0.1 'vtysh -c "show bgp ipv4 unicast summary" -c "show ip route bgp"'
+                kubectl get svc -A -l lb-transport=bgp -o wide
+                kubectl get endpointslice -A -l kubernetes.io/service-name={{ $labels.service }} -o wide
+          expr: min_over_time(probe_success{probe="bgp-loadbalancer"}[2m]) == 0
+          for: 1m
+          labels:
+            severity: critical
+
         - alert: CiliumBGPAdvertisedRoutesExceeded
           annotations:
-            summary: "Cilium BGP pod {{ $labels.pod }} is advertising more than the three approved BGP LoadBalancer routes"
+            summary: "Cilium BGP pod {{ $labels.pod }} is advertising more than the five approved BGP LoadBalancer routes"
             description: |
-              Cilium BGP should only advertise the approved Envoy and canary LoadBalancer VIPs during this phase:
+              Cilium BGP should only advertise the approved LoadBalancer VIPs during this phase:
                 - 10.0.88.200/32
                 - 10.0.88.201/32
                 - 10.0.88.10/32
+                - 10.0.88.8/32
+                - 10.0.88.15/32
 
               This pod reports {{ $value }} advertised routes. The UCG inbound prefix-list should reject unexpected prefixes, but Cilium advertisement scope may have drifted and should be investigated before expanding BGP further.
-          expr: cilium_bgp_control_plane_advertised_routes > 3
+          expr: cilium_bgp_control_plane_advertised_routes > 5
           for: 2m
           labels:
             severity: critical
