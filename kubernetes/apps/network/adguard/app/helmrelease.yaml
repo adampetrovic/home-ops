@@ -49,9 +49,11 @@ spec:
       dns:
         controller: adguard
         type: LoadBalancer
+        labels:
+          lb-transport: bgp
         annotations:
           external-dns.alpha.kubernetes.io/hostname: dns.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.81.10
+          io.cilium/lb-ipam-ips: 10.0.88.53
         ports:
           dns-https:
             port: 443

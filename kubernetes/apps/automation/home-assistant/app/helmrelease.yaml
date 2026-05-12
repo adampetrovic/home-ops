@@ -111,9 +111,11 @@ spec:
         forceRename: *app
         controller: homeassistant
         type: LoadBalancer
+        labels:
+          lb-transport: bgp
         annotations:
           external-dns.alpha.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.81.4
+          io.cilium/lb-ipam-ips: 10.0.88.4
         ports:
           http:
             enabled: true
