@@ -70,9 +70,11 @@ spec:
       app:
         type: LoadBalancer
         controller: mosquitto
+        labels:
+          lb-transport: bgp
         annotations:
           external-dns.alpha.kubernetes.io/hostname: mqtt.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.81.1
+          io.cilium/lb-ipam-ips: 10.0.88.1
         ports:
           http:
             port: 1883
