@@ -21,6 +21,9 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
     controllers:
       bambuddy:
         containers:
@@ -35,7 +38,7 @@ spec:
               HOME: /tmp
               PORT: &port 8000
               LOG_LEVEL: INFO
-              # Optional server-side slicer sidecar; enable in Settings → Slicer → Use Slicer API.
+              # Optional server-side Bambu Studio slicer sidecar; enable in Settings → Slicer → Use Slicer API.
               SLICER_API_URL: http://127.0.0.1:3000
             probes:
               liveness: &probes
@@ -76,10 +79,10 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
-          orca-slicer-api:
+          bambu-studio-api:
             image:
-              repository: ghcr.io/afkfelix/orca-slicer-api
-              tag: v0.3.0-orca2.3.0@sha256:888128f9605af9888be0aa7c0ed47b71eb121808120c324735f31049aa641b5f
+              repository: ghcr.io/adampetrovic/bambu-studio-api
+              tag: 02.06.00.51@sha256:e7c4d813c940d132b4d29969d50484efdd850d72088413271ef07ad9504f3b20
             env:
               NODE_ENV: production
               PORT: &slicerPort 3000
@@ -153,9 +156,9 @@ spec:
                 subPath: data
               - path: /app/logs
                 subPath: logs
-            orca-slicer-api:
+            bambu-studio-api:
               - path: /app/data
-                subPath: slicer-api/orca
+                subPath: slicer-api/bambu-studio
       tmp:
         enabled: true
         type: emptyDir
