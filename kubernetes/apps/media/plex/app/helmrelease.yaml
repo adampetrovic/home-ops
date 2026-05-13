@@ -100,7 +100,9 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: plex-direct.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.88.3
-        externalTrafficPolicy: Cluster
+        # Preserve the real client IP for direct Plex connections so
+        # Plex/Tracearr don't classify remote streams as local.
+        externalTrafficPolicy: Local
         ports:
           http:
             port: 32400
@@ -111,6 +113,21 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - filters:
+              - type: RequestHeaderModifier
+                requestHeaderModifier:
+                  set:
+                    # Envoy already appends X-Forwarded-For with the
+                    # real client IP. Add the remaining proxy context
+                    # Plex/Tracearr expect for geolocation.
+                    - name: X-Forwarded-Proto
+                      value: https
+                    - name: X-Forwarded-Host
+                      value: plex.${SECRET_DOMAIN}
+            backendRefs:
+              - identifier: app
+                port: http
     persistence:
       config:
         enabled: true
