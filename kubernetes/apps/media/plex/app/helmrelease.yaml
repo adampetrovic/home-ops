@@ -105,9 +105,9 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: plex-direct.${SECRET_DOMAIN}
           io.cilium/lb-ipam-ips: 10.0.88.3
-        # Preserve the real client IP for direct Plex connections so
-        # Plex/Tracearr don't classify remote streams as local.
-        externalTrafficPolicy: Local
+        # Test whether Cilium DSR preserves remote client IPs for Plex
+        # when the BGP VIP is advertised from all nodes.
+        externalTrafficPolicy: Cluster
         ports:
           http:
             port: 32400
