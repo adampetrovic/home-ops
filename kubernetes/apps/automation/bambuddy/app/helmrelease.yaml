@@ -21,9 +21,6 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    defaultPodOptions:
-      imagePullSecrets:
-        - name: ghcr-private
     controllers:
       bambuddy:
         containers:
@@ -38,8 +35,6 @@ spec:
               HOME: /tmp
               PORT: &port 8000
               LOG_LEVEL: INFO
-              # Optional server-side Bambu Studio slicer sidecar; enable in Settings → Slicer → Use Slicer API.
-              SLICER_API_URL: http://127.0.0.1:3000
             probes:
               liveness: &probes
                 enabled: true
@@ -79,52 +74,6 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
-          bambu-studio-api:
-            image:
-              repository: ghcr.io/adampetrovic/bambu-studio-api
-              tag: 02.06.00.51@sha256:e7c4d813c940d132b4d29969d50484efdd850d72088413271ef07ad9504f3b20
-            env:
-              NODE_ENV: production
-              PORT: &slicerPort 3000
-              HOME: /tmp
-              XDG_CONFIG_HOME: /tmp/.config
-              XDG_CACHE_HOME: /tmp/.cache
-              XDG_DATA_HOME: /tmp/.local/share
-            probes:
-              liveness: &slicerProbes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health
-                    port: *slicerPort
-                  initialDelaySeconds: 30
-                  periodSeconds: 60
-                  timeoutSeconds: 10
-                  failureThreshold: 3
-              readiness: *slicerProbes
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health
-                    port: *slicerPort
-                  periodSeconds: 10
-                  timeoutSeconds: 10
-                  failureThreshold: 30
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
-            resources:
-              requests:
-                cpu: 100m
-                memory: 512Mi
-              limits:
-                memory: 2Gi
         pod:
           securityContext:
             runAsUser: 568
@@ -156,9 +105,6 @@ spec:
                 subPath: data
               - path: /app/logs
                 subPath: logs
-            bambu-studio-api:
-              - path: /app/data
-                subPath: slicer-api/bambu-studio
       tmp:
         enabled: true
         type: emptyDir
