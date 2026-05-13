@@ -32,14 +32,12 @@ spec:
             env:
               TZ: ${TZ}
               PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://plex-direct.${SECRET_DOMAIN}:32400,http://10.0.88.3:32400
-              # Keep the UCG BGP peer (10.0.87.1) out of Plex's local
-              # network lists. UniFi SNATs remote Plex-direct sessions
-              # to that address, and if Plex treats it as LAN then
-              # Tracearr records every remote stream as local.
-              PLEX_NO_AUTH_NETWORKS: >-
-                10.0.0.0/24,10.0.10.0/23,10.0.20.0/22,10.0.30.0/24,10.0.40.0/24,10.0.50.0/23,10.0.80.0/22,10.0.84.0/23,10.0.86.0/24,10.2.1.0/24,10.69.0.0/16
-              PLEX_PREFERENCE_LAN_NETWORKS: >-
-                LanNetworksBandwidth=10.0.0.0/24,10.0.10.0/23,10.0.20.0/22,10.0.30.0/24,10.0.40.0/24,10.0.50.0/23,10.2.1.0/24
+              # Only trusted clients and internal pods are treated as
+              # local/no-auth. Do not include the UCG BGP peer
+              # (10.0.87.1), otherwise remote Plex-direct sessions are
+              # classified as LAN and Tracearr records them as local.
+              PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23,10.69.0.0/16
+              PLEX_PREFERENCE_LAN_NETWORKS: LanNetworksBandwidth=10.0.10.0/23,10.69.0.0/16
             probes:
               liveness: &probes
                 enabled: true
@@ -113,6 +111,11 @@ spec:
         ports:
           http:
             port: 32400
+            # Stable NodePort for UniFi WAN port-forwarding to the
+            # Plex node (10.0.80.14). Forwarding to the BGP VIP causes
+            # UniFi to SNAT remote clients to 10.0.87.1, which loses
+            # geolocation data for Tracearr.
+            nodePort: 32400
     route:
       app:
         hostnames:
