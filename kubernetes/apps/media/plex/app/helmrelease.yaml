@@ -31,8 +31,15 @@ spec:
               tag: 1.43.1.10611@sha256:a9c3723cb31cc9621df27cf5801184c290293adf1df2bfaea4b8b6fc01dbfd96
             env:
               TZ: ${TZ}
-              PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://plex-direct.${SECRET_DOMAIN}:32400,http://10.0.81.3:32400
-              PLEX_NO_AUTH_NETWORKS: 10.0.0.0/16,10.69.0.0/16
+              PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://plex-direct.${SECRET_DOMAIN}:32400,http://10.0.88.3:32400
+              # Keep the UCG BGP peer (10.0.87.1) out of Plex's local
+              # network lists. UniFi SNATs remote Plex-direct sessions
+              # to that address, and if Plex treats it as LAN then
+              # Tracearr records every remote stream as local.
+              PLEX_NO_AUTH_NETWORKS: >-
+                10.0.0.0/24,10.0.10.0/23,10.0.20.0/22,10.0.30.0/24,10.0.40.0/24,10.0.50.0/23,10.0.80.0/22,10.0.84.0/23,10.0.86.0/24,10.2.1.0/24,10.69.0.0/16
+              PLEX_PREFERENCE_LAN_NETWORKS: >-
+                LanNetworksBandwidth=10.0.0.0/24,10.0.10.0/23,10.0.20.0/22,10.0.30.0/24,10.0.40.0/24,10.0.50.0/23,10.2.1.0/24
             probes:
               liveness: &probes
                 enabled: true
