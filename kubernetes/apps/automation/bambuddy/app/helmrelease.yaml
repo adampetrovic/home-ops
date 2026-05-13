@@ -35,6 +35,8 @@ spec:
               HOME: /tmp
               PORT: &port 8000
               LOG_LEVEL: INFO
+              # Optional server-side slicer sidecar; enable in Settings → Slicer → Use Slicer API.
+              SLICER_API_URL: http://127.0.0.1:3000
             probes:
               liveness: &probes
                 enabled: true
@@ -74,6 +76,52 @@ spec:
                 memory: 256Mi
               limits:
                 memory: 1Gi
+          orca-slicer-api:
+            image:
+              repository: ghcr.io/afkfelix/orca-slicer-api
+              tag: v0.3.0-orca2.3.0@sha256:888128f9605af9888be0aa7c0ed47b71eb121808120c324735f31049aa641b5f
+            env:
+              NODE_ENV: production
+              PORT: &slicerPort 3000
+              HOME: /tmp
+              XDG_CONFIG_HOME: /tmp/.config
+              XDG_CACHE_HOME: /tmp/.cache
+              XDG_DATA_HOME: /tmp/.local/share
+            probes:
+              liveness: &slicerProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *slicerPort
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness: *slicerProbes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *slicerPort
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
         pod:
           securityContext:
             runAsUser: 568
@@ -105,6 +153,9 @@ spec:
                 subPath: data
               - path: /app/logs
                 subPath: logs
+            orca-slicer-api:
+              - path: /app/data
+                subPath: slicer-api/orca
       tmp:
         enabled: true
         type: emptyDir
