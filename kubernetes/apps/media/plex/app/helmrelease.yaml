@@ -31,13 +31,8 @@ spec:
               tag: 1.43.1.10611@sha256:a9c3723cb31cc9621df27cf5801184c290293adf1df2bfaea4b8b6fc01dbfd96
             env:
               TZ: ${TZ}
-              PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://plex-direct.${SECRET_DOMAIN}:32400,http://10.0.88.3:32400
-              # Only trusted clients and internal pods are treated as
-              # local/no-auth. Do not include the UCG BGP peer
-              # (10.0.87.1), otherwise remote Plex-direct sessions are
-              # classified as LAN and Tracearr records them as local.
-              PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23,10.69.0.0/16
-              PLEX_PREFERENCE_LAN_NETWORKS: LanNetworksBandwidth=10.0.10.0/23,10.69.0.0/16
+              PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
+              PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23
             probes:
               liveness: &probes
                 enabled: true
@@ -104,18 +99,11 @@ spec:
         controller: plex
         annotations:
           external-dns.alpha.kubernetes.io/hostname: plex-direct.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.88.3
-        # Test whether Cilium DSR preserves remote client IPs for Plex
-        # when the BGP VIP is advertised from all nodes.
-        externalTrafficPolicy: Cluster
+          lbipam.cilium.io/ips: 10.0.88.3
+        externalTrafficPolicy: Local
         ports:
           http:
             port: 32400
-            # Stable NodePort for UniFi WAN port-forwarding to the
-            # Plex node (10.0.80.14). Forwarding to the BGP VIP causes
-            # UniFi to SNAT remote clients to 10.0.87.1, which loses
-            # geolocation data for Tracearr.
-            nodePort: 32400
     route:
       app:
         hostnames:
