@@ -84,6 +84,8 @@ spec:
             scrapeTimeout: 10s
     route:
       main:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "{{ .Release.Name }}.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
