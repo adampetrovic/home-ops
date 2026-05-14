@@ -140,6 +140,8 @@ spec:
               - identifier: app
                 port: http
       external:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "hass.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:

@@ -8,6 +8,7 @@ components:
 resources:
   - ./abb-cvc/ks.yaml
   - ./blackbox-exporter/ks.yaml
+  - ./gatus/ks.yaml
   - ./grafana/ks.yaml
   - ./influxdb/ks.yaml
   - ./kube-prometheus-stack/ks.yaml

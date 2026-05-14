@@ -52,7 +52,7 @@ inhibit_rules:
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
-      - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubePodNotReady|TargetDown"
+      - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubePodNotReady|TargetDown|GatusExternalEndpointDown"
 receivers:
   - name: "null"
   - name: homeassistant

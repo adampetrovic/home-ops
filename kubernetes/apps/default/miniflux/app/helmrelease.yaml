@@ -95,6 +95,8 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - miniflux.${SECRET_PUBLIC_DOMAIN}
         parentRefs:
