@@ -1,0 +1,21 @@
+---
+web:
+  port: ${GATUS_WEB_PORT}
+
+metrics: true
+debug: false
+
+storage:
+  type: sqlite
+  path: ${GATUS_CONFIG_PATH}/sqlite.db
+  caching: true
+
+connectivity:
+  checker:
+    target: 1.1.1.1:53
+    interval: 1m
+
+ui:
+  title: Status | Route Health
+  header: Route Health
+  default-sort-by: group
