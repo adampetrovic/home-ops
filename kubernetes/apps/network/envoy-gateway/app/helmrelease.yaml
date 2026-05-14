@@ -9,8 +9,11 @@ spec:
     kind: OCIRepository
     name: envoy-gateway
   install:
+    crds: CreateReplace
     remediation:
       retries: -1
+  upgrade:
+    crds: CreateReplace
   interval: 1h
   values:
     config:
