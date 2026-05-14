@@ -169,3 +169,54 @@ Rollback options now available:
 - Restore from the VolSync Kopia/R2 backup if PVC data needs to be recreated.
 - Restore a PVC from the CSI `VolumeSnapshot` if a fast in-cluster rollback is needed.
 - As a final fallback, unpack the local private tarball into a recovered AdGuard PVC.
+
+## Rollout — 2026-05-15 08:54 AEST
+
+Merged and applied PR #2675.
+
+Important rollout notes:
+
+- GitHub only allowed rebase merge, so PR #2675 was merged with rebase at `2026-05-15 08:45 AEST`.
+- Flux applied the HA AdGuard revision immediately.
+- During the first Helm upgrade, the old Helm-owned `network/adguard` PVC was deleted before the new StatefulSet PVCs could clone from it. This left `data-adguard-0` and `data-adguard-1` pending briefly.
+- Used the pre-merge CSI snapshot to create a temporary source PVC `network/adguard`, allowing both StatefulSet PVCs to bind and pods to start.
+- After `data-adguard-0` and `data-adguard-1` were bound, deleted the temporary source PVC and reconciled Flux so the VolSync component recreated `network/adguard` cleanly from its declared `ReplicationDestination`.
+- `adguardhome-sync` initially OOMKilled with a 128Mi memory limit. Patched the live Deployment to 512Mi and pushed follow-up commit `a8c9ac0268c9` (`fix(network): increase AdGuard sync memory`) directly to `main`; Flux applied it as Helm release `network/adguard.v10`.
+
+Current steady state:
+
+- Flux Kustomization `network/adguard`: Ready at `refs/heads/main@sha1:a8c9ac02`.
+- HelmRelease `network/adguard`: Ready, release `v10`.
+- StatefulSet `network/adguard`: `2/2` ready.
+- Pods:
+  - `adguard-0` on `k8s-node-5`
+  - `adguard-1` on `k8s-node-3`
+  - `adguard-sync` running and ready on `k8s-node-3`
+- PVCs:
+  - `data-adguard-0` bound
+  - `data-adguard-1` bound
+  - legacy/VolSync `adguard` bound again from declared GitOps resources
+- `adguard-dns` still has VIP `10.0.88.53` and has two ready endpoints.
+- `adguardhome-sync` logs show successful sync from `adguard-0` to `adguard-1`.
+
+Validation performed after rollout:
+
+- `dig @10.0.88.53 example.com` succeeded.
+- `dig +tcp @10.0.88.53 example.com` succeeded.
+- DoT query via `doggo @tls://10.0.88.53 --tls-hostname=dns.petrovic.network` succeeded.
+- DoH query via `doggo @https://dns.petrovic.network/dns-query/adam-laptop` succeeded.
+- DoH transport smoke test to `10.0.88.53:443` returned HTTP `400` as expected for an empty/non-DNS query.
+- macOS system resolver remains in safe gateway-DNS posture (`10.0.0.1`, `1.1.1.1`, `8.8.8.8`) and `dscacheutil -q host -a name example.com` succeeds.
+
+Pod-level failover test:
+
+- Deleted `adguard-1`; UDP and TCP DNS stayed successful on every 1s probe. The first DoH probe failed once immediately after deletion, then subsequent DoH probes succeeded.
+- Waited for `adguard-1` to become Ready.
+- Deleted `adguard-0`; UDP and TCP DNS stayed successful on every 1s probe. The first DoH probe failed once immediately after deletion, then subsequent DoH probes succeeded.
+- Waited for `adguard-0` to become Ready.
+
+Remaining validation before closing:
+
+- Re-enable the macOS DNSSettings/DoH profile and validate native macOS resolver behaviour.
+- Optionally run a more realistic node-level failure/drain test in a maintenance window.
+- Consider adding explicit VolSync coverage for the active StatefulSet PVCs (`data-adguard-0`, `data-adguard-1`); the current reusable VolSync component still backs up the legacy `adguard` PVC, not the two active per-pod PVCs.
