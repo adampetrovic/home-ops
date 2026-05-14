@@ -98,6 +98,8 @@ spec:
             port: 1984
     route:
       main:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "frigate.${SECRET_DOMAIN}"
         parentRefs:
