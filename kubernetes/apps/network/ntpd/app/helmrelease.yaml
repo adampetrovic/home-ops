@@ -56,7 +56,7 @@ spec:
         controller: ntpd
         annotations:
           external-dns.alpha.kubernetes.io/hostname: ntpd.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.88.5
+          lbipam.cilium.io/ips: 10.0.88.5
         externalTrafficPolicy: Cluster
         ports:
           ntpd:

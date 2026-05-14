@@ -113,7 +113,7 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.88.4
+          lbipam.cilium.io/ips: 10.0.88.4
         ports:
           http:
             enabled: true
