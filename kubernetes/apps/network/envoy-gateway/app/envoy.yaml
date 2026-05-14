@@ -53,7 +53,7 @@ metadata:
       group: internal
       interval: 1m
       conditions:
-        - "[STATUS] < 400"
+        - "[STATUS] < 500"
         - "[RESPONSE_TIME] < 5000"
 spec:
   gatewayClassName: envoy
@@ -91,7 +91,7 @@ metadata:
       group: external
       interval: 1m
       conditions:
-        - "[STATUS] < 400"
+        - "[STATUS] < 500"
         - "[RESPONSE_TIME] < 5000"
 spec:
   gatewayClassName: envoy
