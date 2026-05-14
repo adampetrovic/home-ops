@@ -101,3 +101,71 @@ Adopt the Gabe-style active/active AdGuard pattern:
 
 - Keep current AdGuard PVC and manifests recoverable until validation completes.
 - If sync/StatefulSet migration fails, revert to the current single-replica HelmRelease and reattach the original `network/adguard` PVC.
+
+## Progress — 2026-05-15 08:22 AEST
+
+Implemented the GitOps manifest changes for the active/active design:
+
+- Converted `network/adguard` to a 2-replica `StatefulSet` with per-ordinal RWO `volumeClaimTemplates`.
+- The new per-pod PVCs clone from the existing `network/adguard` PVC on first creation so the origin and replica start with the current UI-managed config.
+- Added topology spread plus a PDB so the two AdGuard pods are scheduled on different nodes and at least one remains available during voluntary disruptions.
+- Kept `adguard-dns` at `10.0.88.53` and selecting both AdGuard pods for DNS/DoH/DoT.
+- Pinned the admin UI service/HTTPRoute to `adguard-0` via `apps.kubernetes.io/pod-index: "0"`.
+- Added a headless service for stable pod DNS (`adguard-0/1.adguard-headless.network.svc.cluster.local`).
+- Added `ghcr.io/bakito/adguardhome-sync:v0.9.0` as a separate controller to sync origin `adguard-0` to replica `adguard-1`.
+- Added `ExternalSecret/adguard-sync` for sync credentials from 1Password item `adguard` fields `username` and `password`.
+
+Validation performed locally/read-only:
+
+- `helm template` for the app-template values succeeded.
+- `flux build kustomization adguard -n network --dry-run` succeeded.
+- `kubectl apply --dry-run=server` succeeded for the Flux-built resources and the rendered Helm resources (with dummy substitutions and Gateway API v1 capabilities).
+- Baseline checks before rollout: gateway DNS, AdGuard UDP DNS, AdGuard TCP DNS, TCP/443, and TCP/853 were reachable.
+
+Rollout is not complete yet. Before merging/applying, verify/create the 1Password item `adguard` with fields `username` and `password`, and put the operator MacBook into the safe gateway-DNS posture described above.
+
+## PR
+
+- Draft PR: https://github.com/adampetrovic/home-ops/pull/2675
+
+## Progress — 2026-05-15 08:34 AEST
+
+User confirmed the 1Password Connect-visible item `adguard` now exists with `username` and `password` fields for the native AdGuard Home credentials.
+
+CI on draft PR #2675 is green:
+
+- Flux Local - Test: pass
+- Flux Local - Diff (HelmRelease): pass
+- Flux Local - Diff (Kustomization): pass
+
+Remaining before rollout/merge: put the operator MacBook in the safe gateway-DNS posture and explicitly approve applying the DNS change.
+
+## Backup — 2026-05-15 08:42 AEST
+
+Created rollback backups before merging/applying the HA AdGuard changes:
+
+1. **VolSync ad-hoc backups**
+   - Ran `task volsync:backup app=adguard ns=network type=all`.
+   - Kopia ReplicationSource `network/adguard` completed successfully.
+   - R2 ReplicationSource `network/adguard-r2` completed successfully.
+   - `network/adguard` status shows last manual sync `083821`, last sync time `2026-05-14T22:39:01Z`, result `Successful`, snapshot ID `4af5906039bfa81c5146a638fccafa6e`, root `k86721cfe8c1aa482522b2590c52a0150`.
+   - `network/adguard-r2` status shows last sync time `2026-05-14T22:39:52Z`.
+
+2. **Local private tarball**
+   - Saved current `/opt/adguardhome/conf` and `/opt/adguardhome/work` from the running pod to:
+     - `/Users/adam/.pi/backups/home-ops/adguard/20260515-084001-AEST/adguardhome-conf-work.tar.gz`
+   - Also saved current live Kubernetes objects to:
+     - `/Users/adam/.pi/backups/home-ops/adguard/20260515-084001-AEST/k8s-current-adguard-resources.yaml`
+   - Verified `gzip -t` and `shasum -a 256 -c SHA256SUMS` successfully.
+   - Note: local archive is private and includes AdGuard work data/query logs.
+
+3. **Ceph CSI VolumeSnapshot**
+   - Created `network/adguard-pre-ha-20260515-084152` from PVC `network/adguard`.
+   - Snapshot is `readyToUse=true`, size `5Gi`, content `snapcontent-f3e78e76-9e3c-407c-ad57-515fe103a883`.
+
+Rollback options now available:
+
+- Revert the PR/manifests to the single-pod Deployment and original `network/adguard` PVC.
+- Restore from the VolSync Kopia/R2 backup if PVC data needs to be recreated.
+- Restore a PVC from the CSI `VolumeSnapshot` if a fast in-cluster rollback is needed.
+- As a final fallback, unpack the local private tarball into a recovered AdGuard PVC.

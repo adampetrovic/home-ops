@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: network
 resources:
   - ./certificate.yaml
+  - ./externalsecret.yaml
   - ./helmrelease.yaml
 components:
   - ../../../../components/authelia-proxy
