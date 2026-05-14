@@ -51,7 +51,7 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.alpha.kubernetes.io/hostname: dns.${SECRET_DOMAIN}
-          io.cilium/lb-ipam-ips: 10.0.88.53
+          lbipam.cilium.io/ips: 10.0.88.53
         ports:
           dns-https:
             port: 443
