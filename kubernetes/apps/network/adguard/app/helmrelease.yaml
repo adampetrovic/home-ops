@@ -23,8 +23,45 @@ spec:
   values:
     controllers:
       adguard:
+        type: statefulset
+        replicas: 2
+        strategy: RollingUpdate
         annotations:
           secret.reloader.stakater.com/reload: tls-adguard
+        podDisruptionBudget:
+          minAvailable: 1
+        pod:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/controller: adguard
+                  app.kubernetes.io/name: *app
+        statefulset:
+          podManagementPolicy: Parallel
+          serviceName:
+            identifier: headless
+          persistentVolumeClaimRetentionPolicy:
+            whenDeleted: Retain
+            whenScaled: Retain
+          volumeClaimTemplates:
+            - name: data
+              storageClass: ceph-block
+              accessMode: ReadWriteOnce
+              size: 5Gi
+              # Clone the current single-pod PVC into each StatefulSet ordinal
+              # on first creation. Keep the old `adguard` PVC around for rollback
+              # until the active/active setup is validated.
+              dataSource:
+                kind: PersistentVolumeClaim
+                name: adguard
+              globalMounts:
+                - path: /opt/adguardhome/conf
+                  subPath: conf
+                - path: /opt/adguardhome/work
+                  subPath: work
         containers:
           app:
             image:
@@ -33,16 +70,88 @@ spec:
             env:
               TZ: "${TZ}"
             probes:
-              liveness: &probe
-                type: HTTP
-                path: /login.html
-              readiness: *probe
-              startup: *probe
+              liveness:
+                enabled: false
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 443
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              startup:
+                enabled: false
+
+      sync:
+        annotations:
+          secret.reloader.stakater.com/reload: adguard-sync-secret
+        containers:
+          app:
+            image:
+              repository: ghcr.io/bakito/adguardhome-sync
+              tag: v0.9.0@sha256:a4e63e705c5602b7bdd5a9554615a78125521273a7aa5da5831517780a06aee4
+            args: ["run"]
+            env:
+              API_METRICS_ENABLED: "true"
+              API_PORT: &syncPort 8080
+              CONTINUE_ON_ERROR: "false"
+              CRON: "*/15 * * * *"
+              FEATURES_DHCP_SERVER_CONFIG: "false"
+              FEATURES_DHCP_STATIC_LEASES: "false"
+              FEATURES_PROTECTION_STATUS: "true"
+              FEATURES_TLS_CONFIG: "true"
+              HTTP_CLIENT_TIMEOUT: 10s
+              LOG_FORMAT: json
+              LOG_LEVEL: info
+              ORIGIN_URL: http://adguard-0.adguard-headless.network.svc.cluster.local
+              REPLICA1_URL: http://adguard-1.adguard-headless.network.svc.cluster.local
+              RUN_ON_START: "true"
+              TZ: "${TZ}"
+            envFrom:
+              - secretRef:
+                  name: adguard-sync-secret
+            probes:
+              liveness: &syncProbe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *syncPort
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *syncProbe
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: {drop: ["ALL"]}
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            seccompProfile:
+              type: RuntimeDefault
 
     service:
       app:
         forceRename: *app
         controller: adguard
+        extraSelectorLabels:
+          apps.kubernetes.io/pod-index: "0"
         ports:
           http:
             port: 80
@@ -65,6 +174,31 @@ spec:
           tls-tcp:
             port: 853
             protocol: TCP
+      headless:
+        controller: adguard
+        clusterIP: None
+        publishNotReadyAddresses: true
+        ports:
+          http:
+            port: 80
+          setup:
+            port: 3000
+      sync:
+        controller: sync
+        ports:
+          http:
+            port: *syncPort
+
+    serviceMonitor:
+      sync:
+        enabled: true
+        serviceName: adguard-sync
+        endpoints:
+          - port: http
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
 
     route:
       main:
@@ -80,24 +214,12 @@ spec:
               - identifier: app
                 port: http
     persistence:
-      config:
-        enabled: true
-        existingClaim: adguard
-        globalMounts:
-          - path: /opt/adguardhome/conf
-            subPath: conf
-      work:
-        enabled: true
-        storageClass: ceph-block
-        accessMode: ReadWriteOnce
-        size: 5Gi
-        globalMounts:
-          - path: /opt/adguardhome/work
-            subPath: work
       tls:
         enabled: true
         type: secret
         name: tls-adguard
-        globalMounts:
-          - path: /opt/adguardhome/ssl/certs/
-            readOnly: true
+        advancedMounts:
+          adguard:
+            app:
+              - path: /opt/adguardhome/ssl/certs/
+                readOnly: true
