@@ -151,6 +151,8 @@ spec:
 
     route:
       external:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "photos.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
