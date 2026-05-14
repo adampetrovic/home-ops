@@ -11,7 +11,8 @@
     "reliability"
   ],
   "status": "open",
-  "created_at": "2026-05-14T21:52:41.081Z"
+  "created_at": "2026-05-14T21:52:41.081Z",
+  "assigned_to_session": "019e2887-5eb9-708d-921f-e0943f302116"
 }
 
 # Make AdGuard DNS/DoH highly available
