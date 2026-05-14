@@ -122,6 +122,8 @@ spec:
           - name: envoy-external
             namespace: network
       internal:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - auth.${SECRET_DOMAIN}
         parentRefs:
