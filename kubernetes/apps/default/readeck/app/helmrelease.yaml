@@ -73,6 +73,13 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            url: https://readeck.${SECRET_PUBLIC_DOMAIN}/api
+            client:
+              ignore-redirect: true
+            conditions:
+              - "[STATUS] < 400"
+              - "[RESPONSE_TIME] < 5000"
         hostnames:
           - "readeck.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
