@@ -146,11 +146,11 @@ spec:
         vip: "10.0.88.12"
         port: "5432"
     - targets:
-        - "10.0.88.1:1883"
+        - "10.0.88.2:1883"
       labels:
         probe: bgp-loadbalancer
         service: mosquitto
-        vip: "10.0.88.1"
+        vip: "10.0.88.2"
         port: "1883"
     - targets:
         - "10.0.88.3:32400"
