@@ -18,7 +18,7 @@ spec:
             severity: critical
           annotations:
             summary: "Public route {{ $labels.name }} is failing its Gatus check"
-            description: "Gatus has not received a fast <400 response from {{ $labels.name }} for 3 minutes. Check Cloudflare Tunnel, external Envoy, and the backend Service endpoints."
+            description: "Gatus has not received a fast <500 response from {{ $labels.name }} for 3 minutes. Check Cloudflare Tunnel, external Envoy, and the backend Service endpoints."
 
         - alert: GatusInternalEndpointDown
           expr: gatus_results_endpoint_success{group="internal"} == 0
@@ -27,4 +27,4 @@ spec:
             severity: critical
           annotations:
             summary: "Internal route {{ $labels.name }} is failing its Gatus check"
-            description: "Gatus has not received a fast <400 response from {{ $labels.name }} for 3 minutes. Check internal DNS, internal Envoy, and the backend Service endpoints."
+            description: "Gatus has not received a fast <500 response from {{ $labels.name }} for 3 minutes. Check internal DNS, internal Envoy, and the backend Service endpoints."
