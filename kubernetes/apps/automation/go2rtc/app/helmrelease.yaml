@@ -98,6 +98,8 @@ spec:
             protocol: UDP
     route:
       main:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "go2rtc.${SECRET_DOMAIN}"
         parentRefs:

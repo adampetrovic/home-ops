@@ -89,6 +89,8 @@ spec:
             port: *port
     route:
       main:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - zigbee.${SECRET_DOMAIN}
         parentRefs:
