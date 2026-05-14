@@ -114,6 +114,8 @@ spec:
             port: 8080
     route:
       app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - auth.${SECRET_PUBLIC_DOMAIN}
         parentRefs:
