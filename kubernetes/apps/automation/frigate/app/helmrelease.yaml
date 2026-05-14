@@ -73,6 +73,17 @@ spec:
                   - matchExpressions:
                       - key: node-role.kubernetes.io/worker
                         operator: Exists
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  podAffinityTerm:
+                    labelSelector:
+                      matchExpressions:
+                        - key: app.kubernetes.io/name
+                          operator: In
+                          values: ["plex"]
+                    namespaces: ["media"]
+                    topologyKey: kubernetes.io/hostname
           nodeSelector:
             google.feature.node.kubernetes.io/coral: "true"
     service:
