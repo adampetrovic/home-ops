@@ -43,7 +43,6 @@ spec:
               tag: 0.0.14@sha256:b77e0a1267708a555640b81dd8a9baa2a197c2f34647dc4ac053eb812d4b31cc
             args:
               - --enable-httproute
-              - --gateway-name=envoy-external
               - --output=/config/gatus-sidecar.yaml
               - --default-interval=1m
             restartPolicy: Always

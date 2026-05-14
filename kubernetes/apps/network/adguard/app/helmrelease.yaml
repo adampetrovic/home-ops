@@ -68,6 +68,8 @@ spec:
 
     route:
       main:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "adguard.${SECRET_DOMAIN}"
         parentRefs:
