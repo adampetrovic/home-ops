@@ -55,6 +55,11 @@ spec:
           syslog:
             port: 6020
             protocol: UDP
+      kubernetes:
+        controller: vector-aggregator
+        ports:
+          kubernetes:
+            port: 6010
       talos:
         controller: vector-aggregator
         ports:

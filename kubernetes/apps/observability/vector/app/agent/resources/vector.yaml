@@ -56,7 +56,7 @@ sinks:
     type: vector
     compression: true
     version: "2"
-    address: vector-aggregator-app.observability.svc.cluster.local:6010
+    address: vector-aggregator-kubernetes.observability.svc.cluster.local:6010
     inputs: ["kubernetes_source"]
 
   talos:
