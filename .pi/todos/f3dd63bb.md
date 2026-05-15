@@ -220,3 +220,29 @@ Remaining validation before closing:
 - Re-enable the macOS DNSSettings/DoH profile and validate native macOS resolver behaviour.
 - Optionally run a more realistic node-level failure/drain test in a maintenance window.
 - Consider adding explicit VolSync coverage for the active StatefulSet PVCs (`data-adguard-0`, `data-adguard-1`); the current reusable VolSync component still backs up the legacy `adguard` PVC, not the two active per-pod PVCs.
+
+## Timed pod failover test — 2026-05-15 AEST
+
+Simulated a pod-level failure by deleting `network/adguard-1` while continuously probing the shared VIP `10.0.88.53` with UDP DNS, TCP DNS, and DoH.
+
+Test details:
+
+- Target pod: `adguard-1`
+- Initial endpoints: `adguard-0=true`, `adguard-1=true`
+- Deleted pod at `+5.002s`
+- EndpointSlice changed to `adguard-1=false` at `+5.309s` (~0.31s after delete)
+- EndpointSlice removed `adguard-1` at `+5.623s` (~0.62s after delete)
+- Replacement `adguard-1` was Ready by `+30.540s`
+- Final endpoints: `adguard-0=true`, `adguard-1=true`
+
+Probe results after deletion:
+
+- UDP DNS: 141 total probes, 1 failure after delete
+  - first/only failure at `+0.297s` after delete
+  - longest observed failure run: ~1.0s (bounded by 1s query timeout)
+- TCP DNS: 117 total probes, 0 failures after delete
+- DoH: 59 total probes, 1 failure after delete
+  - first/only failure at `+0.033s` after delete
+  - longest observed failure run: ~0.5s (probe interval)
+
+Conclusion: pod-level failure causes at most a very short transient for UDP/DoH and no observed TCP DNS interruption in this run. The service converged to the surviving pod within ~0.6s and the replacement pod was Ready within ~25.5s after deletion.
