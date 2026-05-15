@@ -25,6 +25,11 @@ sources:
     address: 0.0.0.0:6020
     mode: udp
 
+  talos_source:
+    type: vector
+    version: "2"
+    address: 0.0.0.0:6030
+
 #
 # Transforms
 #
@@ -63,10 +68,10 @@ transforms:
     source: |
       # Remove ANSI color codes
       .message = replace!(.message, r'\x1b\[[0-9;]*m', "")
-      
+
       # Parse Home Assistant log format
       parsed, err = parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w+) \((?P<thread>[^)]+)\) \[(?P<component>[^\]]+)\] (?P<msg>.+)$')
-      
+
       if err == null {
         # Successfully parsed
         .timestamp_parsed = parsed.timestamp
@@ -74,16 +79,16 @@ transforms:
         .thread = parsed.thread
         .component = parsed.component
         .msg = parsed.msg
-        
+
         # Further parse component into parts
         component_parts = split!(parsed.component, ".")
         .component_type = component_parts[0]
         .component_name = get(component_parts, [1]) ?? ""
         .component_submodule = get(component_parts, [2]) ?? ""
-        
+
         # Set severity based on log level
         .severity = downcase!(parsed.level)
-        
+
         # Clean up - remove the original message field to save space
         del(.message)
       } else {
@@ -152,3 +157,19 @@ sinks:
     labels:
       hostname: '{{ hostname }}'
       source: 'syslog'
+
+  talos:
+    inputs: ["talos_source"]
+    type: loki
+    endpoint: http://loki-gateway.observability.svc.cluster.local
+    encoding: { codec: json }
+    out_of_order_action: accept
+    remove_label_fields: true
+    remove_timestamp: true
+    labels:
+      source: 'talos'
+      cluster: '{{ cluster }}'
+      node: '{{ node }}'
+      stream: '{{ stream }}'
+      service: '{{ service }}'
+      level: '{{ level }}'

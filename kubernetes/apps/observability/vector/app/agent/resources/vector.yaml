@@ -16,6 +16,41 @@ sources:
     node_annotation_fields:
       node_labels: ""
 
+  talos_source:
+    type: socket
+    address: 127.0.0.1:6050
+    mode: tcp
+    decoding:
+      codec: json
+
+transforms:
+  talos_remap:
+    type: remap
+    inputs: ["talos_source"]
+    source: |
+      .source = "talos"
+      .cluster = if exists(.cluster) { .cluster } else { "home-kubernetes" }
+      .node = get_env_var!("VECTOR_SELF_NODE_NAME")
+      .message = if exists(.msg) { del(.msg) } else if exists(.message) { .message } else { "" }
+      .level = if exists(."talos-level") { del(."talos-level") } else if exists(.priority) { .priority } else { "info" }
+      .service = if exists(."talos-service") { del(."talos-service") } else { "kernel" }
+      .stream = if .service == "kernel" { "kernel" } else { "service" }
+
+      talos_time = del(."talos-time")
+      if is_string(talos_time) {
+        .timestamp = parse_timestamp!(talos_time, format: "%+")
+      }
+
+      del(.host)
+      del(.port)
+      del(.source_type)
+
+  talos_rate_limit:
+    type: throttle
+    inputs: ["talos_remap"]
+    threshold: 500
+    window_secs: 1
+
 sinks:
   kubernetes:
     type: vector
@@ -23,3 +58,10 @@ sinks:
     version: "2"
     address: vector-aggregator.observability.svc.cluster.local:6010
     inputs: ["kubernetes_source"]
+
+  talos:
+    type: vector
+    compression: true
+    version: "2"
+    address: vector-aggregator.observability.svc.cluster.local:6030
+    inputs: ["talos_rate_limit"]

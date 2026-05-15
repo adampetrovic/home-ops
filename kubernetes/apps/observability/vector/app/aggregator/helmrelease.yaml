@@ -55,6 +55,11 @@ spec:
           syslog:
             port: 6020
             protocol: UDP
+      talos:
+        controller: vector-aggregator
+        ports:
+          talos:
+            port: 6030
     persistence:
       config:
         enabled: true
