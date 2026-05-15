@@ -38,6 +38,7 @@ spec:
               tag: v0.14.0@sha256:ce5e7439726b6ccb0ed9abda91a16b1034bd5be4c25abee81307c006abcd3fd8
             env:
               TZ: ${TZ}
+              GOMEMLIMIT: 2300MiB
               HISTER__SERVER__ADDRESS: 0.0.0.0:4433
               HISTER__SERVER__BASE_URL: https://hister.${SECRET_DOMAIN}
             probes:
@@ -56,9 +57,9 @@ spec:
             resources:
               requests:
                 cpu: 25m
-                memory: 768Mi
+                memory: 1Gi
               limits:
-                memory: 1536Mi
+                memory: 3Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
