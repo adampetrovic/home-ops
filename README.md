@@ -244,17 +244,23 @@ graph TD
 
 ### Internal DNS with AdGuard Home
 
-AdGuard Home is the filtering resolver for devices on the internal network, while Kubernetes pods continue to use CoreDNS for in-cluster service discovery.
+See [full AdGuard DNS documentation](kubernetes/apps/network/adguard/README.md).
 
-- **Stable DNS endpoint**: `dns.petrovic.network` / `10.0.88.53`
-- **Protocols served**: DNS over UDP/TCP on `53`, DNS-over-HTTPS on `443`, and DNS-over-TLS on `853`
-- **Kubernetes Service**: `network/adguard-dns`, a Cilium LoadBalancer advertised from the routed `10.0.88.0/24` prefix
-- **Runtime topology**: two AdGuard Home StatefulSet pods, `adguard-0` and `adguard-1`, each with its own RWO Ceph PVC and scheduled on separate nodes
-- **Traffic flow**: clients send DNS traffic to `10.0.88.53`; Cilium load-balances it to the ready AdGuard endpoints behind `network/adguard-dns`
-- **Failover behaviour**: Kubernetes EndpointSlices remove an unhealthy pod from `adguard-dns`, so the surviving pod keeps answering on the same VIP without clients changing resolver settings
-- **Observed failover**: in pod-deletion testing, the failed pod was removed from DNS endpoints in ~0.6s; TCP DNS had no observed interruption, while UDP DNS and DoH saw one short transient miss before continuing through the surviving pod
-
-This means clients can keep a single resolver address (`10.0.88.53`) and hostname (`dns.petrovic.network`) while AdGuard survives a single pod or node failure without the old shared-PVC multi-attach failure mode. Query logs and statistics are per-replica, so totals are split across `adguard-0` and `adguard-1`.
+```mermaid
+flowchart LR
+    C["UniFi client"] --> U["UniFi LAN / VLAN"]
+    U --> VIP["10.0.88.53\ndns.${SECRET_DOMAIN}"]
+    VIP --> S["network/adguard-dns\nLoadBalancer Service"]
+    S --> A0["adguard-0"]
+    S --> A1["adguard-1"]
+    A0 --> R["Recursive upstream"]
+    A1 --> R
+    R --> Root["Root DNS"]
+    Root --> TLD["TLD DNS"]
+    TLD --> Auth["Authoritative DNS"]
+    T["Talos nodes\nno AdGuard dependency"] -.-> GW["UniFi gateway\n10.0.0.1"]
+    T -.-> CF["Cloudflare DNS\n1.1.1.1"]
+```
 
 ---
 
