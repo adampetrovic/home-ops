@@ -92,8 +92,11 @@ transforms:
         # Clean up - remove the original message field to save space
         del(.message)
       } else {
-        # Failed to parse - keep original message
+        # Failed to parse - keep original message, but populate Loki label fields.
         .parse_error = "failed_to_parse_home_assistant_log"
+        .level = "unknown"
+        .component_type = "unknown"
+        .component_name = "unknown"
       }
 
 #
