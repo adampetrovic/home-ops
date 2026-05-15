@@ -12,5 +12,8 @@ configMapGenerator:
   - name: grafana-dashboard-unifi-syslog
     files:
       - unifi-syslog-dashboard.json
+  - name: grafana-dashboard-talos-logs
+    files:
+      - talos-logs-dashboard.json
 generatorOptions:
   disableNameSuffixHash: true
