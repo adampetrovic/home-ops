@@ -99,6 +99,11 @@ transforms:
         .component_name = "unknown"
       }
 
+  talos_drop_debug:
+    type: filter
+    inputs: ["talos_source"]
+    condition: 'downcase(to_string(.level) ?? "") != "debug"'
+
 #
 # Sinks
 #
@@ -162,7 +167,7 @@ sinks:
       source: 'syslog'
 
   talos:
-    inputs: ["talos_source"]
+    inputs: ["talos_drop_debug"]
     type: loki
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
