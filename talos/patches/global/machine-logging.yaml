@@ -1,0 +1,12 @@
+machine:
+  logging:
+    destinations:
+      - endpoint: "tcp://127.0.0.1:6050/"
+        format: json_lines
+        extraTags:
+          cluster: home-kubernetes
+---
+apiVersion: v1alpha1
+kind: KmsgLogConfig
+name: loki-vector
+url: tcp://127.0.0.1:6050/
