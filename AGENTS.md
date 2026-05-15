@@ -396,6 +396,7 @@ Operational notes:
 
 - `vector-agent` runs with `hostNetwork: true` and listens only on host loopback `127.0.0.1:6050` for Talos TCP JSON-lines logs.
 - Talos log labels should stay low-cardinality: `source`, `cluster`, `node`, `stream`, `service`, `level`. Do not add labels for message text, sequence numbers, kernel clock, or raw source address.
+- Debug-level Talos logs are filtered in Vector before they are sent to the aggregator/Loki; keep this unless explicitly troubleshooting noisy Talos internals.
 - The per-node Talos Vector throttle is intentionally conservative (`500` events/sec/node). Revisit it after real Talos upgrade/restart noise is observed.
 - Logs emitted before the host-network `vector-agent` is listening can be dropped; this is accepted for now.
 - Do not edit `talos/clusterconfig/` directly. Change Talos patches, run `task talos:generate`, and inspect/apply the generated node configs.
