@@ -45,9 +45,14 @@ transforms:
       del(.port)
       del(.source_type)
 
+  talos_drop_debug:
+    type: filter
+    inputs: ["talos_remap"]
+    condition: 'downcase(to_string(.level) ?? "") != "debug"'
+
   talos_rate_limit:
     type: throttle
-    inputs: ["talos_remap"]
+    inputs: ["talos_drop_debug"]
     threshold: 500
     window_secs: 1
 
