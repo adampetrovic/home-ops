@@ -369,6 +369,46 @@ kubectl get pods -n <namespace> -o wide
 
 For every `cilium-l2announce-<namespace>-<service>` lease whose Service has `externalTrafficPolicy: Local`, ensure the lease holder node has at least one ready local endpoint for that Service. If not, a targeted lease delete can force Cilium to re-elect a holder, but confirm before running `kubectl delete lease ...` because it mutates cluster state.
 
+## Observability
+
+### Talos node logging
+
+Talos service and kernel logs are forwarded to Loki through the existing Vector stack:
+
+```text
+Talos machine.logging / KmsgLogConfig
+  -> tcp://127.0.0.1:6050/ on each node
+  -> hostNetwork vector-agent socket source
+  -> vector-aggregator-talos.observability.svc.cluster.local:6030
+  -> Loki {source="talos"}
+```
+
+Key files:
+
+- `talos/patches/global/machine-logging.yaml` configures Talos service logs and `KmsgLogConfig` kernel logs.
+- `kubernetes/apps/observability/vector/app/agent/resources/vector.yaml` receives/enriches Talos logs and rate-limits them.
+- `kubernetes/apps/observability/vector/app/aggregator/resources/vector.yaml` forwards Talos logs to Loki.
+- `kubernetes/apps/observability/loki/app/helmrelease.yaml` keeps Talos logs at short retention (`48h`) while leaving global retention unchanged.
+- `kubernetes/apps/observability/vector/app/aggregator/talos-logs-dashboard.json` provides the Grafana dashboard.
+- `kubernetes/apps/observability/vector/app/aggregator/lokirule.yaml` contains high-signal Talos Loki alerts.
+
+Operational notes:
+
+- `vector-agent` runs with `hostNetwork: true` and listens only on host loopback `127.0.0.1:6050` for Talos TCP JSON-lines logs.
+- Talos log labels should stay low-cardinality: `source`, `cluster`, `node`, `stream`, `service`, `level`. Do not add labels for message text, sequence numbers, kernel clock, or raw source address.
+- The per-node Talos Vector throttle is intentionally conservative (`500` events/sec/node). Revisit it after real Talos upgrade/restart noise is observed.
+- Logs emitted before the host-network `vector-agent` is listening can be dropped; this is accepted for now.
+- Do not edit `talos/clusterconfig/` directly. Change Talos patches, run `task talos:generate`, and inspect/apply the generated node configs.
+
+Useful Loki queries:
+
+```logql
+{source="talos", node="k8s-node-1"}
+{source="talos", stream="service", service="kubelet"}
+{source="talos", stream="kernel", level=~"warn|err|error|crit|alert|emerg"}
+sum by (node, stream) (count_over_time({source="talos"}[5m]))
+```
+
 ## GitOps Reconciliation
 
 Flux reconciles cluster state from Git automatically. A **GitHub webhook** notifies the Flux Notification Controller on every push to `main`, triggering an immediate reconciliation — there is no need to wait for the default polling interval. This means pushing a fix to a broken HelmRelease will be picked up within seconds, not minutes.
