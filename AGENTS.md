@@ -271,6 +271,12 @@ External traffic flows: **Internet → Cloudflare → cloudflared pod → `envoy
   # yaml-language-server: $schema=https://json.schemastore.org/kustomization
   ```
 
+### Schema Validation
+
+- When changing YAML/JSON files that declare a schema (for example via a `# yaml-language-server: $schema=...` comment), validate the changed file against that schema before reporting completion.
+- Use `uvx check-jsonschema --schemafile <schema-url> <file>` for direct schema checks when no project-specific validator is available.
+- If schema validation fails, fix the manifest and re-run validation before finishing.
+
 ### Shell Scripts
 
 - **Indent:** 4 spaces
