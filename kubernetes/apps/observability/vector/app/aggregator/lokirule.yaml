@@ -1,0 +1,54 @@
+---
+groups:
+  - name: talos
+    rules:
+      - alert: TalosServiceFailureLoop
+        expr: |
+          sum by (node, service) (
+            count_over_time(
+              {source="talos", stream="service", level=~"err|error|crit|alert|emerg"}
+              |~ "(?i)(service.*(failed|failure)|failed to start|restart(ing)? service|start request repeated too quickly|runpodsandbox.*failed)"
+              [15m]
+            )
+          ) > 30
+        for: 15m
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          node: "{{ $labels.node }}"
+          service: "{{ $labels.service }}"
+          summary: "Talos service failure loop on {{ $labels.node }}"
+          description: "{{ $labels.service }} on {{ $labels.node }} logged repeated failure messages for at least 15 minutes."
+
+      - alert: TalosKernelErrors
+        expr: |
+          sum by (node) (
+            count_over_time({source="talos", stream="kernel", level=~"err|error|crit|alert|emerg"}[10m])
+          ) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          node: "{{ $labels.node }}"
+          summary: "Talos kernel errors on {{ $labels.node }}"
+          description: "Kernel error-level Talos logs were seen on {{ $labels.node }}. Check the Talos Logs dashboard before raising alert sensitivity."
+
+      - alert: TalosNodeStorageOomOrNetworkFault
+        expr: |
+          sum by (node) (
+            count_over_time(
+              {source="talos"}
+              |~ "(?i)(out of memory|oom-kill|oom killed|\\bi/o error\\b|read-only file system|filesystem error|ext4-fs error|xfs.*error|nvme[0-9a-z: ._-]*(reset|timeout|failed|error)|\\bata[0-9.:-]*:.*(error|failed)|blk_update_request|netdev watchdog|link is down|carrier lost)"
+              [5m]
+            )
+          ) > 0
+        for: 2m
+        labels:
+          severity: critical
+          category: logs
+        annotations:
+          node: "{{ $labels.node }}"
+          summary: "Talos node hardware/kernel fault signal on {{ $labels.node }}"
+          description: "Talos logs on {{ $labels.node }} contain OOM, storage, filesystem, or NIC fault patterns."

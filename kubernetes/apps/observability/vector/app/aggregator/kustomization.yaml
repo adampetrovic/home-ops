@@ -15,5 +15,11 @@ configMapGenerator:
   - name: grafana-dashboard-talos-logs
     files:
       - talos-logs-dashboard.json
+  - name: vector-aggregator-loki-rules
+    files:
+      - talos.yaml=./lokirule.yaml
+    options:
+      labels:
+        loki_rule: "true"
 generatorOptions:
   disableNameSuffixHash: true
