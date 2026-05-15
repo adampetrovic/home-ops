@@ -57,6 +57,8 @@ spec:
               privileged: true
     defaultPodOptions:
       automountServiceAccountToken: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
     serviceAccount:
       vector-agent: {}
     persistence:
