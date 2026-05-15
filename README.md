@@ -250,9 +250,9 @@ AdGuard Home is the filtering resolver for devices on the internal network, whil
 - **Protocols served**: DNS over UDP/TCP on `53`, DNS-over-HTTPS on `443`, and DNS-over-TLS on `853`
 - **Kubernetes Service**: `network/adguard-dns`, a Cilium LoadBalancer advertised from the routed `10.0.88.0/24` prefix
 - **Runtime topology**: two AdGuard Home StatefulSet pods, `adguard-0` and `adguard-1`, each with its own RWO Ceph PVC and scheduled on separate nodes
-- **Traffic model**: DNS/DoH/DoT traffic is active/active load-balanced across both pods; Kubernetes EndpointSlices remove an unhealthy pod so the surviving pod keeps answering on the same VIP
-- **Admin UI**: `adguard.petrovic.network` is routed through Envoy Gateway and Authelia to `adguard-0` only, making `adguard-0` the configuration origin
-- **Config replication**: `adguardhome-sync` syncs settings from `adguard-0` to `adguard-1` using native AdGuard credentials stored in 1Password via External Secrets
+- **Traffic flow**: clients send DNS traffic to `10.0.88.53`; Cilium load-balances it to the ready AdGuard endpoints behind `network/adguard-dns`
+- **Failover behaviour**: Kubernetes EndpointSlices remove an unhealthy pod from `adguard-dns`, so the surviving pod keeps answering on the same VIP without clients changing resolver settings
+- **Observed failover**: in pod-deletion testing, the failed pod was removed from DNS endpoints in ~0.6s; TCP DNS had no observed interruption, while UDP DNS and DoH saw one short transient miss before continuing through the surviving pod
 
 This means clients can keep a single resolver address (`10.0.88.53`) and hostname (`dns.petrovic.network`) while AdGuard survives a single pod or node failure without the old shared-PVC multi-attach failure mode. Query logs and statistics are per-replica, so totals are split across `adguard-0` and `adguard-1`.
 
