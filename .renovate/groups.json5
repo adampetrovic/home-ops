@@ -8,6 +8,12 @@
       enabled: false,
     },
     {
+      description: "Use loose versioning for Sportarr's four-part Docker tags",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/(^|/)sportarr/sportarr$/"],
+      versioning: "loose",
+    },
+    {
       description: "Barman Cloud Group",
       groupName: "Barman Cloud",
       matchDatasources: ["docker", "github-releases"],
