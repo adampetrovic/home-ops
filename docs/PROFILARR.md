@@ -65,7 +65,13 @@ Start with manual or very narrow scheduled upgrades:
 
 ## Delay profiles
 
-All Arrs currently prefer usenet with zero-minute torrent and usenet delays. Once profiles are stable, use Profilarr to manage delay profiles centrally. A practical starting point is to keep usenet preferred and add a modest torrent delay so qBittorrent does not grab releases that SABnzbd would likely get shortly after.
+Radarr and Radarr 4K currently use the upstream Dictionarry delay profile. Sonarr and Sonarr 4K use a Profilarr user-layer customisation on the Dictionarry `Sonarr` delay profile:
+
+- Preferred protocol: `prefer_usenet`
+- Usenet delay: `0` minutes
+- Torrent delay: `30` minutes
+
+This keeps new TV episodes fast on SABnzbd while leaving qBittorrent as a short-delay fallback. The customisation lives in Profilarr's database/PVC and is backed up by VolSync; drift remains clean because Profilarr's desired state includes the user-layer override.
 
 ## Naming and media management
 
