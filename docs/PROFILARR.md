@@ -8,13 +8,15 @@ Profilarr v2 is deployed as an internal-only media app at `profilarr.${SECRET_DO
 
 ## Current Arr baseline
 
-Snapshot from 2026-05-18:
+Snapshot from 2026-05-18 after initial Profilarr adoption:
 
-- `radarr`: 1336 movies, mostly `HD-1080p`, zero custom formats, upgrades disabled.
-- `radarr-4k`: 31 movies, `Ultra-HD`, zero custom formats, upgrades disabled.
-- `sonarr`: 683 series, mostly `HD - 1080p/720p`, zero custom formats, upgrades enabled.
-- `sonarr-4k`: 7 series, `Ultra-HD`, zero custom formats, upgrades disabled.
-- Existing media has `customFormatScore = 0`, so there is no release-group, HDR/DV, source, audio, streaming-service, or bad-group scoring in use yet.
+- `radarr`: 1336 movies on Dictionarry `1080p Quality` and `1080p Compact`.
+- `radarr-4k`: 31 movies on Dictionarry `2160p Quality` and `2160p Balanced`.
+- `sonarr`: 683 series on Dictionarry `1080p Balanced` and `1080p Compact`.
+- `sonarr-4k`: 7 series on Dictionarry `2160p Balanced` and `2160p Efficient`.
+- Old Arr quality profiles have been removed from all four instances.
+- Quality profile upgrades are intentionally disabled on all synced Dictionarry profiles during the rollout.
+- Existing media previously had `customFormatScore = 0`, so profile changes can make RSS releases look like upgrades even without running explicit upgrade jobs.
 - `sonarr` has many cutoff-unmet episodes, so avoid broad upgrade automation until profile changes have been proven on a small set.
 
 ## Initial setup
@@ -53,6 +55,13 @@ Recommended starting point:
 7. Only then consider upgrade automation.
 
 ## Upgrade automation guardrails
+
+Automatic upgrades are currently blocked in two places:
+
+- Live Arr quality profiles have `upgradeAllowed = false`.
+- Profilarr's local Dictionarry checkout has a PVC-backed tweak at `/config/data/databases/f6d7f010-ef3e-42d1-b35f-c5d65ea7c63d/tweaks/999.disable-quality-profile-upgrades-during-rollout.sql` that sets `quality_profiles.upgrades_allowed = 0` before sync.
+
+Remove that tweak and manually re-sync quality profiles only when broad upgrades are intentional.
 
 Start with manual or very narrow scheduled upgrades:
 
