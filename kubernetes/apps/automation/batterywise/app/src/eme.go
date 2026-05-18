@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"sort"
@@ -106,33 +107,19 @@ func handleEMEPlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchEnergyMadeEasyPlan(planID, postcode string) (Plan, error) {
-	u := fmt.Sprintf("https://api.energymadeeasy.gov.au/consumerplan/plan/%s?postcode=%s&withPrices=true", url.PathEscape(planID), url.QueryEscape(postcode))
-	client := http.Client{Timeout: 25 * time.Second}
-	resp, err := client.Get(u)
+	resolvedPlanID, env, err := fetchEnergyMadeEasyPlanEnvelope(planID, postcode)
 	if err != nil {
 		return Plan{}, err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return Plan{}, fmt.Errorf("Energy Made Easy returned HTTP %d", resp.StatusCode)
-	}
 
-	var env emePlanEnvelope
-	if err := json.NewDecoder(resp.Body).Decode(&env); err != nil {
-		return Plan{}, err
-	}
 	pd := env.Data.PlanData
-	if pd.PlanName == "" && len(pd.Contract) == 0 {
-		return Plan{}, fmt.Errorf("plan %s not found", planID)
-	}
-
 	out := Plan{
 		Name:     pd.PlanName,
 		PlanID:   env.Data.PlanID,
 		Retailer: pd.RetailerName,
 	}
 	if out.PlanID == "" {
-		out.PlanID = planID
+		out.PlanID = resolvedPlanID
 	}
 	if out.Name == "" {
 		out.Name = out.PlanID
@@ -197,6 +184,94 @@ func fetchEnergyMadeEasyPlan(planID, postcode string) (Plan, error) {
 	}
 	out.Unsupported = uniqueStrings(out.Unsupported)
 	return out, nil
+}
+
+type emeHTTPError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e emeHTTPError) Error() string {
+	if strings.TrimSpace(e.Body) == "" {
+		return fmt.Sprintf("Energy Made Easy returned HTTP %d", e.StatusCode)
+	}
+	return fmt.Sprintf("Energy Made Easy returned HTTP %d: %s", e.StatusCode, strings.TrimSpace(e.Body))
+}
+
+func fetchEnergyMadeEasyPlanEnvelope(planID, postcode string) (string, emePlanEnvelope, error) {
+	client := http.Client{Timeout: 25 * time.Second}
+	candidates := emePlanIDCandidates(planID)
+	var lastErr error
+
+	for _, candidate := range candidates {
+		env, err := getEnergyMadeEasyPlanEnvelope(client, candidate, postcode)
+		if err == nil {
+			return candidate, env, nil
+		}
+		lastErr = err
+		if !isEnergyMadeEasyPlanNotFound(err) {
+			return "", emePlanEnvelope{}, err
+		}
+	}
+
+	if lastErr == nil {
+		lastErr = fmt.Errorf("plan %s not found", planID)
+	}
+	return "", emePlanEnvelope{}, fmt.Errorf("Energy Made Easy could not find plan %s for postcode %s", planID, postcode)
+}
+
+func getEnergyMadeEasyPlanEnvelope(client http.Client, planID, postcode string) (emePlanEnvelope, error) {
+	u := fmt.Sprintf("https://api.energymadeeasy.gov.au/consumerplan/plan/%s?postcode=%s&withPrices=true", url.PathEscape(planID), url.QueryEscape(postcode))
+	resp, err := client.Get(u)
+	if err != nil {
+		return emePlanEnvelope{}, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return emePlanEnvelope{}, emeHTTPError{StatusCode: resp.StatusCode, Body: string(body)}
+	}
+
+	var env emePlanEnvelope
+	if err := json.NewDecoder(resp.Body).Decode(&env); err != nil {
+		return emePlanEnvelope{}, err
+	}
+	pd := env.Data.PlanData
+	if pd.PlanName == "" && len(pd.Contract) == 0 {
+		return emePlanEnvelope{}, fmt.Errorf("plan %s not found", planID)
+	}
+	return env, nil
+}
+
+func isEnergyMadeEasyPlanNotFound(err error) bool {
+	httpErr, ok := err.(emeHTTPError)
+	if !ok {
+		return strings.Contains(strings.ToLower(err.Error()), "not found")
+	}
+	return httpErr.StatusCode == http.StatusBadRequest && strings.Contains(strings.ToLower(httpErr.Body), "cannot find plans")
+}
+
+func emePlanIDCandidates(planID string) []string {
+	planID = strings.TrimSpace(planID)
+	if planID == "" {
+		return nil
+	}
+	out := []string{planID}
+	if lastCharIsDigit(planID) {
+		return out
+	}
+	for i := 1; i <= 50; i++ {
+		out = append(out, fmt.Sprintf("%s%d", planID, i))
+	}
+	return out
+}
+
+func lastCharIsDigit(s string) bool {
+	if s == "" {
+		return false
+	}
+	last := s[len(s)-1]
+	return last >= '0' && last <= '9'
 }
 
 func chooseElectricityContract(contracts []emeContract) emeContract {

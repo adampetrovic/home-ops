@@ -228,7 +228,9 @@ async function importEMEPlan() {
     renderSeasonSummary();
     clearInlineError('emePlanIdError', 'emePlanId');
     const warnings = state.activePlanMeta.unsupported.length ? ` · Warnings: ${state.activePlanMeta.unsupported.join('; ')}` : '';
-    document.getElementById('emePlanMeta').textContent = `${plan.retailer || 'Retailer'} — ${plan.name || id}${warnings}`;
+    const resolvedID = plan.plan_id || id;
+    const resolvedSuffix = resolvedID !== id ? ` · resolved as ${resolvedID}` : ` · ${resolvedID}`;
+    document.getElementById('emePlanMeta').textContent = `${plan.retailer || 'Retailer'} — ${plan.name || id}${resolvedSuffix}${warnings}`;
     showToast('Imported Energy Made Easy plan', 'success');
   } catch (e) {
     showInlineError('emePlanIdError', 'Plan import error: ' + e.message, 'emePlanId');
