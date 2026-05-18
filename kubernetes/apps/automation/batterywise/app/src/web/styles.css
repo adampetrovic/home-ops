@@ -354,6 +354,43 @@ input::-webkit-inner-spin-button {
   margin-right: 4px;
 }
 
+.compact-actions {
+  margin: 0;
+}
+
+.season-tools {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  margin: 2px 0 12px;
+}
+
+.season-summary {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  color: var(--muted);
+  padding: 8px 10px;
+  font-size: 0.84rem;
+}
+
+.season-summary-row + .season-summary-row {
+  margin-top: 5px;
+}
+
+.season-summary-row strong {
+  display: inline-block;
+  min-width: 145px;
+  color: var(--text);
+  font-weight: 650;
+}
+
+.season-summary-row span {
+  color: var(--muted);
+}
+
 .tou-visual {
   display: flex;
   overflow: hidden;
@@ -373,6 +410,50 @@ input::-webkit-inner-spin-button {
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+.tou-empty {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.month-picker {
+  display: grid;
+  grid-template-columns: repeat(7, auto);
+  gap: 4px;
+  min-width: 360px;
+}
+
+.month-chip {
+  min-height: 24px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.month-chip:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.month-chip.active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.month-chip.all {
+  font-family: var(--sans);
+  font-weight: 650;
 }
 
 .table-scroll {
@@ -724,8 +805,15 @@ td select {
   .form-grid.three,
   .plan-import,
   .compare-grid,
-  .range-grid {
+  .range-grid,
+  .season-tools {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .season-summary-row strong {
+    display: block;
+    min-width: 0;
+    margin-bottom: 2px;
   }
 
   .align-end {
