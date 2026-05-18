@@ -7,6 +7,7 @@ components:
   - ../../components/common
 resources:
   - ./bambuddy/ks.yaml
+  - ./batterywise/ks.yaml
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml
   - ./fernwood-booker/ks.yaml
