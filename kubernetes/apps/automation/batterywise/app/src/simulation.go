@@ -119,7 +119,7 @@ type SimResult struct {
 // getPriceForHour returns the TOU rate for a given hour. It is retained for
 // callers that only need a representative hourly price.
 func getPriceForHour(plan Plan, hour int) float64 {
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	return getPriceAt(plan, time.Date(2026, time.January, 1, hour, 0, 0, 0, loc))
 }
 
@@ -197,7 +197,7 @@ func containsDay(days []string, d string) bool {
 // getPriceAt returns the TOU rate for a timestamp, including optional month
 // and day constraints imported from Energy Made Easy.
 func getPriceAt(plan Plan, ts time.Time) float64 {
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	lt := ts.In(loc)
 	minute := lt.Hour()*60 + lt.Minute()
 	month := int(lt.Month())
@@ -261,7 +261,7 @@ func RunSimulation(data []UsageRecord, scenario Scenario) SimResult {
 		return SimResult{}
 	}
 
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	days := buildDaySlices(data, loc)
 	nDays := len(days)
 	if nDays == 0 {
