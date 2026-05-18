@@ -74,6 +74,33 @@ h1 {
   font-weight: 650;
 }
 
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-icon {
+  width: 28px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: var(--green);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-icon rect {
+  fill: var(--green-soft);
+}
+
+.brand-icon path:last-child {
+  fill: var(--green);
+  stroke: none;
+}
+
 .app-header p,
 .section-title p,
 .helper,
