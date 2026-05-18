@@ -3,266 +3,222 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BatteryWise — Energy Plan Comparison</title>
+  <title>BatteryWise</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <header class="app-hero">
-    <div class="hero-copy">
-      <div class="eyebrow">BatteryWise</div>
-      <h1>Energy plan comparisons built around your real battery data.</h1>
-      <p>Import Sigenergy usage, pull an Energy Made Easy plan, adjust any tariff detail, then compare the switch over your battery payback period.</p>
-    </div>
-    <div class="hero-panel">
-      <div class="topbar-status" id="dataStatus">
+  <main class="page">
+    <header class="app-header">
+      <div>
+        <h1>BatteryWise</h1>
+        <p>Compare electricity plans using your actual Sigenergy data.</p>
+      </div>
+      <div class="status" id="dataStatus">
         <span class="dot"></span>
         <span>No data loaded</span>
       </div>
-      <div class="topbar-actions">
-        <button class="btn btn-secondary btn-sm" onclick="downloadTemplate()">CSV Template</button>
-        <button class="btn btn-secondary btn-sm" onclick="generateSample()">Sample Data</button>
-        <button class="btn btn-primary btn-sm" onclick="document.getElementById('csvInput').click()">Upload CSV</button>
-        <input type="file" id="csvInput" accept=".csv" onchange="uploadCSV(this)" style="display:none">
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="scenarios-bar" id="scenariosBar">
-    <button class="scenario-tab active" data-id="default">Scenario 1</button>
-    <button class="btn btn-secondary btn-sm btn-icon" onclick="addScenario()" title="Add scenario">＋</button>
-    <div style="flex:1"></div>
-    <button class="btn btn-primary btn-sm" onclick="runSimulation()" id="runBtn" disabled>Run Simulation</button>
-    <button class="btn btn-success btn-sm" onclick="runAllScenarios()" id="runAllBtn" disabled>Compare All</button>
-  </div>
-
-  <main class="app-layout">
-    <section class="workflow-column" id="sidebar" aria-label="Setup workflow">
-      <div class="workflow-heading">
-        <span>Setup workflow</span>
-        <strong>Configure once, compare quickly.</strong>
+    <section class="section">
+      <div class="section-title">
+        <h2>1. Usage data</h2>
+        <p>Use live Influx data, upload a CSV, or generate sample data.</p>
       </div>
 
-      <div class="panel" id="dataPanel">
-        <div class="panel-header" onclick="togglePanel('dataPanel')">
-          <div class="panel-heading-group">
-            <span class="step-marker">01</span>
-            <span class="panel-title">Usage data</span>
-          </div>
-          <span class="panel-chevron">▼</span>
-        </div>
-        <div class="panel-body">
-          <div class="upload-zone" onclick="document.getElementById('csvInput2').click()" id="uploadZone">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <p>Upload interval CSV data</p>
-            <input type="file" id="csvInput2" accept=".csv" onchange="uploadCSV(this)" style="display:none">
-          </div>
-          <div id="dataInfo" class="data-info" style="display:none">
-            <div id="dataInfoText"></div>
-          </div>
-          <div class="inline-actions">
-            <button class="btn btn-secondary btn-sm" onclick="generateSample()">Generate sample</button>
-          </div>
-          <div class="mini-toolbox">
-            <div class="toolbox-title">Live Sigenergy import</div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Start Date</label>
-                <input type="text" id="influxStart" value="2026-04-09">
-              </div>
-              <div class="form-group">
-                <label>Bucket</label>
-                <input type="text" id="influxBucket" value="sigenergy">
-              </div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="importInfluxData()">Import from InfluxDB</button>
-          </div>
-        </div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="importInfluxData()">Import Sigenergy</button>
+        <button class="btn" onclick="document.getElementById('csvInput').click()">Upload CSV</button>
+        <button class="btn" onclick="downloadTemplate()">CSV template</button>
+        <button class="btn" onclick="generateSample()">Sample data</button>
+        <input type="file" id="csvInput" accept=".csv" onchange="uploadCSV(this)" hidden>
       </div>
 
-      <div class="panel" id="planPanel">
-        <div class="panel-header" onclick="togglePanel('planPanel')">
-          <div class="panel-heading-group">
-            <span class="step-marker">02</span>
-            <span class="panel-title">Energy plan</span>
-          </div>
-          <span class="panel-chevron">▼</span>
-        </div>
-        <div class="panel-body">
-          <div class="mini-toolbox primary-toolbox">
-            <div class="toolbox-title">Energy Made Easy import</div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Plan ID</label>
-                <input type="text" id="emePlanId" placeholder="e.g. OVO723786MRE18">
-              </div>
-              <div class="form-group compact-field">
-                <label>Postcode</label>
-                <input type="text" id="emePostcode" value="2213">
-              </div>
-            </div>
-            <button class="btn btn-primary btn-sm" onclick="importEMEPlan()">Import Plan</button>
-            <div class="helper-text" id="emePlanMeta"></div>
-          </div>
-          <div class="presets">
-            <span>Presets</span>
-            <button class="preset-btn" onclick="loadPlanPreset('current')">Current</button>
-            <button class="preset-btn" onclick="loadPlanPreset('evday')">EV Day</button>
-            <button class="preset-btn" onclick="loadPlanPreset('evnight')">EV Night</button>
-            <button class="preset-btn" onclick="loadPlanPreset('flat')">Flat</button>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Supply Charge ($/day)</label>
-              <input type="number" id="supplyCharge" value="1.023" step="0.01" min="0">
-            </div>
-            <div class="form-group">
-              <label>Feed-in Tariff ($/kWh)</label>
-              <input type="number" id="feedInTariff" value="0.005" step="0.001" min="0">
-            </div>
-          </div>
-          <div class="tou-visual" id="touVisual"></div>
-          <div class="table-scroll" aria-label="TOU rate windows">
-            <table class="tou-table" id="touTable">
-              <thead><tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Months</th><th>Days</th><th></th></tr></thead>
-              <tbody id="touBody"></tbody>
-            </table>
-          </div>
-          <div class="inline-actions">
-            <button class="btn btn-secondary btn-sm" onclick="addTOUWindow()">Add Window</button>
-          </div>
-          <div class="mini-toolbox compare-toolbox">
-            <div class="toolbox-title">Compare against current plan</div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Battery Payback Years</label>
-                <input type="number" id="paybackYears" value="" placeholder="auto" step="0.1" min="0">
-              </div>
-              <div class="form-group">
-                <label>Battery Cost ($)</label>
-                <input type="number" id="compareBatteryCost" value="12000" step="100" min="0">
-              </div>
-            </div>
-            <button class="btn btn-success btn-sm" onclick="compareCandidatePlan()">Compare Plan Cost</button>
-          </div>
-        </div>
+      <div class="form-grid two">
+        <label>
+          <span>Start date</span>
+          <input type="text" id="influxStart" value="2026-04-09">
+        </label>
+        <label>
+          <span>Bucket</span>
+          <input type="text" id="influxBucket" value="sigenergy">
+        </label>
       </div>
 
-      <div class="panel" id="batteryPanel">
-        <div class="panel-header" onclick="togglePanel('batteryPanel')">
-          <div class="panel-heading-group">
-            <span class="step-marker">03</span>
-            <span class="panel-title">Battery model</span>
-          </div>
-          <span class="panel-chevron">▼</span>
-        </div>
-        <div class="panel-body">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Capacity (kWh)</label>
-              <input type="number" id="battCapacity" value="16" step="0.1" min="0">
-            </div>
-            <div class="form-group">
-              <label>Usable %</label>
-              <input type="number" id="battUsable" value="98" step="1" min="0" max="100">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Round-trip Eff %</label>
-              <input type="number" id="battEff" value="90" step="1" min="50" max="100">
-            </div>
-            <div class="form-group">
-              <label>Cost ($)</label>
-              <input type="number" id="battCost" value="12000" step="100" min="0">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Max Charge (kW)</label>
-              <input type="number" id="battCharge" value="5" step="0.1" min="0">
-            </div>
-            <div class="form-group">
-              <label>Max Discharge (kW)</label>
-              <input type="number" id="battDischarge" value="5" step="0.1" min="0">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel" id="strategyPanel">
-        <div class="panel-header" onclick="togglePanel('strategyPanel')">
-          <div class="panel-heading-group">
-            <span class="step-marker">04</span>
-            <span class="panel-title">Battery strategy</span>
-          </div>
-          <span class="panel-chevron">▼</span>
-        </div>
-        <div class="panel-body">
-          <div class="toggle-container">
-            <div class="toggle active" id="solarToggle" onclick="toggleSolar()"></div>
-            <span>Always capture excess solar</span>
-          </div>
-
-          <div class="strategy-timeline">
-            <div class="strategy-timeline-label">Click hours to cycle: idle → charge → discharge</div>
-            <div class="timeline-grid" id="timelineGrid"></div>
-            <div class="timeline-labels" id="timelineLabels"></div>
-            <div class="timeline-legend">
-              <span><span class="legend-dot" style="background:var(--charge-color)"></span> Charge</span>
-              <span><span class="legend-dot" style="background:var(--discharge-color)"></span> Discharge</span>
-              <span><span class="legend-dot" style="background:var(--idle-color)"></span> Idle</span>
-            </div>
-          </div>
-
-          <div class="soc-controls">
-            <div class="soc-row">
-              <label>Charge to</label>
-              <input type="range" id="socTarget" min="0" max="100" value="100" oninput="updateSOCLabel('socTarget','socTargetVal')">
-              <span class="soc-value" id="socTargetVal">100%</span>
-            </div>
-            <div class="soc-row">
-              <label>Min SOC</label>
-              <input type="range" id="socFloor" min="0" max="100" value="0" oninput="updateSOCLabel('socFloor','socFloorVal')">
-              <span class="soc-value" id="socFloorVal">0%</span>
-            </div>
-          </div>
-
-          <div class="threshold-rules">
-            <div class="strategy-timeline-label">Price threshold rules</div>
-            <div id="thresholdRules"></div>
-            <button class="btn btn-secondary btn-sm" onclick="addThresholdRule()">Add Threshold Rule</button>
-          </div>
-
-          <div class="presets strategy-presets">
-            <span>Strategy</span>
-            <button class="preset-btn" onclick="loadStrategyPreset('current_optimal')">Current Optimal</button>
-            <button class="preset-btn" onclick="loadStrategyPreset('peak_shave')">Peak Shave</button>
-            <button class="preset-btn" onclick="loadStrategyPreset('full_arb')">Full Arbitrage</button>
-          </div>
-        </div>
+      <div id="dataInfo" class="notice" style="display:none">
+        <span id="dataInfoText"></span>
       </div>
     </section>
 
-    <section class="main-content" id="mainContent" aria-label="Analysis results">
-      <div class="workspace-header">
-        <div>
-          <span class="eyebrow">Analysis</span>
-          <h2>Plan and battery economics</h2>
-          <p>Run the simulation or compare the imported plan to see annual cost, payback horizon, and hourly behaviour.</p>
-        </div>
+    <section class="section">
+      <div class="section-title">
+        <h2>2. Plan</h2>
+        <p>Import a plan ID from Energy Made Easy, or edit the tariff manually.</p>
+      </div>
+
+      <div class="form-grid plan-import">
+        <label>
+          <span>Plan ID</span>
+          <input type="text" id="emePlanId" placeholder="e.g. OVO723786MRE18">
+        </label>
+        <label>
+          <span>Postcode</span>
+          <input type="text" id="emePostcode" value="2213">
+        </label>
+        <button class="btn btn-primary align-end" onclick="importEMEPlan()">Import plan</button>
+      </div>
+      <div class="helper" id="emePlanMeta"></div>
+
+      <div class="preset-line">
+        <span>Presets</span>
+        <button class="preset-btn" onclick="loadPlanPreset('current')">Current OVO EV</button>
+        <button class="preset-btn" onclick="loadPlanPreset('evday')">EV day</button>
+        <button class="preset-btn" onclick="loadPlanPreset('evnight')">EV night</button>
+        <button class="preset-btn" onclick="loadPlanPreset('flat')">Flat</button>
+      </div>
+
+      <div class="form-grid two">
+        <label>
+          <span>Supply charge ($/day)</span>
+          <input type="number" id="supplyCharge" value="1.023" step="0.01" min="0">
+        </label>
+        <label>
+          <span>Feed-in tariff ($/kWh)</span>
+          <input type="number" id="feedInTariff" value="0.005" step="0.001" min="0">
+        </label>
+      </div>
+
+      <div class="tou-visual" id="touVisual"></div>
+      <div class="table-scroll">
+        <table class="tou-table" id="touTable">
+          <thead>
+            <tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Months</th><th>Days</th><th></th></tr>
+          </thead>
+          <tbody id="touBody"></tbody>
+        </table>
+      </div>
+      <button class="btn small" onclick="addTOUWindow()">Add rate window</button>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>3. Battery</h2>
+        <p>Model the installed battery and its operating limits.</p>
+      </div>
+
+      <div class="form-grid three">
+        <label>
+          <span>Capacity (kWh)</span>
+          <input type="number" id="battCapacity" value="16" step="0.1" min="0">
+        </label>
+        <label>
+          <span>Usable %</span>
+          <input type="number" id="battUsable" value="98" step="1" min="0" max="100">
+        </label>
+        <label>
+          <span>Round-trip efficiency %</span>
+          <input type="number" id="battEff" value="90" step="1" min="50" max="100">
+        </label>
+        <label>
+          <span>Battery cost ($)</span>
+          <input type="number" id="battCost" value="12000" step="100" min="0">
+        </label>
+        <label>
+          <span>Max charge (kW)</span>
+          <input type="number" id="battCharge" value="5" step="0.1" min="0">
+        </label>
+        <label>
+          <span>Max discharge (kW)</span>
+          <input type="number" id="battDischarge" value="5" step="0.1" min="0">
+        </label>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <h2>4. Strategy</h2>
+        <p>Choose when the battery charges and discharges.</p>
+      </div>
+
+      <div class="toggle-row">
+        <button class="toggle active" id="solarToggle" onclick="toggleSolar()" aria-label="Toggle solar capture"></button>
+        <span>Always capture excess solar</span>
+      </div>
+
+      <div class="timeline-wrap">
+        <div class="timeline-help">Click an hour to cycle idle → charge → discharge.</div>
+        <div class="timeline-grid" id="timelineGrid"></div>
+        <div class="timeline-labels" id="timelineLabels"></div>
+      </div>
+
+      <div class="legend-row">
+        <span><i class="legend-dot charge"></i>Charge</span>
+        <span><i class="legend-dot discharge"></i>Discharge</span>
+        <span><i class="legend-dot idle"></i>Idle</span>
+      </div>
+
+      <div class="range-grid">
+        <label>
+          <span>Charge to <strong id="socTargetVal">100%</strong></span>
+          <input type="range" id="socTarget" min="0" max="100" value="100" oninput="updateSOCLabel('socTarget','socTargetVal')">
+        </label>
+        <label>
+          <span>Min SOC <strong id="socFloorVal">0%</strong></span>
+          <input type="range" id="socFloor" min="0" max="100" value="0" oninput="updateSOCLabel('socFloor','socFloorVal')">
+        </label>
+      </div>
+
+      <div class="preset-line">
+        <span>Strategies</span>
+        <button class="preset-btn" onclick="loadStrategyPreset('current_optimal')">Current optimal</button>
+        <button class="preset-btn" onclick="loadStrategyPreset('peak_shave')">Peak shave</button>
+        <button class="preset-btn" onclick="loadStrategyPreset('full_arb')">Full arbitrage</button>
+      </div>
+
+      <div class="threshold-box">
+        <div id="thresholdRules"></div>
+        <button class="btn small" onclick="addThresholdRule()">Add threshold rule</button>
+      </div>
+    </section>
+
+    <section class="section run-section">
+      <div class="section-title">
+        <h2>5. Run</h2>
+        <p>Run the active scenario, compare all scenarios, or compare the imported plan against the current OVO EV plan.</p>
+      </div>
+
+      <div class="scenarios-bar" id="scenariosBar">
+        <button class="scenario-tab active" data-id="default">Scenario 1</button>
+        <button class="btn small" onclick="addScenario()" title="Add scenario">Add scenario</button>
+        <button class="btn btn-primary" onclick="runSimulation()" id="runBtn" disabled>Run simulation</button>
+        <button class="btn btn-success" onclick="runAllScenarios()" id="runAllBtn" disabled>Compare all</button>
+      </div>
+
+      <div class="form-grid compare-grid">
+        <label>
+          <span>Battery payback years</span>
+          <input type="number" id="paybackYears" value="" placeholder="auto" step="0.1" min="0">
+        </label>
+        <label>
+          <span>Battery cost for comparison ($)</span>
+          <input type="number" id="compareBatteryCost" value="12000" step="100" min="0">
+        </label>
+        <button class="btn btn-success align-end" onclick="compareCandidatePlan()">Compare plan cost</button>
+      </div>
+    </section>
+
+    <section class="section results-section">
+      <div class="section-title">
+        <h2>Results</h2>
+        <p>Costs, payback, plan comparison, and hourly behaviour.</p>
       </div>
 
       <div class="empty-state" id="emptyState">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 3-3 3 2 5-7"/>
-        </svg>
-        <h3>No analysis yet</h3>
-        <p>Import live usage, load a plan, then run a comparison. Results will appear here.</p>
+        <p>No results yet. Load usage data, check the plan and strategy, then run a simulation.</p>
       </div>
 
-      <div class="chart-container priority-result" id="planComparisonArea" style="display:none">
-        <div class="chart-title">Energy Plan Comparison</div>
+      <div class="result-block" id="planComparisonArea" style="display:none">
+        <h3>Plan comparison</h3>
         <div class="metrics-grid" id="planComparisonMetrics"></div>
         <div class="analysis-list" id="planComparisonAnalysis"></div>
       </div>
@@ -270,35 +226,33 @@
       <div id="resultsArea" style="display:none">
         <div class="metrics-grid" id="metricsGrid"></div>
 
-        <div class="chart-grid">
-          <div class="chart-container">
-            <div class="chart-title">Average Daily SOC Profile</div>
-            <canvas id="socChart"></canvas>
-          </div>
-          <div class="chart-container">
-            <div class="chart-title">Hourly Cost Breakdown</div>
-            <canvas id="costChart"></canvas>
-          </div>
+        <div class="chart-container">
+          <h3>Average daily SOC profile</h3>
+          <canvas id="socChart"></canvas>
         </div>
 
         <div class="chart-container">
-          <div class="chart-title">Hourly Energy Flows (Annual kWh)</div>
+          <h3>Hourly cost breakdown</h3>
+          <canvas id="costChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+          <h3>Hourly energy flows — annual kWh</h3>
           <canvas id="flowChart"></canvas>
         </div>
 
         <div class="chart-container">
-          <div class="chart-title">Monthly Cost Comparison</div>
+          <h3>Monthly cost comparison</h3>
           <canvas id="monthlyChart"></canvas>
         </div>
 
-        <div class="chart-container" id="comparisonSection" style="display:none">
-          <div class="chart-title">Scenario Comparison</div>
-          <div class="table-scroll" aria-label="Scenario comparison">
+        <div class="result-block" id="comparisonSection" style="display:none">
+          <h3>Scenario comparison</h3>
+          <div class="table-scroll">
             <table class="comparison-table" id="comparisonTable">
-              <thead><tr>
-                <th>Scenario</th><th>Baseline</th><th>With Battery</th>
-                <th>Savings</th><th>Payback</th><th>Cycles/yr</th>
-              </tr></thead>
+              <thead>
+                <tr><th>Scenario</th><th>Baseline</th><th>With battery</th><th>Savings</th><th>Payback</th><th>Cycles/yr</th></tr>
+              </thead>
               <tbody id="comparisonBody"></tbody>
             </table>
           </div>
