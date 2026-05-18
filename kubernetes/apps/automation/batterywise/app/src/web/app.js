@@ -12,8 +12,9 @@ const state = {
   timeline: new Array(24).fill('idle'), // charge | discharge | idle
   thresholdRules: [],
   touWindows: [],
+  touPreviewMonth: new Date().getMonth() + 1,
   charts: {},
-  activePlanMeta: { name: 'Current Plan' },
+  activePlanMeta: { name: 'Current OVO EV' },
   lastSimulationResult: null,
 };
 
@@ -21,6 +22,8 @@ const state = {
 // INITIALIZATION
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  const previewMonth = document.getElementById('touPreviewMonth');
+  if (previewMonth) previewMonth.value = String(state.touPreviewMonth);
   initTimeline();
   loadPlanPreset('current');
   loadStrategyPreset('current_optimal');
@@ -133,9 +136,11 @@ function downloadTemplate() {
 // ============================================================
 // TOU PLAN
 // ============================================================
+const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 const planPresets = {
   current: {
-    name: 'Current Plan',
+    name: 'Current OVO EV',
     supply: 1.023, fit: 0.028,
     windows: [
       { start: 0, end: 6, rate: 0.08, label: 'EV Rate' },
@@ -183,12 +188,13 @@ function loadPlanPreset(key) {
   state.activePlanMeta = { name: p.name };
   document.getElementById('supplyCharge').value = p.supply;
   document.getElementById('feedInTariff').value = p.fit;
-  state.touWindows = p.windows.map(w => ({ ...w }));
+  state.touWindows = p.windows.map(cloneUIWindow);
   const meta = document.getElementById('emePlanMeta');
   if (meta) meta.textContent = '';
   clearInlineError('emePlanIdError', 'emePlanId');
   renderTOUTable();
   renderTOUVisual();
+  renderSeasonSummary();
 }
 
 async function importEMEPlan() {
@@ -219,6 +225,7 @@ async function importEMEPlan() {
     state.touWindows = (plan.windows || []).map(apiWindowToUI);
     renderTOUTable();
     renderTOUVisual();
+    renderSeasonSummary();
     clearInlineError('emePlanIdError', 'emePlanId');
     const warnings = state.activePlanMeta.unsupported.length ? ` · Warnings: ${state.activePlanMeta.unsupported.join('; ')}` : '';
     document.getElementById('emePlanMeta').textContent = `${plan.retailer || 'Retailer'} — ${plan.name || id}${warnings}`;
@@ -226,6 +233,14 @@ async function importEMEPlan() {
   } catch (e) {
     showInlineError('emePlanIdError', 'Plan import error: ' + e.message, 'emePlanId');
   }
+}
+
+function cloneUIWindow(w) {
+  return {
+    ...w,
+    months: normalizeMonths(w.months || []),
+    days: [...(w.days || [])],
+  };
 }
 
 function apiWindowToUI(w) {
@@ -238,8 +253,8 @@ function apiWindowToUI(w) {
     end_minute: w.end_minute || end * 60,
     rate: w.rate,
     label: w.label || 'Usage',
-    months: w.months || [],
-    days: w.days || [],
+    months: normalizeMonths(w.months || []),
+    days: [...(w.days || [])],
   };
 }
 
@@ -253,10 +268,9 @@ function renderTOUTable() {
            onchange="updateTOU(${i},'end',this.value)"></td>
       <td class="rate-cell"><input type="number" value="${w.rate}" step="0.001" min="0" style="width:64px"
            onchange="updateTOU(${i},'rate',this.value)"></td>
-      <td><input type="text" value="${escapeAttr(w.label || '')}" style="width:78px"
+      <td><input type="text" value="${escapeAttr(w.label || '')}" style="width:92px"
            onchange="updateTOU(${i},'label',this.value)"></td>
-      <td><input type="text" value="${formatList(w.months)}" placeholder="All" style="width:72px"
-           onchange="updateTOU(${i},'months',this.value)"></td>
+      <td>${renderMonthPicker(w.months, i)}</td>
       <td><input type="text" value="${formatList(w.days, '|')}" placeholder="All" style="width:86px"
            onchange="updateTOU(${i},'days',this.value)"></td>
       <td><button class="delete-btn" onclick="removeTOU(${i})">×</button></td>
@@ -264,15 +278,38 @@ function renderTOUTable() {
   `).join('');
 }
 
+function renderMonthPicker(months, idx) {
+  const selected = Array.isArray(months) ? months : [];
+  const monthButtons = monthShortNames.map((name, offset) => {
+    const month = offset + 1;
+    const active = selected.includes(month) ? 'active' : '';
+    return `<button type="button" class="month-chip ${active}" onclick="toggleTOUMonth(${idx},${month})">${name}</button>`;
+  }).join('');
+  return `
+    <div class="month-picker" aria-label="Season months">
+      <button type="button" class="month-chip all ${selected.length ? '' : 'active'}" onclick="setTOUAllMonths(${idx})">All</button>
+      ${monthButtons}
+    </div>
+  `;
+}
+
 function formatList(value, sep = ',') {
   if (!value || !value.length) return '';
   return value.join(sep);
 }
 
+function normalizeMonths(months) {
+  const unique = [...new Set(months || [])]
+    .map(v => parseInt(v, 10))
+    .filter(v => v >= 1 && v <= 12)
+    .sort((a, b) => a - b);
+  return unique.length === 12 ? [] : unique;
+}
+
 function parseMonths(value) {
   const clean = value.trim();
   if (!clean || /^all$/i.test(clean)) return [];
-  return clean.split(/[|,\s]+/).map(v => parseInt(v, 10)).filter(v => v >= 1 && v <= 12);
+  return normalizeMonths(clean.split(/[|,\s]+/));
 }
 
 function parseDays(value) {
@@ -281,32 +318,132 @@ function parseDays(value) {
   return clean.split(/[|,\s]+/).map(v => v.trim().toUpperCase()).filter(Boolean);
 }
 
+function setTOUAllMonths(idx) {
+  state.touWindows[idx].months = [];
+  renderTOUTable();
+  renderTOUVisual();
+  renderSeasonSummary();
+}
+
+function toggleTOUMonth(idx, month) {
+  const months = state.touWindows[idx].months || [];
+  if (months.includes(month)) {
+    state.touWindows[idx].months = normalizeMonths(months.filter(m => m !== month));
+  } else {
+    state.touWindows[idx].months = normalizeMonths([...months, month]);
+  }
+  renderTOUTable();
+  renderTOUVisual();
+  renderSeasonSummary();
+}
+
+function selectedPreviewMonth() {
+  const select = document.getElementById('touPreviewMonth');
+  const value = select ? parseInt(select.value, 10) : state.touPreviewMonth;
+  state.touPreviewMonth = Number.isFinite(value) && value >= 1 && value <= 12 ? value : state.touPreviewMonth;
+  return state.touPreviewMonth;
+}
+
+function formatMonthRange(months) {
+  if (!months || !months.length || months.length === 12) return 'All year';
+  const unique = [...new Set(months)].filter(m => m >= 1 && m <= 12).sort((a, b) => a - b);
+  const ranges = [];
+  for (let i = 0; i < unique.length; i++) {
+    const start = unique[i];
+    let end = start;
+    while (i + 1 < unique.length && unique[i + 1] === end + 1) {
+      i++;
+      end = unique[i];
+    }
+    ranges.push(start === end ? monthShortNames[start - 1] : `${monthShortNames[start - 1]}–${monthShortNames[end - 1]}`);
+  }
+  return ranges.join(', ');
+}
+
+function minuteToLabel(minute) {
+  if (minute >= 1440) return '24:00';
+  const h = Math.floor(minute / 60).toString().padStart(2, '0');
+  const m = (minute % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function windowStartMinute(w) {
+  return Number.isFinite(w.start_minute) ? w.start_minute : (w.start || 0) * 60;
+}
+
+function windowEndMinute(w) {
+  if (Number.isFinite(w.end_minute) && w.end_minute > 0) return w.end_minute;
+  return (w.end || 24) * 60;
+}
+
+function formatRate(rate) {
+  return rate === 0 ? 'free' : `${(rate * 100).toFixed(1)}c/kWh`;
+}
+
+function renderSeasonSummary() {
+  const container = document.getElementById('seasonSummary');
+  if (!container) return;
+
+  const seasonal = state.touWindows.filter(w => w.months && w.months.length);
+  if (!seasonal.length) {
+    container.textContent = 'Same rates all year.';
+    return;
+  }
+
+  const groups = new Map();
+  for (const window of seasonal) {
+    const key = formatMonthRange(window.months);
+    const start = minuteToLabel(windowStartMinute(window));
+    const end = minuteToLabel(windowEndMinute(window));
+    const days = window.days && window.days.length ? ` · ${window.days.join('|')}` : '';
+    const line = `${window.label || 'Usage'} ${start}–${end} @ ${formatRate(window.rate)}${days}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(line);
+  }
+
+  container.innerHTML = [...groups.entries()].map(([season, lines]) => `
+    <div class="season-summary-row">
+      <strong>${escapeHTML(season)}</strong>
+      <span>${lines.map(escapeHTML).join('; ')}</span>
+    </div>
+  `).join('');
+}
+
 function escapeAttr(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 }
 
 function renderTOUVisual() {
   const container = document.getElementById('touVisual');
-  const displayMonth = new Date().getMonth() + 1;
+  const displayMonth = selectedPreviewMonth();
   const displayDay = ['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()];
   const colors = {
-    'Free': '#22c55e', 'Peak': '#ef4444', 'Off-Peak': '#3b82f6',
-    'EV Rate': '#8b5cf6', 'Shoulder': '#a78bfa', 'Flat': '#6b7280',
+    'Free': '#18794e', 'Peak': '#b42318', 'Off-Peak': '#2454a6',
+    'EV Rate': '#5b4b9a', 'Shoulder': '#7f6bb2', 'Flat': '#6f6a62',
   };
 
   const visible = state.touWindows.filter(w =>
     (!w.months || !w.months.length || w.months.includes(displayMonth)) &&
     (!w.days || !w.days.length || w.days.includes(displayDay))
   );
+  if (!visible.length) {
+    container.innerHTML = `<div class="tou-empty">No usage windows apply in ${monthShortNames[displayMonth - 1]} for ${displayDay}.</div>`;
+    renderSeasonSummary();
+    return;
+  }
+
   container.innerHTML = visible.map(w => {
-    const width = ((w.end - w.start) / 24) * 100;
-    const bg = colors[w.label] || '#6b7280';
+    const start = windowStartMinute(w);
+    const end = windowEndMinute(w);
+    const width = Math.max(((end - start) / 1440) * 100, 0.5);
+    const bg = colors[w.label] || '#6f6a62';
     const rateText = w.rate === 0 ? 'FREE' : `${(w.rate * 100).toFixed(1)}c`;
     return `<div class="tou-visual-block" style="width:${width}%;background:${bg}"
-                 title="${w.label}: ${w.start}:00-${w.end}:00 @ ${rateText}">
+                 title="${escapeAttr(w.label || 'Usage')}: ${minuteToLabel(start)}-${minuteToLabel(end)} in ${monthShortNames[displayMonth - 1]} @ ${rateText}">
               ${width > 8 ? rateText : ''}
             </div>`;
   }).join('');
+  renderSeasonSummary();
 }
 
 function updateTOU(idx, field, value) {
@@ -323,18 +460,28 @@ function updateTOU(idx, field, value) {
   else if (field === 'days') state.touWindows[idx].days = parseDays(value);
   else state.touWindows[idx].label = value;
   renderTOUVisual();
+  renderSeasonSummary();
 }
 
 function addTOUWindow() {
   state.touWindows.push({ start: 0, end: 24, rate: 0.30, label: 'Custom', months: [], days: [] });
   renderTOUTable();
   renderTOUVisual();
+  renderSeasonSummary();
+}
+
+function addSeasonalTOUWindow() {
+  state.touWindows.push({ start: 15, end: 21, rate: 0.30, label: 'Seasonal', months: [selectedPreviewMonth()], days: [] });
+  renderTOUTable();
+  renderTOUVisual();
+  renderSeasonSummary();
 }
 
 function removeTOU(idx) {
   state.touWindows.splice(idx, 1);
   renderTOUTable();
   renderTOUVisual();
+  renderSeasonSummary();
 }
 
 // ============================================================
