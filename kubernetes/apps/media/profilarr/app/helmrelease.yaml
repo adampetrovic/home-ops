@@ -42,6 +42,7 @@ spec:
               TZ: "${TZ}"
               HOST: 0.0.0.0
               PORT: &port 6868
+              ORIGIN: https://profilarr.${SECRET_DOMAIN}
               APP_BASE_PATH: /config
               AUTH: "off"
               UMASK: "022"
