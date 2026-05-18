@@ -43,6 +43,7 @@ spec:
               HOST: 0.0.0.0
               PORT: &port 6868
               APP_BASE_PATH: /config
+              AUTH: "off"
               UMASK: "022"
               PARSER_HOST: profilarr-parser
               PARSER_PORT: &parserPort 5000
