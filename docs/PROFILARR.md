@@ -20,7 +20,7 @@ Snapshot from 2026-05-18:
 ## Initial setup
 
 1. Open `https://profilarr.${SECRET_DOMAIN}`.
-2. Complete the Profilarr first-run auth setup.
+2. Authentication is disabled inside Profilarr with `AUTH=off` because the HTTPRoute is protected by Authelia ext-auth. Do not expose this service without the reverse proxy auth layer.
 3. Connect the Dictionarry database first. Add TRaSH PCD later only if you need a specific TRaSH/anime profile.
 4. Add Arr instances with internal service URLs:
    - `http://radarr.media.svc.cluster.local`
