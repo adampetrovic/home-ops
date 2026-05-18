@@ -17,6 +17,7 @@ configMapGenerator:
       - main.go=./src/main.go
       - simulation.go=./src/simulation.go
       - store.go=./src/store.go
+      - timezone.go=./src/timezone.go
   - name: batterywise-web
     files:
       - app.js=./src/web/app.js
