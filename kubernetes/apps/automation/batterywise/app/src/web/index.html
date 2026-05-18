@@ -91,16 +91,40 @@
         </label>
       </div>
 
+      <div class="season-tools">
+        <label>
+          <span>Preview month</span>
+          <select id="touPreviewMonth" onchange="renderTOUVisual()">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </label>
+        <div class="season-summary" id="seasonSummary"></div>
+      </div>
+
       <div class="tou-visual" id="touVisual"></div>
       <div class="table-scroll">
         <table class="tou-table" id="touTable">
           <thead>
-            <tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Months</th><th>Days</th><th></th></tr>
+            <tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Season</th><th>Days</th><th></th></tr>
           </thead>
           <tbody id="touBody"></tbody>
         </table>
       </div>
-      <button class="btn small" onclick="addTOUWindow()">Add rate window</button>
+      <div class="action-row compact-actions">
+        <button class="btn small" onclick="addTOUWindow()">Add rate window</button>
+        <button class="btn small" onclick="addSeasonalTOUWindow()">Add seasonal window for preview month</button>
+      </div>
     </section>
 
     <section class="section">
