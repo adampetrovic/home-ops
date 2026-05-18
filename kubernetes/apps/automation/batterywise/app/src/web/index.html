@@ -166,10 +166,12 @@
             </div>
           </div>
           <div class="tou-visual" id="touVisual"></div>
-          <table class="tou-table" id="touTable">
-            <thead><tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Months</th><th>Days</th><th></th></tr></thead>
-            <tbody id="touBody"></tbody>
-          </table>
+          <div class="table-scroll" aria-label="TOU rate windows">
+            <table class="tou-table" id="touTable">
+              <thead><tr><th>From</th><th>To</th><th>Rate</th><th>Label</th><th>Months</th><th>Days</th><th></th></tr></thead>
+              <tbody id="touBody"></tbody>
+            </table>
+          </div>
           <button class="btn btn-secondary btn-sm" onclick="addTOUWindow()" style="margin-top:8px">+ Add Window</button>
           <div class="mini-toolbox">
             <div class="toolbox-title">Compare Against Current Plan</div>
@@ -265,7 +267,7 @@
       <div id="resultsArea" style="display:none">
         <div class="metrics-grid" id="metricsGrid"></div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="chart-grid">
           <div class="chart-container">
             <div class="chart-title">Average Daily SOC Profile</div>
             <canvas id="socChart"></canvas>
@@ -289,13 +291,15 @@
         <!-- Comparison table -->
         <div class="chart-container" id="comparisonSection" style="display:none">
           <div class="chart-title">Scenario Comparison</div>
-          <table class="comparison-table" id="comparisonTable">
-            <thead><tr>
-              <th>Scenario</th><th>Baseline</th><th>With Battery</th>
-              <th>Savings</th><th>Payback</th><th>Cycles/yr</th>
-            </tr></thead>
-            <tbody id="comparisonBody"></tbody>
-          </table>
+          <div class="table-scroll" aria-label="Scenario comparison">
+            <table class="comparison-table" id="comparisonTable">
+              <thead><tr>
+                <th>Scenario</th><th>Baseline</th><th>With Battery</th>
+                <th>Savings</th><th>Payback</th><th>Cycles/yr</th>
+              </tr></thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
