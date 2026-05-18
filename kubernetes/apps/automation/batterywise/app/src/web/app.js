@@ -776,16 +776,19 @@ function renderMetrics(r) {
 // ============================================================
 // CHARTS
 // ============================================================
+const chartFont = 'ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica Neue, Arial, sans-serif';
+const chartMono = 'ui-monospace, SF Mono, Menlo, Consolas, monospace';
+
 const chartDefaults = {
   responsive: true,
   maintainAspectRatio: true,
   aspectRatio: 2,
   plugins: {
-    legend: { labels: { color: '#475569', font: { family: "'IBM Plex Sans'", size: 11, weight: 600 } } },
+    legend: { labels: { color: '#6f6a62', font: { family: chartFont, size: 11, weight: 600 } } },
   },
   scales: {
-    x: { ticks: { color: '#728095', font: { family: "'IBM Plex Mono'", size: 10 } }, grid: { color: '#e5ebf3' } },
-    y: { ticks: { color: '#728095', font: { family: "'IBM Plex Mono'", size: 10 } }, grid: { color: '#e5ebf3' } },
+    x: { ticks: { color: '#938b80', font: { family: chartMono, size: 10 } }, grid: { color: '#ece8df' } },
+    y: { ticks: { color: '#938b80', font: { family: chartMono, size: 10 } }, grid: { color: '#ece8df' } },
   },
 };
 
@@ -817,7 +820,7 @@ function renderSOCChart(result) {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, min: 0, title: { display: true, text: 'kWh', color: '#728095' } },
+        y: { ...chartDefaults.scales.y, min: 0, title: { display: true, text: 'kWh', color: '#938b80' } },
       },
     },
   });
@@ -846,7 +849,7 @@ function renderCostChart(result) {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/year', color: '#728095' } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/year', color: '#938b80' } },
       },
     },
   });
@@ -874,7 +877,7 @@ function renderFlowChart(result) {
       scales: {
         ...chartDefaults.scales,
         x: { ...chartDefaults.scales.x, stacked: true },
-        y: { ...chartDefaults.scales.y, stacked: true, title: { display: true, text: 'kWh/year', color: '#728095' } },
+        y: { ...chartDefaults.scales.y, stacked: true, title: { display: true, text: 'kWh/year', color: '#938b80' } },
       },
     },
   });
@@ -912,7 +915,7 @@ function renderMonthlyChart(result) {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/month', color: '#728095' } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/month', color: '#938b80' } },
       },
     },
   });
