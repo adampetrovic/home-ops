@@ -288,6 +288,16 @@ select:focus {
   box-shadow: 0 0 0 3px var(--blue-soft);
 }
 
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-soft);
+}
+
+[hidden] {
+  display: none !important;
+}
+
 input[type="range"] {
   accent-color: var(--blue);
   min-height: auto;
@@ -300,14 +310,34 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
 
+.notice,
+.form-error,
+.field-error {
+  border-radius: var(--radius);
+  padding: 9px 10px;
+  font-size: 0.84rem;
+}
+
 .notice {
   background: var(--green-soft);
   border: 1px solid #c5ead6;
   color: var(--green);
-  border-radius: var(--radius);
-  padding: 9px 10px;
   font-family: var(--mono);
-  font-size: 0.84rem;
+}
+
+.form-error,
+.field-error {
+  background: var(--red-soft);
+  border: 1px solid #efb4ac;
+  color: var(--red);
+}
+
+.form-error {
+  margin-bottom: 12px;
+}
+
+.field-error {
+  padding: 7px 8px;
 }
 
 .helper {
