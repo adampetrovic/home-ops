@@ -781,11 +781,11 @@ const chartDefaults = {
   maintainAspectRatio: true,
   aspectRatio: 2,
   plugins: {
-    legend: { labels: { color: '#94a3b8', font: { family: "'Space Grotesk'", size: 11 } } },
+    legend: { labels: { color: '#475569', font: { family: "'IBM Plex Sans'", size: 11, weight: 600 } } },
   },
   scales: {
-    x: { ticks: { color: '#64748b', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { color: '#1e2d4a' } },
-    y: { ticks: { color: '#64748b', font: { family: "'JetBrains Mono'", size: 10 } }, grid: { color: '#1e2d4a' } },
+    x: { ticks: { color: '#728095', font: { family: "'IBM Plex Mono'", size: 10 } }, grid: { color: '#e5ebf3' } },
+    y: { ticks: { color: '#728095', font: { family: "'IBM Plex Mono'", size: 10 } }, grid: { color: '#e5ebf3' } },
   },
 };
 
@@ -805,19 +805,19 @@ function renderSOCChart(result) {
       datasets: [{
         label: 'Avg SOC (kWh)',
         data: hp.map(h => h.avg_soc.toFixed(1)),
-        borderColor: '#38bdf8',
-        backgroundColor: 'rgba(56,189,248,0.1)',
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.10)',
         fill: true,
-        tension: 0.4,
+        tension: 0.35,
         pointRadius: 3,
-        pointBackgroundColor: '#38bdf8',
+        pointBackgroundColor: '#2563eb',
       }],
     },
     options: {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, min: 0, title: { display: true, text: 'kWh', color: '#64748b' } },
+        y: { ...chartDefaults.scales.y, min: 0, title: { display: true, text: 'kWh', color: '#728095' } },
       },
     },
   });
@@ -837,7 +837,7 @@ function renderCostChart(result) {
         {
           label: 'With Battery',
           data: hp.map(h => h.cost.toFixed(0)),
-          backgroundColor: '#38bdf8',
+          backgroundColor: '#2563eb',
           borderRadius: 3,
         },
       ],
@@ -846,7 +846,7 @@ function renderCostChart(result) {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/year', color: '#64748b' } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/year', color: '#728095' } },
       },
     },
   });
@@ -862,10 +862,10 @@ function renderFlowChart(result) {
     data: {
       labels: hp.map(h => h.hour.toString().padStart(2, '0')),
       datasets: [
-        { label: 'Grid Charge', data: hp.map(h => h.grid_charge.toFixed(0)), backgroundColor: '#22c55e', stack: 'charge' },
-        { label: 'Solar Capture', data: hp.map(h => h.solar_capture.toFixed(0)), backgroundColor: '#facc15', stack: 'charge' },
+        { label: 'Grid Charge', data: hp.map(h => h.grid_charge.toFixed(0)), backgroundColor: '#10b981', stack: 'charge' },
+        { label: 'Solar Capture', data: hp.map(h => h.solar_capture.toFixed(0)), backgroundColor: '#f59e0b', stack: 'charge' },
         { label: 'Discharge', data: hp.map(h => -h.discharge.toFixed(0)), backgroundColor: '#f97316', stack: 'discharge' },
-        { label: 'Grid Import', data: hp.map(h => h.grid_import.toFixed(0)), backgroundColor: '#3b82f6', stack: 'import' },
+        { label: 'Grid Import', data: hp.map(h => h.grid_import.toFixed(0)), backgroundColor: '#2563eb', stack: 'import' },
       ],
     },
     options: {
@@ -874,7 +874,7 @@ function renderFlowChart(result) {
       scales: {
         ...chartDefaults.scales,
         x: { ...chartDefaults.scales.x, stacked: true },
-        y: { ...chartDefaults.scales.y, stacked: true, title: { display: true, text: 'kWh/year', color: '#64748b' } },
+        y: { ...chartDefaults.scales.y, stacked: true, title: { display: true, text: 'kWh/year', color: '#728095' } },
       },
     },
   });
@@ -893,16 +893,16 @@ function renderMonthlyChart(result) {
         {
           label: 'Baseline',
           data: result.monthly_baseline.map(v => v.toFixed(0)),
-          backgroundColor: 'rgba(239,68,68,0.3)',
-          borderColor: '#ef4444',
+          backgroundColor: 'rgba(220,38,38,0.14)',
+          borderColor: '#dc2626',
           borderWidth: 1,
           borderRadius: 3,
         },
         {
           label: 'With Battery',
           data: result.monthly_costs.map(v => v.toFixed(0)),
-          backgroundColor: 'rgba(56,189,248,0.3)',
-          borderColor: '#38bdf8',
+          backgroundColor: 'rgba(37,99,235,0.14)',
+          borderColor: '#2563eb',
           borderWidth: 1,
           borderRadius: 3,
         },
@@ -912,7 +912,7 @@ function renderMonthlyChart(result) {
       ...chartDefaults,
       scales: {
         ...chartDefaults.scales,
-        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/month', color: '#64748b' } },
+        y: { ...chartDefaults.scales.y, title: { display: true, text: '$/month', color: '#728095' } },
       },
     },
   });
