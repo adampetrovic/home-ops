@@ -37,11 +37,13 @@ async function uploadCSV(input) {
   const form = new FormData();
   form.append('file', file);
 
+  clearInlineError('dataError');
+
   try {
     const resp = await fetch('/api/upload', { method: 'POST', body: form });
     if (!resp.ok) {
       const text = await resp.text();
-      showToast('Upload failed: ' + text, 'error');
+      showInlineError('dataError', 'Upload failed: ' + text);
       return;
     }
     const data = await resp.json();
@@ -51,12 +53,14 @@ async function uploadCSV(input) {
     document.getElementById('runBtn').disabled = false;
     document.getElementById('runAllBtn').disabled = false;
   } catch (e) {
-    showToast('Upload error: ' + e.message, 'error');
+    showInlineError('dataError', 'Upload error: ' + e.message);
   }
   input.value = '';
 }
 
 async function generateSample() {
+  clearInlineError('dataError');
+
   try {
     const resp = await fetch('/api/generate-sample', { method: 'POST' });
     const data = await resp.json();
@@ -66,13 +70,15 @@ async function generateSample() {
     document.getElementById('runBtn').disabled = false;
     document.getElementById('runAllBtn').disabled = false;
   } catch (e) {
-    showToast('Error: ' + e.message, 'error');
+    showInlineError('dataError', 'Sample data failed: ' + e.message);
   }
 }
 
 async function importInfluxData() {
   const start = document.getElementById('influxStart').value.trim();
   const bucket = document.getElementById('influxBucket').value.trim() || 'sigenergy';
+  clearInlineError('dataError');
+
   try {
     const resp = await fetch('/api/influx/import', {
       method: 'POST',
@@ -80,7 +86,7 @@ async function importInfluxData() {
       body: JSON.stringify({ start, bucket, every: '1h' }),
     });
     if (!resp.ok) {
-      showToast('Influx import failed: ' + await resp.text(), 'error');
+      showInlineError('dataError', 'Influx import failed: ' + await resp.text());
       return;
     }
     const data = await resp.json();
@@ -90,7 +96,7 @@ async function importInfluxData() {
     document.getElementById('runBtn').disabled = false;
     document.getElementById('runAllBtn').disabled = false;
   } catch (e) {
-    showToast('Influx import error: ' + e.message, 'error');
+    showInlineError('dataError', 'Influx import error: ' + e.message);
   }
 }
 
@@ -108,6 +114,9 @@ async function checkDataStatus() {
 }
 
 function updateDataStatus(data) {
+  clearInlineError('dataError');
+  clearInlineError('runError');
+  clearInlineError('compareError');
   const el = document.getElementById('dataStatus');
   const records = data.records || 0;
   const days = data.days || Math.round(records / 96);
@@ -177,6 +186,7 @@ function loadPlanPreset(key) {
   state.touWindows = p.windows.map(w => ({ ...w }));
   const meta = document.getElementById('emePlanMeta');
   if (meta) meta.textContent = '';
+  clearInlineError('emePlanIdError', 'emePlanId');
   renderTOUTable();
   renderTOUVisual();
 }
@@ -184,14 +194,16 @@ function loadPlanPreset(key) {
 async function importEMEPlan() {
   const id = document.getElementById('emePlanId').value.trim();
   const postcode = document.getElementById('emePostcode').value.trim() || '2213';
+  clearInlineError('emePlanIdError', 'emePlanId');
   if (!id) {
-    showToast('Enter an Energy Made Easy plan ID first', 'error');
+    showInlineError('emePlanIdError', 'Enter an Energy Made Easy plan ID first.', 'emePlanId');
+    document.getElementById('emePlanId').focus();
     return;
   }
   try {
     const resp = await fetch(`/api/eme/plan?id=${encodeURIComponent(id)}&postcode=${encodeURIComponent(postcode)}`);
     if (!resp.ok) {
-      showToast('Plan import failed: ' + await resp.text(), 'error');
+      showInlineError('emePlanIdError', 'Plan import failed: ' + await resp.text(), 'emePlanId');
       return;
     }
     const data = await resp.json();
@@ -207,11 +219,12 @@ async function importEMEPlan() {
     state.touWindows = (plan.windows || []).map(apiWindowToUI);
     renderTOUTable();
     renderTOUVisual();
+    clearInlineError('emePlanIdError', 'emePlanId');
     const warnings = state.activePlanMeta.unsupported.length ? ` · Warnings: ${state.activePlanMeta.unsupported.join('; ')}` : '';
     document.getElementById('emePlanMeta').textContent = `${plan.retailer || 'Retailer'} — ${plan.name || id}${warnings}`;
     showToast('Imported Energy Made Easy plan', 'success');
   } catch (e) {
-    showToast('Plan import error: ' + e.message, 'error');
+    showInlineError('emePlanIdError', 'Plan import error: ' + e.message, 'emePlanId');
   }
 }
 
@@ -488,10 +501,9 @@ function renderScenarioTabs() {
   }).join('');
 
   bar.innerHTML = tabs + `
-    <button class="btn btn-secondary btn-sm btn-icon" onclick="addScenario()" title="Add scenario">＋</button>
-    <div style="flex:1"></div>
-    <button class="btn btn-primary btn-sm" onclick="runSimulation()" id="runBtn" ${state.dataLoaded ? '' : 'disabled'}>▶ Run</button>
-    <button class="btn btn-success btn-sm" onclick="runAllScenarios()" id="runAllBtn" ${state.dataLoaded ? '' : 'disabled'}>▶▶ Compare All</button>
+    <button class="btn small" onclick="addScenario()" title="Add scenario">Add scenario</button>
+    <button class="btn btn-primary" onclick="runSimulation()" id="runBtn" ${state.dataLoaded ? '' : 'disabled'}>Run simulation</button>
+    <button class="btn btn-success" onclick="runAllScenarios()" id="runAllBtn" ${state.dataLoaded ? '' : 'disabled'}>Compare all</button>
   `;
 }
 
@@ -599,8 +611,9 @@ function planPresetToAPI(p) {
 }
 
 async function compareCandidatePlan() {
+  clearInlineError('compareError');
   if (!state.dataLoaded) {
-    showToast('Load usage data before comparing plans', 'error');
+    showInlineError('compareError', 'Load usage data before comparing plans.');
     return;
   }
   const candidate = buildScenario().scenario.plan;
@@ -618,14 +631,15 @@ async function compareCandidatePlan() {
       body: JSON.stringify({ current_plan: current, candidate_plan: candidate, battery_cost: batteryCost, payback_years: payback }),
     });
     if (!resp.ok) {
-      showToast('Comparison failed: ' + await resp.text(), 'error');
+      showInlineError('compareError', 'Comparison failed: ' + await resp.text());
       return;
     }
     const result = await resp.json();
     renderPlanComparison(result);
+    clearInlineError('compareError');
     showToast('Plan comparison complete', 'success');
   } catch (e) {
-    showToast('Comparison error: ' + e.message, 'error');
+    showInlineError('compareError', 'Comparison error: ' + e.message);
   }
 }
 
@@ -669,10 +683,16 @@ function escapeHTML(value) {
 // SIMULATION
 // ============================================================
 async function runSimulation() {
+  clearInlineError('runError');
+  if (!state.dataLoaded) {
+    showInlineError('runError', 'Load usage data before running the simulation.');
+    return;
+  }
+
   const req = buildScenario();
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ Running...';
+  btn.textContent = 'Running…';
 
   try {
     const resp = await fetch('/api/simulate', {
@@ -683,7 +703,7 @@ async function runSimulation() {
 
     if (!resp.ok) {
       const text = await resp.text();
-      showToast('Simulation failed: ' + text, 'error');
+      showInlineError('runError', 'Simulation failed: ' + text);
       return;
     }
 
@@ -697,12 +717,13 @@ async function runSimulation() {
 
     renderResults(result);
     renderScenarioTabs();
+    clearInlineError('runError');
     showToast('Simulation complete', 'success');
   } catch (e) {
-    showToast('Error: ' + e.message, 'error');
+    showInlineError('runError', 'Simulation error: ' + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '▶ Run';
+    btn.textContent = 'Run simulation';
   }
 }
 
@@ -926,6 +947,40 @@ function renderMonthlyChart(result) {
 // ============================================================
 function togglePanel(id) {
   document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ============================================================
+// INLINE FORM ERRORS
+// ============================================================
+function showInlineError(errorId, message, inputId = '') {
+  const error = document.getElementById(errorId);
+  if (!error) return;
+  error.textContent = message;
+  error.hidden = false;
+
+  if (inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.setAttribute('aria-invalid', 'true');
+      input.setAttribute('aria-describedby', errorId);
+    }
+  }
+}
+
+function clearInlineError(errorId, inputId = '') {
+  const error = document.getElementById(errorId);
+  if (error) {
+    error.textContent = '';
+    error.hidden = true;
+  }
+
+  if (inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('aria-describedby');
+    }
+  }
 }
 
 // ============================================================

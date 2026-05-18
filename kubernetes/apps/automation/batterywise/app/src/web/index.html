@@ -26,6 +26,8 @@
         <p>Use live Influx data, upload a CSV, or generate sample data.</p>
       </div>
 
+      <div class="form-error" id="dataError" role="alert" hidden></div>
+
       <div class="action-row">
         <button class="btn btn-primary" onclick="importInfluxData()">Import Sigenergy</button>
         <button class="btn" onclick="document.getElementById('csvInput').click()">Upload CSV</button>
@@ -37,11 +39,11 @@
       <div class="form-grid two">
         <label>
           <span>Start date</span>
-          <input type="text" id="influxStart" value="2026-04-09">
+          <input type="text" id="influxStart" value="2026-04-09" oninput="clearInlineError('dataError')">
         </label>
         <label>
           <span>Bucket</span>
-          <input type="text" id="influxBucket" value="sigenergy">
+          <input type="text" id="influxBucket" value="sigenergy" oninput="clearInlineError('dataError')">
         </label>
       </div>
 
@@ -59,11 +61,12 @@
       <div class="form-grid plan-import">
         <label>
           <span>Plan ID</span>
-          <input type="text" id="emePlanId" placeholder="e.g. OVO723786MRE18">
+          <div class="field-error" id="emePlanIdError" role="alert" hidden></div>
+          <input type="text" id="emePlanId" placeholder="e.g. OVO723786MRE18" oninput="clearInlineError('emePlanIdError','emePlanId')">
         </label>
         <label>
           <span>Postcode</span>
-          <input type="text" id="emePostcode" value="2213">
+          <input type="text" id="emePostcode" value="2213" oninput="clearInlineError('emePlanIdError','emePlanId')">
         </label>
         <button class="btn btn-primary align-end" onclick="importEMEPlan()">Import plan</button>
       </div>
@@ -187,6 +190,8 @@
         <p>Run the active scenario, compare all scenarios, or compare the imported plan against the current OVO EV plan.</p>
       </div>
 
+      <div class="form-error" id="runError" role="alert" hidden></div>
+
       <div class="scenarios-bar" id="scenariosBar">
         <button class="scenario-tab active" data-id="default">Scenario 1</button>
         <button class="btn small" onclick="addScenario()" title="Add scenario">Add scenario</button>
@@ -194,14 +199,16 @@
         <button class="btn btn-success" onclick="runAllScenarios()" id="runAllBtn" disabled>Compare all</button>
       </div>
 
+      <div class="form-error" id="compareError" role="alert" hidden></div>
+
       <div class="form-grid compare-grid">
         <label>
           <span>Battery payback years</span>
-          <input type="number" id="paybackYears" value="" placeholder="auto" step="0.1" min="0">
+          <input type="number" id="paybackYears" value="" placeholder="auto" step="0.1" min="0" oninput="clearInlineError('compareError')">
         </label>
         <label>
           <span>Battery cost for comparison ($)</span>
-          <input type="number" id="compareBatteryCost" value="12000" step="100" min="0">
+          <input type="number" id="compareBatteryCost" value="12000" step="100" min="0" oninput="clearInlineError('compareError')">
         </label>
         <button class="btn btn-success align-end" onclick="compareCandidatePlan()">Compare plan cost</button>
       </div>
