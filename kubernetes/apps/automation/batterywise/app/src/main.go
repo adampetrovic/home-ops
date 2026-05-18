@@ -379,7 +379,7 @@ func parseCSV(r io.Reader) ([]UsageRecord, error) {
 // ---------------------------------------------------------------------------
 
 func generateSampleData(days int) []UsageRecord {
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	start := time.Date(2025, 1, 1, 0, 0, 0, 0, loc)
 	intervalsPerDay := 96
 	var records []UsageRecord
