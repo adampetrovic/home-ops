@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"time"
 )
 
 type CompareRequest struct {
@@ -118,7 +117,7 @@ func ComparePlans(data []UsageRecord, req CompareRequest) PlanComparison {
 }
 
 func CalculatePlanCost(data []UsageRecord, plan Plan) PlanCostBreakdown {
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	days := buildDaySlices(data, loc)
 	nDays := len(days)
 	if nDays == 0 {
@@ -151,7 +150,7 @@ func CalculatePlanCost(data []UsageRecord, plan Plan) PlanCostBreakdown {
 }
 
 func calculateBatteryDischargeValue(data []UsageRecord, plan Plan) float64 {
-	loc, _ := time.LoadLocation("Australia/Sydney")
+	loc := sydneyLocation()
 	days := buildDaySlices(data, loc)
 	if len(days) == 0 {
 		return 0
