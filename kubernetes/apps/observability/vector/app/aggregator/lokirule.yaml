@@ -39,8 +39,9 @@ groups:
         expr: |
           sum by (node) (
             count_over_time(
-              {source="talos"}
+              {source="talos", stream="kernel"}
               |~ "(?i)(out of memory|oom-kill|oom killed|\\bi/o error\\b|read-only file system|filesystem error|ext4-fs error|xfs.*error|nvme[0-9a-z: ._-]*(reset|timeout|failed|error)|\\bata[0-9.:-]*:.*(error|failed)|blk_update_request|netdev watchdog|link is down|carrier lost)"
+              !~ "(?i)(memory cgroup out of memory|constraint=CONSTRAINT_MEMCG|oom_memcg|task_memcg=/kubepods|/kubepods|oom_score_adj=995)"
               [5m]
             )
           ) > 0
@@ -51,4 +52,4 @@ groups:
         annotations:
           node: "{{ $labels.node }}"
           summary: "Talos node hardware/kernel fault signal on {{ $labels.node }}"
-          description: "Talos logs on {{ $labels.node }} contain OOM, storage, filesystem, or NIC fault patterns."
+          description: "Talos kernel logs on {{ $labels.node }} contain host-level OOM, storage, filesystem, or NIC fault patterns. Kubernetes pod/container OOMs are intentionally excluded because they are alerted separately."
