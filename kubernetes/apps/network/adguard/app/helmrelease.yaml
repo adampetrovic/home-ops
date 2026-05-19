@@ -66,7 +66,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/adguard/adguardhome
-              tag: v0.107.74@sha256:f29c58a91f79387cbbbb042e140814f58e830d457d44af03d662c8df43db9dea
+              tag: v0.107.75@sha256:50ac5916778faa06ad4adcff606c7aaf806cb55dc1995160dbf50633c9bda94d
             env:
               TZ: "${TZ}"
             probes:
