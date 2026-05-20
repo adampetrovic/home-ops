@@ -27,9 +27,9 @@ spec:
       mms:
         type: cronjob
         cronjob:
-          schedule: "0 6 * * 1"      # Monday 6am AEST
+          schedule: "0 6 * * 1"      # Monday 6am Sydney time
           timeZone: "Australia/Sydney"
-          suspend: true
+          suspend: false
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
