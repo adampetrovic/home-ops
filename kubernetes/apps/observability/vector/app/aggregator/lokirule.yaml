@@ -24,7 +24,11 @@ groups:
       - alert: TalosKernelErrors
         expr: |
           sum by (node) (
-            count_over_time({source="talos", stream="kernel", level=~"err|error|crit|alert|emerg"}[10m])
+            count_over_time(
+              {source="talos", stream="kernel", level=~"err|error|crit|alert|emerg"}
+              !~ "(?i)(memory cgroup out of memory|constraint=CONSTRAINT_MEMCG|oom_memcg=|task_memcg=/kubepods|/kubepods|oom_score_adj=995)"
+              [10m]
+            )
           ) > 0
         for: 5m
         labels:
@@ -32,8 +36,8 @@ groups:
           category: logs
         annotations:
           node: "{{ $labels.node }}"
-          summary: "Talos kernel errors on {{ $labels.node }}"
-          description: "Kernel error-level Talos logs were seen on {{ $labels.node }}. Check the Talos Logs dashboard before raising alert sensitivity."
+          summary: "Talos node/kernel errors on {{ $labels.node }}"
+          description: "Non-pod kernel error-level Talos logs were seen on {{ $labels.node }}. Kubernetes pod/container cgroup OOM messages are intentionally excluded because they are alerted separately."
 
       - alert: TalosNodeStorageOomOrNetworkFault
         expr: |
