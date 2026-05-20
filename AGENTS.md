@@ -12,6 +12,8 @@ This is a **home-ops GitOps repository** managing a Kubernetes cluster running o
 
 This repository uses **Jujutsu (jj)** as the version control system (with a Git backend). Use `jj` commands instead of `git` for all VCS operations. See the jj skill for details.
 
+When creating jj commit descriptions, include a concise one-line rationale in the commit body where it adds useful context, especially for `fix:` and `chore:` changes. Prefer explaining why the change is being made, not just what changed (for example, `Why: avoid paging on brittle cause-based Talos log patterns`). This is optional for straightforward feature work such as adding a new app.
+
 ## Repository Structure
 
 ```
