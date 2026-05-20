@@ -37,11 +37,14 @@ spec:
               tag: 2.9.0@sha256:d2e3721413d1814578310afc9757397a76bc7ca6a3406ea7bcfaafdd56d76346
             env:
               TZ: ${TZ}
-              CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN},https://baby.${SECRET_DOMAIN}
+              CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN}
               PUID: 1000
               PGID: 1000
               DB_ENGINE: django.db.backends.postgresql
               DEBUG: 'True'
+              REVERSE_PROXY_AUTH: "True"
+              PROXY_HEADER: HTTP_REMOTE_USER
+              SECURE_PROXY_SSL_HEADER: "True"
             envFrom: *envFrom
     service:
       app:
@@ -51,12 +54,6 @@ spec:
             primary: true
             port: 8000
     route:
-      app:
-        hostnames:
-          - "baby.${SECRET_DOMAIN}"
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
       external:
         annotations:
           gatus.home-operations.com/enabled: "true"
