@@ -36,19 +36,24 @@ spec:
               limits:
                 memory: 32Mi
             securityContext:
+              # Required for Multus to install/manage host CNI configuration and binaries.
               privileged: true
         serviceAccount:
           identifier: *app
     defaultPodOptions:
+      # Required so the Multus daemonset can watch NetworkAttachmentDefinitions and operate as the node CNI delegate.
       automountServiceAccountToken: true
+      # Required for node-level CNI installation/configuration.
       hostNetwork: true
     persistence:
       etc-cni-net-d:
+        # Required to write Multus CNI config on each node.
         type: hostPath
         hostPath: /etc/cni/net.d
         globalMounts:
           - path: /host/etc/cni/net.d
       opt-cni-bin:
+        # Required to install CNI binaries on each node.
         type: hostPath
         hostPath: /opt/cni/bin
         globalMounts:
