@@ -21,39 +21,3 @@ groups:
           summary: "Talos service failure loop on {{ $labels.node }}"
           description: "{{ $labels.service }} on {{ $labels.node }} logged repeated failure messages for at least 15 minutes."
 
-      - alert: TalosKernelErrors
-        expr: |
-          sum by (node) (
-            count_over_time(
-              {source="talos", stream="kernel", level=~"err|error|crit|alert|emerg"}
-              !~ "(?i)(memory cgroup out of memory|constraint=CONSTRAINT_MEMCG|oom_memcg=|task_memcg=/kubepods|/kubepods|oom_score_adj=995)"
-              [10m]
-            )
-          ) > 0
-        for: 5m
-        labels:
-          severity: warning
-          category: logs
-        annotations:
-          node: "{{ $labels.node }}"
-          summary: "Talos node/kernel errors on {{ $labels.node }}"
-          description: "Non-pod kernel error-level Talos logs were seen on {{ $labels.node }}. Kubernetes pod/container cgroup OOM messages are intentionally excluded because they are alerted separately."
-
-      - alert: TalosNodeStorageOomOrNetworkFault
-        expr: |
-          sum by (node) (
-            count_over_time(
-              {source="talos", stream="kernel"}
-              |~ "(?i)(out of memory|oom-kill:|oom killed|\\bi/o error\\b|read-only file system|filesystem error|ext4-fs error|xfs.*error|nvme[0-9a-z: ._-]*(reset|timeout|failed|error)|\\bata[0-9.:-]*:.*(error|failed)|blk_update_request|netdev watchdog|link is down|carrier lost)"
-              !~ "(?i)(memory cgroup out of memory|constraint=CONSTRAINT_MEMCG|oom_memcg|task_memcg=/kubepods|/kubepods|oom_score_adj=995)"
-              [5m]
-            )
-          ) > 0
-        for: 2m
-        labels:
-          severity: critical
-          category: logs
-        annotations:
-          node: "{{ $labels.node }}"
-          summary: "Talos node hardware/kernel fault signal on {{ $labels.node }}"
-          description: "Talos kernel logs on {{ $labels.node }} contain host-level OOM, storage, filesystem, or NIC fault patterns. Kubernetes pod/container OOMs are intentionally excluded because they are alerted separately."
