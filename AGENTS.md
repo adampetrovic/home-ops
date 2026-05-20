@@ -122,6 +122,8 @@ Both `VOLSYNC_KOPIA_SCHEDULE` and `VOLSYNC_R2_SCHEDULE` can be overridden per-ap
 ### HelmRelease Conventions
 
 - **All workloads** (Deployments, StatefulSets, CronJobs, DaemonSets) **must** use the **bjw-s app-template** chart via `OCIRepository` named `app-template`. Never create raw Kubernetes manifests (e.g. bare `CronJob`, `Deployment` YAML) — always wrap them in a HelmRelease with app-template. For CronJobs, use `controllers.<name>.type: cronjob` with `cronjob.schedule`, `cronjob.timeZone`, etc.
+- **Never check application source code into this repository alongside deployments.** The home-ops repository should contain Kubernetes/Talos/GitOps configuration only; application code belongs in its own source repository and must be deployed here as a pre-built container image.
+- Do not mount application source from ConfigMaps, build apps at container startup, or use generic language/runtime images (for example `golang`, `node`, `python`) as an in-cluster build/deploy mechanism. Build and publish an immutable image externally, then reference that image by tag and digest in the HelmRelease.
 - Most apps use the **bjw-s app-template** chart via `OCIRepository` named `app-template`
 - Schema reference: `https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json`
 - Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback`
