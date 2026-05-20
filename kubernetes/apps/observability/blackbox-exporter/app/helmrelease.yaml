@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/blackbox-exporter
-              tag: v0.28.0
+              tag: v0.28.0@sha256:43027b43fb785b7c5adc53bd3b5dbc1a258270a2e8aff24f477b45c4e38dac68
             args:
               - --config.file=/config/blackbox.yaml
             probes:
