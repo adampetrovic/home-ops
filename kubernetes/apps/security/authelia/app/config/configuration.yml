@@ -35,6 +35,7 @@ access_control:
     - domain:
         - "paperless.${SECRET_DOMAIN}"
         - "memos.${SECRET_DOMAIN}"
+        - "baby.${SECRET_PUBLIC_DOMAIN}"
       policy: two_factor
       subject:
         - 'group:users'
