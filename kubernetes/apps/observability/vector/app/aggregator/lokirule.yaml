@@ -44,7 +44,7 @@ groups:
           sum by (node) (
             count_over_time(
               {source="talos", stream="kernel"}
-              |~ "(?i)(out of memory|oom-kill|oom killed|\\bi/o error\\b|read-only file system|filesystem error|ext4-fs error|xfs.*error|nvme[0-9a-z: ._-]*(reset|timeout|failed|error)|\\bata[0-9.:-]*:.*(error|failed)|blk_update_request|netdev watchdog|link is down|carrier lost)"
+              |~ "(?i)(out of memory|oom-kill:|oom killed|\\bi/o error\\b|read-only file system|filesystem error|ext4-fs error|xfs.*error|nvme[0-9a-z: ._-]*(reset|timeout|failed|error)|\\bata[0-9.:-]*:.*(error|failed)|blk_update_request|netdev watchdog|link is down|carrier lost)"
               !~ "(?i)(memory cgroup out of memory|constraint=CONSTRAINT_MEMCG|oom_memcg|task_memcg=/kubepods|/kubepods|oom_score_adj=995)"
               [5m]
             )
