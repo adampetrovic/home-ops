@@ -54,9 +54,12 @@ spec:
                     fieldPath: metadata.namespace
             args: ["--config", "/etc/vector/vector.yaml"]
             securityContext:
+              # Required for host-level metrics/log collection from procfs, sysfs, var-lib, and var-log mounts.
               privileged: true
     defaultPodOptions:
+      # Required so Vector can enrich host/pod metadata via the Kubernetes API.
       automountServiceAccountToken: true
+      # Required to bind the Talos log receiver on host loopback (127.0.0.1:6050).
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
     serviceAccount:
@@ -75,6 +78,7 @@ spec:
         globalMounts:
           - path: /vector-data-dir
       procfs:
+        # Required read-only host filesystem access for node observability.
         type: hostPath
         hostPath: /proc
         hostPathType: Directory
