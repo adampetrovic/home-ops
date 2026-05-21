@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/esphome/esphome
-              tag: 2026.4.5@sha256:c7bfa0bea64c68d5ca645b37cf98125c248a494c0f339a13fbc918f559628feb
+              tag: 2026.5.0@sha256:c0e2159c1f17f800be0f8995af801c934428598481128c8d3d6a5b3adc153dee
             env:
               ESPHOME_DASHBOARD_USE_PING: true
               PLATFORMIO_CORE_DIR: .plattformio
