@@ -65,6 +65,50 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
+      mso:
+        type: cronjob
+        cronjob:
+          schedule: "0 18 * * 3"     # Wednesday 6pm Sydney time
+          timeZone: "Australia/Sydney"
+          suspend: false
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /export
+              MODE: incremental
+              SOURCE: mso
+              CONCURRENT_REQUESTS: "5"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "5"
+              http_proxy:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              https_proxy:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
       usag:
         type: cronjob
         cronjob:
