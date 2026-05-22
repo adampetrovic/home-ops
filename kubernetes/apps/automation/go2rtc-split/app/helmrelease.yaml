@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/go2rtc-split
-              tag: v0.1.5@sha256:6899e3a8385c83345998868b159e3f69367533a6de2fd071677fd183820cefa5
+              tag: sha-a18e325@sha256:fcf3ab597fc605d6531ae7c09b2dadd14790452c46deabdc9a4dc0f546a5a2ae
             env:
               TZ: ${TZ}
               PORT: "8080"
@@ -46,7 +46,9 @@ spec:
               START_MUTED: "false"
               DEFAULT_VOLUME: "1"
               AUDIO_METERS: "false"
-              AUDIO_UNLOCK_PROMPT: "false"
+              AUDIO_UNLOCK_PROMPT: "true"
+              SLEEP_RECOVERY: "true"
+              SLEEP_RECOVERY_RECONNECT_MS: "30000"
               SHOW_CONTROLS: "false"
               SHOW_STATUS: "true"
               WAKE_LOCK: "true"
