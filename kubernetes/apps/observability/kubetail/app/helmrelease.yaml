@@ -51,7 +51,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-api
-          tag: "0.8.0"
+          tag: "0.8.1"
           digest: sha256:c61d0b75f42a9f28fb847e48f8dc314ea318c6f9891a86d67fec93573c9b9705
         container:
           securityContext:
