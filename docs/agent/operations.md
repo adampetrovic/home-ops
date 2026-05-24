@@ -43,7 +43,6 @@ VolSync:
 task volsync:list app=<name> ns=<namespace>
 task volsync:snapshot app=<name> ns=<namespace>
 task volsync:restore app=<name> ns=<namespace>
-task volsync:restore-r2-test app=<name> ns=<namespace>
 task volsync:restore-r2 app=<name> ns=<namespace>
 task volsync:restore-r2-fallback app=<name> ns=<namespace> capacity=<size>
 task volsync:unlock app=<name> ns=<namespace>

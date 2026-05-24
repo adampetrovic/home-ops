@@ -128,9 +128,6 @@ The Kopia server provides a web interface for browsing and managing backups. It 
 Taskfile shortcuts cover the two common R2 restore flows:
 
 ```bash
-# Non-destructive smoke test into a temporary PVC.
-task volsync:restore-r2-test app=actual-budget ns=default
-
 # Restore R2 into an existing bound PVC. The task suspends the app, scales it down,
 # restores with a temporary Restic ReplicationDestination, then resumes the app.
 task volsync:restore-r2 app=actual-budget ns=default
