@@ -69,6 +69,7 @@ Read the relevant doc before making non-trivial changes:
 
 - Flux reconciles from `main`; a GitHub webhook triggers reconciliation shortly after pushes.
 - CI checks are useful but not a default merge gate unless the user explicitly asks to wait.
+- GitHub PRs in this repo only allow rebase merges; use `gh pr merge --rebase --delete-branch` and do not try squash or merge commits.
 - After Talos or Kubernetes rollouts, verify LoadBalancer/BGP/L2 endpoint sanity for services using `externalTrafficPolicy: Local`.
 - TODO state changes under `.pi/todos` are major coordination changes; commit and push them using jj.
 
