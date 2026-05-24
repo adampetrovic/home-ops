@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ${claim}
+  namespace: ${ns}
+spec:
+  accessModes: ["${accessModes}"]
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: ${job}
+  resources:
+    requests:
+      storage: ${capacity}
+  storageClassName: ${storageClass}

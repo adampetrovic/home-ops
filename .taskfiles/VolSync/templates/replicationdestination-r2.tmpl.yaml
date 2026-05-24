@@ -1,0 +1,22 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: ${job}
+  namespace: ${ns}
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: ${app}-volsync-r2-secret
+    destinationPVC: ${claim}
+    copyMethod: Direct
+    cacheCapacity: ${cacheCapacity}
+    cacheStorageClassName: ${cacheStorageClass}
+    cacheAccessModes: ["${cacheAccessModes}"]
+    enableFileDeletion: true
+    moverSecurityContext:
+      runAsUser: ${puid}
+      runAsGroup: ${pgid}
+      fsGroup: ${pgid}
+      fsGroupChangePolicy: OnRootMismatch

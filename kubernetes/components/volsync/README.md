@@ -125,6 +125,27 @@ The Kopia server provides a web interface for browsing and managing backups. It 
 
 ## Manual R2 Restore
 
+Taskfile shortcuts cover the two common R2 restore flows:
+
+```bash
+# Non-destructive smoke test into a temporary PVC.
+task volsync:restore-r2-test app=actual-budget ns=default
+
+# Restore R2 into an existing bound PVC. The task suspends the app, scales it down,
+# restores with a temporary Restic ReplicationDestination, then resumes the app.
+task volsync:restore-r2 app=actual-budget ns=default
+
+# Restore an older R2 snapshot.
+task volsync:restore-r2 app=actual-budget ns=default previous=2
+task volsync:restore-r2 app=actual-budget ns=default restoreAsOf="2026-03-18T08:53:01+11:00"
+
+# Fresh rebuild fallback when the normal Kopia/NFS populator cannot restore.
+# Capacity must match the app PVC size.
+task volsync:restore-r2-fallback app=actual-budget ns=default capacity=2Gi
+```
+
+The detailed manual procedure below documents what those tasks do and is useful for troubleshooting.
+
 The component creates two independent backup paths:
 
 - `${APP}-volsync-secret` + `${APP}-dst` use Kopia on the NAS and drive the automatic PVC restore path in `claim.yaml`.

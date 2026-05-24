@@ -293,7 +293,10 @@ task volsync:debug            # Debug restic (requires: app=<name>)
 task volsync:list             # List snapshots (requires: app=<name>)
 task volsync:unlock           # Unlock restic repository (requires: app=<name>)
 task volsync:snapshot         # Create snapshot (requires: app=<name>)
-task volsync:restore          # Restore from snapshot (requires: app=<name>)
+task volsync:restore          # Restore from Kopia snapshot (requires: app=<name>)
+task volsync:restore-r2-test  # Smoke-test R2 restore into temp PVC (requires: app=<name>)
+task volsync:restore-r2       # Restore existing PVC from R2 (requires: app=<name>)
+task volsync:restore-r2-fallback # Fresh rebuild restore from R2 (requires: app=<name> capacity=<size>)
 task volsync:cleanup          # Delete volume populator PVCs
 
 # Kubernetes operations

@@ -1,0 +1,27 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: ${job}
+  namespace: ${ns}
+  labels:
+    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: ${app}-volsync-r2-secret
+    copyMethod: Snapshot
+    accessModes: ["${accessModes}"]
+    capacity: ${capacity}
+    storageClassName: ${storageClass}
+    volumeSnapshotClassName: ${snapshotClass}
+    cacheCapacity: ${cacheCapacity}
+    cacheStorageClassName: ${cacheStorageClass}
+    cacheAccessModes: ["${cacheAccessModes}"]
+    enableFileDeletion: true
+    moverSecurityContext:
+      runAsUser: ${puid}
+      runAsGroup: ${pgid}
+      fsGroup: ${pgid}
+      fsGroupChangePolicy: OnRootMismatch

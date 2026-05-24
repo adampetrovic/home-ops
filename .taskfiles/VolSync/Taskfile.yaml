@@ -9,7 +9,12 @@ version: "3"
 #   4. Each application only has one PVC that is being replicated
 
 x-env: &env
+  accessModes: "{{.accessModes}}"
   app: "{{.app}}"
+  cacheAccessModes: "{{.cacheAccessModes}}"
+  cacheCapacity: "{{.cacheCapacity}}"
+  cacheStorageClass: "{{.cacheStorageClass}}"
+  capacity: "{{.capacity}}"
   claim: "{{.claim}}"
   controller: "{{.controller}}"
   job: "{{.job}}"
@@ -17,8 +22,11 @@ x-env: &env
   pgid: "{{.pgid}}"
   previous: "{{.previous}}"
   restoreAsOf: "{{.restoreAsOf}}"
+  snapshotClass: "{{.snapshotClass}}"
+  storageClass: "{{.storageClass}}"
   timeout: "{{.timeout}}"
   puid: "{{.puid}}"
+  verifyJob: "{{.verifyJob}}"
 
 vars:
   VOLSYNC_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/VolSync/scripts"
@@ -226,6 +234,192 @@ tasks:
       - sh: '[[ -z "{{.restoreAsOf}}" ]] || echo "{{.restoreAsOf}}" | grep -qE "^[0-9T:.Zz+\-]+$"'
         msg: "'restoreAsOf' must be a valid RFC3339 timestamp"
 
+  restore-r2:
+    desc: Restore an existing PVC from Cloudflare R2
+    summary: |
+      Restores Cloudflare R2/Restic backup data directly into an existing bound
+      PVC. This suspends the app Flux Kustomization and HelmRelease, scales the
+      workload down, creates a temporary Restic ReplicationDestination, waits for
+      completion, deletes the temporary destination, and resumes the app.
+
+      Args:
+        ns: Namespace the PVC is in (default: default)
+        app: Application to restore (required)
+        previous: Snapshots to skip from latest (integer). Default: latest.
+        restoreAsOf: Restore the most recent snapshot before this RFC3339 timestamp.
+        timeout: Timeout in seconds for the restore wait (default: 7200 / 2h)
+    cmds:
+      - { task: .suspend, vars: *env }
+      - { task: .restore-r2, vars: *env }
+      - { task: .resume, vars: *env }
+    env: *env
+    requires:
+      vars: ["app"]
+    vars:
+      ns: '{{.ns | default "default"}}'
+      previous: '{{.previous | default ""}}'
+      restoreAsOf: '{{.restoreAsOf | default ""}}'
+      timeout: '{{.timeout | default "7200"}}'
+      controller:
+        sh: "{{.VOLSYNC_SCRIPTS_DIR}}/which-controller.sh {{.app}} {{.ns}}"
+      claim:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.sourcePVC}"
+      cacheAccessModes:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheAccessModes[0]}"
+      cacheCapacity:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheCapacity}"
+      cacheStorageClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheStorageClassName}"
+      puid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsUser}"
+      pgid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsGroup}"
+    preconditions:
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/which-controller.sh
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-replicationdestination.sh
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/replicationdestination-r2.tmpl.yaml
+      - kubectl -n {{.ns}} get replicationsources {{.app}}-r2
+      - kubectl -n {{.ns}} get secret {{.app}}-volsync-r2-secret
+      - kubectl -n {{.ns}} get pvc {{.claim}}
+      - sh: '[[ -z "{{.previous}}" ]] || echo "{{.previous}}" | grep -qE "^[0-9]+$"'
+        msg: "'previous' must be a non-negative integer"
+      - sh: '[[ -z "{{.restoreAsOf}}" ]] || echo "{{.restoreAsOf}}" | grep -qE "^[0-9T:.Zz+\-]+$"'
+        msg: "'restoreAsOf' must be a valid RFC3339 timestamp"
+
+  restore-r2-test:
+    desc: Smoke-test an R2 restore into a temporary PVC
+    summary: |
+      Non-destructively restores a Cloudflare R2/Restic snapshot into a
+      temporary PVC, verifies that the restored volume has files, then removes
+      the temporary ReplicationDestination, verifier job, and PVC.
+
+      Args:
+        ns: Namespace the PVC is in (default: default)
+        app: Application whose R2 backup should be tested (required)
+        claim: Temporary PVC name (default: <app>-r2-restore-test)
+        capacity: Temporary PVC capacity (default: source PVC request)
+        previous: Snapshots to skip from latest (integer). Default: latest.
+        restoreAsOf: Restore the most recent snapshot before this RFC3339 timestamp.
+        timeout: Timeout in seconds for the restore wait (default: 7200 / 2h)
+    cmds:
+      - kubectl -n {{.ns}} delete job {{.verifyJob}} --ignore-not-found
+      - kubectl -n {{.ns}} delete replicationdestination {{.job}} --ignore-not-found
+      - kubectl -n {{.ns}} delete pvc {{.claim}} --ignore-not-found
+      - envsubst < {{.VOLSYNC_TEMPLATES_DIR}}/claim-r2-test.tmpl.yaml | kubectl apply -f -
+      - kubectl -n {{.ns}} wait pvc/{{.claim}} --for=jsonpath='{.status.phase}'=Bound --timeout=10m
+      - { task: .restore-r2, vars: *env }
+      - envsubst < {{.VOLSYNC_TEMPLATES_DIR}}/verify-r2-restore.tmpl.yaml | kubectl apply -f -
+      - bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh {{.verifyJob}} {{.ns}}
+      - kubectl -n {{.ns}} wait job/{{.verifyJob}} --for condition=complete --timeout=5m
+      - kubectl -n {{.ns}} logs job/{{.verifyJob}} --container main
+      - kubectl -n {{.ns}} delete job {{.verifyJob}}
+      - kubectl -n {{.ns}} delete pvc {{.claim}}
+    env: *env
+    requires:
+      vars: ["app"]
+    vars:
+      ns: '{{.ns | default "default"}}'
+      claim: '{{.claim | default (printf "%s-r2-restore-test" .app)}}'
+      job: '{{.app}}-r2-restore-test'
+      verifyJob: 'volsync-verify-{{.app}}-r2'
+      previous: '{{.previous | default ""}}'
+      restoreAsOf: '{{.restoreAsOf | default ""}}'
+      timeout: '{{.timeout | default "7200"}}'
+      capacity:
+        sh: kubectl -n {{.ns}} get pvc "$(kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath='{.spec.sourcePVC}')" -o jsonpath="{.spec.resources.requests.storage}"
+      accessModes:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.accessModes[0]}"
+      cacheAccessModes:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheAccessModes[0]}"
+      cacheCapacity:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheCapacity}"
+      cacheStorageClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheStorageClassName}"
+      storageClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.storageClassName}"
+      puid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsUser}"
+      pgid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsGroup}"
+    preconditions:
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-job.sh
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-replicationdestination.sh
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/claim-r2-test.tmpl.yaml
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/replicationdestination-r2.tmpl.yaml
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/verify-r2-restore.tmpl.yaml
+      - kubectl -n {{.ns}} get replicationsources {{.app}}-r2
+      - kubectl -n {{.ns}} get secret {{.app}}-volsync-r2-secret
+      - sh: '[[ "{{.claim}}" != "$(kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.sourcePVC}")" ]]'
+        msg: "temporary claim must not be the source application PVC"
+      - sh: '[[ -z "{{.previous}}" ]] || echo "{{.previous}}" | grep -qE "^[0-9]+$"'
+        msg: "'previous' must be a non-negative integer"
+      - sh: '[[ -z "{{.restoreAsOf}}" ]] || echo "{{.restoreAsOf}}" | grep -qE "^[0-9T:.Zz+\-]+$"'
+        msg: "'restoreAsOf' must be a valid RFC3339 timestamp"
+
+  restore-r2-fallback:
+    desc: Restore a fresh PVC from Cloudflare R2 during rebuild
+    summary: |
+      Replaces the normal Kopia ReplicationDestination with a temporary
+      Cloudflare R2/Restic destination named <app>-dst, then ensures the PVC
+      exists with the VolSync dataSourceRef. Use this when the default Kopia/NFS
+      restore path is unavailable during a fresh rebuild.
+
+      Args:
+        ns: Namespace the PVC is in (default: default)
+        app: Application to restore (required)
+        capacity: PVC capacity to request, e.g. 2Gi (required)
+        previous: Snapshots to skip from latest (integer). Default: latest.
+        restoreAsOf: Restore the most recent snapshot before this RFC3339 timestamp.
+        timeout: Timeout in seconds for the restore wait (default: 7200 / 2h)
+    cmds:
+      - flux -n flux-system suspend kustomization {{.app}}
+      - kubectl -n {{.ns}} delete replicationdestination {{.app}}-dst --ignore-not-found
+      - { task: .restore-r2-fallback, vars: *env }
+      - |
+        kubectl -n {{.ns}} get pvc {{.claim}} >/dev/null 2>&1 || \
+          envsubst < {{.VOLSYNC_TEMPLATES_DIR}}/claim-r2-fallback.tmpl.yaml | kubectl apply -f -
+      - bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-replicationdestination.sh {{.job}} {{.ns}} {{.timeout}}
+      - kubectl -n {{.ns}} wait pvc/{{.claim}} --for=jsonpath='{.status.phase}'=Bound --timeout=10m
+      - kubectl -n {{.ns}} delete replicationdestination {{.job}}
+      - flux -n flux-system resume kustomization {{.app}}
+    env: *env
+    requires:
+      vars: ["app", "capacity"]
+    vars:
+      ns: '{{.ns | default "default"}}'
+      job: '{{.app}}-dst'
+      claim:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.sourcePVC}"
+      previous: '{{.previous | default ""}}'
+      restoreAsOf: '{{.restoreAsOf | default ""}}'
+      timeout: '{{.timeout | default "7200"}}'
+      accessModes:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.accessModes[0]}"
+      cacheAccessModes:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheAccessModes[0]}"
+      cacheCapacity:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheCapacity}"
+      cacheStorageClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.cacheStorageClassName}"
+      snapshotClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.volumeSnapshotClassName}"
+      storageClass:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.storageClassName}"
+      puid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsUser}"
+      pgid:
+        sh: kubectl -n {{.ns}} get replicationsources/{{.app}}-r2 -o jsonpath="{.spec.restic.moverSecurityContext.runAsGroup}"
+    preconditions:
+      - test -f {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-replicationdestination.sh
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/claim-r2-fallback.tmpl.yaml
+      - test -f {{.VOLSYNC_TEMPLATES_DIR}}/replicationdestination-r2-fallback.tmpl.yaml
+      - kubectl -n {{.ns}} get replicationsources {{.app}}-r2
+      - kubectl -n {{.ns}} get secret {{.app}}-volsync-r2-secret
+      - sh: '[[ -z "{{.previous}}" ]] || echo "{{.previous}}" | grep -qE "^[0-9]+$"'
+        msg: "'previous' must be a non-negative integer"
+      - sh: '[[ -z "{{.restoreAsOf}}" ]] || echo "{{.restoreAsOf}}" | grep -qE "^[0-9T:.Zz+\-]+$"'
+        msg: "'restoreAsOf' must be a valid RFC3339 timestamp"
+
   wipe:
     desc: Wipe the PVC for an application
     summary: |
@@ -320,6 +514,41 @@ tasks:
     vars:
       job: volsync-dst-{{.app}}
       timeout: '{{.timeout | default "7200"}}'
+
+  # Create a temporary Restic/R2 replicationdestination to restore into an existing PVC
+  .restore-r2:
+    internal: true
+    cmds:
+      - |
+        manifest=$(envsubst < {{.VOLSYNC_TEMPLATES_DIR}}/replicationdestination-r2.tmpl.yaml)
+        if [[ -n "{{.previous}}" ]]; then
+          manifest=$(echo "$manifest" | yq '.spec.restic.previous = {{.previous}}')
+        fi
+        if [[ -n "{{.restoreAsOf}}" ]]; then
+          manifest=$(echo "$manifest" | yq '.spec.restic.restoreAsOf = "{{.restoreAsOf}}"')
+        fi
+        echo "$manifest" | kubectl apply -f -
+      - bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-replicationdestination.sh {{.job}} {{.ns}} {{.timeout}}
+      - kubectl -n {{.ns}} delete replicationdestination {{.job}}
+    env: *env
+    vars:
+      job: '{{if .job}}{{.job}}{{else}}{{.app}}-r2-restore{{end}}'
+      timeout: '{{.timeout | default "7200"}}'
+
+  # Create a temporary Restic/R2 replicationdestination for a volume-populator restore
+  .restore-r2-fallback:
+    internal: true
+    cmds:
+      - |
+        manifest=$(envsubst < {{.VOLSYNC_TEMPLATES_DIR}}/replicationdestination-r2-fallback.tmpl.yaml)
+        if [[ -n "{{.previous}}" ]]; then
+          manifest=$(echo "$manifest" | yq '.spec.restic.previous = {{.previous}}')
+        fi
+        if [[ -n "{{.restoreAsOf}}" ]]; then
+          manifest=$(echo "$manifest" | yq '.spec.restic.restoreAsOf = "{{.restoreAsOf}}"')
+        fi
+        echo "$manifest" | kubectl apply -f -
+    env: *env
 
   # Resume Flux ks and hr
   .resume:
