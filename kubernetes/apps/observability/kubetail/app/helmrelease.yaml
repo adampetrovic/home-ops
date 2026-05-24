@@ -68,7 +68,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-agent
-          tag: "0.7.0"
+          tag: "0.7.1"
           digest: sha256:45bfb342be220c84dd844b6a633bb42defac408e902693b4729eda2bd658b0b4
         container:
           securityContext:
