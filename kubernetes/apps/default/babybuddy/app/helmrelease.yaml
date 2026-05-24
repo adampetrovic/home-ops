@@ -34,7 +34,7 @@ spec:
           babybuddy:
             image:
               repository: ghcr.io/linuxserver/babybuddy
-              tag: 2.9.0@sha256:d2e3721413d1814578310afc9757397a76bc7ca6a3406ea7bcfaafdd56d76346
+              tag: 2.9.0@sha256:c5c89107065001b4c18690aacc13803b1ee28014aeff37dba2e5cdfd10246860
             env:
               TZ: ${TZ}
               CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN}
