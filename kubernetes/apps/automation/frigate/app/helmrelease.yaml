@@ -25,12 +25,6 @@ spec:
       frigate:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          copy-config:
-            image:
-              repository: mirror.gcr.io/library/busybox
-              tag: latest@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
-            command: ["sh", "-c", "cp /config-source/config.yml /config/config.yml"]
         containers:
           app:
             image:
@@ -119,12 +113,10 @@ spec:
       config-file:
         type: configMap
         name: frigate-configmap
-        advancedMounts:
-          frigate:
-            copy-config:
-              - path: /config-source/config.yml
-                subPath: config.yml
-                readOnly: true
+        globalMounts:
+          - path: /config/config.yml
+            subPath: config.yml
+            readOnly: true
       cache:
         enabled: true
         type: emptyDir
