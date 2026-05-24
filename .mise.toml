@@ -3,7 +3,7 @@ SOPS_AGE_KEY_FILE = "/Users/adam/.config/sops/age/keys.txt"
 
 [tools]
 # Kubernetes
-kubectl = "1.35.1"
+kubectl = "1.36.1"
 helm = "4.1.1"
 helmfile = "1.2.3"
 kustomize = "5.8.1"
