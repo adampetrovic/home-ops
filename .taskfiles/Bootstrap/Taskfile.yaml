@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  preflight:
+    desc: Check local tools, credentials, rendering, and Talos node reachability before bootstrap
+    cmd: bash {{.ROOT_DIR}}/scripts/bootstrap-preflight.sh
+
+  verify:
+    desc: Verify the core bootstrap substrate after running scripts/bootstrap-cluster.sh
+    cmd: bash {{.ROOT_DIR}}/scripts/bootstrap-verify.sh --core
+
+  verify-full:
+    desc: Verify full post-bootstrap GitOps convergence, storage, gateways, VolSync, and CNPG
+    cmd: bash {{.ROOT_DIR}}/scripts/bootstrap-verify.sh --full

@@ -282,6 +282,11 @@ task talos:upgrade-k8s        # Upgrade Kubernetes version (requires: node=<ip> 
 task talos:reboot-node        # Reboot node (requires: IP=<ip>)
 task talos:nuke               # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
+# Bootstrap / disaster recovery
+task bootstrap:preflight      # Check tools, credentials, rendering, and node reachability
+task bootstrap:verify         # Verify the core bootstrap substrate
+task bootstrap:verify-full    # Verify full GitOps/storage/app convergence
+
 # Volume backup operations
 task volsync:check            # Check volsync repo (requires: app=<name>)
 task volsync:debug            # Debug restic (requires: app=<name>)
@@ -304,11 +309,13 @@ task k8s:delete-failed-pods   # Delete pods with failed status
 
 ### Disaster Recovery
 
-Complete cluster rebuild capability:
-1. **Hardware Reset**: PXE boot into Talos maintenance mode
-2. **Cluster Bootstrap**: Automated via bootstrap scripts
-3. **Backup Restoration**: VolSync automatically restores from Kopia (NFS) or Restic (R2) snapshots
-4. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
+Complete destructive cluster rebuild capability:
+1. **Preflight**: `task bootstrap:preflight` checks tools, credentials, rendering, and Talos node reachability
+2. **Hardware Reset**: PXE boot into Talos maintenance mode or run `task talos:nuke`
+3. **Cluster Bootstrap**: `./scripts/bootstrap-cluster.sh` recreates Talos/Kubernetes and installs Flux
+4. **Backup Restoration**: VolSync automatically restores PVCs from Kopia on NAS/NFS; R2 is the manual fallback copy
+5. **Verification**: `task bootstrap:verify` then `task bootstrap:verify-full`
+6. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
 
 ---
 
@@ -392,18 +399,26 @@ app-name/
 - **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management (external), UniFi gateway for internal DNS
 - **Secrets**: 1Password account for secrets management
-- **Tools**: `talosctl`, `kubectl`, `flux`, `task`, `age` (for SOPS)
+- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `talhelper`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `task`, `jq`, `yq`, etc.)
 
 ### Quick Start
 
 1. **Fork this repository** and customize for your environment
 2. **Configure secrets**: Set up SOPS age key and 1Password Connect
-3. **Prepare hardware**: Install Talos Linux on your nodes
-4. **Bootstrap cluster**:
+3. **Prepare hardware**: Boot Talos Linux maintenance mode on your nodes
+4. **Run bootstrap preflight**:
+   ```bash
+   task bootstrap:preflight
+   ```
+5. **Bootstrap cluster**:
    ```bash
    ./scripts/bootstrap-cluster.sh
    ```
-5. **Monitor deployment**: Applications will automatically deploy via GitOps
+6. **Verify convergence**:
+   ```bash
+   task bootstrap:verify
+   task bootstrap:verify-full
+   ```
 
 ### Configuration Areas
 

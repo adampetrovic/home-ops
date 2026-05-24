@@ -123,9 +123,196 @@ kubectl get kopiamaintenance -A
 
 The Kopia server provides a web interface for browsing and managing backups. It connects to the same NFS-backed repository that the VolSync movers use.
 
+## Manual R2 Restore
+
+The component creates two independent backup paths:
+
+- `${APP}-volsync-secret` + `${APP}-dst` use Kopia on the NAS and drive the automatic PVC restore path in `claim.yaml`.
+- `${APP}-volsync-r2-secret` + `${APP}-r2` use Restic on Cloudflare R2 and create secondary backups only.
+
+VolSync does **not** automatically fall back from Kopia/NFS to R2. If the NAS Kopia repository is unavailable or missing the desired snapshot, restore from R2 by creating a temporary Restic `ReplicationDestination` that references `${APP}-volsync-r2-secret`.
+
+### Prerequisites
+
+Set the app, namespace, capacity, and restore identity. Most apps use UID/GID `568`; check the app's `ReplicationSource` if unsure.
+
+```bash
+export app=actual-budget
+export ns=default
+export capacity=2Gi
+export storageClass=ceph-block
+export snapshotClass=csi-ceph-blockpool
+export puid=568
+export pgid=568
+```
+
+Confirm the R2 repository secret exists:
+
+```bash
+kubectl -n "${ns}" get secret "${app}-volsync-r2-secret"
+```
+
+Optionally inspect R2 snapshots directly with Restic:
+
+```bash
+kubectl -n "${ns}" run "restic-list-${app}" \
+  --rm -it --restart=Never \
+  --image=docker.io/restic/restic:0.16.4 \
+  --env-from="secretRef/name=${app}-volsync-r2-secret" \
+  -- snapshots
+```
+
+### Fresh rebuild fallback before the PVC is populated
+
+Use this when the GitOps-created PVC is still pending because the default Kopia/NFS `ReplicationDestination` cannot produce a snapshot.
+
+#### 1. Suspend the app Kustomization
+
+Suspend the app Kustomization so Flux does not replace the temporary R2 restore object while it is running:
+
+```bash
+flux -n flux-system suspend kustomization "${app}"
+```
+
+#### 2. Replace the Kopia destination with a Restic/R2 destination
+
+The PVC already points its `dataSourceRef` at `${app}-dst`, so use the same `ReplicationDestination` name and switch the mover to Restic. Volume-populator restores require `copyMethod: Snapshot`.
+
+```bash
+kubectl -n "${ns}" delete replicationdestination "${app}-dst" --ignore-not-found
+
+cat <<EOF | kubectl apply -f -
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: ${app}-dst
+  namespace: ${ns}
+  labels:
+    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: ${app}-volsync-r2-secret
+    copyMethod: Snapshot
+    accessModes: [ReadWriteOnce]
+    capacity: ${capacity}
+    storageClassName: ${storageClass}
+    volumeSnapshotClassName: ${snapshotClass}
+    cacheCapacity: 4Gi
+    cacheStorageClassName: openebs-hostpath
+    cacheAccessModes: [ReadWriteOnce]
+    enableFileDeletion: true
+    moverSecurityContext:
+      runAsUser: ${puid}
+      runAsGroup: ${pgid}
+      fsGroup: ${pgid}
+      fsGroupChangePolicy: OnRootMismatch
+EOF
+```
+
+#### 3. Recreate the PVC if needed
+
+If the PVC was deleted or never created, recreate it with the same `dataSourceRef` used by the component:
+
+```bash
+kubectl -n "${ns}" get pvc "${app}" >/dev/null 2>&1 || cat <<EOF | kubectl apply -f -
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ${app}
+  namespace: ${ns}
+spec:
+  accessModes: [ReadWriteOnce]
+  dataSourceRef:
+    kind: ReplicationDestination
+    apiGroup: volsync.backube
+    name: ${app}-dst
+  resources:
+    requests:
+      storage: ${capacity}
+  storageClassName: ${storageClass}
+EOF
+```
+
+#### 4. Wait for restore and PVC binding
+
+```bash
+bash .taskfiles/VolSync/scripts/wait-for-replicationdestination.sh "${app}-dst" "${ns}" 7200
+kubectl -n "${ns}" wait pvc/"${app}" --for=jsonpath='{.status.phase}'=Bound --timeout=10m
+```
+
+#### 5. Clean up and resume Flux
+
+Delete the temporary R2 destination and resume Flux. Flux will recreate the normal Kopia destination for future restores/backups.
+
+```bash
+kubectl -n "${ns}" delete replicationdestination "${app}-dst"
+flux -n flux-system resume kustomization "${app}"
+```
+
+### Restore R2 into an existing bound PVC
+
+Use this when the PVC already exists and you want to overwrite its contents from R2.
+
+#### 1. Suspend Flux and stop the workload
+
+No process should write to the PVC during restore:
+
+```bash
+flux -n flux-system suspend kustomization "${app}"
+flux -n "${ns}" suspend helmrelease "${app}" || true
+kubectl -n "${ns}" scale deploy,statefulset -l "app.kubernetes.io/name=${app}" --replicas=0
+```
+
+#### 2. Restore directly into the existing PVC
+
+Apply a temporary Restic `ReplicationDestination` that writes directly into the existing PVC:
+
+```bash
+cat <<EOF | kubectl apply -f -
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: ${app}-r2-restore
+  namespace: ${ns}
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: ${app}-volsync-r2-secret
+    destinationPVC: ${app}
+    copyMethod: Direct
+    cacheCapacity: 4Gi
+    cacheStorageClassName: openebs-hostpath
+    cacheAccessModes: [ReadWriteOnce]
+    enableFileDeletion: true
+    moverSecurityContext:
+      runAsUser: ${puid}
+      runAsGroup: ${pgid}
+      fsGroup: ${pgid}
+      fsGroupChangePolicy: OnRootMismatch
+EOF
+```
+
+To restore an older snapshot, add either `previous: <n>` or `restoreAsOf: "<RFC3339 timestamp>"` under `spec.restic` before applying.
+
+#### 3. Wait, clean up, and resume the app
+
+```bash
+bash .taskfiles/VolSync/scripts/wait-for-replicationdestination.sh "${app}-r2-restore" "${ns}" 7200
+kubectl -n "${ns}" delete replicationdestination "${app}-r2-restore"
+flux -n "${ns}" resume helmrelease "${app}" || true
+flux -n flux-system resume kustomization "${app}"
+```
+
 ### Common Issues
 
 1. **Backup Pod Fails**: Check storage class availability and CSI snapshot support
 2. **NFS Mount Issues**: Verify the NFS admission policy is working (`kubectl get mutatingadmissionpolicybinding`)
 3. **Restore Hangs**: Verify repository credentials and NFS connectivity
 4. **PVC Not Created**: Ensure ReplicationDestination is in Ready state before PVC creation
+5. **R2 Restore Fails**: Verify `${APP}-volsync-r2-secret`, R2 credentials, cache PVC capacity, and the Restic snapshot selection (`previous` / `restoreAsOf`)

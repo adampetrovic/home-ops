@@ -1,150 +1,261 @@
+# Catastrophic Bootstrap Runbook
+
+Use this procedure when rebuilding the cluster from scratch after a catastrophic incident. This is the **destructive rebuild** path: nodes are reset to Talos maintenance mode, Kubernetes state is recreated from Git, Ceph OSD disks are allowed to be wiped/recreated, and application PVCs restore primarily from the Kopia repository on the NAS.
+
+Do **not** use this runbook if your goal is to preserve/adopt existing Ceph OSDs. This procedure assumes backups are the source of truth for application data.
+
+## Recovery model
+
+- **Infrastructure source of truth:** this Git repository on `main`.
+- **Secrets source of truth:** 1Password vault `k8s` plus the SOPS age key.
+- **Talos source of truth:** `talos/talconfig.yaml`, `talos/talenv.yaml`, `talos/talsecret.yaml`, and patches under `talos/patches/`.
+- **Primary app PVC restore:** VolSync Kopia restore from the NAS NFS repository at `/volume2/kopia`.
+- **Secondary app backup:** Cloudflare R2 Restic backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
+- **Ceph stance:** always rebuild in this runbook. `wipeDevicesFromOtherClusters: true` is expected for this destructive path.
+
 ## Prerequisites
 
-### Required Tools
+### Workstation tools
 
-The following CLI tools must be installed and accessible in your PATH:
-
-- `helm` - Helm package manager
-- `helmfile` - Helm chart deployment orchestration
-- `jq` - JSON processor
-- `kubectl` - Kubernetes command-line tool
-- `kustomize` - Kubernetes configuration management
-- `op` - 1Password CLI
-- `talosctl` - Talos Linux control tool
-- `yq` - YAML processor
-- `task` - Task runner
-
-### Environment Setup
-
-1. **KUBECONFIG**: Set the `KUBECONFIG` environment variable to specify where the kubeconfig file should be saved:
-   ```bash
-   export KUBECONFIG=~/.kube/config
-   ```
-
-2. **SOPS Age Key**: Ensure the SOPS age key is saved to `~/.config/sops/age/keys.txt`. You can retrieve this from 1Password under the item 'sops-age-key'.
-
-3. **1Password Authentication**: Authenticate with 1Password CLI:
-   ```bash
-   op signin
-   ```
-
-## Resetting Existing Cluster (Optional)
-
-If you have an existing cluster that needs to be reset:
+Install the pinned toolchain from `.mise.toml`:
 
 ```bash
-task talos:nuke
+mise install
+mise trust
 ```
 
-This will reset all nodes back to maintenance mode, wiping state and ephemeral data.
+The bootstrap scripts expect these tools in `PATH`:
 
-Alternatively, you can download `metal-amd64.iso` from the [Talos releases page](https://github.com/siderolabs/talos/releases) matching your current version and manually boot each node into maintenance mode. Nodes should have statically assigned IP addresses from the Unifi DHCP server (`10.0.80.x`).
+- `age`
+- `flux`
+- `helm`
+- `helmfile`
+- `jq`
+- `kubectl`
+- `kustomize`
+- `op`
+- `sops`
+- `talhelper`
+- `talosctl`
+- `task`
+- `yq`
 
-## Bootstrap Process
+### Environment
 
-The bootstrap process can be executed using the automated script:
+```bash
+export KUBECONFIG=~/.kube/config
+```
+
+Authenticate to 1Password:
+
+```bash
+op signin
+op whoami
+```
+
+Ensure the SOPS age key exists locally:
+
+```bash
+test -f ~/.config/sops/age/keys.txt
+```
+
+The bootstrap process also reads Talos secrets and initial Kubernetes secrets from 1Password references in:
+
+- `talos/.env`
+- `bootstrap/resources.yaml.j2`
+
+### Hardware and network
+
+1. Boot each node into Talos maintenance mode, or reset an existing cluster with:
+
+   ```bash
+   task talos:nuke
+   ```
+
+2. Confirm DHCP reservations / static leases are in place for:
+
+   - `k8s-node-1` — `10.0.80.10`
+   - `k8s-node-2` — `10.0.80.11`
+   - `k8s-node-3` — `10.0.80.12`
+   - `k8s-node-4` — `10.0.80.13`
+   - `k8s-node-5` — `10.0.80.14`
+   - Kubernetes API VIP — `10.0.80.99`
+
+3. Confirm the NAS is online and serving NFS for at least:
+
+   - `/volume2/kopia` — primary VolSync restore repository
+   - any app-specific NFS paths used by media/home-automation workloads
+   - `/volume2/garage/*` if Garage object storage is being restored from NAS-backed state
+
+## Preflight
+
+Run preflight before applying Talos configs:
+
+```bash
+task bootstrap:preflight
+```
+
+This checks:
+
+- required CLI tools
+- `KUBECONFIG` parent directory writability
+- required repo files
+- 1Password references used by Talos/bootstrap resources
+- rendering of `bootstrap/helmfile.yaml`, using chart refs from that file
+- rendering of `bootstrap/resources.yaml.j2`
+- rendering of `bootstrap/helmfile.yaml`
+- Talos node reachability in maintenance mode or with generated Talos config
+
+If node reachability must be skipped temporarily:
+
+```bash
+BOOTSTRAP_PREFLIGHT_SKIP_NODES=true task bootstrap:preflight
+```
+
+## Bootstrap
+
+Run the automated bootstrap:
 
 ```bash
 ./scripts/bootstrap-cluster.sh
 ```
 
-This script performs the following steps:
+The script performs these steps:
 
-### 1. Talos Configuration
+1. Generate Talos configuration with `task talos:generate`.
+2. Export and use the generated Talos client config at `talos/clusterconfig/talosconfig`.
+3. Apply Talos machine configs to nodes.
+4. Bootstrap etcd/Kubernetes on a controller node.
+5. Fetch kubeconfig to the exact path in `$KUBECONFIG`.
+6. Wait for all Kubernetes node objects to register.
+7. Apply early CRDs required by Flux-managed resources.
+8. Render and apply bootstrap secrets/namespaces from `bootstrap/resources.yaml.j2`.
+9. Sync bootstrap Helm releases with `bootstrap/helmfile.yaml`:
 
-The script will:
-
-1. **Generate Talos configuration**: Creates node-specific configuration files using `talhelper`:
-   ```bash
-   task talos:generate
-   ```
-   This reads from `talos/talconfig.yaml`, `talos/talenv.yaml`, and `talos/talsecret.yaml` to generate configurations for each node.
-
-2. **Apply configuration to nodes**: Applies the generated configuration to all Talos nodes:
-   ```bash
-   task talos:apply
-   ```
-   Note: If nodes are already configured, the script will skip this step to avoid certificate conflicts.
-
-3. **Bootstrap the cluster**: Initializes the Kubernetes cluster on a controller node:
-   ```bash
-   task talos:bootstrap
-   ```
-   The script will retry this operation until successful, checking for "AlreadyExists" to detect completion.
-
-4. **Fetch kubeconfig**: Downloads the kubeconfig file from a controller node:
-   ```bash
-   talosctl kubeconfig --nodes <controller> --force <kubeconfig-file>
+   ```text
+   Cilium → CoreDNS → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
    ```
 
-### 2. Kubernetes Setup
-
-Once Talos is bootstrapped, the script sets up core Kubernetes components:
-
-1. **Wait for nodes**: The script waits for all nodes to be available before proceeding. It uses `talosctl health --server=false` to verify node health.
-
-2. **Apply Custom Resource Definitions (CRDs)**:
-   - External DNS CRDs
-   - Gateway API experimental CRDs
-   - Prometheus Operator CRDs
-   - Network Attachment Definition CRDs (Multus)
-   - Barman Cloud CRDs (CloudNative-PG)
-   - Envoy Gateway CRDs (extracted from Helm chart)
-
-3. **Apply bootstrap resources**: Renders and applies resources from `bootstrap/resources.yaml.j2` using 1Password (`op inject`) to inject secrets. This creates:
-   - `external-secrets`, `flux-system`, and `network` namespaces
-   - 1Password Connect credentials secret
-   - SOPS age key secret for Flux decryption
-   - TLS certificate secret for ingress
-
-4. **Sync Helm releases**: Deploys core infrastructure components using Helmfile in order:
-   ```
-   Cilium → CoreDNS (Helm) → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
-   ```
-   ```bash
-   helmfile --file bootstrap/helmfile.yaml sync --hide-notes
-   ```
+Flux then reconciles `kubernetes/flux/cluster/ks.yaml` from `main` and starts applying the full app graph.
 
 ## Verification
 
-After the bootstrap completes, verify the cluster is healthy and starting:
+First verify the core bootstrap substrate:
 
-1. **Check node status**:
-   ```bash
-   kubectl get nodes -o wide
-   ```
-   All nodes should show `Ready` status.
+```bash
+task bootstrap:verify
+```
 
-2. **Verify core resources**:
-   ```bash
-   kubectl get pods -A
-   kubectl get kustomization -A
-   kubectl get helmrelease -A
-   ```
+This checks:
 
-3. **Verify Flux components**:
-   ```bash
-   kubectl -n flux-system get pods -o wide
-   ```
+- Kubernetes API reachability
+- all nodes `Ready=True`
+- Cilium rollout
+- CoreDNS rollout
+- External Secrets pods
+- Flux pods
+- Flux source readiness
 
-## Post-Bootstrap Notes
+After Flux has had time to reconcile the full repository, verify full convergence:
 
-### Storage Considerations
+```bash
+task bootstrap:verify-full
+```
 
-Ensure OSDs are properly configured in `rook-ceph`. With `wipeDevicesFromOtherClusters: true` set, the setup should be seamless. However, avoid installing the Talos system partition on disks designated for Rook-Ceph, as this will cause OSD job failures.
+This additionally checks:
 
-### Certificate Generation
+- `cluster-apps` readiness
+- all Flux Kustomizations and HelmReleases ready
+- `openebs-hostpath`, `ceph-block`, and `csi-ceph-blockpool`
+- Rook Ceph Kustomization readiness
+- VolSync Kustomization readiness
+- Envoy Gateway programming
+- main CNPG `postgres` cluster readiness
+- VolSync ReplicationSource/ReplicationDestination API availability
 
-`cert-manager` may take some time to generate certificates. This is normal - be patient and monitor the certificate resources.
+## Data restoration expectations
 
-### Data Restoration
+### VolSync PVCs
 
-VolSync backups use a dual-storage strategy (Kopia to NFS + Restic to Cloudflare R2). On bootstrap, VolSync will automatically begin restoring volumes from the last available snapshot. Verify that your applications have their data restored after startup.
+Persistent apps using `kubernetes/components/volsync` create PVCs with a `dataSourceRef` to a VolSync `ReplicationDestination`. On a destructive rebuild, those PVCs should restore automatically from the latest Kopia snapshot in the NAS repository.
+
+Important details:
+
+- The default GitOps-created PVC restore uses **Kopia/NFS**. Use the manual R2 procedure if the Kopia repository is unavailable or missing the desired snapshot.
+- The NAS and `/volume2/kopia` must be available before VolSync mover jobs can restore.
+- Cloudflare R2 Restic backups are retained as a secondary disaster copy. Manual R2 restore steps are documented in `kubernetes/components/volsync/README.md`.
+- After bootstrap, inspect VolSync objects and PVCs:
+
+  ```bash
+  kubectl get replicationdestinations,replicationsources -A
+  kubectl get pvc -A
+  ```
+
+### PostgreSQL / CNPG
+
+CNPG clusters use their declarative manifests and backup configuration in Git. During a full rebuild, database readiness can lag behind Flux readiness while operators, object storage, DNS/routing, and backup recovery settle.
+
+Use the full verifier and CNPG checks:
+
+```bash
+task bootstrap:verify-full
+kubectl -n database get cluster postgres
+kubectl -n database describe cluster postgres
+```
+
+### Ceph / Rook
+
+This runbook assumes Ceph is rebuilt, not adopted. Rook is configured with `wipeDevicesFromOtherClusters: true`, so make sure the selected OSD disks in `kubernetes/apps/rook-ceph/rook-ceph/cluster/helmrelease.yaml` are the disks you intend to wipe/reuse.
 
 ## Troubleshooting
 
-- **Bootstrap interruption**: If the bootstrap process is interrupted (e.g., by Ctrl+C), you may need to reset the cluster using `task talos:nuke` before trying again.
-- **Node connectivity**: Ensure all nodes are accessible and have their expected static IP addresses.
-- **1Password authentication**: If you see authentication errors, ensure you're signed into 1Password CLI with `op signin`.
+### Preflight cannot read 1Password refs
 
-The bootstrap process typically takes 10+ minutes. During this time, you may see various error messages like "couldn't get current server API group list" or "error: no matching resources found" - these are normal as services come online.
+Re-authenticate and check vault access:
+
+```bash
+op signin
+op whoami
+op read op://k8s/sops/SOPS_PRIVATE_KEY >/dev/null
+```
+
+### Talos node not reachable
+
+Confirm the node is booted into Talos maintenance mode and has the expected IP:
+
+```bash
+talosctl --nodes 10.0.80.10 version --insecure
+```
+
+If the node was already configured, regenerate Talos config and try authenticated access:
+
+```bash
+task talos:generate
+TALOSCONFIG=talos/clusterconfig/talosconfig talosctl --nodes 10.0.80.10 version
+```
+
+### Bootstrap interrupted
+
+If interruption happened before Kubernetes was healthy, reset back to maintenance mode and rerun:
+
+```bash
+task talos:nuke
+./scripts/bootstrap-cluster.sh
+```
+
+### Flux is installed but apps are still reconciling
+
+Check Flux state:
+
+```bash
+kubectl get kustomizations.kustomize.toolkit.fluxcd.io -A
+kubectl get helmreleases.helm.toolkit.fluxcd.io -A
+flux get kustomizations -A
+flux get helmreleases -A
+```
+
+Then rerun:
+
+```bash
+task bootstrap:verify-full
+```
