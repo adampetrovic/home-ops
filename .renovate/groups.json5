@@ -14,6 +14,15 @@
       versioning: "loose",
     },
     {
+      description: "mise-managed tool versions",
+      groupName: "mise tools",
+      matchManagers: ["mise"],
+      matchFileNames: [".mise.toml"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "Barman Cloud Group",
       groupName: "Barman Cloud",
       matchDatasources: ["docker", "github-releases"],
