@@ -10,7 +10,7 @@ kustomize = "5.8.1"
 flux2 = "2.8.8"
 
 # Talos
-talosctl = "1.13.0"
+talosctl = "1.13.2"
 talhelper = "3.1.10"
 
 # Secrets
