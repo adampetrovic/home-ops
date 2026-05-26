@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: ghcr.io/dictionarry-hub/profilarr
-              tag: 2.0.5@sha256:07c796009e02a9795189be23c67a101f2eb2d25fa8bd44ed9c11af11ce305b3c
+              tag: 2.0.6@sha256:33cd7175872a28511d661904de05da822374df116fce3e2e7e65c1823ca211e2
             env:
               TZ: "${TZ}"
               HOST: 0.0.0.0
