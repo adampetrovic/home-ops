@@ -39,7 +39,7 @@ spec:
           tika:
             image:
               repository: mirror.gcr.io/apache/tika
-              tag: latest-full@sha256:ecdd37e204308266b1f8e28569f8516ebd5b96d7a4518a71d3904710b20c03b3
+              tag: latest-full@sha256:d8e6ed96260ad89307a93195a1b856102987a818ac648502f8efbaf313d32470
           app:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
