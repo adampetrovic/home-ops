@@ -90,7 +90,7 @@ spec:
           app:
             image:
               repository: ghcr.io/dictionarry-hub/profilarr-parser
-              tag: 2.0.6@sha256:4b619f7ce8a0868a12b3bd99b11015227763d62678e3000b3d94549b7cf656c8
+              tag: 2.0.7@sha256:251346ff77652f4ea2ba7bcdc3383d26590860ff0bdb6fa98d74d96dec786716
             env:
               ASPNETCORE_URLS: http://+:5000
               ASPNETCORE_ENVIRONMENT: Production
