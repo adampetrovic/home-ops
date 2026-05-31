@@ -54,7 +54,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.10.33@sha256:76d9e96c9d045d1dc3c5e955a4b3dea0c4eed39785c17d5a94e118051129191c
+              tag: 1.10.52@sha256:b95a592c5d53c00ccbc145217b2303530484fe0495a27291b6546f1b30aa60b6
               pullPolicy: Always
             env:
               SERVER_HOST: "0.0.0.0"
@@ -65,7 +65,7 @@ spec:
               MEDIA_DIR: /media/g
               RATE_LIMIT_PER_MIN: "600"
               SERVER_READ_TIMEOUT: "60s"
-              SERVER_WRITE_TIMEOUT: "60s"
+              SERVER_WRITE_TIMEOUT: "150s"
             envFrom:
               - secretRef:
                   name: gdb-secret
