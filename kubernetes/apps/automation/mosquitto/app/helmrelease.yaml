@@ -102,8 +102,6 @@ spec:
           - path: /mosquitto/external_config
       data:
         enabled: true
-        storageClass: ceph-block
-        accessMode: ReadWriteOnce
-        size: 1Gi
+        existingClaim: mosquitto-cephfs
         globalMounts:
           - path: /mosquitto/data
