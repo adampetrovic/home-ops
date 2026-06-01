@@ -30,7 +30,7 @@ Do **not** retain command, action, or one-shot event topics such as `.../set`, `
 - A stale retained `online` message can make Home Assistant show a device as available after the device has died if there is no matching retained `offline`/LWT behaviour.
 - Retained discovery topics can create ghost entities after device renames or removals until the retained discovery config is cleared.
 - Retained state can make old sensor values appear immediately after a Home Assistant restart; use availability or `expire_after` where stale data is unsafe.
-- Retained MQTT payloads are now written to the Mosquitto PVC. This PVC is intentionally not backed up by VolSync.
+- Retained MQTT payloads are written to the `mosquitto-cephfs` CephFS PVC. This PVC is intentionally not backed up by VolSync.
 
 Clear a bad retained topic by publishing a zero-length retained payload. Mosquitto requires authentication; load `MQTT_USERNAME` and `MQTT_PASSWORD` from the `mosquitto-secret` Kubernetes Secret or 1Password first.
 
