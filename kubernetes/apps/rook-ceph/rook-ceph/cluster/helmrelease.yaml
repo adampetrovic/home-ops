@@ -29,6 +29,13 @@ spec:
       prometheusRuleOverrides:
         CephNodeDiskspaceWarning:
           disabled: true
+        # Rook v1.19.6 added the cluster label to Ceph metrics, which leaves
+        # stale 2d-range series without that label until Prometheus retention
+        # ages them out. Deduplicate the growth prediction before joining pool
+        # metadata so PrometheusRuleFailures does not fire during mgr rollouts.
+        CephPoolGrowthWarning:
+          expr: >-
+            (max by (cluster, pool_id, instance) (predict_linear(ceph_pool_percent_used[2d], 3600 * 24 * 5)) * on(cluster,pool_id, instance) group_right() ceph_pool_metadata) >= 95
     ingress:
       dashboard:
         ingressClassName: ""
