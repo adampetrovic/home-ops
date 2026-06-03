@@ -58,7 +58,7 @@ spec:
           frontend:
             image:
               repository: docker.io/codewithcj/sparkyfitness
-              tag: v0.16.6.3@sha256:554feb804a1c1a2fe2f1b0a5870ad9b43864a4c34a1be4b74d66797147659187
+              tag: v0.16.8@sha256:ee871fcfcd5a1c54535a46f6e5fad65968d4ea3135017f1949aab8119de90146
             env:
               SPARKY_FITNESS_SERVER_HOST: localhost
               SPARKY_FITNESS_SERVER_PORT: "3010"
