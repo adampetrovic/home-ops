@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: docker.io/codewithcj/sparkyfitness_server
-              tag: v0.16.6.3@sha256:b6a1395f02f793d61a7631b840153719a8d07e53fad32655126266b3769c4a97
+              tag: v0.16.8@sha256:c151215e42367edc437f00b7e821e3ea19c09128815b9e9ee7a54de1b16e1cea
             envFrom: *envFrom
             env:
               TZ: ${TZ}
