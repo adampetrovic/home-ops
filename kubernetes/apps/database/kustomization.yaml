@@ -7,6 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./cloudnative-pg/ks.yaml
-  - ./removed-db-cluster/ks.yaml
   - ./dragonfly/ks.yaml
   - ./pgadmin/ks.yaml
