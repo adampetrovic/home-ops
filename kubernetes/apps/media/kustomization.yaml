@@ -23,6 +23,7 @@ resources:
   - ./sonarr/ks.yaml
   - ./sonarr-4k/ks.yaml
   - ./sportarr/ks.yaml
+  - ./removed-media-app/ks.yaml
   - ./tautulli/ks.yaml
   - ./tdarr/ks.yaml
   - ./tracearr/ks.yaml
