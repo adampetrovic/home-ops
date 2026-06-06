@@ -111,6 +111,13 @@ spec:
         vip: "10.0.88.8"
         port: "6010"
     - targets:
+        - "10.0.88.15:5432"
+      labels:
+        probe: bgp-loadbalancer
+        service: removed-db-cluster
+        vip: "10.0.88.15"
+        port: "5432"
+    - targets:
         - "10.0.88.6:25"
       labels:
         probe: bgp-loadbalancer
