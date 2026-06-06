@@ -13,6 +13,9 @@ spec:
       namespace: flux-system
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
+      namespace: removed-db-namespace
+    - group: gateway.envoyproxy.io
+      kind: SecurityPolicy
       namespace: media
     - group: gateway.envoyproxy.io
       kind: SecurityPolicy
