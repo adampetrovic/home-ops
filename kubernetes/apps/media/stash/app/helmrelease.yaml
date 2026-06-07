@@ -79,6 +79,36 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
+          uploader:
+            image:
+              repository: ghcr.io/adampetrovic/stash-uploader
+              tag: dev-e4c95f3d@sha256:b8abdec93555062fdaa3285be3856803100e6e33362a0d2ac1ddc93730308e66
+            env:
+              UPLOAD_DIR: /media
+              PORT: &uploader-port 8080
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            probes:
+              liveness: &uploader-probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *uploader-port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *uploader-probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         pod:
           securityContext:
             runAsNonRoot: true
@@ -94,6 +124,11 @@ spec:
         ports:
           http:
             port: *port
+      uploader:
+        controller: stash
+        ports:
+          http:
+            port: *uploader-port
 
     route:
       main:
@@ -102,6 +137,17 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /upload
+            backendRefs:
+              - identifier: uploader
+                port: http
+          - backendRefs:
+              - identifier: app
+                port: http
 
     persistence:
       config:
