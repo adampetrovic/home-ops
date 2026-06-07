@@ -46,7 +46,7 @@ spec:
                 cache: /cache
                 blobs_path: /blobs
                 stash:
-                  - /data
+                  - /media
                 EOF
                 fi
         containers:
@@ -152,7 +152,7 @@ spec:
         advancedMounts:
           stash:
             app:
-              - path: /data
+              - path: /media
       tmp:
         type: emptyDir
         advancedMounts:
