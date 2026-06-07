@@ -25,30 +25,6 @@ spec:
       stash:
         annotations:
           reloader.stakater.com/auto: 'true'
-        initContainers:
-          01-init-config:
-            image:
-              repository: ghcr.io/home-operations/busybox
-              tag: 1.38.0@sha256:7e2c04dd50ede647bf4a7a4c8dbd629dd4971cd139b9b88fb22bfc3c7a6c13df
-            command:
-              - /bin/sh
-              - -ec
-            args:
-              - |
-                mkdir -p /config /generated /metadata /cache /blobs
-                if [ ! -s /config/config.yml ]; then
-                  cat > /config/config.yml <<'EOF'
-                host: 0.0.0.0
-                port: 9999
-                database: /config/stash-go.sqlite
-                generated: /generated
-                metadata: /metadata
-                cache: /cache
-                blobs_path: /blobs
-                stash:
-                  - /media
-                EOF
-                fi
         containers:
           app:
             image:
@@ -56,8 +32,18 @@ spec:
               tag: v0.31.1@sha256:df744af5a0c976e2ec671052ecc1f8a9aa757fa12b8f9930b59910b7295f0da6
             env:
               TZ: "${TZ}"
+              STASH_STASH: /media/
+              STASH_GENERATED: /generated
+              STASH_METADATA: /metadata
+              STASH_CACHE: /cache
+              STASH_BLOBS_PATH: /blobs
+              STASH_BLOBS_STORAGE: FILESYSTEM
+              STASH_PLUGINS_PATH: /config/plugins
+              STASH_SCRAPERS_PATH: /config/scrapers
               STASH_CONFIG_FILE: /config/config.yml
-              USER: stash
+              STASH_PORT: &port 9999
+              STASH_NO_BROWSER: "true"
+              USER: "568"
               HOME: /config
             resources:
               requests:
@@ -72,7 +58,7 @@ spec:
                 spec:
                   httpGet:
                     path: /healthz
-                    port: &port 9999
+                    port: *port
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -121,41 +107,26 @@ spec:
       config:
         enabled: true
         existingClaim: stash
-        advancedMounts:
-          stash:
-            01-init-config:
-              - path: /config
-                subPath: config
-              - path: /generated
-                subPath: generated
-              - path: /metadata
-                subPath: metadata
-              - path: /cache
-                subPath: cache
-              - path: /blobs
-                subPath: blobs
-            app:
-              - path: /config
-                subPath: config
-              - path: /generated
-                subPath: generated
-              - path: /metadata
-                subPath: metadata
-              - path: /cache
-                subPath: cache
-              - path: /blobs
-                subPath: blobs
-      data:
+        globalMounts:
+          - path: /config
+            subPath: config
+          - path: /generated
+            subPath: generated
+          - path: /metadata
+            subPath: metadata
+          - path: /blobs
+            subPath: blobs
+      media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/stash
-        advancedMounts:
-          stash:
-            app:
-              - path: /media
+        globalMounts:
+          - path: /media
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /cache
       tmp:
         type: emptyDir
-        advancedMounts:
-          stash:
-            app:
-              - path: /tmp
+        globalMounts:
+          - path: /tmp
