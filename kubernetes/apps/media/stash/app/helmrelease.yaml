@@ -110,18 +110,19 @@ spec:
         globalMounts:
           - path: /config
             subPath: config
-          - path: /generated
-            subPath: generated
-          - path: /metadata
-            subPath: metadata
-          - path: /blobs
-            subPath: blobs
       media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/stash
         globalMounts:
           - path: /media
+            subPath: media
+          - path: /blobs
+            subPath: blobs
+          - path: /generated
+            subPath: generated
+          - path: /metadata
+            subPath: metadata
       cache:
         type: emptyDir
         globalMounts:
