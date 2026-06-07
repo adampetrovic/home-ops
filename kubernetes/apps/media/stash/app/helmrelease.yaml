@@ -57,6 +57,8 @@ spec:
             env:
               TZ: "${TZ}"
               STASH_CONFIG_FILE: /config/config.yml
+              USER: stash
+              HOME: /config
             resources:
               requests:
                 cpu: 50m
