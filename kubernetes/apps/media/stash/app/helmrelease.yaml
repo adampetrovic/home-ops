@@ -110,6 +110,8 @@ spec:
               readOnlyRootFilesystem: true
               capabilities: { drop: ["ALL"] }
         pod:
+          imagePullSecrets:
+            - name: ghcr-private
           securityContext:
             runAsNonRoot: true
             runAsUser: 568
