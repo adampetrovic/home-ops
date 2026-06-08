@@ -35,6 +35,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: gdb
+      namespace: gdb
     - name: gdb-postgres-cluster
       namespace: gdb
     - name: external-secrets-stores
