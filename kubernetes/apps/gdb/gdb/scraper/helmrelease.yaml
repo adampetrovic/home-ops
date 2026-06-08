@@ -11,11 +11,11 @@ spec:
     name: app-template
   install:
     remediation:
-      retries: 3
+      retries: -1
   upgrade:
     cleanupOnFail: true
     remediation:
-      retries: 3
+      retries: -1
       strategy: rollback
   uninstall:
     keepHistory: false
@@ -24,33 +24,36 @@ spec:
       imagePullSecrets:
         - name: ghcr-private
     controllers:
-      mms:
+      # Manual first-run job. Run this before any MSO replay/import so the
+      # people table and usagnum_hash_lookup rainbow table are populated.
+      usag-bootstrap:
         type: cronjob
         cronjob:
-          schedule: "0 6 * * 1"      # Monday 6am AEST
+          schedule: "0 0 1 1 *"      # Manual only: create Job from this suspended CronJob
           timeZone: "Australia/Sydney"
-          suspend: false
+          suspend: true
           concurrencyPolicy: Forbid
-          successfulJobsHistory: 3
+          successfulJobsHistory: 1
           failedJobsHistory: 3
         containers:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.52@sha256:bcf102958ae24b3c22781eede7010db564837080099ce7fba649fd26d2ac8444
-            envFrom:
+              tag: 0.1.77@sha256:4424d456eea5361f8419a2a90506453c50a8da2a3d3374ea1899278667ff3d0f
+            envFrom: &envFrom
               - secretRef:
                   name: gdb-secret
             env:
               OUTPUT_DIR: /export
-              MODE: incremental
-              SOURCE: mms
+              SOURCE: usag
+              MODE: full
+              CONCURRENCY: "50"
             resources:
               requests:
                 memory: 3Gi
               limits:
                 memory: 4Gi
-        pod:
+        pod: &scraperPod
           restartPolicy: Never
           securityContext:
             runAsUser: 568
@@ -58,53 +61,204 @@ spec:
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
-      mso:
+      # Manual first-run fetch. It populates /export/mso-cache on the PVC and
+      # skips already-cached API responses on future reruns.
+      mso-bootstrap-fetch-cache:
         type: cronjob
         cronjob:
-          schedule: "0 18 * * 3"      # Wednesday 6pm AEST
+          schedule: "0 0 1 1 *"      # Manual only: create Job from this suspended CronJob
           timeZone: "Australia/Sydney"
-          suspend: false
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /export
+              SOURCE: mso
+              MODE: full
+              SEASONS: &msoBootstrapSeasons "2025-2026,2024-2025,2023-2024,2022-2023,2021-2022,2020-2021,2019-2020,2018-2019,2017-2018,2016-2017,2015-2016,2014-2015,2013-2014,2012-2013,2011-2012,2010-2011,2009-2010,2008-2009,2007-2008,2006-2007,2005-2006,2004-2005,2003-2004,2002-2003,2001-2002,2000-2001"
+              MSO_CACHE_MODE: fetch-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              MSO_LOOKUP_CLUBS: "true"
+              CONCURRENT_REQUESTS: "10"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "10"
+              http_proxy: &externalProxy
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              https_proxy: *externalProxy
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod: *scraperPod
+      # Manual first-run replay/import. The preflight prevents an accidental
+      # MSO import before USAG bootstrap has populated the rainbow table.
+      mso-bootstrap-replay-cache:
+        type: cronjob
+        cronjob:
+          schedule: "0 0 1 1 *"      # Manual only: create Job from this suspended CronJob
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            command: ["/bin/bash", "-lc"]
+            args:
+              - |-
+                set -euo pipefail
+                min_rows="${USAG_BOOTSTRAP_MIN_RAINBOW_ROWS:-1000000}"
+                rainbow_rows="$(psql "$DATABASE_URL" -Atc "SELECT count(*) FROM usagnum_hash_lookup" | tr -d '[:space:]')"
+                if [ "${rainbow_rows:-0}" -lt "$min_rows" ]; then
+                  echo "USAG bootstrap preflight failed: usagnum_hash_lookup has ${rainbow_rows:-0} rows; need at least ${min_rows}. Run gdb-scraper-usag-bootstrap first."
+                  exit 1
+                fi
+                exec /app/entrypoint.sh mso
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /export
+              SOURCE: mso
+              MODE: full
+              SEASONS: *msoBootstrapSeasons
+              MSO_CACHE_MODE: replay-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              MSO_LOOKUP_CLUBS: "true"
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              USAG_BOOTSTRAP_MIN_RAINBOW_ROWS: "1000000"
+            resources:
+              requests:
+                memory: 4Gi
+              limits:
+                memory: 6Gi
+        pod: *scraperPod
+      # Normal incremental MMS import. Kept suspended until the fresh database
+      # has completed the USAG/MSO bootstrap sequence.
+      mms:
+        type: cronjob
+        cronjob:
+          schedule: "0 6 * * 1"      # Monday 6am AEST
+          timeZone: "Australia/Sydney"
+          suspend: true
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
         containers:
           scraper:
             image: *image
-            envFrom:
-              - secretRef:
-                  name: gdb-secret
+            envFrom: *envFrom
             env:
               OUTPUT_DIR: /export
               MODE: incremental
-              SOURCE: mso
+              SOURCE: mms
+              MMS_INCREMENTAL_STRATEGY: new-only
+              MMS_INCREMENTAL_LOOKBACK_DAYS: "120"
+              MMS_INCREMENTAL_MANIFEST_ENABLED: "true"
+              MMS_INCREMENTAL_MANIFEST_DIR: /export/mms-cache/manifests
+              MMS_PARSED_CACHE_ENABLED: "true"
+              MMS_PARSED_CACHE_DIR: /export/mms-cache/parsed-meets
+              MMS_PARSED_CACHE_VALIDATE_GYMNAST_COUNT: "true"
             resources:
               requests:
                 memory: 3Gi
               limits:
                 memory: 4Gi
-        pod:
-          restartPolicy: Never
-          securityContext:
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups: [100]
+        pod: *scraperPod
+      # Normal incremental MSO source-cache refresh. Uses the same PVC-backed
+      # cache and leaves already-cached API responses untouched.
+      mso-fetch-cache:
+        type: cronjob
+        cronjob:
+          schedule: "0 18 * * 3"      # Wednesday 6pm AEST
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /export
+              MODE: incremental
+              SOURCE: mso
+              MSO_CACHE_MODE: fetch-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              CONCURRENT_REQUESTS: "10"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "10"
+              http_proxy: *externalProxy
+              https_proxy: *externalProxy
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod: *scraperPod
+      # Normal incremental MSO replay/import from the PVC-backed cache.
+      mso-replay-cache:
+        type: cronjob
+        cronjob:
+          schedule: "0 0 * * 4"       # Thursday midnight AEST
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            command: ["/bin/bash", "-lc"]
+            args:
+              - |-
+                set -euo pipefail
+                min_rows="${USAG_BOOTSTRAP_MIN_RAINBOW_ROWS:-1000000}"
+                rainbow_rows="$(psql "$DATABASE_URL" -Atc "SELECT count(*) FROM usagnum_hash_lookup" | tr -d '[:space:]')"
+                if [ "${rainbow_rows:-0}" -lt "$min_rows" ]; then
+                  echo "USAG bootstrap preflight failed: usagnum_hash_lookup has ${rainbow_rows:-0} rows; need at least ${min_rows}. Run gdb-scraper-usag-bootstrap first."
+                  exit 1
+                fi
+                exec /app/entrypoint.sh mso
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /export
+              MODE: incremental
+              SOURCE: mso
+              MSO_CACHE_MODE: replay-cache
+              MSO_CACHE_DIR: /export/mso-cache
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              USAG_BOOTSTRAP_MIN_RAINBOW_ROWS: "1000000"
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod: *scraperPod
+      # Normal incremental USAG refresh. Keep suspended until after the initial
+      # bootstrap succeeds, then unsuspend when you want weekly maintenance.
       usag:
         type: cronjob
         cronjob:
           schedule: "0 12 * * 0"      # Sunday 12pm AEST
           timeZone: "Australia/Sydney"
-          suspend: false
+          suspend: true
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3
           failedJobsHistory: 3
         containers:
           scraper:
             image: *image
-            envFrom:
-              - secretRef:
-                  name: gdb-secret
+            envFrom: *envFrom
             env:
               OUTPUT_DIR: /export
               MODE: incremental
@@ -114,14 +268,9 @@ spec:
                 memory: 3Gi
               limits:
                 memory: 4Gi
-        pod:
-          restartPolicy: Never
-          securityContext:
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
-            supplementalGroups: [100]
+        pod: *scraperPod
     persistence:
       export:
         existingClaim: gdb-scraper
+        globalMounts:
+          - path: /export
