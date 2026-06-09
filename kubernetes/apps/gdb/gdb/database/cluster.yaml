@@ -20,6 +20,10 @@ spec:
     parameters:
       max_connections: "600"
       shared_buffers: 512MB
+      # Reload-safe (no instance restart). The scraper import commits per
+      # item, so WAL flush dominates; async commit trades <1s of durability
+      # on a re-runnable workload for a large write-throughput win.
+      synchronous_commit: "off"
     #shared_preload_libraries:
     #  - "vectors.so"
   nodeMaintenanceWindow:
