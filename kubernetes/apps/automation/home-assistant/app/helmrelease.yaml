@@ -38,7 +38,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/home-assistant
-              tag: 2026.5.4@sha256:42d1bc5e99ed0ae8f49b72b8994e25e1a6b0f1467ba26c1b959f54ca42541ffd
+              tag: 2026.6.2@sha256:124cfd97bf15112d770cd60d1ded0eb8739fb3123b9a32bf85978d4cfa27b1a3
             env:
               TZ: "${TZ}"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
