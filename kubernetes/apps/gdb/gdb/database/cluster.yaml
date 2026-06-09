@@ -19,7 +19,7 @@ spec:
   postgresql:
     parameters:
       max_connections: "600"
-      shared_buffers: 512MB
+      shared_buffers: 2GB
       # Reload-safe (no instance restart). The scraper import commits per
       # item, so WAL flush dominates; async commit trades <1s of durability
       # on a re-runnable workload for a large write-throughput win.
@@ -33,10 +33,10 @@ spec:
   enablePDB: false
   resources:
     requests:
-      cpu: 250m
-      memory: 1536Mi
+      cpu: "2"
+      memory: 4Gi
     limits:
-      memory: 3Gi
+      memory: 6Gi
   monitoring:
     enablePodMonitor: true
     podMonitorMetricRelabelings:
