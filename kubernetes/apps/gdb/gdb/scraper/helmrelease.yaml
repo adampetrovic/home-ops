@@ -39,7 +39,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.80@sha256:5d2ac24ff8accf0e03875891b0ca21505deef90ac5ac6233468af45aad1bc7a0
+              tag: 0.1.82@sha256:6d79726bbe5fb84696cf60908d60cb506c7d4a2aa5e64aac928833304ade28cb
             envFrom: &envFrom
               - secretRef:
                   name: gdb-secret
@@ -144,6 +144,30 @@ spec:
                 memory: 4Gi
               limits:
                 memory: 6Gi
+        pod: *scraperPod
+      # Post-import reconciliation pass. Manual only; create a Job from this
+      # suspended CronJob after a replay has loaded records.
+      reconcile:
+        type: cronjob
+        cronjob:
+          schedule: "0 0 1 1 *"      # Manual only: create Job from this suspended CronJob
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            command: ["python", "-m", "scraper.reconcile_club_states", "--apply"]
+            envFrom: *envFrom
+            env:
+              LOG_LEVEL: INFO
+            resources:
+              requests:
+                memory: 1Gi
+              limits:
+                memory: 2Gi
         pod: *scraperPod
       # Normal incremental MMS import. Kept suspended until the fresh database
       # has completed the USAG/MSO bootstrap sequence.
