@@ -169,9 +169,12 @@ spec:
               limits:
                 memory: 2Gi
         pod: *scraperPod
-      # Normal incremental MMS import. Kept suspended until the fresh database
-      # has completed the USAG/MSO bootstrap sequence.
-      mms:
+      # Normal incremental MMS source-cache refresh. Parses meet pages in
+      # flight and stores only parsed JSON items on the PVC (no raw HTML);
+      # meets already cached by earlier runs are left untouched. Kept
+      # suspended until the fresh database has completed the USAG/MSO
+      # bootstrap sequence.
+      mms-fetch-cache:
         type: cronjob
         cronjob:
           schedule: "0 6 * * 1"      # Monday 6am AEST
@@ -188,13 +191,44 @@ spec:
               OUTPUT_DIR: /export
               MODE: incremental
               SOURCE: mms
-              MMS_INCREMENTAL_STRATEGY: new-only
-              MMS_INCREMENTAL_LOOKBACK_DAYS: "120"
-              MMS_INCREMENTAL_MANIFEST_ENABLED: "true"
-              MMS_INCREMENTAL_MANIFEST_DIR: /export/mms-cache/manifests
-              MMS_PARSED_CACHE_ENABLED: "true"
+              MMS_CACHE_MODE: fetch-cache
+              MMS_CACHE_DIR: /export/mms-cache
               MMS_PARSED_CACHE_DIR: /export/mms-cache/parsed-meets
               MMS_PARSED_CACHE_VALIDATE_GYMNAST_COUNT: "true"
+              CONCURRENT_REQUESTS: "10"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "10"
+              http_proxy: *externalProxy
+              https_proxy: *externalProxy
+            resources:
+              requests:
+                memory: 3Gi
+              limits:
+                memory: 4Gi
+        pod: *scraperPod
+      # Normal incremental MMS replay/import from the PVC-backed parsed
+      # cache. Offline: skips meets already mapped in the database.
+      mms-replay-cache:
+        type: cronjob
+        cronjob:
+          schedule: "0 12 * * 1"     # Monday 12pm AEST
+          timeZone: "Australia/Sydney"
+          suspend: true
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
+        containers:
+          scraper:
+            image: *image
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /export
+              MODE: incremental
+              SOURCE: mms
+              MMS_CACHE_MODE: replay-cache
+              MMS_CACHE_DIR: /export/mms-cache
+              MMS_PARSED_CACHE_DIR: /export/mms-cache/parsed-meets
+              MMS_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
             resources:
               requests:
                 memory: 3Gi
