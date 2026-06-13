@@ -60,6 +60,7 @@ spec:
         fsGroupPolicy: File
         deployCsiAddons: false
         cephFsClientType: kernel
+        snapshotPolicy: volumeGroupSnapshot
         nodePlugin:
           serviceAccountName: rbd-nodeplugin-sa
           kubeletDirPath: /var/lib/kubelet
