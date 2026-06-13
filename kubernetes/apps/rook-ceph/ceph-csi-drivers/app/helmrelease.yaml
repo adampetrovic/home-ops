@@ -23,6 +23,9 @@ spec:
     operatorConfig:
       namespace: rook-ceph
       driverSpecDefaults:
+        log:
+          rotation:
+            enabled: false
         imageSet:
           name: rook-csi-operator-image-set-configmap
         clusterName: rook-ceph
@@ -46,6 +49,9 @@ spec:
       rbd:
         enabled: true
         name: rook-ceph.rbd.csi.ceph.com
+        log:
+          rotation:
+            enabled: false
         imageSet:
           name: rook-csi-operator-image-set-configmap
         clusterName: rook-ceph
@@ -55,6 +61,7 @@ spec:
         deployCsiAddons: false
         cephFsClientType: kernel
         nodePlugin:
+          serviceAccountName: rbd-nodeplugin-sa
           kubeletDirPath: /var/lib/kubelet
           priorityClassName: system-node-critical
           resources:
@@ -74,6 +81,7 @@ spec:
               limits:
                 memory: 256Mi
         controllerPlugin:
+          serviceAccountName: rbd-ctrlplugin-sa
           replicas: 2
           priorityClassName: system-cluster-critical
           resources:
@@ -118,6 +126,9 @@ spec:
       cephfs:
         enabled: true
         name: rook-ceph.cephfs.csi.ceph.com
+        log:
+          rotation:
+            enabled: false
         imageSet:
           name: rook-csi-operator-image-set-configmap
         clusterName: rook-ceph
@@ -130,6 +141,7 @@ spec:
         kernelMountOptions:
           ms_mode: prefer-crc
         nodePlugin:
+          serviceAccountName: cephfs-nodeplugin-sa
           kubeletDirPath: /var/lib/kubelet
           priorityClassName: system-node-critical
           resources:
@@ -149,6 +161,7 @@ spec:
               limits:
                 memory: 256Mi
         controllerPlugin:
+          serviceAccountName: cephfs-ctrlplugin-sa
           replicas: 2
           priorityClassName: system-cluster-critical
           resources:
