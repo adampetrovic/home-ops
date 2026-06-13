@@ -7,3 +7,4 @@ components:
   - ../../components/common
 resources:
   - ./rook-ceph/ks.yaml
+  - ./ceph-csi-drivers/ks.yaml
