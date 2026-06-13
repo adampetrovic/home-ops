@@ -19,7 +19,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false
+  wait: true
   interval: 30m
   retryInterval: 1m
   timeout: 5m
@@ -36,6 +36,10 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
+    - name: ceph-csi-drivers
+      namespace: rook-ceph
+    - name: rook-ceph
+      namespace: rook-ceph
     - name: volsync
       namespace: volsync-system
   path: ./kubernetes/apps/rook-ceph/rook-ceph/cluster
