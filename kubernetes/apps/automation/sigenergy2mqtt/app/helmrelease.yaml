@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/seud0nym/sigenergy2mqtt
-              tag: 2026.4.16@sha256:6448d13d5ee03e003d33b2b5a01eeb80ef8e85c702eb374a1732ad9bcc270fce
+              tag: 2026.6.14@sha256:396ae0e2828f729600130c4e30f131fb83242ce32f070c1efae2e90d4573d2ff
             env:
               TZ: "${TZ}"
 
