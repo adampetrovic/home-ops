@@ -46,6 +46,9 @@ spec:
               HBOX_MAILER_FROM: homebox@${SECRET_DOMAIN}
               HBOX_MAILER_USERNAME: unused
               HBOX_MAILER_PASSWORD: unused
+            envFrom:
+              - secretRef:
+                  name: homebox-secret
             probes:
               liveness: &probes
                 enabled: true
