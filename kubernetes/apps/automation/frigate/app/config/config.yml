@@ -435,12 +435,41 @@ cameras:
           roles:
             - detect
     detect:
-      enabled: False
+      enabled: True
+      fps: 5
+      stationary:
+        interval: 50
+        threshold: 100
+    motion:
+      threshold: 60
+      contour_area: 30
+    objects:
+      track:
+        - car
+        - person
+        - license_plate
+      filters:
+        car:
+          min_score: 0.5
+          threshold: 0.7
+    zones:
+      garage_bay:
+        # Clipped to the parking-spot floor so the neighbour's car seen through
+        # the open door is NOT counted. Refine coordinates in calibration.
+        coordinates: 0.35,0.62,0.40,0.32,0.82,0.30,0.82,0.60
+        objects:
+          - car
+          - license_plate
     review:
       alerts:
         labels: []
       detections:
         labels: []
+    snapshots:
+      enabled: True
+      bounding_box: True
+    lpr:
+      enabled: True
   backyard:
     ffmpeg:
       inputs:
