@@ -444,9 +444,10 @@ cameras:
       threshold: 60
       contour_area: 30
     objects:
+      # No person tracking here: the home gym would trip it constantly, and
+      # door-path person safety is covered by the driveway camera instead.
       track:
         - car
-        - person
         - license_plate
       filters:
         car:
