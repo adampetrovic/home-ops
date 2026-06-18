@@ -454,9 +454,10 @@ cameras:
           threshold: 0.7
     zones:
       garage_bay:
-        # Clipped to the parking-spot floor so the neighbour's car seen through
-        # the open door is NOT counted. Refine coordinates in calibration.
-        coordinates: 0.35,0.62,0.40,0.32,0.82,0.30,0.82,0.60
+        # Clipped to the parking-spot floor (zone membership = bbox bottom-center)
+        # so the other car parked in the driveway, seen through the open door,
+        # is not counted. Coordinates hand-drawn in the Frigate UI zone editor.
+        coordinates: 0.251,0.427,0.47,0.18,0.808,0.336,0.74,0.763
         objects:
           - car
           - license_plate
