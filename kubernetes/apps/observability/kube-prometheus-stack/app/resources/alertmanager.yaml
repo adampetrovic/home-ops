@@ -53,6 +53,15 @@ inhibit_rules:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubePodNotReady|TargetDown|GatusExternalEndpointDown"
+  # TeslaMate's log-rate alerts flood during a WAN outage (every Tesla API call
+  # fails with connection/DNS errors). Suppress them while WAN is down and through
+  # the recovery buffer. Their count_over_time windows are 10m to match
+  # WANDownBuffer's 10m post-recovery coverage, so outage noise ages out of the
+  # window before the buffer clears (no spurious post-recovery fire).
+  - source_matchers:
+      - alertname =~ "WANDown|WANDownBuffer"
+    target_matchers:
+      - alertname =~ "TeslaMateApiErrorStorm|TeslaMateErrorLogs"
 receivers:
   - name: "null"
   - name: homeassistant
