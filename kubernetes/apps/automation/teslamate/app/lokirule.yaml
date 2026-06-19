@@ -14,15 +14,17 @@ groups:
           summary: "{{ $labels.app }} has expired tokens. Sign in with new tokens from Tesla Auth app."
 
       # Tesla API error storm. Counts ALL failed HTTP responses (4xx/5xx, level
-      # independent since 408s log at [info]). In normal operation this is ~0 per
-      # 30m; the only spike in the last 7d was a ~14k-response 403 burst on
-      # 2026-06-14 (auth hiccup, since cleared). Threshold deliberately well above
-      # minor transient blips (~a handful per incident) so it only fires on a real
-      # storm. Lower the 20 toward 10 if you want to catch smaller API-mood events.
+      # independent since 408s log at [info]). Normal is ~0 per 10m; the only
+      # spike in the last 7d was a ~14k-response 403 burst on 2026-06-14 (auth
+      # hiccup, fixed in the v4.x upgrade). A WAN outage does NOT trigger this
+      # (no HTTP responses when offline), but it is WAN-gated anyway via
+      # Alertmanager inhibition (WANDownBuffer). The 10m window matches that
+      # buffer's 10m post-recovery coverage. Lower 10 toward 5 for more
+      # sensitivity to small API-mood events.
       - alert: TeslaMateApiErrorStorm
         expr: |
-          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `-> (4\d\d|5\d\d)` [30m])) > 20
-        for: 10m
+          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `-> (4\d\d|5\d\d)` [10m])) > 10
+        for: 5m
         labels:
           severity: warning
           category: logs
@@ -30,19 +32,20 @@ groups:
           app: "{{ $labels.app }}"
           summary: "TeslaMate Tesla API error storm"
           description: >-
-            More than 20 failed Tesla API responses (4xx/5xx, e.g. 403 forbidden,
-            408 vehicle-unavailable, 503) from teslamate in 30m, sustained 10m.
+            More than 10 failed Tesla API responses (4xx/5xx, e.g. 403 forbidden,
+            408 vehicle-unavailable, 503) from teslamate in 10m, sustained 5m.
             Normal is ~0. Check Loki for the status codes; sustained 408s correlate
             with stale-asleep / missed drives, a 403 burst means an auth problem.
 
       # Genuine error-level logs, excluding the HTTP-coded "Error / :unknown"
-      # noise that pairs with the API errors above (so this isn't double-counting
-      # the same storms). Catches crashes, DB failures, and other real errors.
-      # Baseline ~0.7/h; >10 in 15m is a clear anomaly.
+      # noise that pairs with the API errors above. This is the alert that floods
+      # during a WAN outage (connection/DNS failures log as [error]), so it is
+      # WAN-gated via Alertmanager inhibition (WANDownBuffer); the 10m window
+      # matches the buffer's 10m post-recovery coverage. Baseline ~0.7/h.
       - alert: TeslaMateErrorLogs
         expr: |
-          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `\[error\]` != `:unknown` [15m])) > 10
-        for: 10m
+          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `\[error\]` != `:unknown` [10m])) > 5
+        for: 5m
         labels:
           severity: warning
           category: logs
@@ -50,6 +53,6 @@ groups:
           app: "{{ $labels.app }}"
           summary: "TeslaMate is logging errors above normal"
           description: >-
-            More than 10 non-API [error] lines from the teslamate container in 15m,
-            sustained 10m; baseline ~0.7/h. Check `kubectl -n automation logs
-            deploy/teslamate -c app` for the cause (DB, crash loop, or auth).
+            More than 5 non-API [error] lines from the teslamate container in 10m,
+            sustained 5m; baseline ~0.7/h. If WAN is up, check `kubectl -n
+            automation logs deploy/teslamate -c app` for the cause (DB, crash, auth).
