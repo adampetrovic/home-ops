@@ -91,7 +91,7 @@ spec:
           app:
             image:
               repository: ghcr.io/haveagitgat/tdarr_node
-              tag: 2.78.01@sha256:1ec96caf6735d3c1bae5e71540cfb686bfa3ad960eff5a2a526cc68e53551779
+              tag: 2.80.01@sha256:b4d210b9edb591032fb6c7337bcd70f6be1a0c835b695984d8a961a2d498c33a
             env:
               TZ: "${TZ}"
               PUID: "568"
