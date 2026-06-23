@@ -14,12 +14,6 @@
       versioning: "loose",
     },
     {
-      description: "Use loose versioning for SparkyFitness's changing Docker tags",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/(^|/)codewithcj/sparkyfitness(_server)?$/"],
-      versioning: "loose",
-    },
-    {
       description: "mise-managed tool versions",
       groupName: "mise tools",
       matchManagers: ["mise"],
