@@ -69,6 +69,10 @@ spec:
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
               PAPERLESS_OCR_LANGUAGE: eng
+              # Post-consume LLM classifier (ANTHROPIC_API_KEY + PAPERLESS_API_TOKEN come from paperless-secret)
+              PAPERLESS_POST_CONSUME_SCRIPT: /custom/post_consume.py
+              PAPERLESS_LLM_API_URL: http://localhost:80
+              PAPERLESS_LLM_MODEL: claude-sonnet-4-6
             resources:
               requests:
                 cpu: 35m
@@ -102,3 +106,14 @@ spec:
         path: /volume2/k8s/paperless
         globalMounts:
           - path: /library
+      post-consume:
+        enabled: true
+        type: configMap
+        name: paperless-post-consume
+        # directory mount (not subPath) so defaultMode applies → script stays executable
+        defaultMode: 0755
+        advancedMounts:
+          paperless-ngx:
+            app:
+              - path: /custom
+                readOnly: true
