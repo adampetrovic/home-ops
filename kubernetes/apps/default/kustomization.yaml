@@ -16,3 +16,4 @@ resources:
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
   - ./readeck/ks.yaml
+  - ./yarr/ks.yaml
