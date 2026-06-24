@@ -6,3 +6,11 @@ resources:
   - ./helmrelease.yaml
 components:
   - ../../../../components/authelia-proxy
+configMapGenerator:
+  - name: paperless-post-consume
+    files:
+      - ./resources/post_consume.py
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
