@@ -18,7 +18,7 @@ Env:
   PAPERLESS_LLM_EXTRA_CONTEXT  optional private disambiguation hints (default "")
   DOCUMENT_ID                  injected by Paperless
 """
-import json, os, re, sys, urllib.request, urllib.error, urllib.parse, time
+import base64, json, os, re, sys, urllib.request, urllib.error, urllib.parse, time
 
 API = os.environ.get("PAPERLESS_LLM_API_URL", "http://localhost:8000").rstrip("/")
 PTOKEN = os.environ.get("PAPERLESS_API_TOKEN", "")
@@ -27,6 +27,7 @@ MODEL = os.environ.get("PAPERLESS_LLM_MODEL", "claude-opus-4-8")
 INBOX_NAME = os.environ.get("PAPERLESS_LLM_INBOX_TAG", "inbox")
 EXTRA = os.environ.get("PAPERLESS_LLM_EXTRA_CONTEXT", "").strip()
 DOC_ID = os.environ.get("DOCUMENT_ID", "")
+OCR_MIN = int(os.environ.get("PAPERLESS_LLM_OCR_MIN", "30"))  # below this, fall back to vision
 
 RULES = """For the document below, read its OCR content and current fields, then return clean
 normalised metadata via the `classify` tool, following these rules:
@@ -97,8 +98,24 @@ def find_or_create(ep, name):
         return res["results"][0]["id"]
     return papi("POST", f"/api/{ep}/", {"name": name})["id"]
 
+def fetch_bytes(path):
+    req = urllib.request.Request(f"{API}{path}", headers={"Authorization": f"Token {PTOKEN}"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+def doc_file(doc_id, doc, archive=False):
+    """Bytes + media type for the vision fallback. The ORIGINAL is the clean source (no OCR
+    text layer to mislead the model); the archive PDF is the fallback when an original scanner
+    image is too large for the image endpoint (the PDF render is downsized)."""
+    if archive:
+        return fetch_bytes(f"/api/documents/{doc_id}/download/?original=false"), "application/pdf"
+    blob = fetch_bytes(f"/api/documents/{doc_id}/download/")
+    if len(blob) > 28 * 1024 * 1024:
+        raise RuntimeError(f"file too large for vision ({len(blob)} bytes)")
+    return blob, (doc.get("mime_type") or "application/pdf")
+
 # -------------------------------------------------------------- anthropic ---
-def classify(content, cur, tags, types, corrs):
+def classify(cur, tags, types, corrs, content=None, doc_bytes=None, doc_media=None):
     type_names = [t["name"] for t in types]
     tag_names = [t["name"] for t in tags]
     corr_names = [c["name"] for c in corrs]
@@ -111,12 +128,22 @@ def classify(content, cur, tags, types, corrs):
         + (f"ADDITIONAL CONTEXT:\n{EXTRA}\n\n" if EXTRA else "")
         + RULES
     )
-    user = (f"Current title: {cur.get('title')!r}\n"
-            f"Current correspondent: {cur.get('correspondent_name')!r}\n"
-            f"Current type: {cur.get('type_name')!r}\n"
-            f"Current tags: {cur.get('tag_names')}\n"
-            f"Current date: {cur.get('created_date')!r}\n\n"
-            f"--- OCR CONTENT (truncated) ---\n{content[:8000]}")
+    ctx = (f"Current title: {cur.get('title')!r}\n"
+           f"Current correspondent: {cur.get('correspondent_name')!r}\n"
+           f"Current type: {cur.get('type_name')!r}\n"
+           f"Current tags: {cur.get('tag_names')}\n"
+           f"Current date: {cur.get('created_date')!r}\n")
+    if doc_bytes is not None:
+        if (doc_media or "").startswith("image/"):
+            src = {"type": "image", "source": {"type": "base64", "media_type": doc_media,
+                   "data": base64.b64encode(doc_bytes).decode()}}
+        else:
+            src = {"type": "document", "source": {"type": "base64", "media_type": "application/pdf",
+                   "data": base64.b64encode(doc_bytes).decode()}}
+        user = [src, {"type": "text", "text": ctx +
+                "\nThe OCR text was empty or unreadable — classify from the attached document above."}]
+    else:
+        user = ctx + f"\n--- OCR CONTENT (truncated) ---\n{(content or '')[:8000]}"
     tool = {
         "name": "classify",
         "description": "Return normalised metadata for the document.",
@@ -185,11 +212,20 @@ def main():
         "tag_names": [name_of("tags", t) for t in (doc.get("tags") or [])],
     }
 
-    if len(content.strip()) < 20:
-        log(f"doc {DOC_ID}: little/no OCR text; leaving in inbox for review"); return
-
     try:
-        result = classify(content, cur, tags, types, corrs)
+        if len(content.strip()) < OCR_MIN:
+            blob, media = doc_file(DOC_ID, doc)
+            try:
+                result = classify(cur, tags, types, corrs, doc_bytes=blob, doc_media=media)
+            except urllib.error.HTTPError:
+                # original (often an oversized scanner image) rejected -> retry via archive PDF
+                if not doc.get("archived_file_name"):
+                    raise
+                blob, media = doc_file(DOC_ID, doc, archive=True)
+                result = classify(cur, tags, types, corrs, doc_bytes=blob, doc_media=media)
+            log(f"doc {DOC_ID}: OCR empty -> vision fallback ({media})")
+        else:
+            result = classify(cur, tags, types, corrs, content=content)
     except Exception as e:
         log(f"doc {DOC_ID}: classification failed ({e}); leaving in inbox"); return
 
