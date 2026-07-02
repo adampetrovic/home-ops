@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/actualbudget/actual-server
-              tag: 26.6.0-alpine@sha256:1d2712f4a69677f94c27f0ccdd817903dab5fa897f0e0ff4e165f9c77a8ebbb5
+              tag: 26.7.0-alpine@sha256:1449173e2221eb9387da866723808a1fa32a3e92e5cca5df65dc90a532c81ac8
             env:
               TZ: ${TZ}
               ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB: "500"
