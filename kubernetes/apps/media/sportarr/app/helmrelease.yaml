@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/sportarr/sportarr
-              tag: 4.0.1012.1092@sha256:03bc40d0bb8b08f1fb7ec59675cec31b362aacfbd5b8ceecad7ccfb947412da5
+              tag: 4.0.1015.1095@sha256:7a097b2ccad0962fc0b0a61cb34fe0079c0967cbc8826c5ffaab211eb8a4eb6d
             command: [dotnet, /app/Sportarr.dll]
             env:
               TZ: "${TZ}"
