@@ -175,6 +175,16 @@ spec:
         globalMounts:
           - path: /config/deps
 
+      venv:
+        type: emptyDir
+        globalMounts:
+          - path: /config/.venv
+
+      uv-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /config/.cache/uv
+
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
