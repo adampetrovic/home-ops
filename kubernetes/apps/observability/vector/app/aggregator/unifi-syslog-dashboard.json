@@ -14,7 +14,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -52,19 +52,19 @@
       "title": "WAN Failover State Changes",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is down\" [$__auto])",
           "legendFormat": "WAN Down",
           "refId": "A"
         },
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is up\" [$__auto])",
           "legendFormat": "WAN Up",
           "refId": "B"
         },
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"wan-failover-interfaces.*is unknown\" [$__auto])",
           "legendFormat": "WAN Unknown",
           "refId": "C"
@@ -73,7 +73,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 8, "w": 16, "x": 0, "y": 6 },
       "id": 13,
       "options": {
@@ -90,7 +90,7 @@
       "description": "WAN failover state changes, IP loss/recovery, DHCP bound/deconfig, dpinger, DNS monitor failures",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"(wan-failover|wan_update_ip|dpinger|could not resolve|dhcp-client.*(bound|deconfig|leasefail)|ubios-udhcpc-decline|linkcheck.*(speedtest|Completed))\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -98,7 +98,7 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
       "id": 14,
       "options": {
@@ -115,7 +115,7 @@
       "description": "eth4 DHCP lease renewals, binds, and offers",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"(dhcp-client.*eth4|udhcpc.*(ACK|NAK|renew|bound|deconfig|lease)|ubios-udhcpc-decline)\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -130,7 +130,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "fixed", "fixedColor": "red" },
@@ -152,7 +152,7 @@
       "title": "Total Blocks",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum(count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" [$__range]))",
           "refId": "A"
         }
@@ -160,7 +160,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -192,7 +192,7 @@
       "description": "br20=IoT, br40=Not, br50=Security, br10=Trusted, br80=Talos",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\" | pattern `<_>IN=<in_iface> OUT=<_>` [$__auto]))",
           "legendFormat": "{{ in_iface }}",
           "refId": "A"
@@ -201,7 +201,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -232,7 +232,7 @@
       "title": "Top Blocked Sources",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "topk(25, sum by (src, dst, proto, dpt, in_iface) (count_over_time({source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\" | pattern `<_>IN=<in_iface> OUT=<_> <_>SRC=<src> DST=<dst> <_> PROTO=<proto> <_>DPT=<dpt> <_>` [$__range])))",
           "legendFormat": "",
           "refId": "A"
@@ -245,7 +245,7 @@
       "type": "table"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 15 },
       "id": 5,
       "options": {
@@ -261,7 +261,7 @@
       "title": "Recent Firewall Blocks",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"DESCR=\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -276,7 +276,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -307,7 +307,7 @@
       "title": "WiFi Client Connects / Disconnects",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (event) (count_over_time({source=\"syslog\"} |~ \"CEF.*Client\" | json | line_format \"{{.message}}\" | pattern `<_>|<_>|<event>|<_>` [$__auto]))",
           "legendFormat": "{{ event }}",
           "refId": "A"
@@ -316,7 +316,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -347,7 +347,7 @@
       "title": "WiFi Events by AP",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (hostname) (count_over_time({source=\"syslog\", hostname=~\"wifi-.*\"} |~ \"(EVENT_STA_JOIN|EVENT_STA_LEAVE|EVENT_STA_IP)\" [$__auto]))",
           "legendFormat": "{{ hostname }}",
           "refId": "A"
@@ -356,7 +356,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 31 },
       "id": 8,
       "options": {
@@ -372,7 +372,7 @@
       "title": "Client Roams & Anomalies",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=~\"wifi-.*\"} |~ \"(sta_roam|anomalies|soft failure)\" | json | line_format \"{{.hostname}}: {{.message}}\"",
           "refId": "A"
         }
@@ -380,7 +380,7 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 7, "w": 12, "x": 12, "y": 31 },
       "id": 9,
       "options": {
@@ -396,7 +396,7 @@
       "title": "DHCP Leases",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=\"cloudkey\"} |~ \"DHCP(ACK|OFFER|DISCOVER|NAK|RELEASE|REQUEST)\" | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -411,7 +411,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -442,7 +442,7 @@
       "title": "Switch Port Link Events",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (hostname) (count_over_time({source=\"syslog\", hostname=~\"switch-.*\"} |~ \"Link (Up|Down)\" [$__auto]))",
           "legendFormat": "{{ hostname }}",
           "refId": "A"
@@ -451,7 +451,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -482,7 +482,7 @@
       "title": "Log Volume by Device",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (hostname) (count_over_time({source=\"syslog\", hostname=~\"$hostname\"} [$__auto]))",
           "legendFormat": "{{ hostname }}",
           "refId": "A"
@@ -498,7 +498,7 @@
       "type": "row"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 14, "w": 24, "x": 0, "y": 46 },
       "id": 12,
       "options": {
@@ -514,7 +514,7 @@
       "title": "All Syslog",
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"syslog\", hostname=~\"$hostname\"} | json | line_format \"{{.hostname}} {{.appname}}: {{.message}}\"",
           "refId": "A"
         }
@@ -540,7 +540,7 @@
       },
       {
         "current": { "selected": true, "text": ["All"], "value": ["$__all"] },
-        "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+        "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
         "definition": "",
         "hide": 0,
         "includeAll": true,
