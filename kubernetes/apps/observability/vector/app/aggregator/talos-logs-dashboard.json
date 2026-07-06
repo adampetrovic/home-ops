@@ -8,12 +8,12 @@
     {
       "title": "Explore: all Talos logs",
       "type": "link",
-      "url": "/explore?left=%7B%22datasource%22:%22${DS_LOKI}%22,%22queries%22:%5B%7B%22expr%22:%22%7Bsource%3D%5C%22talos%5C%22%7D%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D"
+      "url": "/explore?left=%7B%22datasource%22:%22$${DS_LOKI}%22,%22queries%22:%5B%7B%22expr%22:%22%7Bsource%3D%5C%22talos%5C%22%7D%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D"
     }
   ],
   "panels": [
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -45,7 +45,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (node, stream) (count_over_time({source=\"talos\", node=~\"$node\", stream=~\"$stream\"}[$__auto]))",
           "legendFormat": "{{node}} {{stream}}",
           "refId": "A"
@@ -55,7 +55,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -90,7 +90,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "sum by (node, level) (count_over_time({source=\"talos\", node=~\"$node\", level=~\"warn|warning|err|error|crit|alert|emerg\"}[$__auto]))",
           "legendFormat": "{{node}} {{level}}",
           "refId": "A"
@@ -100,7 +100,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 8 },
       "id": 3,
       "options": {
@@ -115,7 +115,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"talos\", stream=\"service\", node=~\"$node\", service=~\"$service\", level=~\"$level\"} | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -124,7 +124,7 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 8 },
       "id": 4,
       "options": {
@@ -139,7 +139,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"talos\", stream=\"kernel\", node=~\"$node\", level=~\"$level\"} | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -148,7 +148,7 @@
       "type": "logs"
     },
     {
-      "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+      "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 17 },
       "id": 5,
       "options": {
@@ -163,7 +163,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+          "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
           "expr": "{source=\"talos\", node=~\"$node\", level=~\"warn|warning|err|error|crit|alert|emerg\"} | json | line_format \"{{.message}}\"",
           "refId": "A"
         }
@@ -180,7 +180,7 @@
       {
         "allValue": ".*",
         "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+        "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
         "definition": "label_values({source=\"talos\"}, node)",
         "hide": 0,
         "includeAll": true,
@@ -196,7 +196,7 @@
       {
         "allValue": ".*",
         "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+        "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
         "definition": "label_values({source=\"talos\"}, stream)",
         "hide": 0,
         "includeAll": true,
@@ -212,7 +212,7 @@
       {
         "allValue": ".*",
         "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+        "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
         "definition": "label_values({source=\"talos\", stream=\"service\"}, service)",
         "hide": 0,
         "includeAll": true,
@@ -228,7 +228,7 @@
       {
         "allValue": ".*",
         "current": { "selected": true, "text": "All", "value": "$__all" },
-        "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
+        "datasource": { "type": "loki", "uid": "$${DS_LOKI}" },
         "definition": "label_values({source=\"talos\"}, level)",
         "hide": 0,
         "includeAll": true,
