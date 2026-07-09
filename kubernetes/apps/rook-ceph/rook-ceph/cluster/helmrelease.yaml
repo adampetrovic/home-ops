@@ -69,8 +69,10 @@ spec:
             enabled: true
           - name: pg_autoscaler
             enabled: true
+          # Work around Ceph v20.2.2 mgr memory leak with the Rook
+          # orchestrator module; revert after upstream fix (rook/rook#17786).
           - name: rook
-            enabled: true
+            enabled: false
       network:
         provider: host
         connections:
