@@ -46,6 +46,10 @@ access_control:
       policy: one_factor
       subject:
         - 'group:users'
+    - domain: "go2rtc.${SECRET_DOMAIN}"
+      policy: one_factor
+      subject:
+        - 'group:go2rtc'
     - domain: ["*.${SECRET_DOMAIN}"]
       policy: one_factor
       subject:
