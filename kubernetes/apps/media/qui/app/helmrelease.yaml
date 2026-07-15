@@ -21,31 +21,6 @@ spec:
       qui:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          fix-config-permissions:
-            image:
-              repository: mirror.gcr.io/library/busybox
-              tag: 1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
-            command: ["/bin/sh", "-c"]
-            args:
-              - |
-                chown -R 568:568 /config
-                chmod -R g+rwX /config
-            securityContext:
-              runAsUser: 0
-              runAsGroup: 0
-              runAsNonRoot: false
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop: ["ALL"]
-                add: ["CHOWN", "FOWNER"]
-            resources:
-              requests:
-                cpu: 10m
-                memory: 16Mi
-              limits:
-                memory: 32Mi
         containers:
           app:
             image:
