@@ -21,11 +21,36 @@ spec:
       qui:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          fix-config-permissions:
+            image:
+              repository: mirror.gcr.io/library/busybox
+              tag: 1.37.0@sha256:9532d8c39891ca2ecde4d30d7710e01fb739c87a8b9299685c63704296b16028
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                chown -R 568:568 /config
+                chmod -R g+rwX /config
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN", "FOWNER"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 32Mi
         containers:
           app:
             image:
               repository: ghcr.io/autobrr/qui
-              tag: v1.22.0@sha256:5d4f98d973129edc3ac04a2b74e3e791c86c5c92ef4d5dae64622be000578e80
+              tag: v1.23.0@sha256:b1abd18f1d544cd5c63a3b8d9c8a91d097143e04df416567a8cb52040f380ca8
             env:
               QUI__HOST: 0.0.0.0
               QUI__PORT: &port 80
@@ -35,6 +60,7 @@ spec:
               QUI__OIDC_CLIENT_ID: qui
               QUI__OIDC_REDIRECT_URL: https://qui.${SECRET_DOMAIN}/api/auth/oidc/callback
               QUI__OIDC_DISABLE_BUILT_IN_LOGIN: true
+              UMASK: "002"
               TZ: ${TZ}
             envFrom:
               - secretRef:
