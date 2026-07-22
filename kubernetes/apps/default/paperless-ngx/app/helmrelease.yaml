@@ -63,8 +63,9 @@ spec:
               PAPERLESS_DATA_DIR: /data/data
               PAPERLESS_MEDIA_ROOT: /data/media
               PAPERLESS_EXPORT_DIR: /data/export
-              PAPERLESS_CONSUMER_POLLING: 60
-              PAPERLESS_CONSUMER_IGNORE_PATTERNS: '[".DS_STORE/*", "._*", ".stfolder/*", "@eaDir/*"]'
+              PAPERLESS_CONSUMER_POLLING_INTERVAL: 60
+              PAPERLESS_CONSUMER_IGNORE_PATTERNS: '["^\\.DS_Store$", "^\\._.*"]'
+              PAPERLESS_CONSUMER_IGNORE_DIRS: '["^\\.stfolder$", "^@eaDir$"]'
               PAPERLESS_TRUSTED_PROXIES: 10.69.0.0/16
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
