@@ -46,6 +46,7 @@ transforms:
 sinks:
   loki:
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     inputs: ["plex_filtered"]
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding:

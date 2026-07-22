@@ -29,6 +29,8 @@ spec:
             image:
               repository: mirror.gcr.io/timberio/vector
               tag: 0.57.0-alpine@sha256:19e3526faf4d4b1ed0c28a0d68d4cc3a1e13e437099986a5b7a768707907497c
+            env:
+              VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION: "true"
             args: ["--config", "/etc/vector/vector.yaml"]
         pod:
           topologySpreadConstraints:
