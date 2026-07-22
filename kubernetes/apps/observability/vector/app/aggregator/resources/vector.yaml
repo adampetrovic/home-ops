@@ -112,6 +112,7 @@ sinks:
   journald:
     inputs: ["journald_source"]
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
     out_of_order_action: accept
@@ -125,6 +126,7 @@ sinks:
   home_assistant:
     inputs: ["home_assistant_remap"]
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
     out_of_order_action: accept
@@ -143,6 +145,7 @@ sinks:
   kubernetes:
     inputs: ["kubernetes_route.other"]
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
     out_of_order_action: accept
@@ -157,6 +160,7 @@ sinks:
   syslog:
     inputs: ["syslog_remap"]
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
     out_of_order_action: accept
@@ -169,6 +173,7 @@ sinks:
   talos:
     inputs: ["talos_drop_debug"]
     type: loki
+    dangerously_allow_unconfined_template_resolution: true
     endpoint: http://loki-gateway.observability.svc.cluster.local
     encoding: { codec: json }
     out_of_order_action: accept
