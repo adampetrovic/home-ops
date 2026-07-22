@@ -37,6 +37,7 @@ spec:
             env:
               PROCFS_ROOT: /host/proc
               SYSFS_ROOT: /host/sys
+              VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION: "true"
               VECTOR_SELF_NODE_NAME:
                 valueFrom:
                   fieldRef:
