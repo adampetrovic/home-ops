@@ -5,13 +5,13 @@ SOPS_AGE_KEY_FILE = "/Users/adam/.config/sops/age/keys.txt"
 # Kubernetes
 kubectl = "1.36.2"
 helm = "4.2.3"
-helmfile = "1.7.0"
+helmfile = "1.7.1"
 kustomize = "5.8.1"
 flux2 = "2.9.2"
 
 # Talos
-talosctl = "1.13.6"
-talhelper = "3.1.13"
+talosctl = "1.13.7"
+talhelper = "3.1.14"
 
 # Secrets
 sops = "3.13.2"
@@ -22,5 +22,5 @@ age = "1.3.1"
 jq = "1.8.2"
 yq = "4.53.3"
 task = "3.52.0"
-fzf = "0.74.0"
+fzf = "0.74.1"
 gh = "2.96.0"
