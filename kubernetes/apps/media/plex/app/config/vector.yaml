@@ -1,10 +1,11 @@
 data_dir: /vector-data-dir
+timezone: Australia/Sydney
 sources:
   plex_logs:
     type: file
     include:
       - /config/Library/Application Support/Plex Media Server/Logs/Plex Media Server.log
-    read_from: beginning
+    read_from: end
     ignore_older_secs: 600
     multiline:
       start_pattern: '^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}'
