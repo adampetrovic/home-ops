@@ -10,6 +10,8 @@ This is a three-phase workflow:
 2. **Plan** — Build a dependency-ordered merge plan with user approval gates
 3. **Roll out** — Execute the plan wave-by-wave with cluster health checks
 
+Critical platform rule: Talos Linux PRs are **not** bulk-wave items. Treat them as isolated maintenance rollouts; merge no other Renovate PRs until every node, Ceph, Flux, and LoadBalancer sanity check is clean.
+
 ---
 
 ## Phase 1: Analyse
@@ -95,8 +97,8 @@ Output a summary table:
 
 **Always require explicit user approval before merging:**
 
-1. **Talos Linux** updates (node OS — requires rolling reboot of all nodes)
-2. **Kubernetes** version bumps (control plane + kubelet upgrade)
+1. **Talos Linux** updates (node OS — requires isolated maintenance rollout and rolling reboot of all nodes)
+2. **Kubernetes** version bumps (control plane + kubelet upgrade; usually isolate like Talos)
 3. **Cilium** updates (CNI — brief network disruption possible)
 4. **Rook-Ceph** updates (storage — data plane risk)
 5. **Flux Operator** updates (GitOps engine — reconciliation disruption)
@@ -105,13 +107,25 @@ Output a summary table:
 
 Present these to the user with the breaking change analysis and wait for confirmation before including them in the rollout.
 
+### Talos-specific rollout rule
+
+Do not merge Talos PRs as part of a bulk update wave. Talos changes reboot nodes and can disturb Ceph, CNPG/Postgres, Cilium, Envoy, LoadBalancer routing, and Tuppr state. A Talos PR must be planned as a single-purpose rollout:
+
+1. Precheck: all nodes Ready/schedulable, Ceph `HEALTH_OK`, no active VolSync syncs, no non-running pods, and `TalosUpgrade/talos` not already `Failed`.
+2. Merge only the Talos PR after explicit user approval.
+3. Monitor Tuppr/manual rollout to completion.
+4. Verify every node is on the target Talos/kernel/containerd, Ceph is `HEALTH_OK`, Flux is Ready, no stale `tuppr.home-operations.com/outdated` taints remain, and LoadBalancer/BGP sanity is clean.
+5. Only then resume other Renovate PRs.
+
+Before relying on newer Tuppr policy fields, confirm the Tuppr HelmRelease upgrades CRDs with `install.crds: CreateReplace` and `upgrade.crds: CreateReplace`; otherwise the controller may be newer than the CRD schema. Prefer `spec.policy.waitForVolumeDetach: true` for Tuppr Talos rollouts, but remember Tuppr currently hardcodes its own drain timeout to 10 minutes. CNPG/Postgres pods can have `terminationGracePeriodSeconds: 1800`; for CNPG-heavy/control-plane nodes, prefer manual `talosctl upgrade --drain-timeout=35m --reboot-mode=powercycle`, or ask the user before using `policy.nodrain: true`.
+
 ### Merge Waves
 
-Order merges by dependency depth — infrastructure first, leaf apps last. Allow 30-60 seconds between waves for Flux to reconcile via webhook.
+Order merges by dependency depth — infrastructure first, leaf apps last. Allow 30-60 seconds between waves for Flux to reconcile via webhook. Talos is excluded from ordinary waves; Kubernetes version bumps should also be isolated unless the user explicitly approves otherwise.
 
 | Wave | Tier | Components | Why first |
 |------|------|-----------|-----------|
-| **1** | Platform | Talos, Kubernetes (via Tuppr), Cilium | Node-level, everything depends on these |
+| **1** | Platform | Cilium | Cluster networking; everything depends on it |
 | **2** | Infrastructure | cert-manager, Flux, External Secrets (1Password), Rook-Ceph, OpenEBS | Cluster services that apps depend on |
 | **3** | Storage & Backup | VolSync (chart + image together), CloudNativePG, Dragonfly | Data layer |
 | **4** | Observability | Prometheus stack, Loki, Vector (all instances grouped), Grafana | Log/metric pipeline — merge Loki before Vector |
@@ -219,6 +233,16 @@ If a health check shows problems after a wave:
 3. Check if it's **transient** (e.g. `KubeDeploymentReplicasMismatch` during a rolling update — these resolve within ~5 minutes) vs **persistent** (e.g. CrashLoopBackOff, failed Helm upgrade).
 4. For transient issues: wait 2-3 minutes and re-check before escalating.
 5. For persistent issues: the user needs to decide whether to fix-forward or revert.
+
+#### Talos/Tuppr partial failure handling
+
+If Tuppr fails a Talos rollout, stop all remaining Renovate activity. Recover full Tuppr job logs first. If logs show `installation of <target> complete` / `Exit code: 0` but the node did not reboot and still reports the old Talos version, the likely failure point is post-install drain. In that case:
+
+1. Verify cluster/Ceph health and whether the node is cordoned or tainted.
+2. If the target was installed but not booted, manually reboot that node with Talos `powercycle` and monitor it back to Ready.
+3. Wait for Ceph `HEALTH_OK`, no non-running pods, and no active VolSync syncs before touching another node.
+4. Reset Tuppr with the documented reset annotation only after all nodes are upgraded/healthy or the rollout is intentionally halted.
+5. Verify stale `tuppr.home-operations.com/outdated` taints are gone before resuming Renovate merges.
 
 ### 3.6 Transient alerts to expect
 

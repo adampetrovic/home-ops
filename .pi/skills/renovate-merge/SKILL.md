@@ -7,7 +7,7 @@ description: Bulk-merge open Renovate PRs safely. Analyses breaking changes, fet
 
 Bulk-merge open Renovate dependency-update PRs with breaking-change analysis, a dependency-ordered rollout plan, and post-merge cluster health monitoring.
 
-Read the [merge playbook](references/playbook.md) for the full procedure. The sections below are a quick reference.
+Read [AGENTS.md](AGENTS.md) first for mandatory home-ops Renovate rollout rules, then read the [merge playbook](references/playbook.md) for the full procedure. The sections below are a quick reference.
 
 ## Quick Reference
 
