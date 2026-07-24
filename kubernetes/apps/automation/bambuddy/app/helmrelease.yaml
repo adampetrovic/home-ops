@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/maziggy/bambuddy
-              tag: 0.2.4@sha256:c3f7f758f0b6ac2a074e7277074b2d0150dfe81b190a44b551ab092a5d17ca6c
+              tag: 1.2.5@sha256:9fd7ae3e59e8ce5713306d33ca034422f1b2150b788b6c6848a41726065084fd
             env:
               TZ: ${TZ}
               PUID: 568
