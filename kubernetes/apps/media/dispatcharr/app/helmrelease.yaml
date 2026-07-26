@@ -62,6 +62,9 @@ spec:
                 set -Eeuo pipefail
                 sed -i '/^DB_ENGINE=/d' /etc/environment
                 printf "DB_ENGINE='sqlite'\n" >> /etc/environment
+                mkdir -p /data
+                touch /data/dispatcharr.db
+                chown "${PUID:-568}:${PGID:-568}" /data /data/dispatcharr.db
                 cat > /etc/profile.d/dispatcharr-db-engine.sh <<'EOF'
                 export DB_ENGINE='sqlite'
                 EOF
