@@ -44,7 +44,6 @@ spec:
               TZ: "${TZ}"
               PUID: "568"
               PGID: "568"
-              DB_ENGINE: sqlite
               DISPATCHARR_ENV: aio
               DISPATCHARR_PORT: "9191"
               DISPATCHARR_LOG_LEVEL: info
@@ -53,22 +52,6 @@ spec:
               REDIS_PORT: "6379"
               REDIS_DB: "0"
               CELERY_BROKER_URL: redis://localhost:6379/0
-            # The upstream entrypoint runs Django/Celery via `su -`, which only
-            # keeps env vars written to /etc/environment. Persist DB_ENGINE here
-            # so child processes use SQLite rather than the bundled Postgres.
-            command: ["/bin/bash", "-lc"]
-            args:
-              - |
-                set -Eeuo pipefail
-                sed -i '/^DB_ENGINE=/d' /etc/environment
-                printf "DB_ENGINE='sqlite'\n" >> /etc/environment
-                mkdir -p /data
-                touch /data/dispatcharr.db
-                chown "${PUID:-568}:${PGID:-568}" /data /data/dispatcharr.db
-                cat > /etc/profile.d/dispatcharr-db-engine.sh <<'EOF'
-                export DB_ENGINE='sqlite'
-                EOF
-                exec /app/docker/entrypoint.sh
             probes:
               liveness: &probes
                 enabled: true
