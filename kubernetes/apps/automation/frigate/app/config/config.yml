@@ -39,13 +39,10 @@ lpr:
     - pattern: "-"
       replacement: ""
   known_plates:
-    modely:
-      - "FGM63Q"
-      - "FGM63O"
-      - "FGM630"
-    model3:
-      - "EPV71W"
-      - "EPV7LW"
+    snow_white:
+      - "{FRIGATE_LPR_SNOW_WHITE}"
+    silver_surfer:
+      - "{FRIGATE_LPR_SILVER_SURFER}"
 
 auth:
   enabled: False
