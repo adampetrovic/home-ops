@@ -35,6 +35,14 @@ spec:
         type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          01-init-db:
+            image:
+              repository: ghcr.io/home-operations/postgres-init
+              tag: 18.4.0@sha256:ebd9d30add17acdf935d73eb004758c7dfd9388aaa605fda70ad74378ab92aec
+            envFrom: &envFrom
+              - secretRef:
+                  name: dispatcharr-secret
         containers:
           app:
             image:
@@ -44,14 +52,15 @@ spec:
               TZ: "${TZ}"
               PUID: "568"
               PGID: "568"
-              DISPATCHARR_ENV: aio
+              DISPATCHARR_ENV: modular
               DISPATCHARR_PORT: "9191"
               DISPATCHARR_LOG_LEVEL: info
               DISPATCHARR_ENABLE_IP_LOOKUP: "false"
-              REDIS_HOST: localhost
+              REDIS_HOST: dragonfly.database.svc.cluster.local
               REDIS_PORT: "6379"
               REDIS_DB: "0"
-              CELERY_BROKER_URL: redis://localhost:6379/0
+              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/0
+            envFrom: *envFrom
             probes:
               liveness: &probes
                 enabled: true
@@ -82,7 +91,7 @@ spec:
                 memory: 1Gi
               limits:
                 memory: 4Gi
-            securityContext:
+            securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities:
@@ -95,6 +104,31 @@ spec:
                   - KILL
                   - SETGID
                   - SETUID
+          celery:
+            image:
+              repository: ghcr.io/dispatcharr/dispatcharr
+              tag: 0.28.2@sha256:3eb0ec779f3437ec64c08a9b3f545a355a8f512f3740cdeaac42b80f1021637d
+            command: ["/app/docker/entrypoint.celery.sh"]
+            env:
+              TZ: "${TZ}"
+              DISPATCHARR_ENV: modular
+              DISPATCHARR_PORT: "9191"
+              DISPATCHARR_WEB_HOST: localhost
+              DISPATCHARR_LOG_LEVEL: info
+              REDIS_HOST: dragonfly.database.svc.cluster.local
+              REDIS_PORT: "6379"
+              REDIS_DB: "0"
+              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/0
+              DJANGO_SETTINGS_MODULE: dispatcharr.settings
+              PYTHONUNBUFFERED: "1"
+            envFrom: *envFrom
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+            securityContext: *securityContext
     service:
       app:
         controller: *app
