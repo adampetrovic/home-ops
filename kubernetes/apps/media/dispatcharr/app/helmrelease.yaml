@@ -58,8 +58,8 @@ spec:
               DISPATCHARR_ENABLE_IP_LOOKUP: "false"
               REDIS_HOST: dragonfly.database.svc.cluster.local
               REDIS_PORT: "6379"
-              REDIS_DB: "0"
-              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/0
+              REDIS_DB: "12"
+              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/12
             envFrom: *envFrom
             probes:
               liveness: &probes
@@ -117,8 +117,8 @@ spec:
               DISPATCHARR_LOG_LEVEL: info
               REDIS_HOST: dragonfly.database.svc.cluster.local
               REDIS_PORT: "6379"
-              REDIS_DB: "0"
-              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/0
+              REDIS_DB: "12"
+              CELERY_BROKER_URL: redis://dragonfly.database.svc.cluster.local:6379/12
               DJANGO_SETTINGS_MODULE: dispatcharr.settings
               PYTHONUNBUFFERED: "1"
             envFrom: *envFrom
