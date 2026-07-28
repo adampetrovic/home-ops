@@ -35,7 +35,7 @@ spec:
           app:
             image:
               repository: ghcr.io/asciimoo/hister
-              tag: v0.16.0@sha256:98ba061692aeb36616574defdad9938aba94dbf142463915f596693acd4f5ef4
+              tag: v0.17.0@sha256:2894138653cc11fde955cd9e53c51385fbaa14d236730bbefff2b64b841d7395
             env:
               TZ: ${TZ}
               GOMEMLIMIT: 2300MiB
