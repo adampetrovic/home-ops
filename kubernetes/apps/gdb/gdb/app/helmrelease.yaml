@@ -65,6 +65,9 @@ spec:
               RATE_LIMIT_PER_MIN: "600"
               SERVER_READ_TIMEOUT: "60s"
               SERVER_WRITE_TIMEOUT: "60s"
+              MEDIA_DIR: /media/g
+              redacted_HOST: http://redacted-app.media.svc.cluster.local:9999
+              redacted_EXTERNAL_URL: https://redacted.${SECRET_DOMAIN}
             envFrom:
               - secretRef:
                   name: gdb-secret
@@ -102,3 +105,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+    persistence:
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/redacted/media/g
+        globalMounts:
+          - path: /media/g
