@@ -85,7 +85,28 @@ tasks:
   fetch-kubeconfig:
     desc: Generate talos kubeconfig
     dir: "{{.TALOS_DIR}}"
-    cmd: until talhelper gencommand kubeconfig --extra-flags "--force" | bash; do sleep 10; done
+    cmd: |
+      op run --env-file=".env" -- bash -Eeuo pipefail <<'EOF'
+      for attempt in {1..30}; do
+          if talhelper gencommand kubeconfig \
+              --extra-flags "--talosconfig=${TALOSCONFIG:-$HOME/.talos/config} --force" | bash; then
+              break
+          fi
+
+          if [[ "${attempt}" == "30" ]]; then
+              echo "failed to fetch kubeconfig after ${attempt} attempts" >&2
+              exit 1
+          fi
+
+          sleep 10
+      done
+
+      context="$(kubectl config current-context)"
+      user="$(kubectl config view -o jsonpath="{.contexts[?(@.name=='${context}')].context.user}")"
+      kubectl config view --raw -o jsonpath="{.users[?(@.name=='${user}')].user.client-certificate-data}" \
+          | base64 -d \
+          | openssl x509 -noout -subject -issuer -startdate -enddate
+      EOF
 
   nuke:
     desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
