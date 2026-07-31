@@ -83,13 +83,12 @@ tasks:
       - which talosctl
 
   fetch-kubeconfig:
-    desc: Generate talos kubeconfig
+    desc: Fetch bootstrap kubeconfig using generated Talos config
     dir: "{{.TALOS_DIR}}"
     cmd: |
       op run --env-file=".env" -- bash -Eeuo pipefail <<'EOF'
       for attempt in {1..30}; do
-          if talhelper gencommand kubeconfig \
-              --extra-flags "--talosconfig=${TALOSCONFIG:-$HOME/.talos/config} --force" | bash; then
+          if talhelper gencommand kubeconfig --extra-flags "--force" | bash; then
               break
           fi
 
@@ -100,12 +99,6 @@ tasks:
 
           sleep 10
       done
-
-      context="$(kubectl config current-context)"
-      user="$(kubectl config view -o jsonpath="{.contexts[?(@.name=='${context}')].context.user}")"
-      kubectl config view --raw -o jsonpath="{.users[?(@.name=='${user}')].user.client-certificate-data}" \
-          | base64 -d \
-          | openssl x509 -noout -subject -issuer -startdate -enddate
       EOF
 
   nuke:
