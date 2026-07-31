@@ -1,0 +1,181 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stash
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 2
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      stash:
+        annotations:
+          reloader.stakater.com/auto: 'true'
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/stashapp/stash
+              tag: v0.31.1@sha256:df744af5a0c976e2ec671052ecc1f8a9aa757fa12b8f9930b59910b7295f0da6
+            env:
+              TZ: "${TZ}"
+              STASH_STASH: /media/
+              STASH_GENERATED: /generated
+              STASH_METADATA: /metadata
+              STASH_CACHE: /cache
+              STASH_BLOBS_PATH: /blobs
+              STASH_BLOBS_STORAGE: FILESYSTEM
+              STASH_PLUGINS_PATH: /config/plugins
+              STASH_SCRAPERS_PATH: /config/scrapers
+              STASH_CONFIG_FILE: /config/config.yml
+              STASH_PORT: &port 9999
+              STASH_NO_BROWSER: "true"
+              USER: "568"
+              HOME: /config
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+          uploader:
+            image:
+              repository: ghcr.io/adampetrovic/stash-uploader
+              tag: dev-e4c95f3d@sha256:b8abdec93555062fdaa3285be3856803100e6e33362a0d2ac1ddc93730308e66
+            env:
+              UPLOAD_DIR: /media
+              PORT: &uploader-port 8080
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            probes:
+              liveness: &uploader-probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *uploader-port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *uploader-probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        pod:
+          imagePullSecrets:
+            - name: ghcr-private
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+
+    service:
+      app:
+        controller: stash
+        ports:
+          http:
+            port: *port
+      uploader:
+        controller: stash
+        ports:
+          http:
+            port: *uploader-port
+
+    route:
+      main:
+        hostnames:
+          - stash.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /upload
+            backendRefs:
+              - identifier: uploader
+                port: http
+          - backendRefs:
+              - identifier: app
+                port: http
+
+    persistence:
+      config:
+        enabled: true
+        existingClaim: stash
+        globalMounts:
+          - path: /config
+            subPath: config
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/stash
+        globalMounts:
+          - path: /media
+            subPath: media
+          - path: /blobs
+            subPath: blobs
+          - path: /generated
+            subPath: generated
+          - path: /metadata
+            subPath: metadata
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
