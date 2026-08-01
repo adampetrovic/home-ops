@@ -47,6 +47,9 @@ access_control:
       subject:
         - 'group:users'
     - domain: "go2rtc.${SECRET_DOMAIN}"
+      policy: bypass
+      resources: ["^/api/stream\\.mp4([?/].*)?$"]  # VLC/Apple TV cannot complete Authelia SSO
+    - domain: "go2rtc.${SECRET_DOMAIN}"
       policy: one_factor
       subject:
         - 'group:go2rtc'
