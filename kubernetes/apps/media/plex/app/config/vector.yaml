@@ -49,7 +49,7 @@ sinks:
     type: loki
     dangerously_allow_unconfined_template_resolution: true
     inputs: ["plex_filtered"]
-    endpoint: http://loki-gateway.observability.svc.cluster.local
+    endpoint: http://loki.observability.svc.cluster.local:3100
     encoding:
       codec: json
     labels:
@@ -57,5 +57,5 @@ sinks:
       namespace: "{{ namespace }}"
       pod: "{{ pod_name }}"
       level: "{{ level }}"
-      thread_id: "{{ thread_id }}"
+      # Keep thread_id in the JSON payload, not as a Loki label, to avoid high cardinality.
       source: "plex-logs"
