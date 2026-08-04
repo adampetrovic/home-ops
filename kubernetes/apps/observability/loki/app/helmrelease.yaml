@@ -106,7 +106,7 @@ spec:
     sidecar:
       image:
         repository: ghcr.io/home-operations/k8s-sidecar
-        tag: 2.10.0@sha256:909f2ac4e9395eea21659c40d151a11bc163b88979357fb8ac40924c5c18376c
+        tag: 2.10.1@sha256:9d9338eba4dbf0ae8151e772ef96d3806d56115acf5521d615e31694e046fe47
       rules:
         enabled: true
         searchNamespace: ALL
