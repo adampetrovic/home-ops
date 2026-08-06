@@ -11,7 +11,7 @@ flux2 = "2.9.3"
 
 # Talos
 talosctl = "1.13.8"
-talhelper = "3.1.15"
+talhelper = "3.1.16"
 
 # Secrets
 sops = "3.13.3"
