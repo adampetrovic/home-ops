@@ -7,7 +7,7 @@ kubectl = "1.36.3"
 helm = "4.2.3"
 helmfile = "1.7.3"
 kustomize = "5.8.1"
-flux2 = "2.9.3"
+flux2 = "2.9.4"
 
 # Talos
 talosctl = "1.13.8"
