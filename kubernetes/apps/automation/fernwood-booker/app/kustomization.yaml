@@ -3,12 +3,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./secrets/externalsecret-sue.yaml
-  - ./manifests/helmrelease-sue.yaml
+#  - ./secrets/externalsecret-sue.yaml
+#  - ./manifests/helmrelease-sue.yaml
   - ./secrets/externalsecret-nicole.yaml
   - ./manifests/helmrelease-nicole.yaml
-  - ./secrets/externalsecret-erika.yaml
-  - ./manifests/helmrelease-erika.yaml
+#  - ./secrets/externalsecret-erika.yaml
+#  - ./manifests/helmrelease-erika.yaml
 #  - ./secrets/externalsecret-odette.yaml
 #  - ./manifests/helmrelease-odette.yaml
 configMapGenerator:
