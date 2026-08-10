@@ -15,6 +15,7 @@ Env:
   PAPERLESS_LLM_API_URL        Paperless base URL (default http://localhost:8000)
   PAPERLESS_LLM_MODEL          Claude model id (default claude-opus-4-8)
   PAPERLESS_LLM_INBOX_TAG      review tag name (default "inbox")
+  PAPERLESS_LLM_PROCESSED_TAG  marker tag for low-confidence processed docs (default "processed")
   PAPERLESS_LLM_EXTRA_CONTEXT  optional private disambiguation hints (default "")
   DOCUMENT_ID                  injected by Paperless
 """
@@ -25,6 +26,7 @@ PTOKEN = os.environ.get("PAPERLESS_API_TOKEN", "")
 AKEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("PAPERLESS_LLM_MODEL", "claude-opus-4-8")
 INBOX_NAME = os.environ.get("PAPERLESS_LLM_INBOX_TAG", "inbox")
+PROCESSED_NAME = os.environ.get("PAPERLESS_LLM_PROCESSED_TAG", "processed").strip()
 EXTRA = os.environ.get("PAPERLESS_LLM_EXTRA_CONTEXT", "").strip()
 DOC_ID = os.environ.get("DOCUMENT_ID", "")
 OCR_MIN = int(os.environ.get("PAPERLESS_LLM_OCR_MIN", "30"))  # below this, fall back to vision
@@ -123,7 +125,7 @@ def classify(cur, tags, types, corrs, content=None, doc_bytes=None, doc_media=No
         "You normalise metadata for a personal Paperless-ngx document archive. Use ONLY the "
         "library's existing vocabulary, provided below.\n\n"
         f"EXISTING DOCUMENT TYPES:\n{', '.join(type_names)}\n\n"
-        f"EXISTING TAGS:\n{', '.join(n for n in tag_names if n != INBOX_NAME)}\n\n"
+        f"EXISTING TAGS:\n{', '.join(n for n in tag_names if n not in {INBOX_NAME, PROCESSED_NAME})}\n\n"
         f"EXISTING CORRESPONDENTS:\n{', '.join(corr_names)}\n\n"
         + (f"ADDITIONAL CONTEXT:\n{EXTRA}\n\n" if EXTRA else "")
         + RULES
@@ -197,6 +199,7 @@ def main():
     tag_names = {t["name"] for t in tags}
     type_names = {t["name"] for t in types}
     inbox_id = find_or_create("tags", INBOX_NAME)
+    processed_id = find_or_create("tags", PROCESSED_NAME) if PROCESSED_NAME else None
 
     doc = papi("GET", f"/api/documents/{DOC_ID}/")
     content = doc.get("content") or ""
@@ -235,14 +238,16 @@ def main():
 
     if conf == "low":
         cur_tags = doc.get("tags") or []
-        if inbox_id not in cur_tags:
-            papi("PATCH", f"/api/documents/{DOC_ID}/", {"tags": cur_tags + [inbox_id]})
-        log(f"doc {DOC_ID}: low confidence -> left in inbox"); return
+        wanted_tags = list(dict.fromkeys(cur_tags + [inbox_id] + ([processed_id] if processed_id else [])))
+        if wanted_tags != cur_tags:
+            papi("PATCH", f"/api/documents/{DOC_ID}/", {"tags": wanted_tags})
+        processed_msg = f" and tagged {PROCESSED_NAME}" if processed_id else ""
+        log(f"doc {DOC_ID}: low confidence -> left in inbox{processed_msg}"); return
 
     # accept only existing tags (+ fyNN financial-year tags); never invent vocabulary
     tag_ids = []
     for t in result.get("tags", []):
-        if t == INBOX_NAME:
+        if t in {INBOX_NAME, PROCESSED_NAME}:
             continue
         if t in tag_names or re.fullmatch(r"fy\d{2}", t):
             tid = find_or_create("tags", t)
