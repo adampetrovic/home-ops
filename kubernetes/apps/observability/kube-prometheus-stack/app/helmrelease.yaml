@@ -70,7 +70,7 @@ spec:
           registry: quay.io
           repository: prometheus/prometheus
           tag: v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
-        version: v3.9.1
+        version: v3.14.0
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
