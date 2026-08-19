@@ -167,7 +167,7 @@ function apply_crds() {
     # Extract and apply CRDs from Helm charts (matching onedr0p/home-ops pattern).
     local -r helm_crds=(
         # renovate: datasource=docker depName=docker.io/envoyproxy/gateway-helm
-        "oci://docker.io/envoyproxy/gateway-helm 1.8.0"
+        "oci://docker.io/envoyproxy/gateway-helm 1.9.0"
     )
 
     for entry in "${helm_crds[@]}"; do

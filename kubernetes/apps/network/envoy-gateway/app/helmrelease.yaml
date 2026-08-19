@@ -12,6 +12,8 @@ spec:
     crds: CreateReplace
     remediation:
       retries: -1
+  upgrade:
+    crds: CreateReplace
   interval: 1h
   values:
     config:
