@@ -5,6 +5,12 @@ web:
 metrics: true
 debug: false
 
+announcements:
+  - message: >-
+      Scheduled maintenance: all services will be offline from Friday 4 September 2026 at 09:00 AEST for a server rack migration. Expect full downtime through the weekend, followed by degraded media streaming performance for several days while storage migrates. Full service is expected by [END DATE].
+    type: warning
+    timestamp: "2026-09-04T09:00:00+10:00"
+
 storage:
   type: sqlite
   path: ${GATUS_CONFIG_PATH}/sqlite.db
