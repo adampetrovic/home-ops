@@ -23,8 +23,7 @@ spec:
   values:
     controllers:
       garmin-grafana:
-        # Keep disabled until Garmin OAuth tokens have been bootstrapped into the PVC.
-        replicas: 0
+        replicas: 1
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
