@@ -23,7 +23,7 @@ spec:
     # Keep the Ceph data-plane upgrade separate from the Rook chart upgrade.
     cephImage:
       repository: quay.io/ceph/ceph
-      tag: v20.2.4@sha256:6bb1c8a42fbc0bf87938946990b65174466997bc11c31eb5a323225a779fd8f9
+      tag: v21.1.0@sha256:5ff3692d2f3f4bf47ca7717de6f8f8556440ce3e15efaa680b62cb924eec0541
 
     monitoring:
       enabled: true
