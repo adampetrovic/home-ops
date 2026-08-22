@@ -15,7 +15,7 @@ Env:
   PAPERLESS_LLM_API_URL        Paperless base URL (default http://localhost:8000)
   PAPERLESS_LLM_MODEL          Claude model id (default claude-opus-4-8)
   PAPERLESS_LLM_INBOX_TAG      review tag name (default "inbox")
-  PAPERLESS_LLM_PROCESSED_TAG  marker tag for low-confidence processed docs (default "processed")
+  PAPERLESS_LLM_PROCESSED_TAG  marker tag for successfully processed docs (default "ai-processed")
   PAPERLESS_LLM_EXTRA_CONTEXT  optional private disambiguation hints (default "")
   PAPERLESS_LLM_DRY_RUN        classify and log the patch without applying it (default false)
   DOCUMENT_ID                  injected by Paperless
@@ -27,7 +27,7 @@ PTOKEN = os.environ.get("PAPERLESS_API_TOKEN", "")
 AKEY = os.environ.get("ANTHROPIC_API_KEY", "")
 MODEL = os.environ.get("PAPERLESS_LLM_MODEL", "claude-opus-4-8")
 INBOX_NAME = os.environ.get("PAPERLESS_LLM_INBOX_TAG", "inbox")
-PROCESSED_NAME = os.environ.get("PAPERLESS_LLM_PROCESSED_TAG", "processed").strip()
+PROCESSED_NAME = os.environ.get("PAPERLESS_LLM_PROCESSED_TAG", "ai-processed").strip()
 EXTRA = os.environ.get("PAPERLESS_LLM_EXTRA_CONTEXT", "").strip()
 DOC_ID = os.environ.get("DOCUMENT_ID", "")
 OCR_MIN = int(os.environ.get("PAPERLESS_LLM_OCR_MIN", "30"))  # below this, fall back to vision
@@ -293,6 +293,9 @@ def main():
                 tag_ids.append(fy_id)
         else:
             log(f"doc {DOC_ID}: deduction has no valid date; financial-year tag omitted")
+
+    if processed_id and processed_id not in tag_ids:
+        tag_ids.append(processed_id)
 
     patch = {"title": (result.get("title") or "").strip()[:120], "tags": tag_ids}
     dt = result.get("document_type")
