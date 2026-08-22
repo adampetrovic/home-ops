@@ -17,9 +17,10 @@ Env:
   PAPERLESS_LLM_INBOX_TAG      review tag name (default "inbox")
   PAPERLESS_LLM_PROCESSED_TAG  marker tag for low-confidence processed docs (default "processed")
   PAPERLESS_LLM_EXTRA_CONTEXT  optional private disambiguation hints (default "")
+  PAPERLESS_LLM_DRY_RUN        classify and log the patch without applying it (default false)
   DOCUMENT_ID                  injected by Paperless
 """
-import base64, json, os, re, sys, urllib.request, urllib.error, urllib.parse, time
+import base64, datetime, json, os, re, sys, urllib.request, urllib.error, urllib.parse, time
 
 API = os.environ.get("PAPERLESS_LLM_API_URL", "http://localhost:8000").rstrip("/")
 PTOKEN = os.environ.get("PAPERLESS_API_TOKEN", "")
@@ -30,6 +31,7 @@ PROCESSED_NAME = os.environ.get("PAPERLESS_LLM_PROCESSED_TAG", "processed").stri
 EXTRA = os.environ.get("PAPERLESS_LLM_EXTRA_CONTEXT", "").strip()
 DOC_ID = os.environ.get("DOCUMENT_ID", "")
 OCR_MIN = int(os.environ.get("PAPERLESS_LLM_OCR_MIN", "30"))  # below this, fall back to vision
+DRY_RUN = os.environ.get("PAPERLESS_LLM_DRY_RUN", "").lower() in {"1", "true", "yes"}
 
 RULES = """For the document below, read its OCR content and current fields, then return clean
 normalised metadata via the `classify` tool, following these rules:
@@ -44,9 +46,17 @@ correspondent — the entity that ISSUED the document. Clean canonical Title-Cas
   determined, return "" and confidence=low.
 
 tags — choose ALL that apply ONLY from the existing tag list above (tag the people, property,
-  vehicle, subject, etc.). Do NOT invent tags outside that list, EXCEPT financial-year tags of the
-  form `fyNN`: if the library uses them, assign the correct one (Australian financial year runs
-  1 Jul-30 Jun and is named for the year it ENDS in, so 15 Aug 2022 -> fy23). Do NOT use a
+  vehicle, subject, etc.). A property tag applies only when that property is the SUBJECT of the
+  document — for example its mortgage, rates, insurance, utilities, maintenance, tenancy, purchase,
+  or sale. NEVER assign a property tag merely because its street address appears as a billing,
+  shipping, postal, residential, or contact address.
+
+  For a receipt or invoice for technology hardware, software, services, subscriptions, or
+  accessories, include the existing `deduction` tag. Also assign its Australian financial-year tag
+  in the form `fyNN` (the year runs 1 Jul-30 Jun and is named for the year it ENDS in, so
+  15 Aug 2026 -> fy27). The script verifies this tag from the document date.
+
+  Do NOT invent tags outside the existing list, EXCEPT `fyNN` financial-year tags. Do NOT use a
   document-type word as a tag.
 
 title — format `Concise Description [key-id]`. Plain English (translate any other language). Do
@@ -61,6 +71,17 @@ date — the document's own issue date as YYYY-MM-DD, extracted from the content
 confidence — high (clear), medium (minor uncertainty), low (garbage OCR / unknown issuer / guessed)."""
 
 def log(msg): print(f"[post_consume] {msg}", flush=True)
+
+def australian_fy_tag(value):
+    """Return fyNN for an ISO date using Australia's 1 July financial-year boundary."""
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value or ""):
+        return None
+    try:
+        day = datetime.date.fromisoformat(value)
+    except ValueError:
+        return None
+    end_year = day.year + (day.month >= 7)
+    return f"fy{end_year % 100:02d}"
 
 # ----------------------------------------------------------- paperless api ---
 def papi(method, path, data=None):
@@ -98,6 +119,8 @@ def find_or_create(ep, name):
     res = papi("GET", f"/api/{ep}/?name__iexact={q}&page_size=1")
     if res.get("results"):
         return res["results"][0]["id"]
+    if DRY_RUN:
+        return f"<new {ep}:{name}>"
     return papi("POST", f"/api/{ep}/", {"name": name})["id"]
 
 def fetch_bytes(path):
@@ -240,19 +263,36 @@ def main():
         cur_tags = doc.get("tags") or []
         wanted_tags = list(dict.fromkeys(cur_tags + [inbox_id] + ([processed_id] if processed_id else [])))
         if wanted_tags != cur_tags:
-            papi("PATCH", f"/api/documents/{DOC_ID}/", {"tags": wanted_tags})
+            if DRY_RUN:
+                log(f"doc {DOC_ID}: dry-run patch={json.dumps({'tags': wanted_tags})}")
+            else:
+                papi("PATCH", f"/api/documents/{DOC_ID}/", {"tags": wanted_tags})
         processed_msg = f" and tagged {PROCESSED_NAME}" if processed_id else ""
         log(f"doc {DOC_ID}: low confidence -> left in inbox{processed_msg}"); return
 
     # accept only existing tags (+ fyNN financial-year tags); never invent vocabulary
+    result_tags = result.get("tags", [])
+    is_deduction = "deduction" in result_tags
     tag_ids = []
-    for t in result.get("tags", []):
+    for t in result_tags:
         if t in {INBOX_NAME, PROCESSED_NAME}:
+            continue
+        # For deductions, ignore the model's FY and derive it from the date below.
+        if is_deduction and re.fullmatch(r"fy\d{2}", t):
             continue
         if t in tag_names or re.fullmatch(r"fy\d{2}", t):
             tid = find_or_create("tags", t)
             if tid not in tag_ids:
                 tag_ids.append(tid)
+
+    if is_deduction:
+        fy_tag = australian_fy_tag(result.get("date")) or australian_fy_tag(cur.get("created_date"))
+        if fy_tag:
+            fy_id = find_or_create("tags", fy_tag)
+            if fy_id not in tag_ids:
+                tag_ids.append(fy_id)
+        else:
+            log(f"doc {DOC_ID}: deduction has no valid date; financial-year tag omitted")
 
     patch = {"title": (result.get("title") or "").strip()[:120], "tags": tag_ids}
     dt = result.get("document_type")
@@ -264,8 +304,11 @@ def main():
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", result.get("date") or ""):
         patch["created"] = result["date"]
 
-    papi("PATCH", f"/api/documents/{DOC_ID}/", patch)
-    log(f"doc {DOC_ID}: applied ({conf}); removed from inbox")
+    if DRY_RUN:
+        log(f"doc {DOC_ID}: dry-run patch={json.dumps(patch, sort_keys=True)}")
+    else:
+        papi("PATCH", f"/api/documents/{DOC_ID}/", patch)
+        log(f"doc {DOC_ID}: applied ({conf}); removed from inbox")
 
 if __name__ == "__main__":
     try:
