@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/grimmory-tools/grimmory
-              tag: v3.3.1@sha256:746bf67ac42b5c5f359946ccf4fcfee21129b876371965943c3400036fc2f170
+              tag: v3.3.3@sha256:fffd0ae0bfccd64ca00441e8fa58a14e286b9115e5df1cb47eecf294ad09e6ff
             env:
               TZ: "${TZ}"
               USER_ID: "568"
