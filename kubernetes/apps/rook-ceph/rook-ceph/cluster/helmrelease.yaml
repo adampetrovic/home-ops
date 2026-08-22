@@ -66,6 +66,16 @@ spec:
           bluestore_slow_ops_warn_threshold: "5"
       cleanupPolicy:
         wipeDevicesFromOtherClusters: true
+      healthCheck:
+        muteHealthWarning:
+          AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE:
+            policy: mute
+          AUTH_INSECURE_CLIENT_KEY_TYPE:
+            policy: mute
+          AUTH_INSECURE_KEYS_ALLOWED:
+            policy: mute
+          AUTH_INSECURE_KEYS_CREATABLE:
+            policy: mute
       mgr:
         modules:
           - name: diskprediction_local
@@ -84,6 +94,9 @@ spec:
           requireMsgr2: true
       security:
         cephx:
+          daemon:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
           csi:
             keyType: aes # aes256k requires Linux kernel 7.0+
       resources:
