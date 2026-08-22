@@ -55,17 +55,35 @@ spec:
                   name: cleanrr-secret
             probes:
               liveness:
-                type: HTTP
-                path: /health/live
-                port: &port 8080
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/live
+                    port: &port 8080
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
               readiness:
-                type: HTTP
-                path: /health/ready
-                port: *port
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/ready
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
               startup:
-                type: HTTP
-                path: /health/startup
-                port: *port
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health/startup
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 30
             resources:
               requests:
                 cpu: 10m
