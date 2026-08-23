@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: garmin-grafana
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Garmin InfluxDB
+      inputName: DS_GARMIN_STATS
+  url: https://raw.githubusercontent.com/arpanghosh8453/garmin-grafana/8e47830364817bc1a355eab857fa0535a99d401f/Grafana_Dashboard/Garmin-Grafana-Dashboard.json

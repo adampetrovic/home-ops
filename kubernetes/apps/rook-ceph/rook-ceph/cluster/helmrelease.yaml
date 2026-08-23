@@ -20,6 +20,11 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    # Keep the Ceph data-plane upgrade separate from the Rook chart upgrade.
+    cephImage:
+      repository: quay.io/ceph/ceph
+      tag: v20.2.4@sha256:6bb1c8a42fbc0bf87938946990b65174466997bc11c31eb5a323225a779fd8f9
+
     monitoring:
       enabled: true
       createPrometheusRules: true
@@ -61,6 +66,16 @@ spec:
           bluestore_slow_ops_warn_threshold: "5"
       cleanupPolicy:
         wipeDevicesFromOtherClusters: true
+      healthCheck:
+        muteHealthWarning:
+          AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE:
+            policy: mute
+          AUTH_INSECURE_CLIENT_KEY_TYPE:
+            policy: mute
+          AUTH_INSECURE_KEYS_ALLOWED:
+            policy: mute
+          AUTH_INSECURE_KEYS_CREATABLE:
+            policy: mute
       mgr:
         modules:
           - name: diskprediction_local
@@ -69,14 +84,21 @@ spec:
             enabled: true
           - name: pg_autoscaler
             enabled: true
-          # Work around Ceph v20.2.2 mgr memory leak with the Rook
-          # orchestrator module; revert after upstream fix (rook/rook#17786).
+          # Rook v1.20.6 disables this unstable module for Ceph v20.2.2-v20.2.4
+          # due to a manager memory leak (rook/rook#18213).
           - name: rook
             enabled: false
       network:
         provider: host
         connections:
           requireMsgr2: true
+      security:
+        cephx:
+          daemon:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
+          csi:
+            keyType: aes # aes256k requires Linux kernel 7.0+
       resources:
         mgr:
           requests:
