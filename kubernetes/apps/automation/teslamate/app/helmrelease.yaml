@@ -42,6 +42,9 @@ spec:
             env:
               TZ: "${TZ}"
               DISABLE_MQTT: "false"
+              MQTT_HOME_ASSISTANT_DISCOVERY: "true"
+              MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX: homeassistant
+              MQTT_HOME_ASSISTANT_DISCOVERY_URL: "https://teslamate.${SECRET_DOMAIN}"
               MQTT_HOST: mosquitto.automation.svc.cluster.local
             envFrom:
               - secretRef:
