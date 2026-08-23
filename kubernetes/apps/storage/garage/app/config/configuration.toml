@@ -4,6 +4,7 @@ db_engine = "lmdb"
 metadata_auto_snapshot_interval = "6h"
 
 replication_factor = 1
+block_size = "10M"
 compression_level = 2
 
 rpc_bind_addr = "[::]:3901"
