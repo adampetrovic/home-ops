@@ -21,3 +21,9 @@ spec:
       maxParallel: 8
     data:
       compression: bzip2
+      jobs: 1
+      # Bound Garage's per-object metadata growth and tolerate NFS commit latency.
+      additionalCommandArgs:
+        - --max-archive-size=10GB
+        - --min-chunk-size=100MB
+        - --read-timeout=300
