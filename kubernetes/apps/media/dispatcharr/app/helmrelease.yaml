@@ -138,6 +138,9 @@ spec:
               - |
                 cp /usr/bin/caddy /tmp/caddy
                 exec /tmp/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+            env:
+              XDG_CONFIG_HOME: /tmp/config
+              XDG_DATA_HOME: /tmp/data
             probes:
               liveness: &proxyProbe
                 enabled: true
@@ -179,6 +182,14 @@ spec:
               }
               handle @lineupPost {
                 respond 200
+              }
+              @lineupStatus {
+                method GET
+                path /hdhr/lineup_status.json
+              }
+              handle @lineupStatus {
+                header Content-Type application/json
+                respond `{"ScanInProgress":0,"ScanPossible":1,"Source":"Cable","SourceList":["Cable"]}` 200
               }
               handle {
                 reverse_proxy 127.0.0.1:9191
