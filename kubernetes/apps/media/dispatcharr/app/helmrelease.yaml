@@ -129,12 +129,63 @@ spec:
               limits:
                 memory: 2Gi
             securityContext: *securityContext
+          proxy:
+            image:
+              repository: mirror.gcr.io/library/caddy
+              tag: 2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+            probes:
+              liveness: &proxyProbe
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &proxyPort 9192
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *proxyProbe
+              startup: *proxyProbe
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 568
+              runAsGroup: 568
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+    configMaps:
+      proxy:
+        data:
+          Caddyfile: |
+            {
+              admin off
+              auto_https off
+            }
+
+            :9192 {
+              @lineupPost {
+                method POST
+                path /hdhr/lineup.post
+              }
+              handle @lineupPost {
+                respond 200
+              }
+              handle {
+                reverse_proxy 127.0.0.1:9191
+              }
+            }
     service:
       app:
         controller: *app
         ports:
           http:
             port: *port
+            targetPort: *proxyPort
     route:
       app:
         hostnames:
@@ -148,3 +199,12 @@ spec:
         existingClaim: *app
         globalMounts:
           - path: /data
+      proxy-config:
+        type: configMap
+        identifier: proxy
+        advancedMounts:
+          dispatcharr:
+            proxy:
+              - path: /etc/caddy/Caddyfile
+                subPath: Caddyfile
+                readOnly: true
