@@ -133,6 +133,11 @@ spec:
             image:
               repository: mirror.gcr.io/library/caddy
               tag: 2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                cp /usr/bin/caddy /tmp/caddy
+                exec /tmp/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
             probes:
               liveness: &proxyProbe
                 enabled: true
@@ -208,3 +213,9 @@ spec:
               - path: /etc/caddy/Caddyfile
                 subPath: Caddyfile
                 readOnly: true
+      proxy-tmp:
+        type: emptyDir
+        advancedMounts:
+          dispatcharr:
+            proxy:
+              - path: /tmp
