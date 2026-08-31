@@ -29,5 +29,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 10Gi
+      VOLSYNC_UID: "65532"
+      VOLSYNC_GID: "65532"
       VOLSYNC_KOPIA_SCHEDULE: "23 * * * *"
       VOLSYNC_R2_SCHEDULE: "44 1 * * *"
