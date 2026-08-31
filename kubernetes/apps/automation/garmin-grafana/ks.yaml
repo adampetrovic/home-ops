@@ -33,5 +33,7 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_CAPACITY: 1Gi
+      VOLSYNC_UID: "1000"
+      VOLSYNC_GID: "1000"
       VOLSYNC_KOPIA_SCHEDULE: "50 * * * *"
       VOLSYNC_R2_SCHEDULE: "15 1 * * *"
