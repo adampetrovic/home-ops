@@ -41,10 +41,17 @@ VolSync:
 
 ```bash
 task volsync:list app=<name> ns=<namespace>
-task volsync:snapshot app=<name> ns=<namespace>
+task volsync:backup app=<name> ns=<namespace> type=<kopia|r2|all>
+task volsync:locks-r2 app=<name> ns=<namespace>
+task volsync:unlock-r2 app=<name> ns=<namespace> verify=<false|true>
+task volsync:check-r2 app=<name> ns=<namespace>
+task volsync:debug-r2 app=<name> ns=<namespace>
 task volsync:restore app=<name> ns=<namespace>
-task volsync:unlock app=<name> ns=<namespace>
 ```
+
+R2 lock recovery is deliberately stale-only: `unlock-r2` runs plain `restic unlock`
+after checking for active repository owners. It has no `--remove-all` or force mode.
+All R2 operational tasks pin the `admin@home-kubernetes` context.
 
 ## GitOps Reconciliation
 

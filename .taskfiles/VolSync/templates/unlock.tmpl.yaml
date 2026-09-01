@@ -1,30 +1,98 @@
-#file: noinspection KubernetesUnknownValues,KubernetesUnknownValues
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/job-batch-v1.json
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: ${job}
   namespace: ${ns}
+  labels:
+    app.kubernetes.io/name: volsync-r2-unlock
+    app.kubernetes.io/managed-by: taskfile
+    home-ops.petrovic.io/volsync-app: ${app}
 spec:
+  activeDeadlineSeconds: ${timeout}
+  backoffLimit: 0
   ttlSecondsAfterFinished: 3600
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: volsync-r2-unlock
+        app.kubernetes.io/managed-by: taskfile
+        home-ops.petrovic.io/volsync-app: ${app}
     spec:
       automountServiceAccountToken: false
-      restartPolicy: OnFailure
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: garage
-          # renovate: datasource=docker depName=restic/restic
-          image: docker.io/restic/restic:0.16.4
-          args: ["unlock", "--remove-all"]
-          envFrom:
-            - secretRef:
-                name: ${app}-volsync-secret
-          resources: {}
         - name: r2
           # renovate: datasource=docker depName=restic/restic
-          image: docker.io/restic/restic:0.16.4
-          args: ["unlock", "--remove-all"]
+          image: mirror.gcr.io/restic/restic:0.19.1@sha256:136600b6ff6843d61d355f7f71f460a166429f35de6fd11b568fece3c9a4d510
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+
+              list_locks() {
+                  restic --no-cache --no-lock --stuck-request-timeout 2m list locks
+              }
+
+              show_locks() {
+                  lock_ids="$1"
+                  [ -n "${lock_ids}" ] || return 0
+                  set -- ${lock_ids}
+                  for lock in "$@"; do
+                      echo "--- ${lock} ---"
+                      restic --no-cache --no-lock --stuck-request-timeout 2m cat lock "${lock}"
+                  done
+              }
+
+              before="$(list_locks)"
+              if [ -z "${before}" ]; then
+                  echo "No Restic locks found; unlock is a no-op."
+                  exit 0
+              fi
+
+              set -- ${before}
+              before_count=$#
+              echo "Found ${before_count} lock(s) before stale-only unlock:"
+              show_locks "${before}"
+
+              echo "Running plain 'restic unlock'; non-stale locks will not be removed."
+              restic --no-cache --stuck-request-timeout 2m unlock
+
+              after="$(list_locks)"
+              if [ -n "${after}" ]; then
+                  set -- ${after}
+                  echo "ERROR: $# lock(s) remain after stale-only unlock:" >&2
+                  show_locks "${after}" >&2
+                  echo "Refusing to force-remove remaining locks; investigate their owners." >&2
+                  exit 1
+              fi
+
+              echo "Removed ${before_count} stale lock(s); no locks remain."
           envFrom:
             - secretRef:
                 name: ${app}-volsync-r2-secret
-          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
