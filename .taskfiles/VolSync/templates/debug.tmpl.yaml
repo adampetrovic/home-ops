@@ -1,20 +1,47 @@
-#file: noinspection KubernetesUnknownValues
 ---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/pod-v1.json
 apiVersion: v1
 kind: Pod
 metadata:
   name: ${job}
   namespace: ${ns}
+  labels:
+    app.kubernetes.io/name: volsync-r2-debug
+    app.kubernetes.io/managed-by: taskfile
+    home-ops.petrovic.io/volsync-app: ${app}
 spec:
   automountServiceAccountToken: false
   restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
   containers:
-    - name: main
+    - name: r2
       # renovate: datasource=docker depName=restic/restic
-      image: docker.io/restic/restic:0.16.4
-      command: ["/bin/sh"]
-      args: ["-c", "sleep infinity"]
+      image: mirror.gcr.io/restic/restic:0.19.1@sha256:136600b6ff6843d61d355f7f71f460a166429f35de6fd11b568fece3c9a4d510
+      command: ["/bin/sh", "-c"]
+      args: ["sleep infinity"]
       envFrom:
         - secretRef:
-            name: ${app}-volsync-secret
-      resources: {}
+            name: ${app}-volsync-r2-secret
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        readOnlyRootFilesystem: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: tmp
+      emptyDir: {}
