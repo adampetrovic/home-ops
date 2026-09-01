@@ -288,11 +288,12 @@ task bootstrap:verify         # Verify the core bootstrap substrate
 task bootstrap:verify-full    # Verify full GitOps/storage/app convergence
 
 # Volume backup operations
-task volsync:check            # Check volsync repo (requires: app=<name>)
-task volsync:debug            # Debug restic (requires: app=<name>)
-task volsync:list             # List snapshots (requires: app=<name>)
-task volsync:unlock           # Unlock restic repository (requires: app=<name>)
-task volsync:snapshot         # Create snapshot (requires: app=<name>)
+task volsync:list             # List primary Kopia snapshots (requires: app=<name>)
+task volsync:backup           # Trigger and verify Kopia/R2 backup (requires: app=<name>)
+task volsync:locks-r2         # Inspect R2 Restic locks (requires: app=<name>)
+task volsync:unlock-r2        # Safely remove stale R2 locks (requires: app=<name>)
+task volsync:check-r2         # Check R2 Restic metadata (requires: app=<name>)
+task volsync:debug-r2         # Create an R2 Restic debug Pod (requires: app=<name>)
 task volsync:restore          # Restore from snapshot (requires: app=<name>)
 task volsync:cleanup          # Delete volume populator PVCs
 

@@ -119,6 +119,54 @@ kubectl get kopiamaintenance -A
 # Navigate to kopia.<your-domain>
 ```
 
+### Safe R2 Lock Recovery
+
+Cloudflare R2 is the only Restic backend. Inspect repository locks before changing
+them:
+
+```bash
+task volsync:locks-r2 app=home-assistant ns=automation
+```
+
+Remove only locks that Restic identifies as stale:
+
+```bash
+task volsync:unlock-r2 app=home-assistant ns=automation
+```
+
+To immediately prove the repository can complete a new backup after unlocking:
+
+```bash
+task volsync:unlock-r2 app=home-assistant ns=automation verify=true
+```
+
+The unlock task pins the `admin@home-kubernetes` context, targets only
+`${APP}-volsync-r2-secret`, and refuses to run while a mover or another Pod may
+own a legitimate lock. It runs plain `restic unlock`; there is intentionally no
+`--remove-all` or force mode. Remaining locks require investigation.
+
+Operation Jobs are deleted after success and retained for up to one hour after
+failure so their logs and events remain available. A failed Job blocks another
+operation for the same app until it expires or is deliberately removed:
+
+```bash
+kubectl --context admin@home-kubernetes -n automation \
+  delete job volsync-r2-unlock-home-assistant
+```
+
+Run repository recoveries sequentially by default. If several repositories are
+known to be idle, use no more than two concurrent inspection/unlock operations
+and only one `verify=true` backup at a time. Manual backup triggers are removed
+atomically after completion so the configured schedule resumes; cleanup failure
+fails the task and prints an exact recovery command.
+
+A metadata-only repository check is also available, but it may be slow and incur
+R2 API/download costs:
+
+```bash
+task volsync:check-r2 app=home-assistant ns=automation
+```
+
 ### Kopia Web UI
 
 The Kopia server provides a web interface for browsing and managing backups. It connects to the same NFS-backed repository that the VolSync movers use.
@@ -155,9 +203,9 @@ kubectl -n "${ns}" get secret "${app}-volsync-r2-secret"
 Optionally inspect R2 snapshots directly with Restic:
 
 ```bash
-kubectl -n "${ns}" run "restic-list-${app}" \
+kubectl --context admin@home-kubernetes -n "${ns}" run "restic-list-${app}" \
   --rm -it --restart=Never \
-  --image=docker.io/restic/restic:0.16.4 \
+  --image=mirror.gcr.io/restic/restic:0.19.1@sha256:136600b6ff6843d61d355f7f71f460a166429f35de6fd11b568fece3c9a4d510 \
   --env-from="secretRef/name=${app}-volsync-r2-secret" \
   -- snapshots
 ```
