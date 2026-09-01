@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
+    - ../../../../components/volsync-r2-unlock
   path: ./kubernetes/apps/automation/frigate/app
   prune: true
   sourceRef:
@@ -35,3 +36,4 @@ spec:
       VOLSYNC_CAPACITY: 5Gi
       VOLSYNC_KOPIA_SCHEDULE: "30 * * * *"
       VOLSYNC_R2_SCHEDULE: "50 1 * * *"
+      VOLSYNC_R2_UNLOCK: "2026-09-01-stale-lock-recovery"
