@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
+    - ../../../../components/volsync-r2-unlock
   dependsOn:
     - name: multus-config
       namespace: network
@@ -33,3 +34,4 @@ spec:
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_KOPIA_SCHEDULE: "54 * * * *"
       VOLSYNC_R2_SCHEDULE: "5 2 * * *"
+      VOLSYNC_R2_UNLOCK: "2026-09-01-stale-lock-recovery"
