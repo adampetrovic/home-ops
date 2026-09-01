@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/volsync
+    - ../../../../components/volsync-r2-unlock
   dependsOn:
     - name: rook-ceph-cluster
       namespace: rook-ceph
@@ -31,3 +32,4 @@ spec:
       VOLSYNC_CAPACITY: 10Gi
       VOLSYNC_KOPIA_SCHEDULE: "10 * * * *"
       VOLSYNC_R2_SCHEDULE: "30 1 * * *"
+      VOLSYNC_R2_UNLOCK: "2026-09-01-stale-lock-recovery"
