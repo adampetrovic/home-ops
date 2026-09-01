@@ -6,7 +6,7 @@ metadata:
   name: ${job}
   namespace: ${ns}
   labels:
-    app.kubernetes.io/name: volsync-r2-check
+    app.kubernetes.io/name: volsync-r2-locks
     app.kubernetes.io/managed-by: taskfile
     home-ops.petrovic.io/volsync-app: ${app}
 spec:
@@ -16,7 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: volsync-r2-check
+        app.kubernetes.io/name: volsync-r2-locks
         app.kubernetes.io/managed-by: taskfile
         home-ops.petrovic.io/volsync-app: ${app}
     spec:
@@ -32,11 +32,22 @@ spec:
         - name: r2
           # renovate: datasource=docker depName=restic/restic
           image: mirror.gcr.io/restic/restic:0.19.1@sha256:136600b6ff6843d61d355f7f71f460a166429f35de6fd11b568fece3c9a4d510
+          command: ["/bin/sh", "-c"]
           args:
-            - --no-cache
-            - --stuck-request-timeout
-            - 2m
-            - check
+            - |
+              set -eu
+              locks="$(restic --no-cache --no-lock --stuck-request-timeout 2m list locks)"
+              if [ -z "${locks}" ]; then
+                  echo "No Restic locks found."
+                  exit 0
+              fi
+
+              set -- ${locks}
+              echo "Found $# Restic lock(s):"
+              for lock in "$@"; do
+                  echo "--- ${lock} ---"
+                  restic --no-cache --no-lock --stuck-request-timeout 2m cat lock "${lock}"
+              done
           envFrom:
             - secretRef:
                 name: ${app}-volsync-r2-secret
@@ -48,10 +59,10 @@ spec:
           resources:
             requests:
               cpu: 10m
-              memory: 64Mi
+              memory: 32Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 100m
+              memory: 128Mi
           volumeMounts:
             - name: tmp
               mountPath: /tmp
