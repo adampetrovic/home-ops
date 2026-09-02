@@ -69,9 +69,9 @@ streams:
   zoey_lq:
     - "ffmpeg:http://10.0.50.63/flv?port=1935&app=bcs&stream=channel0_ext.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
   eliza_hq:
-    - "ffmpeg:http://10.0.50.64/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
+    - "ffmpeg:http://10.0.50.51/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
   eliza_lq:
-    - "ffmpeg:http://10.0.50.64/flv?port=1935&app=bcs&stream=channel0_ext.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
+    - "ffmpeg:http://10.0.50.51/flv?port=1935&app=bcs&stream=channel0_ext.bcs&user=$${GO2RTC_USERNAME}&password=$${GO2RTC_PASSWORD}#video=copy#audio=copy#audio=opus"
 
 # NOTE: when adding a new camera be sure to omit pairings the first time.
 homekit:
