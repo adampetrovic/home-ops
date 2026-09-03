@@ -1,0 +1,158 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationsource_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: adguard-0
+spec:
+  sourcePVC: data-adguard-0
+  trigger:
+    schedule: "37 * * * *"
+  kopia:
+    accessModes: [ReadWriteOnce]
+    compression: zstd-fastest
+    copyMethod: Snapshot
+    moverSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 568
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    parallelism: 2
+    repository: adguard-volsync-secret
+    retain:
+      hourly: 24
+      daily: 7
+    storageClassName: ceph-block
+    volumeSnapshotClassName: csi-ceph-blockpool
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationsource_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: adguard-1
+spec:
+  sourcePVC: data-adguard-1
+  trigger:
+    schedule: "47 * * * *"
+  kopia:
+    accessModes: [ReadWriteOnce]
+    compression: zstd-fastest
+    copyMethod: Snapshot
+    moverSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 568
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    parallelism: 2
+    repository: adguard-volsync-secret
+    retain:
+      hourly: 24
+      daily: 7
+    storageClassName: ceph-block
+    volumeSnapshotClassName: csi-ceph-blockpool
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: adguard-0-volsync-r2
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-connect
+  target:
+    name: adguard-0-volsync-r2-secret
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/adguard-0"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: cloudflare-r2-volsync
+    - extract:
+        key: volsync-r2-template
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationsource_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: adguard-0-r2
+spec:
+  sourcePVC: data-adguard-0
+  trigger:
+    schedule: "58 5 * * *"
+  restic:
+    copyMethod: Snapshot
+    pruneIntervalDays: 7
+    repository: adguard-0-volsync-r2-secret
+    volumeSnapshotClassName: csi-ceph-blockpool
+    cacheCapacity: 4Gi
+    cacheStorageClassName: openebs-hostpath
+    cacheAccessModes: [ReadWriteOnce]
+    storageClassName: ceph-block
+    accessModes: [ReadWriteOnce]
+    moverSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    retain:
+      daily: 7
+      weekly: 1
+      monthly: 1
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: adguard-1-volsync-r2
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-connect
+  target:
+    name: adguard-1-volsync-r2-secret
+    template:
+      engineVersion: v2
+      data:
+        RESTIC_REPOSITORY: "{{ .REPOSITORY_TEMPLATE }}/adguard-1"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .AWS_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .AWS_SECRET_ACCESS_KEY }}"
+  dataFrom:
+    - extract:
+        key: cloudflare-r2-volsync
+    - extract:
+        key: volsync-r2-template
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationsource_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: adguard-1-r2
+spec:
+  sourcePVC: data-adguard-1
+  trigger:
+    schedule: "8 6 * * *"
+  restic:
+    copyMethod: Snapshot
+    pruneIntervalDays: 7
+    repository: adguard-1-volsync-r2-secret
+    volumeSnapshotClassName: csi-ceph-blockpool
+    cacheCapacity: 4Gi
+    cacheStorageClassName: openebs-hostpath
+    cacheAccessModes: [ReadWriteOnce]
+    storageClassName: ceph-block
+    accessModes: [ReadWriteOnce]
+    moverSecurityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    retain:
+      daily: 7
+      weekly: 1
+      monthly: 1

@@ -51,9 +51,9 @@ spec:
               storageClass: ceph-block
               accessMode: ReadWriteOnce
               size: 5Gi
-              # Clone the current single-pod PVC into each StatefulSet ordinal
-              # on first creation. Keep the old `adguard` PVC around for rollback
-              # until the active/active setup is validated.
+              # Clone the seed PVC into each StatefulSet ordinal on first creation.
+              # `backups.yaml` protects both active ordinal PVCs independently;
+              # keep the old `adguard` PVC as bootstrap/rollback state.
               dataSource:
                 kind: PersistentVolumeClaim
                 name: adguard
