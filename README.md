@@ -98,8 +98,8 @@ The platform hosts **70+ applications** across multiple categories:
 
 ### 📺 Media Management
 - **[Plex](https://plex.tv)** - Media server and streaming platform
-- **[Sonarr](https://sonarr.tv)** + **[Sonarr 4K](https://sonarr.tv)** - TV series management
-- **[Radarr](https://radarr.video)** + **[Radarr 4K](https://radarr.video)** - Movie management
+- **[Sonarr](https://sonarr.tv)** - TV series management
+- **[Radarr](https://radarr.video)** - Movie management
 - **[Prowlarr](https://prowlarr.com)** - Indexer aggregator
 - **[Bazarr](https://bazarr.media)** - Subtitle management
 - **[SABnzbd](https://sabnzbd.org)** - Usenet downloader

@@ -189,8 +189,11 @@ spec:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/music
-        globalMounts:
-          - path: /music
+        advancedMounts:
+          homeassistant:
+            app:
+              - path: /music
+                readOnly: true
 
       deploy-key:
         type: secret
