@@ -133,8 +133,9 @@ spec:
         globalMounts:
           - path: /dev/bus/usb
       media:
-        type: emptyDir
-        sizeLimit: 10Gi
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /volume2/k8s/frigate
         globalMounts:
           - path: /media
 
