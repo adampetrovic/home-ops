@@ -98,17 +98,7 @@ camera_groups:
       - front_yard
 
 record:
-  enabled: true
-  alerts:
-    pre_capture: 5
-    post_capture: 5
-    retain:
-      days: 30
-      mode: motion
-  detections:
-    retain:
-      days: 30
-      mode: motion
+  enabled: false
 
 review:
   genai:
