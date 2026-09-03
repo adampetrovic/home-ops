@@ -45,12 +45,8 @@ spec:
               UN_WEBSERVER_METRICS: 'true'
               UN_SONARR_0_URL: http://sonarr.media.svc.cluster.local
               UN_SONARR_0_PATHS_0: /downloads/complete/qbt/tv
-              UN_SONARR_1_URL: http://sonarr-4k.media.svc.cluster.local
-              UN_SONARR_1_PATHS_0: /downloads/complete/qbt/tv-4k
               UN_RADARR_0_URL: http://radarr.media.svc.cluster.local
               UN_RADARR_0_PATHS_0: /downloads/complete/qbt/movies
-              UN_RADARR_1_URL: http://radarr-4k.media.svc.cluster.local
-              UN_RADARR_1_PATHS_0: /downloads/complete/qbt/movies-4k
             resources:
               requests:
                 cpu: 10m

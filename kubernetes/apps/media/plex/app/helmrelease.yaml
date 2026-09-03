@@ -174,55 +174,44 @@ spec:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/movies
-        globalMounts:
-          - path: /movies
-            readOnly: false
-      movies-4k:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/movies-4k
-        globalMounts:
-          - path: /movies-4k
-            readOnly: false
+        advancedMounts:
+          plex:
+            app:
+              - path: /movies
+                readOnly: true
       movies-kids:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/kids/movies
-        globalMounts:
-          - path: /movies-kids
-            readOnly: false
+        advancedMounts:
+          plex:
+            app:
+              - path: /movies-kids
+                readOnly: true
       tv:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/tv
-        globalMounts:
-          - path: /tv
-            readOnly: false
-      tv-4k:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/tv-4k
-        globalMounts:
-          - path: /tv-4k
-            readOnly: false
+        advancedMounts:
+          plex:
+            app:
+              - path: /tv
+                readOnly: true
       tv-kids:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/kids/tv
-        globalMounts:
-          - path: /tv-kids
-            readOnly: false
-      sports:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/sports
-        globalMounts:
-          - path: /sports
-            readOnly: false
+        advancedMounts:
+          plex:
+            app:
+              - path: /tv-kids
+                readOnly: true
       music:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
         path: /volume2/music
-        globalMounts:
-          - path: /music
-            readOnly: false
+        advancedMounts:
+          plex:
+            app:
+              - path: /music
+                readOnly: true

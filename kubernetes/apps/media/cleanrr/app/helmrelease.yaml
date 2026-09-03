@@ -47,9 +47,7 @@ spec:
               CLEANRR_DRY_RUN: "true"
               CLEANRR_REMOVE_FROM_CLIENT: "false"
               CLEANRR_SERVERS__RADARR__URL: http://radarr.media.svc.cluster.local
-              CLEANRR_SERVERS__RADARR_4K__URL: http://radarr-4k.media.svc.cluster.local
               CLEANRR_SERVERS__SONARR__URL: http://sonarr.media.svc.cluster.local
-              CLEANRR_SERVERS__SONARR_4K__URL: http://sonarr-4k.media.svc.cluster.local
             envFrom:
               - secretRef:
                   name: cleanrr-secret
