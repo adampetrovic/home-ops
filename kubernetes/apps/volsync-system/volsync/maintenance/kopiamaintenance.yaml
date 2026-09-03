@@ -6,6 +6,8 @@ metadata:
   name: daily
 spec:
   enabled: true
+  # Temporarily prevent new maintenance during the NAS migration.
+  suspend: true
   activeDeadlineSeconds: 43200
   podSecurityContext:
     runAsUser: 0
