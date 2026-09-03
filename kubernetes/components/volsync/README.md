@@ -5,13 +5,13 @@ VolSync is a Kubernetes operator that provides automated backup and restore capa
 This VolSync setup uses a dual-storage strategy:
 
 - **Kopia (Primary)**: Frequent backups (hourly) stored in a Kopia filesystem repository on NFS (`/volume2/kopia`)
-- **Cloudflare R2 (Secondary)**: Daily backups stored in Cloudflare R2 via restic for disaster recovery
+- **Cloudflare R2 (Secondary)**: Daily backups stored in Cloudflare R2 via restic for disaster recovery; mover jobs do not mount or depend on the Kopia NFS repository
 
 ### Thundering Herd Prevention
 
 All Kopia backups share a single cron schedule (`0 * * * *`). A `MutatingAdmissionPolicy` (`volsync-mover-jitter`) automatically injects a random 0-30 second sleep as an init container into every VolSync source job, spreading out the actual backup starts across a 30-second window.
 
-A second `MutatingAdmissionPolicy` (`volsync-mover-nfs`) dynamically injects the NFS volume mount for the Kopia repository into every VolSync mover job, keeping the component configuration clean.
+A second `MutatingAdmissionPolicy` (`volsync-mover-nfs`) dynamically injects the NFS volume only into jobs that contain a Kopia mover container. Restic/R2 movers are deliberately excluded so the secondary backup path remains independent of NAS availability.
 
 ### Core Components
 
@@ -67,7 +67,7 @@ spec:
       VOLSYNC_CAPACITY: 10Gi
 ```
 
-That's it for Kopia backups — no schedule configuration needed. The hourly schedule and jitter are handled automatically.
+That's it for a workload whose live data is stored in `${APP}`. The hourly schedule and jitter are handled automatically. StatefulSet `volumeClaimTemplates` create different PVC names and require explicit per-ordinal `ReplicationSource` resources; see `kubernetes/apps/network/adguard/app/backups.yaml`.
 
 ### Step 2: Optional R2 Schedule Override
 

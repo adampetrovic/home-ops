@@ -85,6 +85,9 @@ spec:
     - name: has-volsync-created-by-labels
       expression: >-
         object.metadata.?labels["app.kubernetes.io/created-by"].orValue("") == "volsync"
+    - name: has-kopia-mover-container
+      expression: >-
+        object.spec.template.spec.containers.exists(container, container.name == "kopia")
     - name: repository-volume-does-not-exist
       expression: >-
         !has(object.spec.template.spec.volumes) ||
