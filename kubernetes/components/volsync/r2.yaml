@@ -44,7 +44,7 @@ spec:
     accessModes: ["${VOLSYNC_ACCESSMODES:-ReadWriteOnce}"]
     moverSecurityContext:
       runAsUser: ${VOLSYNC_UID:-568}
-      runAsGroup: 568 # Injected Kopia NFS repository group
+      runAsGroup: ${VOLSYNC_GID:-568}
       fsGroup: ${VOLSYNC_GID:-568}
       fsGroupChangePolicy: OnRootMismatch
     retain:
