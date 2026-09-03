@@ -5,6 +5,8 @@ kind: ReplicationSource
 metadata:
   name: adguard-0
 spec:
+  # Temporarily pause Synology-backed Kopia writes during the NAS migration.
+  paused: true
   sourcePVC: data-adguard-0
   trigger:
     schedule: "37 * * * *"
@@ -31,6 +33,8 @@ kind: ReplicationSource
 metadata:
   name: adguard-1
 spec:
+  # Temporarily pause Synology-backed Kopia writes during the NAS migration.
+  paused: true
   sourcePVC: data-adguard-1
   trigger:
     schedule: "47 * * * *"
