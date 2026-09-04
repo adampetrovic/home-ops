@@ -76,10 +76,18 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd dump | grep fla
 
 ### 4. Set CNPG maintenance mode
 
-Prevents the operator from performing failovers during shutdown:
+Prevents the operator from performing failovers during shutdown. Patch the CRDs directly so
+this does not depend on the optional `kubectl-cnpg` plugin being installed:
 
 ```bash
-kubectl cnpg maintenance set --reusePVC --all-namespaces
+while IFS=$'\t' read -r namespace name; do
+    kubectl patch cluster.postgresql.cnpg.io "$name" -n "$namespace" --type=merge \
+      -p '{"spec":{"nodeMaintenanceWindow":{"inProgress":true,"reusePVC":true}}}'
+done < <(kubectl get clusters.postgresql.cnpg.io -A -o json \
+  | jq -r '.items[] | [.metadata.namespace, .metadata.name] | @tsv')
+
+kubectl get clusters.postgresql.cnpg.io -A \
+  -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name,MAINTENANCE:.spec.nodeMaintenanceWindow.inProgress,REUSE_PVC:.spec.nodeMaintenanceWindow.reusePVC'
 ```
 
 ### 5. Suspend Flux
@@ -225,9 +233,12 @@ cordon to avoid the scheduling cascade we hit previously.
 
 ### 10. Power on infrastructure
 
-1. **Network switches / router** — wait for full convergence
-2. **Synology NAS** — wait for NFS exports to be available
-3. **UPS** — ensure it's online and charging
+1. **UPS** — ensure it is online, stable and charging.
+2. **Network switches / router** — wait for VLAN, routing and DNS convergence.
+3. **Synology NAS** — wait for NFS exports and SSH to be available.
+4. **UNAS** — wait for all pools to report healthy and for NFS/SMB services to be available.
+
+Do not boot the Kubernetes nodes until both NAS units and the network are ready.
 
 ### 11. Wake all nodes via Wake-on-LAN
 
@@ -260,28 +271,37 @@ Talos boots automatically once power is applied — expect the nodes to be reach
 > `k8s-node-5` doesn't come up after a couple of minutes, power it on manually (physical
 > button or smart plug). Everything else should wake reliably.
 
-Wait for the API to become reachable:
+Wait for etcd quorum and the Kubernetes API to become reachable:
 
 ```bash
-# Control plane usually responds first; the API needs etcd quorum (2 of 3 CP nodes)
-until talosctl health --nodes 10.0.80.10 --wait-timeout=10m --server=false 2>/dev/null; do
-    echo "Waiting for control plane..."
+# A control plane usually responds first; etcd requires 2 of 3 control-plane nodes.
+until talosctl -n 10.0.80.10 etcd members >/dev/null 2>&1; do
+    echo "Waiting for etcd quorum..."
     sleep 15
 done
-
-# Verify etcd membership
 talosctl -n 10.0.80.10 etcd members
+
+until kubectl get --raw=/readyz >/dev/null 2>&1; do
+    echo "Waiting for Kubernetes API..."
+    sleep 15
+done
 ```
 
-Wait for **all 5 nodes** to be `Ready` before moving on — do not skip this step or the
-cordon-release in step 12 will only spread pods across whichever nodes happen to be back:
+> **Do not run full `talosctl health` yet.** Its final check requires every node to be
+> schedulable, but the intentional pre-shutdown cordons persist across reboot. Waiting for
+> full Talos health before step 12 therefore deadlocks the startup procedure.
+
+Wait for **all 5 nodes** to be `Ready` while they remain cordoned. Do not skip this step or
+releasing the cordons will distribute work only across whichever nodes returned first:
 
 ```bash
 kubectl wait --for=condition=Ready nodes --all --timeout=10m
-kubectl get nodes -o wide
+kubectl get nodes \
+  -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,UNSCHEDULABLE:.spec.unschedulable'
 ```
 
-If any node is still `NotReady` after 10 minutes, debug it before continuing
+Require all five `READY` values to be `True` and all five `UNSCHEDULABLE` values to be
+`true`. If any node is still `NotReady` after 10 minutes, debug it before continuing
 ([troubleshooting](#etcd-wont-form-quorum)).
 
 ---
@@ -295,6 +315,9 @@ distribute the pending workload across all 5 nodes in one shot:
 
 ```bash
 kubectl uncordon k8s-node-1 k8s-node-2 k8s-node-3 k8s-node-4 k8s-node-5
+
+# Full Talos health is valid only after all five cordons are released.
+talosctl health --nodes 10.0.80.10 --wait-timeout=10m --server=false
 ```
 
 Watch pods start landing on every node (you should see roughly even counts):
@@ -317,11 +340,22 @@ Ceph should recover automatically once all OSD nodes are back. This can take a f
 kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph -w
 ```
 
-Wait for `HEALTH_OK` (or `HEALTH_WARN` with only the `noout` and `norebalance` flags):
+Do not accept generic `HEALTH_WARN`: it may include down OSDs, inactive PGs or degraded
+objects. Require every OSD to be up/in and every PG to be `active+clean` before removing
+the shutdown flags:
 
 ```bash
-until kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph health 2>/dev/null | grep -q "HEALTH_OK\|HEALTH_WARN"; do
-    echo "Waiting for Ceph..."
+while :; do
+    status=$(kubectl -n rook-ceph exec deploy/rook-ceph-tools -- \
+      ceph status --format json 2>/dev/null) || { sleep 15; continue; }
+    osds=$(jq -r '.osdmap.num_osds' <<<"$status")
+    up=$(jq -r '.osdmap.num_up_osds' <<<"$status")
+    in=$(jq -r '.osdmap.num_in_osds' <<<"$status")
+    pgs=$(jq -r '.pgmap.num_pgs' <<<"$status")
+    clean=$(jq -r '[.pgmap.pgs_by_state[] | select(.state_name == "active+clean") | .count] | add // 0' <<<"$status")
+    degraded=$(jq -r '.pgmap.degraded_objects // 0' <<<"$status")
+    echo "OSDs up/in/total: $up/$in/$osds; PGs clean/total: $clean/$pgs; degraded objects: $degraded"
+    [[ "$up" == "$osds" && "$in" == "$osds" && "$clean" == "$pgs" && "$degraded" == 0 ]] && break
     sleep 15
 done
 ```
@@ -341,15 +375,21 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
 
 ### 15. Unset CNPG maintenance mode
 
+Patch the CRDs directly while Flux is still suspended:
+
 ```bash
-kubectl cnpg maintenance unset --reusePVC --all-namespaces
+while IFS=$'\t' read -r namespace name; do
+    kubectl patch cluster.postgresql.cnpg.io "$name" -n "$namespace" --type=merge \
+      -p '{"spec":{"nodeMaintenanceWindow":{"inProgress":false,"reusePVC":true}}}'
+done < <(kubectl get clusters.postgresql.cnpg.io -A -o json \
+  | jq -r '.items[] | [.metadata.namespace, .metadata.name] | @tsv')
 ```
 
-Verify the PostgreSQL cluster is healthy:
+Verify every PostgreSQL cluster is healthy at its full replica count:
 
 ```bash
-kubectl -n database get cluster postgres
-kubectl -n database get pods -l cnpg.io/cluster=postgres
+kubectl get clusters.postgresql.cnpg.io -A \
+  -o custom-columns='NAMESPACE:.metadata.namespace,NAME:.metadata.name,INSTANCES:.spec.instances,READY:.status.readyInstances,STATUS:.status.phase,MAINTENANCE:.spec.nodeMaintenanceWindow.inProgress'
 ```
 
 ### 16. Resume Flux
