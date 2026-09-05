@@ -151,7 +151,7 @@ spec:
                 min_rows="${USAG_BOOTSTRAP_MIN_RAINBOW_ROWS:-1000000}"
                 rainbow_rows="$(psql "$DATABASE_URL" -Atc "SELECT count(*) FROM usagnum_hash_lookup" | tr -d '[:space:]')"
                 if [ "${rainbow_rows:-0}" -lt "$min_rows" ]; then
-                  echo "USAG bootstrap preflight failed: rainbow table has ${rainbow_rows:-0} rows; need at least ${min_rows}."
+                  echo "USAG bootstrap preflight failed: rainbow table has $${rainbow_rows:-0} rows; need at least $${min_rows}."
                   exit 1
                 fi
                 exec /app/entrypoint.sh "$SOURCE"
