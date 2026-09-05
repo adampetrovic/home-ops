@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gdb-postgres
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 80Gi
+    storageClass: openebs-hostpath
+  bootstrap:
+    initdb:
+      database: gdb
+      owner: gdb
+      secret:
+        name: gdb-postgres-app-secret
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS postgis
+        - CREATE EXTENSION IF NOT EXISTS pg_trgm
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: gdb-postgres-superuser-secret
+  postgresql:
+    parameters:
+      max_connections: "300"
+      shared_buffers: 1GB
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  enablePDB: false
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2Gi
+    limits:
+      memory: 4Gi
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - { sourceLabels: ["cluster"], targetLabel: cnpg_cluster, action: replace }
+      - { regex: cluster, action: labeldrop }
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: gdb-garage
+        serverName: gdb-postgres-v2
