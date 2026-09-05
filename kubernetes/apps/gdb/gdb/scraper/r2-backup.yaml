@@ -10,17 +10,13 @@ spec:
   trigger:
     schedule: "30 3 * * *"
   restic:
-    copyMethod: Snapshot
+    copyMethod: Direct
     pruneIntervalDays: 7
     repository: gdb-scraper-volsync-r2-secret
-    volumeSnapshotClassName: csi-ceph-filesystem
     cacheCapacity: 8Gi
     cacheStorageClassName: openebs-hostpath
     cacheAccessModes:
       - ReadWriteOnce
-    storageClassName: ceph-filesystem
-    accessModes:
-      - ReadWriteMany
     moverSecurityContext:
       runAsUser: 568
       runAsGroup: 568
