@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/volsync.backube/replicationsource_v1alpha1.json
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: gdb-scraper-r2
+spec:
+  paused: true
+  sourcePVC: gdb-scraper
+  trigger:
+    schedule: "30 3 * * *"
+  restic:
+    copyMethod: Snapshot
+    pruneIntervalDays: 7
+    repository: gdb-scraper-volsync-r2-secret
+    volumeSnapshotClassName: csi-ceph-filesystem
+    cacheCapacity: 8Gi
+    cacheStorageClassName: openebs-hostpath
+    cacheAccessModes:
+      - ReadWriteOnce
+    storageClassName: ceph-filesystem
+    accessModes:
+      - ReadWriteMany
+    moverSecurityContext:
+      runAsUser: 568
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
+    retain:
+      daily: 7
+      weekly: 4
+      monthly: 2
