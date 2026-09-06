@@ -19,9 +19,33 @@ spec:
   values:
     controllers:
       paperless-ngx:
+        replicas: 1
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: 'true'
         initContainers:
+          00-init-inbox:
+            image:
+              repository: ghcr.io/home-operations/busybox
+              tag: 1.38.0@sha256:7e2c04dd50ede647bf4a7a4c8dbd629dd4971cd139b9b88fb22bfc3c7a6c13df
+            command:
+              - /bin/sh
+              - -ec
+              - |
+                # Never follow a pre-existing symlink or chown the library recursively.
+                test ! -L /data/scan-inbox
+                mkdir -p /data/scan-inbox
+                chown 568:100 /data/scan-inbox
+                chmod 0770 /data/scan-inbox
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
+                add: [CHOWN, DAC_OVERRIDE, FOWNER]
           01-init-db:
             image:
               repository: ghcr.io/home-operations/postgres-init
@@ -30,6 +54,61 @@ spec:
               - secretRef:
                   name: paperless-secret
         containers:
+          samba:
+            image:
+              repository: ghcr.io/crazy-max/samba
+              tag: 4.23.8@sha256:b37f7af97c773eddb593537f64da6389e5ee6695bcecf44f3ba1a8a6bcf34125
+            env:
+              TZ: "${TZ}"
+              CONFIG_FILE: /config/config.yml
+              SAMBA_WORKGROUP: WORKGROUP
+              SAMBA_SERVER_STRING: Paperless scan inbox
+              SAMBA_FOLLOW_SYMLINKS: "no"
+              SAMBA_WIDE_LINKS: "no"
+              SAMBA_HOSTS_ALLOW: "127.0.0.1 10.0.40.7"
+              AVAHI_ENABLE: "0"
+              WSDD2_ENABLE: "0"
+            securityContext:
+              # Upstream /init creates Unix accounts, /etc/samba and /etc/services.d,
+              # and rewrites /var/{lib,cache}/samba. smbd drops to scanner for I/O.
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              readOnlyRootFilesystem: false
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
+                add: [CHOWN, DAC_OVERRIDE, FOWNER, KILL, SETGID, SETUID, SYS_CHROOT, NET_BIND_SERVICE]
+              seccompProfile:
+                type: RuntimeDefault
+            probes:
+              # The image's anonymous smbclient healthcheck assumes guest mapping;
+              # use the local daemon control channel with map-to-guest disabled.
+              readiness: &sambaProbe
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [smbcontrol, smbd, ping]
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              liveness: *sambaProbe
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [smbcontrol, smbd, ping]
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 20m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
           gotenburg:
             image:
               repository: mirror.gcr.io/thecodingmachine/gotenberg
@@ -59,11 +138,14 @@ spec:
               PAPERLESS_ALLOWED_HOSTS: paperless.${SECRET_DOMAIN},paperless-ngx.default.svc.cluster.local
               PAPERLESS_ENABLE_HTTP_REMOTE_USER: 'true'
               PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: HTTP_REMOTE_USER
-              PAPERLESS_CONSUMPTION_DIR: /library/consume
+              PAPERLESS_CONSUMPTION_DIR: /data/scan-inbox
               PAPERLESS_DATA_DIR: /data/data
               PAPERLESS_MEDIA_ROOT: /data/media
               PAPERLESS_EXPORT_DIR: /data/export
-              PAPERLESS_CONSUMER_POLLING_INTERVAL: 60
+              PAPERLESS_CONSUMER_POLLING_INTERVAL: 10
+              # Paperless 3.x: unchanged size + mtime for 120s before consumption.
+              # This is a heuristic, not an SMB close/commit guarantee; see README.
+              PAPERLESS_CONSUMER_STABILITY_DELAY: 120
               PAPERLESS_CONSUMER_IGNORE_PATTERNS: '["^\\.DS_Store$", "^\\._.*"]'
               PAPERLESS_CONSUMER_IGNORE_DIRS: '["^\\.stfolder$", "^@eaDir$"]'
               PAPERLESS_TRUSTED_PROXIES: 10.69.0.0/16
@@ -81,7 +163,21 @@ spec:
               limits:
                 memory: 6Gi
     service:
+      scanner:
+        controller: paperless-ngx
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: 10.0.88.15
+        externalTrafficPolicy: Local
+        loadBalancerSourceRanges:
+          - 10.0.40.7/32
+        allocateLoadBalancerNodePorts: false
+        ports:
+          smb:
+            port: 445
       app:
+        # Keep the existing service name when adding a second Service.
+        forceRename: *app
         controller: paperless-ngx
         ports:
           http:
@@ -93,20 +189,47 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
     persistence:
       config:
         enabled: true
         existingClaim: *app
         advancedMounts:
           paperless-ngx:
+            00-init-inbox:
+              - path: /data
             app:
               - path: /data
-      downloads:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/k8s/paperless
-        globalMounts:
-          - path: /library
+            samba:
+              - path: /scan-inbox
+                subPath: scan-inbox
+      samba-runtime:
+        type: emptyDir
+        sizeLimit: 256Mi
+        advancedMounts:
+          paperless-ngx:
+            samba:
+              - path: /data
+      samba-config:
+        type: configMap
+        name: paperless-samba-config
+        advancedMounts:
+          paperless-ngx:
+            samba:
+              - path: /config
+                readOnly: true
+      samba-password:
+        type: secret
+        name: paperless-scanner-secret
+        defaultMode: 0400
+        advancedMounts:
+          paperless-ngx:
+            samba:
+              - path: /run/secrets/scanner
+                readOnly: true
       post-consume:
         enabled: true
         type: configMap
