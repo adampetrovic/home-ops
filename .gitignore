@@ -23,5 +23,6 @@ Brewfile.lock.json
 .claude
 # pi
 .kstack
+.pi/subagent-schedules/
 # wiki
 wiki
