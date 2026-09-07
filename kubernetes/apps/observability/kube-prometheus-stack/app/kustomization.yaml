@@ -9,7 +9,6 @@ resources:
   - ./ocirepository.yaml
   - ./httproute.yaml
   - ./prometheusrules
-  - ./scrapeconfig.yaml
 configMapGenerator:
   - name: alertmanager-config-tpl
     files:
