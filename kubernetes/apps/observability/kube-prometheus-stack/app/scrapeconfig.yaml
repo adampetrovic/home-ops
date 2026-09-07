@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: unas-node
+spec:
+  jobName: unas-node
+  scrapeInterval: 30s
+  scrapeTimeout: 10s
+  staticConfigs:
+    - targets:
+        - unas-direct.${SECRET_DOMAIN}:9100
+      labels:
+        appliance: unas-pro-8
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: unas-smart
+spec:
+  jobName: unas-smart
+  scrapeInterval: 60s
+  scrapeTimeout: 20s
+  staticConfigs:
+    - targets:
+        - unas-direct.${SECRET_DOMAIN}:9633
+      labels:
+        appliance: unas-pro-8
