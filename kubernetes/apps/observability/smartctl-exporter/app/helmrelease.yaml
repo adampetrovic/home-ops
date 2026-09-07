@@ -1,0 +1,103 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app smartctl-exporter
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      smartctl-exporter:
+        type: daemonset
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: quay.io/prometheuscommunity/smartctl-exporter
+              tag: v0.14.0@sha256:cfe22c36d7d2fac48ebf619707305acb65eb0fb670656eb80f356e606d782bc1
+            args:
+              - --smartctl.interval=60s
+              - --smartctl.rescan=10m
+              - --web.listen-address=:9633
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &port 9633
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probe
+              startup:
+                enabled: false
+            securityContext:
+              # smartctl requires privileged NVMe admin ioctls; host access is limited to devices only.
+              privileged: true
+              readOnlyRootFilesystem: true
+              runAsUser: 0
+            resources:
+              requests:
+                cpu: 5m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        kubernetes.io/os: linux
+      tolerations:
+        - operator: Exists
+    persistence:
+      host-devices:
+        # Deliberately excludes host root, PID, IPC, and network namespaces.
+        type: hostPath
+        hostPath: /dev
+        hostPathType: Directory
+        globalMounts:
+          - path: /hostdev
+            readOnly: true
+    service:
+      app:
+        controller: smartctl-exporter
+        forceRename: *app
+        ports:
+          metrics:
+            port: *port
+    serviceMonitor:
+      app:
+        serviceName: *app
+        endpoints:
+          - port: metrics
+            path: /metrics
+            interval: 60s
+            scrapeTimeout: 30s
+            relabelings:
+              - action: replace
+                sourceLabels:
+                  - __meta_kubernetes_pod_node_name
+                targetLabel: instance
+              - action: replace
+                sourceLabels:
+                  - __meta_kubernetes_pod_node_name
+                targetLabel: kubernetes_node
+              - action: replace
+                replacement: talos-smart
+                targetLabel: job
