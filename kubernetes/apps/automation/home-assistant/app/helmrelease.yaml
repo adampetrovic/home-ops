@@ -185,16 +185,6 @@ spec:
         globalMounts:
           - path: /config/.cache/uv
 
-      music:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/music
-        advancedMounts:
-          homeassistant:
-            app:
-              - path: /music
-                readOnly: true
-
       deploy-key:
         type: secret
         name: home-assistant-secret
