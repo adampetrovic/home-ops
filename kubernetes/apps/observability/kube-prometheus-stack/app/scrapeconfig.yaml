@@ -13,6 +13,7 @@ spec:
         - unas-direct.${SECRET_DOMAIN}:9100
       labels:
         appliance: unas-pro-8
+        instance: UNAS-Pro-8
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
 apiVersion: monitoring.coreos.com/v1alpha1
@@ -28,3 +29,4 @@ spec:
         - unas-direct.${SECRET_DOMAIN}:9633
       labels:
         appliance: unas-pro-8
+        instance: UNAS-Pro-8

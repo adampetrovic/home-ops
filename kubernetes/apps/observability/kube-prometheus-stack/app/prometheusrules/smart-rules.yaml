@@ -1,0 +1,96 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: smart-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: smartctl-exporter
+      rules:
+        - alert: SmartctlNoDevicesDiscovered
+          annotations:
+            description: smartctl_exporter on {{ $labels.instance }} discovered no storage devices.
+            summary: A SMART exporter cannot see any host devices.
+          expr: smartctl_devices{job=~"(talos|unas)-smart"} < 1
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartctlDeviceUnhealthy
+          annotations:
+            description: SMART reports that {{ $labels.device }} on {{ $labels.instance }} is unhealthy.
+            summary: A storage device is reporting an unhealthy SMART status.
+          expr: smartctl_device_smart_status{job=~"(talos|unas)-smart"} != 1
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartctlNVMeCriticalWarning
+          annotations:
+            description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has critical-warning value {{ $value }}.
+            summary: An NVMe controller is reporting a critical warning.
+          expr: smartctl_device_critical_warning{job=~"(talos|unas)-smart"} > 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartctlMediaErrorsDetected
+          annotations:
+            description: Device {{ $labels.device }} on {{ $labels.instance }} reports {{ $value }} unrecovered media errors.
+            summary: A storage device has recorded media errors.
+          expr: smartctl_device_media_errors{job=~"(talos|unas)-smart"} > 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartctlATASectorErrors
+          annotations:
+            description: Device {{ $labels.device }} on {{ $labels.instance }} reports {{ $value }} {{ $labels.attribute_name }} sectors.
+            summary: An ATA device has reallocated, pending, or uncorrectable sectors.
+          expr: |-
+            smartctl_device_attribute{
+              job=~"(talos|unas)-smart",
+              attribute_name=~"Reallocated_Sector_Ct|Current_Pending_Sector|Offline_Uncorrectable",
+              attribute_value_type="raw"
+            } > 0
+          for: 5m
+          labels:
+            severity: warning
+        - alert: SmartctlNVMeSpareBelowThreshold
+          annotations:
+            description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has less available spare than its vendor threshold.
+            summary: An NVMe device has exhausted its safe spare capacity.
+          expr: |-
+            smartctl_device_available_spare{job=~"(talos|unas)-smart"}
+            < on(job, instance, device)
+            smartctl_device_available_spare_threshold{job=~"(talos|unas)-smart"}
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartctlNVMeWearHigh
+          annotations:
+            description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has consumed {{ printf "%.0f" $value }}% of its rated endurance.
+            summary: NVMe endurance consumption is above 70%.
+          expr: |-
+            smartctl_device_percentage_used{job=~"(talos|unas)-smart"} >= 70
+            and on(job, instance, device)
+            smartctl_device_percentage_used{job=~"(talos|unas)-smart"} < 90
+          for: 30m
+          labels:
+            severity: warning
+        - alert: SmartctlNVMeWearCritical
+          annotations:
+            description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has consumed {{ printf "%.0f" $value }}% of its rated endurance.
+            summary: NVMe endurance consumption is above 90%.
+          expr: smartctl_device_percentage_used{job=~"(talos|unas)-smart"} >= 90
+          for: 30m
+          labels:
+            severity: critical
+        - alert: SmartctlDeviceTemperatureHigh
+          annotations:
+            description: Device {{ $labels.device }} on {{ $labels.instance }} has remained at {{ printf "%.0f" $value }}°C for 10 minutes.
+            summary: A storage device is running hotter than 60°C.
+          expr: smartctl_device_temperature{job=~"(talos|unas)-smart", temperature_type="current"} > 60
+          for: 10m
+          labels:
+            severity: warning

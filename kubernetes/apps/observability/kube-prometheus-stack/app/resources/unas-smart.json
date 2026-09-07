@@ -175,7 +175,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_temperature{job=\"unas-smart\"}",
+          "expr": "smartctl_device_temperature{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -267,7 +267,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "smartctl_device_smart_status{job=\"unas-smart\"}",
+          "expr": "smartctl_device_smart_status{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -356,7 +356,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_critical_warning{job=\"unas-smart\"}",
+          "expr": "smartctl_device_critical_warning{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -426,7 +426,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": false,
-          "expr": "smartctl_device_power_on_seconds{job=\"unas-smart\"}",
+          "expr": "smartctl_device_power_on_seconds{job=\"$job\",instance=\"$instance\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
@@ -513,7 +513,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_media_errors{job=\"unas-smart\"}",
+          "expr": "smartctl_device_media_errors{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -581,7 +581,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_power_cycle_count{job=\"unas-smart\"}",
+          "expr": "smartctl_device_power_cycle_count{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -662,7 +662,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_error_log_count{job=\"unas-smart\"}",
+          "expr": "smartctl_device_error_log_count{job=\"$job\",instance=\"$instance\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -750,7 +750,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 18
       },
@@ -776,7 +776,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_bytes_written{job=\"unas-smart\",device=~\"nvme.*\"}",
+          "expr": "smartctl_device_bytes_written{job=\"$job\",instance=\"$instance\",device=~\"nvme.*\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -825,8 +825,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 8,
+        "x": 8,
         "y": 18
       },
       "id": 2,
@@ -854,7 +854,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "smartctl_device_available_spare{job=\"unas-smart\",device=~\"nvme.*\"}",
+          "expr": "smartctl_device_available_spare{job=\"$job\",instance=\"$instance\",device=~\"nvme.*\"}",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -866,16 +866,142 @@
       ],
       "title": "Available Spare on NVME",
       "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-RdYlGr"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 18
+      },
+      "id": 12,
+      "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "smartctl_device_percentage_used{job=\"$job\",instance=\"$instance\",device=~\"nvme.*\"}",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{device}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "NVMe Endurance Used",
+      "type": "gauge"
     }
   ],
   "refresh": "",
   "schemaVersion": 39,
   "tags": [
     "smart",
+    "talos",
     "unas"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(smartctl_device_smart_status, job)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Job",
+        "multi": false,
+        "name": "job",
+        "options": [],
+        "query": {
+          "query": "label_values(smartctl_device_smart_status, job)",
+          "refId": "PrometheusVariableQueryEditor-Job"
+        },
+        "refresh": 1,
+        "regex": "/(talos|unas)-smart/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "$${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(smartctl_device_smart_status{job=\"$job\"}, instance)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Instance",
+        "multi": false,
+        "name": "instance",
+        "options": [],
+        "query": {
+          "query": "label_values(smartctl_device_smart_status{job=\"$job\"}, instance)",
+          "refId": "PrometheusVariableQueryEditor-Instance"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
@@ -883,10 +1009,10 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "UNAS SMART Disk Data",
+  "title": "Storage SMART Disk Data",
   "uid": "unas-smart-disk-data",
   "version": 16,
   "weekStart": "",
   "gnetId": 20204,
-  "description": "Adapted for the UNAS Pro 8 from Grafana dashboard 20204 revision 1 (prometheus-community/smartctl_exporter)."
+  "description": "Adapted from Grafana dashboard 20204 revision 1 for UNAS and Talos smartctl_exporter jobs."
 }
