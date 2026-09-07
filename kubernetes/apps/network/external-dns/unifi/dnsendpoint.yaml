@@ -11,6 +11,9 @@ spec:
     - dnsName: "nas-direct.${SECRET_DOMAIN}"
       recordType: A
       targets: ["10.0.10.3"]
+    - dnsName: "unas-direct.${SECRET_DOMAIN}"
+      recordType: A
+      targets: ["10.0.10.95"]
     - dnsName: "nvr-direct.${SECRET_DOMAIN}"
       recordType: A
       targets: ["10.0.50.2"]
