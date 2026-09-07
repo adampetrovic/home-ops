@@ -186,9 +186,7 @@ spec:
           - path: /config/.cache/uv
 
       music:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/music
+        type: emptyDir
         advancedMounts:
           homeassistant:
             app:
