@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - ./nas.yaml
   - ./nvr.yaml
+  - ./unas.yaml
   - ./unifi.yaml
