@@ -5,8 +5,6 @@ kind: ReplicationSource
 metadata:
   name: ${APP}
 spec:
-  # Temporarily pause Synology-backed Kopia writes during the NAS migration.
-  paused: true
   sourcePVC: ${APP}
   trigger:
     schedule: "${VOLSYNC_KOPIA_SCHEDULE:-0 * * * *}"
