@@ -19,6 +19,46 @@ spec:
       retries: 3
   values:
     controllers:
+      bootstrap-repository:
+        type: job
+        annotations:
+          helm.sh/hook: pre-install,pre-upgrade
+          helm.sh/hook-delete-policy: before-hook-creation
+          helm.sh/hook-weight: "-10"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-operations/kopia
+              tag: 0.23.1@sha256:27da0a33b44e1b902150a6c963514237217464bb13118a95bb056667be93cda5
+            env:
+              KOPIA_LOG_DIR: /tmp/logs
+            envFrom:
+              - secretRef:
+                  name: kopia-secret
+            command:
+              - /bin/sh
+              - -c
+              - |
+                set -eu
+                if [ -e /repository/kopia.repository.f ]; then
+                    echo "Kopia repository already exists"
+                    exit 0
+                fi
+                if find /repository -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+                    echo "Refusing to initialize non-empty Kopia share" >&2
+                    exit 1
+                fi
+                kopia repository create filesystem \
+                    --create-only \
+                    --path=/repository \
+                    --config-file=/tmp/repository.config \
+                    --cache-directory=/tmp/cache \
+                    --override-hostname=volsync.volsync-system.svc.cluster.local \
+                    --override-username=volsync
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
       kopia:
         annotations:
           reloader.stakater.com/auto: "true"
@@ -100,13 +140,17 @@ spec:
             subPath: repository.config
       repository:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/kopia
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/kopia
         globalMounts:
           - path: /repository
       tmpfs:
         type: emptyDir
         advancedMounts:
+          bootstrap-repository:
+            app:
+              - path: /tmp
+                subPath: bootstrap
           kopia:
             app:
               - path: /config/cache
