@@ -6,4 +6,5 @@ resources:
   - ./etcd-rules.yaml
   - ./node-rules.yaml
   - ./prometheusrule.yaml
+  - ./smart-rules.yaml
   - ./wan-rules.yaml
