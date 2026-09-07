@@ -17,11 +17,11 @@ spec:
         name: tracearr-postgres-secret
         key: aws-secret-access-key
     wal:
-      compression: bzip2
+      compression: lz4
       maxParallel: 8
     data:
-      compression: bzip2
-      jobs: 1
+      compression: lz4
+      jobs: 2
       # Bound Garage's per-object metadata growth and tolerate NFS commit latency.
       additionalCommandArgs:
         - --max-archive-size=10GB
