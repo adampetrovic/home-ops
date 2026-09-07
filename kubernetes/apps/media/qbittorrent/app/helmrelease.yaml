@@ -44,6 +44,29 @@ spec:
                     values: ["i40e"]
     controllers:
       qbittorrent:
+        initContainers:
+          01-archive-pre-unas-queue:
+            image:
+              repository: ghcr.io/home-operations/qbittorrent
+              tag: 5.2.3@sha256:4fcf15b7f265c2c8d7bc2a7e13240a07e0593c326f3cf3b5b9bb69eec5b79299
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                set -eu
+                marker=/config/.unas-fresh-queue-20260907
+                state=/config/qBittorrent/BT_backup
+                archive=/config/qBittorrent/BT_backup.pre-unas-20260907
+                if [ ! -e "$marker" ]; then
+                  [ ! -e "$archive" ] || { echo "Archive already exists without marker" >&2; exit 1; }
+                  if [ -d "$state" ]; then
+                    mv "$state" "$archive"
+                  fi
+                  mkdir -p "$state"
+                  touch "$marker"
+                fi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
         containers:
           main:
             image:
@@ -113,7 +136,8 @@ spec:
         existingClaim: qbittorrent
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/downloads
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media
         globalMounts:
           - path: /downloads
+            subPath: downloads
