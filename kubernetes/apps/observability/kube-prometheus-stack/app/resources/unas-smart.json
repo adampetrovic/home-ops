@@ -961,7 +961,7 @@
           "type": "prometheus",
           "uid": "$${DS_PROMETHEUS}"
         },
-        "definition": "label_values(smartctl_device_smart_status, job)",
+        "definition": "label_values(smartctl_device_smart_status{job=~\"(talos|unas)-smart\"}, job)",
         "hide": 0,
         "includeAll": false,
         "label": "Job",
@@ -969,11 +969,11 @@
         "name": "job",
         "options": [],
         "query": {
-          "query": "label_values(smartctl_device_smart_status, job)",
+          "query": "label_values(smartctl_device_smart_status{job=~\"(talos|unas)-smart\"}, job)",
           "refId": "PrometheusVariableQueryEditor-Job"
         },
         "refresh": 1,
-        "regex": "/(talos|unas)-smart/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
