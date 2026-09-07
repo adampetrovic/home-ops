@@ -186,7 +186,9 @@ spec:
           - path: /config/.cache/uv
 
       music:
-        type: emptyDir
+        type: nfs
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media/music
         advancedMounts:
           homeassistant:
             app:
