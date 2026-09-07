@@ -9,9 +9,13 @@ resources:
   - ./ocirepository.yaml
   - ./httproute.yaml
   - ./prometheusrules
+  - ./scrapeconfig.yaml
 configMapGenerator:
   - name: alertmanager-config-tpl
     files:
       - alertmanager.yaml=./resources/alertmanager.yaml
+  - name: grafana-dashboard-unas-smart
+    files:
+      - unas-smart.json=./resources/unas-smart.json
 generatorOptions:
   disableNameSuffixHash: true
