@@ -103,7 +103,8 @@ spec:
         existingClaim: sabnzbd
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/downloads
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media
         globalMounts:
           - path: /downloads
+            subPath: downloads
