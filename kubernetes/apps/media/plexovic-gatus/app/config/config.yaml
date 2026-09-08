@@ -136,7 +136,7 @@ endpoints:
 
   - name: NAS Storage (NFS)
     group: storage
-    url: "tcp://${UNAS_NFS_DOMAIN}:111"
+    url: "tcp://${SECRET_NFS_DOMAIN}:111"
     interval: 1m
     ui:
       hide-hostname: true

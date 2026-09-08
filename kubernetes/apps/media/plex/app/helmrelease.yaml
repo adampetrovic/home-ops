@@ -172,7 +172,7 @@ spec:
         type: emptyDir
       movies:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/movies
         advancedMounts:
           plex:
@@ -181,7 +181,7 @@ spec:
                 readOnly: true
       movies-kids:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/kids/movies
         advancedMounts:
           plex:
@@ -190,7 +190,7 @@ spec:
                 readOnly: true
       tv:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/tv
         advancedMounts:
           plex:
@@ -199,7 +199,7 @@ spec:
                 readOnly: true
       tv-kids:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/kids/tv
         advancedMounts:
           plex:
@@ -208,7 +208,7 @@ spec:
                 readOnly: true
       music:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/music
         advancedMounts:
           plex:

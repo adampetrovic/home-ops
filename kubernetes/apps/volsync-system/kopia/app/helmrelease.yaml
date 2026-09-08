@@ -100,7 +100,7 @@ spec:
             subPath: repository.config
       repository:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/kopia
         globalMounts:
           - path: /repository
