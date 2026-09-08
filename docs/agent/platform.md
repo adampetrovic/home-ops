@@ -29,7 +29,7 @@ scripts/                     # Helper scripts
 - Rook-Ceph `ceph-block` is the default StorageClass for most RWO volumes.
 - Rook-CephFS is used for RWX volumes.
 - OpenEBS `openebs-hostpath` provides local high-performance volumes, including VolSync R2 cache.
-- NFS on the Synology NAS is used for media storage and the Kopia repository at `/volume2/kopia`.
+- NFS on the UNAS Pro is used for media storage and the Kopia repository at `/var/nfs/shared/kopia`.
 - VolSync uses a dual-storage backup strategy:
   - Kopia primary backups to NFS.
   - Restic secondary backups to Cloudflare R2.

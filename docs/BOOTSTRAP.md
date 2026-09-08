@@ -9,7 +9,7 @@ Do **not** use this runbook if your goal is to preserve/adopt existing Ceph OSDs
 - **Infrastructure source of truth:** this Git repository on `main`.
 - **Secrets source of truth:** 1Password vault `k8s` plus the SOPS age key.
 - **Talos source of truth:** `talos/talconfig.yaml`, `talos/talenv.yaml`, `talos/talsecret.yaml`, and patches under `talos/patches/`.
-- **Primary app PVC restore:** VolSync Kopia restore from the NAS NFS repository at `/volume2/kopia`.
+- **Primary app PVC restore:** VolSync Kopia restore from the UNAS NFS repository at `/var/nfs/shared/kopia`.
 - **Secondary app backup:** Cloudflare R2 Restic backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
 - **Ceph stance:** always rebuild in this runbook. `wipeDevicesFromOtherClusters: true` is expected for this destructive path.
 
@@ -81,11 +81,11 @@ The bootstrap process also reads Talos secrets and initial Kubernetes secrets fr
    - `k8s-node-5` — `10.0.80.14`
    - Kubernetes API VIP — `10.0.80.99`
 
-3. Confirm the NAS is online and serving NFS for at least:
+3. Confirm the UNAS is online and serving NFS for at least:
 
-   - `/volume2/kopia` — primary VolSync restore repository
-   - any app-specific NFS paths used by media/home-automation workloads
-   - `/volume2/garage/*` if Garage object storage is being restored from NAS-backed state
+   - `/var/nfs/shared/kopia` — primary VolSync restore repository
+   - `/var/nfs/shared/media` and `/var/nfs/shared/photos` — application data
+   - `/var/nfs/shared/garage/{data,meta}` — Garage object storage state
 
 ## Preflight
 
@@ -177,12 +177,12 @@ This additionally checks:
 
 ### VolSync PVCs
 
-Persistent apps using `kubernetes/components/volsync` create PVCs with a `dataSourceRef` to a VolSync `ReplicationDestination`. On a destructive rebuild, those PVCs should restore automatically from the latest Kopia snapshot in the NAS repository.
+Persistent apps using `kubernetes/components/volsync` create PVCs with a `dataSourceRef` to a VolSync `ReplicationDestination`. On a destructive rebuild, those PVCs should restore automatically from the latest Kopia snapshot in the UNAS repository.
 
 Important details:
 
 - The default GitOps-created PVC restore uses **Kopia/NFS**. Use the manual R2 procedure if the Kopia repository is unavailable or missing the desired snapshot.
-- The NAS and `/volume2/kopia` must be available before VolSync mover jobs can restore.
+- The UNAS and `/var/nfs/shared/kopia` must be available before VolSync mover jobs can restore.
 - Cloudflare R2 Restic backups are retained as a secondary disaster copy. Manual R2 restore steps are documented in `kubernetes/components/volsync/README.md`.
 - After bootstrap, inspect VolSync objects and PVCs:
 
