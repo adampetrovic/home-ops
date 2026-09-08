@@ -70,9 +70,9 @@ spec:
         - alert: SmartctlNVMeWearHigh
           annotations:
             description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has consumed {{ printf "%.0f" $value }}% of its rated endurance.
-            summary: NVMe endurance consumption is above 70%.
+            summary: NVMe endurance consumption is above 80%.
           expr: |-
-            smartctl_device_percentage_used{job=~"(talos|unas)-smart"} >= 70
+            smartctl_device_percentage_used{job=~"(talos|unas)-smart"} >= 80
             and on(job, instance, device)
             smartctl_device_percentage_used{job=~"(talos|unas)-smart"} < 90
           for: 30m
