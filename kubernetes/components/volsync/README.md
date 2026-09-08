@@ -4,7 +4,7 @@ VolSync is a Kubernetes operator that provides automated backup and restore capa
 
 This VolSync setup uses a dual-storage strategy:
 
-- **Kopia (Primary)**: Frequent backups (hourly) stored in a Kopia filesystem repository on NFS (`/volume2/kopia`)
+- **Kopia (Primary)**: Frequent backups (hourly) stored in the UNAS Kopia filesystem repository at `/var/nfs/shared/kopia`
 - **Cloudflare R2 (Secondary)**: Daily backups stored in Cloudflare R2 via restic for disaster recovery; mover jobs do not mount or depend on the Kopia NFS repository
 
 ### Thundering Herd Prevention
