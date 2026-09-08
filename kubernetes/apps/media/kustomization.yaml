@@ -23,6 +23,5 @@ resources:
   - ./shelfmark/ks.yaml
   - ./sonarr/ks.yaml
   - ./tautulli/ks.yaml
-  - ./tdarr/ks.yaml
   - ./tracearr/ks.yaml
   - ./unpackerr/ks.yaml
