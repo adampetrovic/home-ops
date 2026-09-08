@@ -86,19 +86,19 @@ spec:
         existingClaim: sonarr
       tv:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/tv
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media/tv
         globalMounts:
           - path: /tv
       tv-kids:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/kids/tv
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media/kids/tv
         globalMounts:
           - path: /kids
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /volume2/downloads
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads
