@@ -9,9 +9,14 @@ metrics: true
 debug: false
 announcements:
   - message: >-
-      Scheduled maintenance: all services will be offline from Friday 4 September 2026 at 09:00 AEST for a server rack migration. Expect full downtime through the weekend, followed by degraded media streaming performance for several days while storage migrates. Full service is expected by [END DATE].
+      The server rack and storage migration is complete. Normal service has resumed.
+    type: operational
+    timestamp: "2026-09-09T04:38:57+10:00"
+  - message: >-
+      Scheduled maintenance: all services will be offline from Friday 4 September 2026 at 09:00 AEST for a server rack migration. Expect full downtime through the weekend, followed by degraded media streaming performance for several days while storage migrates.
     type: warning
     timestamp: "2026-09-04T09:00:00+10:00"
+    archived: true
 ui:
   title: Status | Plexovic
   header: Plexovic Status
