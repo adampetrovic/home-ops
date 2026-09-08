@@ -111,7 +111,7 @@ spec:
               value: Object.spec.template.spec.volumes{
                 name: "repository",
                 nfs: Object.spec.template.spec.volumes.nfs{
-                  server: "unas-direct.${SECRET_DOMAIN}",
+                  server: "${SECRET_NFS_DOMAIN}",
                   path: "/var/nfs/shared/kopia"
                 }
               }

@@ -45,5 +45,5 @@ spec:
       volumes:
         - name: repository
           nfs:
-            server: unas-direct.petrovic.network
+            server: ${SECRET_NFS_DOMAIN}
             path: /var/nfs/shared/kopia
