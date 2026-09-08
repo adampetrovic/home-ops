@@ -133,8 +133,9 @@ spec:
         globalMounts:
           - path: /dev/bus/usb
       media:
-        type: emptyDir
-        sizeLimit: 100Gi
+        type: nfs
+        server: unas-direct.${SECRET_DOMAIN}
+        path: /var/nfs/shared/media/frigate
         globalMounts:
           - path: /media
 

@@ -45,5 +45,5 @@ spec:
       volumes:
         - name: repository
           nfs:
-            server: nas-direct.petrovic.network
-            path: /volume2/kopia
+            server: unas-direct.petrovic.network
+            path: /var/nfs/shared/kopia
