@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.35.0-standalone-strict/networkpolicy-networking-v1.json
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: paperless-scanner
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: paperless-ngx
+      app.kubernetes.io/instance: paperless-ngx
+      app.kubernetes.io/controller: paperless-ngx
+  policyTypes:
+    - Ingress
+  ingress:
+    # Preserve Paperless HTTP access (Envoy, API clients and health checks).
+    # No namespace-wide policy or egress restriction is introduced.
+    - ports:
+        - protocol: TCP
+          port: 80
+    - from:
+        - ipBlock:
+            cidr: 10.0.40.7/32
+      ports:
+        - protocol: TCP
+          port: 445

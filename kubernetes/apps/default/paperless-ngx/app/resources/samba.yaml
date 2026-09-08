@@ -1,0 +1,35 @@
+---
+auth:
+  - user: scanner
+    group: users
+    uid: 568
+    gid: 100
+    password_file: /run/secrets/scanner/password
+global:
+  - "server min protocol = SMB2_02"
+  - "server max protocol = SMB3"
+  - "ntlm auth = ntlmv2-only"
+  - "map to guest = Never"
+  - "usershare allow guests = no"
+  - "hosts deny = ALL"
+  - "load printers = no"
+  - "restrict anonymous = 2"
+  - "server multi channel support = no"
+share:
+  - name: consume
+    path: /scan-inbox
+    browsable: "no"
+    readonly: "no"
+    guestok: "no"
+    validusers: scanner
+    writelist: scanner
+    recycle: "no"
+    options:
+      # Do not inherit upstream's macOS/Time Machine VFS modules.
+      - "vfs objects ="
+      - "create mask = 0660"
+      - "force create mode = 0660"
+      - "directory mask = 0770"
+      - "force directory mode = 0770"
+      - "follow symlinks = no"
+      - "wide links = no"

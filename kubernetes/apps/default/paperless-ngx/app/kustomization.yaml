@@ -4,9 +4,14 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+  - ./scanner-externalsecret.yaml
+  - ./scanner-networkpolicy.yaml
 components:
   - ../../../../components/authelia-proxy
 configMapGenerator:
+  - name: paperless-samba-config
+    files:
+      - config.yml=./resources/samba.yaml
   - name: paperless-post-consume
     files:
       - ./resources/post_consume.py
