@@ -134,7 +134,7 @@ spec:
           - path: /dev/bus/usb
       media:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/frigate
         globalMounts:
           - path: /media

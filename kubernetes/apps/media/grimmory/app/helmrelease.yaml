@@ -136,7 +136,7 @@ spec:
               - path: /tmp
       books:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/books
         advancedMounts:
           grimmory:

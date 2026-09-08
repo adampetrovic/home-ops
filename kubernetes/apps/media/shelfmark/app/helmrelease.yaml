@@ -92,13 +92,13 @@ spec:
           - path: /var/log
       books:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/books
         globalMounts:
           - path: /books
       downloads:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads

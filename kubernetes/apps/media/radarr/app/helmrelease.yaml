@@ -93,20 +93,20 @@ spec:
         existingClaim: radarr
       downloads:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads
       movies:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/movies
         globalMounts:
           - path: /movies
 
       movies-kids:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/kids/movies
         globalMounts:
           - path: /kids

@@ -122,7 +122,10 @@ tasks:
         ns: Namespace (default: default)
         timeout: Maximum wait in seconds (default: 300)
     cmds:
-      - envsubst '$app $ns $job $timeout' < {{.VOLSYNC_TEMPLATES_DIR}}/list.tmpl.yaml | kubectl --context admin@home-kubernetes create -f -
+      - |
+        export SECRET_NFS_DOMAIN
+        SECRET_NFS_DOMAIN="$(kubectl --context admin@home-kubernetes -n flux-system get secret cluster-secrets -o json | jq -er '.data.SECRET_NFS_DOMAIN | @base64d')"
+        envsubst '$app $ns $job $timeout $SECRET_NFS_DOMAIN' < {{.VOLSYNC_TEMPLATES_DIR}}/list.tmpl.yaml | kubectl --context admin@home-kubernetes create -f -
       - bash {{.VOLSYNC_SCRIPTS_DIR}}/wait-for-operation-job.sh {{.job}} {{.ns}} {{.timeout}}
       - kubectl --context admin@home-kubernetes -n {{.ns}} delete job {{.job}}
     env: *env

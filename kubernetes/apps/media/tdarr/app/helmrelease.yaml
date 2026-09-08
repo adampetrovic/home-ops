@@ -181,7 +181,7 @@ spec:
               - path: /app/logs
       cache:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /temp
@@ -192,28 +192,28 @@ spec:
           - path: /tmp
       movies:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/movies
         globalMounts:
           - path: /movies
             readOnly: false
       movies-kids:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/kids/movies
         globalMounts:
           - path: /movies-kids
             readOnly: false
       tv:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/tv
         globalMounts:
           - path: /tv
             readOnly: false
       tv-kids:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/media/kids/tv
         globalMounts:
           - path: /tv-kids
