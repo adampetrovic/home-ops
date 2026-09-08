@@ -66,6 +66,9 @@ spec:
                   httpGet:
                     path: /ping
                     port: *port
+                    httpHeaders:
+                      - name: Host
+                        value: prowlarr.media.svc.cluster.local
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
