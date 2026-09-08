@@ -62,7 +62,7 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 | **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) |64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
 | **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Worker Node |
 | **Minisforum MS-01** | 1 | i9-13900H | 14 (20 threads) | 96GB | 1TB NVMe | 2TB NVMe | Kubernetes Worker Node |
-| **Synology RS1219+** | 1 | Atom C2538 | - | 4GB | - | 6×16TB | NAS Storage |
+| **UniFi UNAS Pro 8** | 1 | - | - | - | - | 6×16TB | NAS Storage |
 | **Synology DVA1622** | 1 | Atom C3508 | - | 4GB | - | 2×4TB | NVR/Security Cameras |
 | **UniFi UXG-Pro** | 1 | - | - | - | - | Gateway/Router |
 | **UniFi US-48-500W** | 1 | - | - | - | - | 48-Port PoE Switch |
@@ -230,7 +230,7 @@ graph TD
 
 - **Distributed Storage**: Rook-Ceph across all nodes for redundancy
 - **Local Storage**: OpenEBS for high-performance local volumes
-- **Network Storage**: NFS mounts from Synology NAS
+- **Network Storage**: NFS mounts from UniFi UNAS Pro 8
 - **Backup Strategy**: Dual-storage — Kopia hourly to NFS, Restic daily to Cloudflare R2 for off-site disaster recovery
 
 ### Networking Deep Dive
