@@ -176,7 +176,7 @@ spec:
     persistence:
       library:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/photos/immich
         advancedMounts:
           server:
@@ -184,7 +184,7 @@ spec:
               - path: /data
       shared-photos:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/photos/shared
         advancedMounts:
           server:
@@ -192,7 +192,7 @@ spec:
               - path: /mnt/shared-photos
       archives:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/photos/archives
         advancedMounts:
           server:

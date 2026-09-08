@@ -80,13 +80,13 @@ spec:
             subPath: configuration.toml
       data:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/garage/data
         globalMounts:
           - path: /data
       meta:
         type: nfs
-        server: unas-direct.${SECRET_DOMAIN}
+        server: ${SECRET_NFS_DOMAIN}
         path: /var/nfs/shared/garage/meta
         globalMounts:
           - path: /meta
