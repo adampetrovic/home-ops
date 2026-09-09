@@ -94,6 +94,7 @@ camera_groups:
     icon: LuTreePine
     cameras:
       - birdseye
+      - doorbell
       - front_balcony
       - front_yard
 
@@ -180,6 +181,8 @@ cameras:
       crop: True
   doorbell:
     ffmpeg:
+      # UniFi Protect exports the new doorbell via go2rtc as HEVC/portrait RTSPX.
+      hwaccel_args: preset-intel-qsv-h265
       inputs:
         - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/doorbell_hq
           input_args: preset-rtsp-restream
@@ -190,8 +193,8 @@ cameras:
           roles:
             - detect
     detect:
-      width: 640
-      height: 480
+      width: 720
+      height: 960
       fps: 7
     objects:
       track:
