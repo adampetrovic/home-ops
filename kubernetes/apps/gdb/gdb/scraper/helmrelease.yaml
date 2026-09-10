@@ -46,7 +46,7 @@ spec:
           scraper:
             image: &image
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.86@sha256:6d45c1718c8b63b349ab6013aad622543dcdcb4c9ea318e5d7526a9418fab2cc
+              tag: 0.1.87@sha256:fb48924882002c23820c96d507b58bbcdfa0f6977b87e74e21563694576d86d1
             env:
               DATABASE_URL: &databaseUrl
                 valueFrom:
@@ -57,6 +57,8 @@ spec:
               SOURCE: usag
               MODE: full
               CONCURRENCY: "50"
+              USAG_DOWNLOAD_TIMEOUT: "60"
+              USAG_REQUEST_ERROR_ABORT_COUNT: "100"
             probes: &disabledProbes
               liveness:
                 enabled: false
