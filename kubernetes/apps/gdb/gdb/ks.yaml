@@ -96,27 +96,12 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  components:
-    - ../../../../components/volsync
   dependsOn:
     - name: gdb-migration
       namespace: gdb
     - name: rook-ceph-cluster
       namespace: rook-ceph
-    - name: volsync
-      namespace: volsync-system
   path: ./kubernetes/apps/gdb/gdb/scraper
-  postBuild:
-    substitute:
-      APP: *app
-      VOLSYNC_CAPACITY: 50Gi
-      VOLSYNC_ACCESSMODES: ReadWriteMany
-      VOLSYNC_STORAGECLASS: ceph-filesystem
-      VOLSYNC_SNAPSHOTCLASS: csi-ceph-filesystem
-      VOLSYNC_COPYMETHOD: Direct
-      VOLSYNC_R2_PAUSED: "true"
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"
-      VOLSYNC_CACHE_CAPACITY: 8Gi
   prune: true
   sourceRef:
     kind: GitRepository

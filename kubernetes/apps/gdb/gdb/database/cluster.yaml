@@ -49,4 +49,4 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: gdb-garage
-        serverName: gdb-postgres-20260911
+        serverName: gdb-postgres
