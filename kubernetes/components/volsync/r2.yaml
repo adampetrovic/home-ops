@@ -29,6 +29,7 @@ kind: ReplicationSource
 metadata:
   name: "${APP}-r2"
 spec:
+  paused: ${VOLSYNC_R2_PAUSED:-false}
   sourcePVC: "${APP}"
   trigger:
     schedule: "${VOLSYNC_R2_SCHEDULE:-30 2 * * *}"
