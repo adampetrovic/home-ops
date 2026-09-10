@@ -91,6 +91,9 @@ R2 daily backups default to `30 2 * * *`. To customize:
 | `VOLSYNC_STORAGECLASS` | No | ceph-block | StorageClass for PVC |
 | `VOLSYNC_SNAPSHOTCLASS` | No | csi-ceph-blockpool | VolumeSnapshotClass for snapshots |
 | `VOLSYNC_R2_SCHEDULE` | No | 30 2 * * * | Cron schedule for R2 backups |
+| `VOLSYNC_R2_PAUSED` | No | false | Pause the R2 ReplicationSource |
+| `VOLSYNC_COPYMETHOD` | No | Snapshot | R2 copy method; use Direct for filesystems where snapshots are unsuitable |
+| `VOLSYNC_CACHE_CAPACITY` | No | 4Gi | Restic cache PVC size |
 
 ### Secret Management
 
