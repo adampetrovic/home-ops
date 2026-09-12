@@ -24,6 +24,14 @@ route:
       matchers:
         - alertname = "WANDown"
       continue: true
+    # Zigbee2MQTT coordinator alerts → Home Assistant webhook to
+    # power-cycle the Zigbee coordinator's UniFi PoE port. Keep repeat
+    # interval long; HA also enforces its own cooldown.
+    - receiver: homeassistant-zigbee-recovery
+      matchers:
+        - alertname =~ "ZigbeeCoordinatorRadioStuck|ZigbeeCoordinatorUnreachable"
+      repeat_interval: 2h
+      continue: true
 inhibit_rules:
   - equal: ["alertname", "namespace"]
     source_matchers:
@@ -68,6 +76,10 @@ receivers:
     webhook_configs:
       - url: "http://home-assistant.automation.svc.cluster.local:8123/api/webhook/wan-status"
         send_resolved: true
+  - name: homeassistant-zigbee-recovery
+    webhook_configs:
+      - url: "http://home-assistant.automation.svc.cluster.local:8123/api/webhook/zigbee-coordinator-recovery"
+        send_resolved: false
   - name: telegram
     telegram_configs:
       - send_resolved: true
