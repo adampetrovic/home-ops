@@ -20,3 +20,14 @@ groups:
             {{ $labels.app }} cannot reach the Zigbee coordinator — power cycle the Tube ZB PoE adapter
         labels:
           severity: critical
+      - alert: ZigbeeCoordinatorRadioStuck
+        expr: |
+          sum by (app) (count_over_time({app="zigbee2mqtt"} |~ "(?i)(SRSP - AF - dataRequest(Ext)? after 6000ms|SRSP - SYS - ping after 6000ms)"[10m])) > 5
+        for: 2m
+        annotations:
+          summary: >-
+            {{ $labels.app }} Zigbee coordinator radio is timing out — Home Assistant will power-cycle the Tube ZB PoE adapter
+          description: >-
+            Zigbee2MQTT logged repeated SRSP adapter/radio timeouts. This usually means the TCP adapter is reachable but the coordinator radio is wedged.
+        labels:
+          severity: critical
