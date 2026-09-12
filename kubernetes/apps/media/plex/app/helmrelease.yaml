@@ -34,7 +34,7 @@ spec:
               PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
               PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23
             probes:
-              liveness: &probes
+              liveness:
                 enabled: true
                 custom: true
                 spec:
@@ -43,11 +43,29 @@ spec:
                     port: 32400
                   initialDelaySeconds: 0
                   periodSeconds: 10
-                  timeoutSeconds: 1
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /identity
+                    port: 32400
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 2
                   failureThreshold: 3
-              readiness: *probes
               startup:
-                enabled: false
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /identity
+                    port: 32400
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 30
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
