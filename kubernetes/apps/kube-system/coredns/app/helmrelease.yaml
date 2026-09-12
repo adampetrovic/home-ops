@@ -68,15 +68,17 @@ spec:
               pods insecure
               fallthrough in-addr.arpa ip6.arpa
               ttl 30
+          - name: autopath
+            parameters: "@kubernetes"
           - name: forward
             parameters: . /etc/resolv.conf
             configBlock: |-
               max_concurrent 1000
           - name: cache
-            parameters: 30
             configBlock: |-
-              disable success cluster.local
-              disable denial cluster.local
+              prefetch 20
+              serve_stale
+              servfail 0
           - name: loop
           - name: reload
           - name: loadbalance
