@@ -1,8 +1,9 @@
 ---
 session:
   redis:
-    host: dragonfly.database.svc.cluster.local
+    host: dragonfly.database.svc.cluster.local.
     database_index: 14
+    minimum_idle_connections: 2
   same_site: lax
   cookies:
     - name: "${SECRET_DOMAIN}_session"
