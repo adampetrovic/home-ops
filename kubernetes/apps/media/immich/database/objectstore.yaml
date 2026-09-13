@@ -18,7 +18,7 @@ spec:
         key: aws-secret-access-key
     wal:
       compression: lz4
-      maxParallel: 8
+      maxParallel: 2
     data:
       compression: lz4
       jobs: 2
