@@ -124,6 +124,13 @@ spec:
         sizeLimit: 4Gi
         globalMounts:
           - path: /dev/shm
+      tmp-cache:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 1Gi
+        globalMounts:
+          - path: /tmp/cache
       usb:
         enabled: true
         # Required to expose the Coral USB accelerator to Frigate.
