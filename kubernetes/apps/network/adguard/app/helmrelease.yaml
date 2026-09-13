@@ -92,7 +92,7 @@ spec:
           app:
             image:
               repository: ghcr.io/bakito/adguardhome-sync
-              tag: v0.9.2@sha256:fb7224aeeab74d68990c3ecf51594a6f92428fcc93c7a162c3bc221e77a49025
+              tag: v0.9.3@sha256:b3499852640866c5742fd72cca190f40e2741c279d60fd62b9130cd8142aafec
             args: ["run"]
             env:
               API_METRICS_ENABLED: "true"
