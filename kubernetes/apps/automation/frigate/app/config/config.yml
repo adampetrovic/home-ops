@@ -184,7 +184,7 @@ cameras:
       # UniFi Protect exports the new doorbell via go2rtc as HEVC/portrait RTSPX.
       hwaccel_args: preset-intel-qsv-h265
       inputs:
-        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/doorbell_low
+        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/doorbell_lq
           input_args: preset-rtsp-restream
           roles:
             - detect
