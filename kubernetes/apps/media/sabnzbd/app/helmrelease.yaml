@@ -35,13 +35,6 @@ spec:
               - matchExpressions:
                   - key: node-role.kubernetes.io/control-plane
                     operator: DoesNotExist
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: drivers.talos.dev/nic
-                    operator: In
-                    values: ["i40e"]
     controllers:
       sabnzbd:
         annotations:
