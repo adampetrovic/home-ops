@@ -258,14 +258,11 @@ cameras:
   front_balcony:
     ffmpeg:
       inputs:
-        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_balcony_hq
-          input_args: preset-rtsp-restream
-          roles:
-            - record
         - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_balcony_lq
           input_args: preset-rtsp-restream
           roles:
             - detect
+            - record
     record:
       enabled: true
     detect:
@@ -349,14 +346,11 @@ cameras:
   front_yard:
     ffmpeg:
       inputs:
-        - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_yard_hq
-          input_args: preset-rtsp-restream
-          roles:
-            - record
         - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/front_yard_lq
           input_args: preset-rtsp-restream
           roles:
             - detect
+            - record
     record:
       enabled: true
     detect:
