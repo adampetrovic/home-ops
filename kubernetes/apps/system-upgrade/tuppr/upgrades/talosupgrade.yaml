@@ -12,7 +12,7 @@ spec:
   # Move this one node at a time after each node validates healthy.
   nodeSelector:
     matchLabels:
-      kubernetes.io/hostname: k8s-node-4
+      kubernetes.io/hostname: k8s-node-5
   parallelism: 1
   policy:
     rebootMode: powercycle
