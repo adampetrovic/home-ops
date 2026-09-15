@@ -1,0 +1,12 @@
+---
+# Standalone Talos v1.14+ patch.
+# Apply with `talosctl patch machineconfig --patch @talos/patches/global/etc-files.yaml`.
+# Not wired into talconfig.yaml while talhelper lacks support for v1.14 EtcFileConfig.
+apiVersion: v1alpha1
+kind: EtcFileConfig
+name: nfsmount.conf
+mode: 0o644
+contents: |
+  [ NFSMount_Global_Options ]
+  Nolock=True
+  Nconnect=8
