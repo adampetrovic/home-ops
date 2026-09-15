@@ -10,7 +10,7 @@ kustomize = "5.8.1"
 flux2 = "2.9.5"
 
 # Talos
-talosctl = "1.14.0"
+talosctl = "1.14.1"
 "github:mitsuhiko/minijinja" = "2.24.0"
 
 # Secrets
@@ -23,4 +23,4 @@ jq = "1.8.2"
 yq = "4.53.6"
 just = "1.58.0"
 fzf = "0.74.4"
-gh = "2.100.0"
+gh = "2.101.0"
