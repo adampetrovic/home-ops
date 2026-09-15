@@ -49,8 +49,6 @@ just talos validate k8s-node-1           # talosctl validate --strict
 just talos validate-all                  # validate every rendered node
 just talos dry-run k8s-node-1            # live apply-config --dry-run
 just talos apply-node k8s-node-1         # explicit live mutation; defaults mode=try
-just talos machine-image k8s-node-1      # image from UnattendedInstallConfig
-just talos schematic-id                  # shared Image Factory schematic ID
 just talos talosconfig                   # regenerate ~/.talos/config from 1Password
 ```
 
