@@ -60,7 +60,7 @@ Key conventions:
 
 ```yaml
 # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
-TALOS_VERSION: v1.14.0
+TALOS_VERSION: v1.14.1
 ```
 
 - CRD URLs in bootstrap scripts use similar annotations.
