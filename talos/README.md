@@ -33,11 +33,13 @@ talosctl machineconfig patch <(template cluster.yaml.j2) \
   -p @<(template nodes/controlplane/k8s-node-1.yaml.j2)
 ```
 
-Each layer is rendered with `minijinja-cli` and then passed through `op inject`
-so `op://k8s/talsecret/...` references are resolved only at render/apply time.
-Rendered configs contain secrets and must not be committed. For individual
-static template checks that must not touch 1Password, `template.sh` supports
-`TALOS_SKIP_OP_INJECT=true`; full machine-config rendering still needs real or
+Each layer is rendered with `minijinja-cli --env` and then passed through
+`op inject` so `op://k8s/talsecret/...` references are resolved only at
+render/apply time. Rendered configs contain secrets and must not be committed.
+For individual static template checks that must not touch 1Password,
+`template.sh` supports `TALOS_SKIP_OP_INJECT=true`; the control-plane template
+also expects `TALOS_K8S_SERVICE_ACCOUNT_KEY` to contain the decoded Kubernetes
+service-account private key. Full machine-config rendering still needs real or
 synthetic secrets because `talosctl machineconfig patch` decodes certificate
 fields.
 
@@ -73,7 +75,12 @@ break-glass fallback and derives the installer image from the rendered config.
 - Kubelet remains in the legacy `machine.kubelet` block for now because the
   v1.14 `KubeletConfig` document does not represent the existing
   `/var/openebs/local` `extraMounts` requirement.
-- Broader Kubernetes control-plane typed-document migration is tracked in GitHub
-  issues and should be handled separately from routine Talos upgrades.
+- Etcd remains in the legacy `cluster.etcd` block because Talos v1.14 does not
+  register a standalone typed `EtcdConfig` document.
+- Kubernetes CA material remains in legacy `cluster.*` fields until the
+  renderer can safely emit typed PEM block scalars from 1Password-backed secret
+  values without committing rendered secrets. The service-account key is already
+  migrated to `KubeServiceAccountConfig`; `render-config.sh` decodes the
+  1Password-backed base64 key into the environment at render time.
 - Workload isolation / `SecurityProfileConfig` is intentionally deferred due to
   storage and NFS risk.
