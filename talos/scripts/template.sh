@@ -26,7 +26,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export MINIJINJA_CONFIG_FILE="${MINIJINJA_CONFIG_FILE:-${ROOT_DIR}/.minijinja.toml}"
 
 if [[ "${TALOS_SKIP_OP_INJECT:-false}" == "true" ]]; then
-    minijinja-cli "${TEMPLATE_FILE}" "$@"
+    minijinja-cli --env "${TEMPLATE_FILE}" "$@"
     exit 0
 fi
 
@@ -35,4 +35,4 @@ if ! command -v op >/dev/null 2>&1; then
     exit 69
 fi
 
-minijinja-cli "${TEMPLATE_FILE}" "$@" | op inject
+minijinja-cli --env "${TEMPLATE_FILE}" "$@" | op inject
