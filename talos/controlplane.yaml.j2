@@ -5,8 +5,6 @@ machine:
   ca:
     crt: op://k8s/talsecret/CERTS_OS_CRT
     key: op://k8s/talsecret/CERTS_OS_KEY
-  nodeLabels:
-    node.kubernetes.io/exclude-from-external-load-balancers: ""
 cluster:
   # ca merges as a unit; crt must be repeated alongside key.
   ca:
@@ -15,32 +13,6 @@ cluster:
   aggregatorCA:
     crt: op://k8s/talsecret/CERTS_K8SAGGREGATOR_CRT
     key: op://k8s/talsecret/CERTS_K8SAGGREGATOR_KEY
-  serviceAccount:
-    key: op://k8s/talsecret/CERTS_K8SSERVICEACCOUNT_KEY
-  apiServer:
-    image: registry.k8s.io/kube-apiserver:v1.36.3
-    extraArgs:
-      feature-gates: MutatingAdmissionPolicy=true
-      runtime-config: admissionregistration.k8s.io/v1beta1=true
-    certSANs:
-      - 10.0.80.99
-      - 127.0.0.1
-    auditPolicy:
-      apiVersion: audit.k8s.io/v1
-      kind: Policy
-      rules:
-        - level: Metadata
-  controllerManager:
-    image: registry.k8s.io/kube-controller-manager:v1.36.3
-    extraArgs:
-      bind-address: 0.0.0.0
-  proxy:
-    disabled: true
-    image: registry.k8s.io/kube-proxy:v1.36.3
-  scheduler:
-    image: registry.k8s.io/kube-scheduler:v1.36.3
-    extraArgs:
-      bind-address: 0.0.0.0
   etcd:
     ca:
       crt: op://k8s/talsecret/CERTS_ETCD_CRT
@@ -49,9 +21,79 @@ cluster:
       listen-metrics-urls: http://0.0.0.0:2381
     advertisedSubnets:
       - 10.0.80.0/21
-  coreDNS:
-    disabled: true
-  allowSchedulingOnControlPlanes: true
+---
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+labels:
+  node-role.kubernetes.io/control-plane: ""
+  node.kubernetes.io/exclude-from-external-load-balancers: ""
+---
+apiVersion: v1alpha1
+kind: KubeAPIServerConfig
+image: registry.k8s.io/kube-apiserver:v1.36.3
+extraArgs:
+  feature-gates: MutatingAdmissionPolicy=true
+  runtime-config: admissionregistration.k8s.io/v1beta1=true
+certExtraSANs:
+  - 10.0.80.99
+  - 127.0.0.1
+---
+apiVersion: v1alpha1
+kind: KubeAuditPolicyConfig
+configuration:
+  apiVersion: audit.k8s.io/v1
+  kind: Policy
+  rules:
+    - level: Metadata
+---
+apiVersion: v1alpha1
+kind: KubeAuthenticationConfig
+configuration:
+  anonymous:
+    conditions:
+      - path: /livez
+      - path: /readyz
+      - path: /healthz
+    enabled: true
+  jwt: []
+---
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: node
+type: Node
+---
+apiVersion: v1alpha1
+kind: KubeAuthorizerConfig
+name: rbac
+type: RBAC
+---
+apiVersion: v1alpha1
+kind: KubeServiceAccountConfig
+issuer:
+  privateKey: |
+{{ ENV.TALOS_K8S_SERVICE_ACCOUNT_KEY | indent(width=4, first=true) }}
+  issuerURL: https://10.0.80.99:6443
+---
+apiVersion: v1alpha1
+kind: KubeControllerManagerConfig
+image: registry.k8s.io/kube-controller-manager:v1.36.3
+extraArgs:
+  bind-address: 0.0.0.0
+---
+apiVersion: v1alpha1
+kind: KubeSchedulerConfig
+image: registry.k8s.io/kube-scheduler:v1.36.3
+extraArgs:
+  bind-address: 0.0.0.0
+---
+apiVersion: v1alpha1
+kind: KubeProxyConfig
+enabled: false
+image: registry.k8s.io/kube-proxy:v1.36.3
+---
+apiVersion: v1alpha1
+kind: KubeCoreDNSConfig
+enabled: false
 ---
 apiVersion: v1alpha1
 kind: KubeEtcdEncryptionConfig

@@ -1,7 +1,8 @@
 ---
-machine:
-  nodeLabels:
-    drivers.talos.dev/nic: "i40e"
+apiVersion: v1alpha1
+kind: KubeNodeConfig
+labels:
+  drivers.talos.dev/nic: "i40e"
 ---
 apiVersion: v1alpha1
 kind: HostnameConfig
