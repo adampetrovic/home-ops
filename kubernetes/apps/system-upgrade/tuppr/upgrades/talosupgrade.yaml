@@ -8,11 +8,6 @@ spec:
   talos:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
     version: v1.14.0
-  # Temporary canary selector for the Talos v1.14 rollout.
-  # Move this one node at a time after each node validates healthy.
-  nodeSelector:
-    matchLabels:
-      kubernetes.io/hostname: k8s-node-3
   parallelism: 1
   policy:
     rebootMode: powercycle
