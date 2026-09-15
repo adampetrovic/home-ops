@@ -19,7 +19,7 @@ The `adguard-dns` Service is a Cilium LoadBalancer advertised from the routed `1
 
 ## Cluster DNS dependency boundary
 
-Talos nodes deliberately do **not** use AdGuard for node-level DNS. Their machine DNS is configured in `talos/patches/global/machine-network.yaml` to use only:
+Talos nodes deliberately do **not** use AdGuard for node-level DNS. Their machine DNS is configured in `talos/cluster.yaml.j2` to use only:
 
 - `10.0.0.1` — UniFi gateway
 - `1.1.1.1` — Cloudflare DNS fallback

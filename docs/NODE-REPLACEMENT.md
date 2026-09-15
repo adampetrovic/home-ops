@@ -93,10 +93,9 @@ kubectl get nodes
 If permanently removing the node, update your configuration:
 
 ```bash
-# Edit talconfig.yaml to remove the node entry
-# Regenerate configurations
-cd kubernetes/bootstrap/talos
-talhelper genconfig
+# Edit talos/inventory.yaml and remove the matching talos/nodes/** template
+# Validate remaining rendered configs
+task talos:validate-all
 
 # Update Rook configuration if needed
 # Edit kubernetes/apps/rook-ceph/rook-ceph/cluster/helmrelease.yaml
@@ -112,7 +111,7 @@ Use this procedure when a node has died and needs hardware replacement while mai
 ## Prerequisites
 
 - New hardware ready for installation
-- Access to existing node configuration files in `clusterconfig/`
+- Access to the repository's native Talos templates and 1Password-backed Talos secrets
 - Access to healthy cluster nodes for cleanup operations
 
 ## Procedure
@@ -170,15 +169,16 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
 
 1. **Physical Setup**: Install and configure new hardware
 2. **Network Configuration**: Ensure same IP address (static or DHCP reservation)
-3. **Storage**: Install compatible storage devices as specified in `talconfig.yaml`
+3. **Storage**: Install compatible storage devices as specified in the matching `talos/nodes/**/<node>.yaml.j2` template
 
 ### Step 5: Apply Existing Node Configuration
 
-**IMPORTANT**: Use the existing node configuration - do NOT regenerate it.
+**IMPORTANT**: Preserve the same node identity and secrets. Render/apply the existing node template for that node name.
 
 ```bash
-# Apply the EXISTING node configuration to new hardware
-talosctl apply-config --insecure --nodes <node-ip> --file clusterconfig/home-kubernetes-k8s-node-X.yaml
+# Validate and apply the existing node template to new hardware in maintenance mode
+task talos:validate node=k8s-node-X
+task talos:apply-insecure-node node=k8s-node-X confirm=bootstrap
 ```
 
 The node will:
@@ -222,15 +222,14 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph -s
 
 If the new hardware requires different configuration (disk model, network interface, etc.):
 
-1. **Update `talconfig.yaml`** with new hardware specifications
-2. **Regenerate configuration**:
+1. **Update the matching `talos/nodes/**/<node>.yaml.j2`** with new hardware selectors/specifications.
+2. **Validate rendered configuration**:
    ```bash
-   cd kubernetes/bootstrap/talos
-   talhelper genconfig
+   task talos:validate node=k8s-node-X
    ```
 3. **Apply updated configuration**:
    ```bash
-   talosctl apply-config --nodes <node-ip> --file clusterconfig/home-kubernetes-k8s-node-X.yaml
+   task talos:apply-insecure-node node=k8s-node-X confirm=bootstrap
    ```
 
 ## Troubleshooting
@@ -264,7 +263,7 @@ If the new hardware requires different configuration (disk model, network interf
 
 ### Dead Node Replacement
 - **Never skip cleanup steps** - leftover cluster state can cause conflicts
-- **Use existing node configuration** - regenerating changes the node identity
+- **Use the existing node template and secrets** - changing the node name or Talos secrets changes identity
 - **For etcd clusters** - maintain odd number of healthy control plane nodes
 
 ### Control Plane Considerations

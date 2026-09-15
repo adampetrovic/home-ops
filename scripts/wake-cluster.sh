@@ -18,7 +18,7 @@
 # or smart plug). The other four NUCs use Intel I225/I226 (igc) which works.
 set -Eeuo pipefail
 
-# hostname / IP / MAC (from talos/talconfig.yaml deviceSelectors)
+# hostname / IP / MAC (from talos/inventory.yaml and talos/nodes/*/*.yaml.j2 LinkAliasConfig selectors)
 # Parallel arrays for bash 3.2 compatibility (macOS system bash).
 HOSTNAMES=(
     k8s-node-1
