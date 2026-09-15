@@ -17,5 +17,8 @@ configMapGenerator:
   - name: grafana-dashboard-unas-smart
     files:
       - unas-smart.json=./resources/unas-smart.json
+  - name: grafana-dashboard-unas-operations
+    files:
+      - unas-operations.json=./resources/unas-operations.json
 generatorOptions:
   disableNameSuffixHash: true
