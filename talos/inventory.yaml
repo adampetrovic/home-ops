@@ -1,0 +1,9 @@
+---
+# Node management addresses used by native Talos tasks.
+# Role is derived from talos/nodes/<role>/<node>.yaml.j2, not from this file.
+nodes:
+  k8s-node-1: 10.0.80.10
+  k8s-node-2: 10.0.80.11
+  k8s-node-3: 10.0.80.12
+  k8s-node-4: 10.0.80.13
+  k8s-node-5: 10.0.80.14

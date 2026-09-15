@@ -1,0 +1,42 @@
+---
+machine:
+  nodeLabels:
+    drivers.talos.dev/nic: "i40e"
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: "off"
+hostname: k8s-node-5
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: bond0-m0
+selector:
+  match: glob("58:47:ca:7e:e5:28", mac(link.hardware_addr)) && glob("i40e", link.driver)
+---
+apiVersion: v1alpha1
+kind: BondConfig
+name: bond0
+links:
+  - bond0-m0
+bondMode: active-backup
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: bond0
+---
+apiVersion: v1alpha1
+kind: VLANConfig
+name: bond0.10
+vlanID: 10
+parent: bond0
+mtu: 1500
+---
+apiVersion: v1alpha1
+kind: UnattendedInstallConfig
+installer:
+  image: factory.talos.dev/metal-installer/{{ schematic }}:v1.14.0
+provisioning:
+  diskSelector:
+    match: disk.model == "CT1000P310SSD8"
+  wipe: false

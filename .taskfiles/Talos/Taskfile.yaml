@@ -6,46 +6,124 @@ vars:
   TALOS_DIR: "{{.ROOT_DIR}}/talos"
   # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
   TALOS_VERSION: v1.14.0
-  TALOS_SCHEMATIC_ID: 76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
-  TALOS_INSTALLER_BASE: factory.talos.dev/metal-installer
   # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
   KUBERNETES_VERSION: v1.36.3
   TALOS_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/Talos/scripts"
+  TALOS_NODES: k8s-node-1,k8s-node-2,k8s-node-3,k8s-node-4,k8s-node-5
 
 tasks:
-  generate:
-    desc: Generate Talos configuration
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper genconfig --debug -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
+  render-config:
+    aliases: [render]
+    desc: Render native Talos machine config for one node to stdout [node=required]
+    cmd: "{{.TALOS_SCRIPTS_DIR}}/render-config.sh {{.node}}"
+    requires:
+      vars: [node]
     preconditions:
-      - test -f {{.ROOT_DIR}}/talos/talconfig.yaml
-      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
-      - test -f {{.ROOT_DIR}}/talos/talsecret.yaml
+      - test -f {{.TALOS_DIR}}/cluster.yaml.j2
+      - test -f {{.TALOS_DIR}}/inventory.yaml
+      - which talosctl
+      - which op
 
-  apply:
-    desc: Apply Talos configuration
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper gencommand apply --extra-flags=--insecure | bash
+  render-all:
+    desc: Render all native Talos machine configs to /dev/null [no files written]
+    cmd: |
+      IFS="," read -ra nodes <<< "{{.TALOS_NODES}}"
+      for node in "${nodes[@]}"; do
+          {{.TALOS_SCRIPTS_DIR}}/render-config.sh "${node}" >/dev/null
+      done
+    preconditions:
+      - test -f {{.TALOS_DIR}}/cluster.yaml.j2
 
-  bootstrap:
-    desc: Bootstrap Talos nodes
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
+  schematic-id:
+    desc: Resolve Talos Image Factory schematic ID [node=optional]
+    cmd: "{{.TALOS_SCRIPTS_DIR}}/schematic-id.sh {{.node}}"
+
+  machine-image:
+    desc: Render and print a node's UnattendedInstall installer image [node=required]
+    cmd: "{{.TALOS_SCRIPTS_DIR}}/machine-image.sh {{.node}}"
+    requires:
+      vars: [node]
+
+  node-address:
+    desc: Print a node's Talos management address from talos/inventory.yaml [node=required]
+    cmd: "{{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}"
+    requires:
+      vars: [node]
+
+  validate:
+    desc: Validate rendered native Talos config for one node [node=required]
+    cmd: |
+      {{.TALOS_SCRIPTS_DIR}}/render-config.sh {{.node}} \
+          | talosctl validate --mode=metal --strict --config /dev/stdin
+    requires:
+      vars: [node]
+    preconditions:
+      - which talosctl
+
+  validate-all:
+    desc: Validate rendered native Talos configs for every node
+    cmds:
+      - for: { var: TALOS_NODES, split: "," }
+        task: validate
+        vars:
+          node: "{{.ITEM}}"
+
+  dry-run:
+    desc: Render and dry-run apply native Talos config against one live node [node=required]
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      {{.TALOS_SCRIPTS_DIR}}/render-config.sh {{.node}} \
+          | talosctl --nodes "${node_address}" apply-config --dry-run -f /dev/stdin
+    requires:
+      vars: [node]
+    preconditions:
+      - talosctl config info >/dev/null 2>&1
+
+  dry-run-all:
+    desc: Dry-run rendered native Talos config against every live node
+    cmds:
+      - for: { var: TALOS_NODES, split: "," }
+        task: dry-run
+        vars:
+          node: "{{.ITEM}}"
+
+  apply-node:
+    aliases: [apply]
+    desc: Apply rendered native Talos config to one node [node=required] [mode=try]
+    prompt: Apply rendered Talos config to {{.node}} with mode={{.mode}}? This mutates the live node.
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      {{.TALOS_SCRIPTS_DIR}}/render-config.sh {{.node}} \
+          | talosctl --nodes "${node_address}" apply-config --mode={{.mode}} -f /dev/stdin
+    vars:
+      mode: '{{.mode | default "try"}}'
+    requires:
+      vars: [node]
+    preconditions:
+      - talosctl config info >/dev/null 2>&1
+      - talosctl --nodes $$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}) get machineconfig >/dev/null 2>&1
+
+  generate:
+    desc: Validate all native Talos configs; native rendering writes no generated files
+    cmds:
+      - task: validate-all
 
   upgrade:
-    desc: Upgrade Talos on a single node
-    cmd: bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "{{.node}}" "{{.TALOS_INSTALLER_BASE}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" "{{.rollout}}"
+    desc: Break-glass Talos upgrade on a single node using rendered installer image [node=name]
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      talos_image="$({{.TALOS_SCRIPTS_DIR}}/machine-image.sh {{.node}})"
+      bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "${node_address}" "${talos_image}" "{{.rollout}}"
     vars:
       rollout: '{{.rollout | default "false"}}'
     requires:
-      vars: ["node"]
+      vars: [node]
     preconditions:
-      - test -f {{.TALOS_DIR}} || test -f $HOME/.talos/config
       - talosctl config info >/dev/null 2>&1
-      - talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1
+      - talosctl --nodes $$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}) get machineconfig >/dev/null 2>&1
 
   upgrade-rollout:
-    desc: Rollout Talos upgrade on explicitly supplied nodes [nodes=comma-separated confirm=all-nodes]
+    desc: Break-glass Talos rollout on supplied node names [nodes=comma-separated confirm=all-nodes]
     cmds:
       - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux suspend kustomization --all -n {}
       - kubectl cnpg maintenance set --reusePVC --all-namespaces
@@ -58,18 +136,17 @@ tasks:
       - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux resume kustomization --all -n {}
       - task: :kubernetes:delete-failed-pods
     requires:
-      vars: ["nodes", "confirm"]
+      vars: [nodes, confirm]
     preconditions:
       - sh: test "{{.confirm}}" = "all-nodes"
         msg: Refusing all-node Talos rollout unless confirm=all-nodes is set
       - talosctl config info >/dev/null 2>&1
-      - talosctl --nodes {{.nodes}} get machineconfig >/dev/null 2>&1
 
   upgrade-k8s:
     desc: Upgrade k8s on a node
     cmd: talosctl --nodes {{.node}} upgrade-k8s --to {{.to}}
     requires:
-      vars: ["node", "to"]
+      vars: [node, to]
     preconditions:
       - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
 
@@ -85,7 +162,47 @@ tasks:
       - which talosctl
 
   fetch-kubeconfig:
-    desc: Fetch bootstrap kubeconfig using generated Talos config
+    desc: Fetch kubeconfig from a Talos node [node=k8s-node-1]
+    cmd: |
+      node="{{.node}}"
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh "${node}")"
+      talosctl --nodes "${node_address}" kubeconfig --force
+    vars:
+      node: '{{.node | default "k8s-node-1"}}'
+    preconditions:
+      - talosctl config info >/dev/null 2>&1
+
+  bootstrap:
+    desc: Legacy talhelper bootstrap during migration; native bootstrap is not implemented yet
+    cmds:
+      - task: legacy-bootstrap
+
+  nuke:
+    desc: Legacy talhelper reset during migration
+    cmds:
+      - task: legacy-nuke
+
+  legacy-generate:
+    desc: Legacy talhelper generation during migration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper genconfig --debug -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
+    preconditions:
+      - test -f {{.ROOT_DIR}}/talos/talconfig.yaml
+      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
+      - test -f {{.ROOT_DIR}}/talos/talsecret.yaml
+
+  legacy-apply:
+    desc: Legacy talhelper apply during migration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper gencommand apply --extra-flags=--insecure | bash
+
+  legacy-bootstrap:
+    desc: Legacy talhelper bootstrap during migration
+    dir: "{{.TALOS_DIR}}"
+    cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
+
+  legacy-fetch-kubeconfig:
+    desc: Legacy talhelper kubeconfig fetch during migration
     dir: "{{.TALOS_DIR}}"
     cmd: |
       op run --env-file=".env" -- bash -Eeuo pipefail <<'EOF'
@@ -103,8 +220,8 @@ tasks:
       done
       EOF
 
-  nuke:
-    desc: Resets nodes back to maintenance mode so you can re-deploy again straight after
+  legacy-nuke:
+    desc: Legacy talhelper reset during migration
     prompt: This will DESTROY your cluster and reset the nodes back to maintenance mode... continue?
     dir: "{{.TALOS_DIR}}"
     cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
