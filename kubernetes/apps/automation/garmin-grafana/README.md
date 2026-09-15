@@ -34,7 +34,7 @@ kubectl get hr,externalsecret,pod -n automation -l app.kubernetes.io/name=garmin
 kubectl logs -n automation deploy/garmin-grafana --tail=200
 
 # Snapshot Garmin OAuth tokens
-task volsync:snapshot app=garmin-grafana ns=automation
+just volsync backup garmin-grafana automation
 ```
 
 The OAuth token files are sensitive and are included in encrypted Kopia and R2 VolSync backups.

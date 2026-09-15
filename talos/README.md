@@ -17,14 +17,14 @@ nodes with `talosctl`.
 | `nodes/*/<node>.schematic.yaml.j2` | Optional complete per-node schematic override |
 | `schematic.yaml.j2` | Shared Talos Image Factory schematic |
 | `secrets.yaml.j2` | 1Password-backed Talos secrets bundle for generating talosconfig |
-| `inventory.yaml` | Node name to Talos management address mapping for tasks |
+| `inventory.yaml` | Node name to Talos management address mapping for recipes |
 
 Role is derived from directory placement under `nodes/`; node files should not
 claim a different role in their content.
 
 ## Rendering
 
-`task talos:render-config node=k8s-node-1` builds the final machine config in
+`just talos render-config k8s-node-1` builds the final machine config in
 three layers:
 
 ```bash
@@ -41,17 +41,17 @@ static template checks that must not touch 1Password, `template.sh` supports
 synthetic secrets because `talosctl machineconfig patch` decodes certificate
 fields.
 
-## Common tasks
+## Common recipes
 
 ```bash
-task talos:render-config node=k8s-node-1      # render to stdout
-task talos:validate node=k8s-node-1           # talosctl validate --strict
-task talos:validate-all                       # validate every rendered node
-task talos:dry-run node=k8s-node-1            # live apply-config --dry-run
-task talos:apply-node node=k8s-node-1         # explicit live mutation; defaults mode=try
-task talos:machine-image node=k8s-node-1      # image from UnattendedInstallConfig
-task talos:schematic-id                       # shared Image Factory schematic ID
-task talos:talosconfig                        # regenerate ~/.talos/config from 1Password
+just talos render-config k8s-node-1      # render to stdout
+just talos validate k8s-node-1           # talosctl validate --strict
+just talos validate-all                  # validate every rendered node
+just talos dry-run k8s-node-1            # live apply-config --dry-run
+just talos apply-node k8s-node-1         # explicit live mutation; defaults mode=try
+just talos machine-image k8s-node-1      # image from UnattendedInstallConfig
+just talos schematic-id                  # shared Image Factory schematic ID
+just talos talosconfig                   # regenerate ~/.talos/config from 1Password
 ```
 
 ## Schematics and Tuppr
@@ -67,7 +67,7 @@ installer:
 
 Tuppr resolves future OS upgrade images from node runtime state and the current
 install image, so keeping this document accurate is important. GitOps-managed
-Tuppr remains the preferred OS rollout path; manual `task talos:upgrade` is a
+Tuppr remains the preferred OS rollout path; manual `just talos upgrade` is a
 break-glass fallback and derives the installer image from the rendered config.
 
 ## Deferred modernization

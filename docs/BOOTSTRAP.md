@@ -37,7 +37,7 @@ The bootstrap scripts expect these tools in `PATH`:
 - `sops`
 - `minijinja-cli`
 - `talosctl`
-- `task`
+- `just`
 - `yq`
 
 ### Environment
@@ -70,7 +70,7 @@ The bootstrap process also reads Talos secrets and initial Kubernetes secrets fr
 1. Boot each node into Talos maintenance mode, or reset an existing cluster with:
 
    ```bash
-   task talos:nuke
+   just talos nuke destroy-cluster
    ```
 
 2. Confirm DHCP reservations / static leases are in place for:
@@ -93,7 +93,7 @@ The bootstrap process also reads Talos secrets and initial Kubernetes secrets fr
 Run preflight before applying Talos configs:
 
 ```bash
-task bootstrap:preflight
+just bootstrap preflight
 ```
 
 This checks:
@@ -102,7 +102,7 @@ This checks:
 - `KUBECONFIG` parent directory writability
 - required repo files
 - 1Password references used by Talos/bootstrap resources
-- native Talos render validation with `task talos:validate-all`
+- native Talos render validation with `just talos validate-all`
 - rendering of `bootstrap/helmfile.yaml`, using chart refs from that file
 - rendering of `bootstrap/resources.yaml.j2`
 - Talos node reachability in maintenance mode or with generated Talos client config
@@ -110,7 +110,7 @@ This checks:
 If node reachability must be skipped temporarily:
 
 ```bash
-BOOTSTRAP_PREFLIGHT_SKIP_NODES=true task bootstrap:preflight
+BOOTSTRAP_PREFLIGHT_SKIP_NODES=true just bootstrap preflight
 ```
 
 ## Bootstrap
@@ -123,7 +123,7 @@ Run the automated bootstrap:
 
 The script performs these steps:
 
-1. Generate a Talos client config with `task talos:talosconfig`.
+1. Generate a Talos client config with `just talos talosconfig`.
 2. Render native Talos machine configs and apply them insecurely to maintenance-mode nodes.
 3. Bootstrap etcd/Kubernetes on a controller node.
 4. Fetch kubeconfig to the exact path in `$KUBECONFIG`.
@@ -143,7 +143,7 @@ Flux then reconciles `kubernetes/flux/cluster/ks.yaml` from `main` and starts ap
 First verify the core bootstrap substrate:
 
 ```bash
-task bootstrap:verify
+just bootstrap verify
 ```
 
 This checks:
@@ -159,7 +159,7 @@ This checks:
 After Flux has had time to reconcile the full repository, verify full convergence:
 
 ```bash
-task bootstrap:verify-full
+just bootstrap verify-full
 ```
 
 This additionally checks:
@@ -198,7 +198,7 @@ CNPG clusters use their declarative manifests and backup configuration in Git. D
 Use the full verifier and CNPG checks:
 
 ```bash
-task bootstrap:verify-full
+just bootstrap verify-full
 kubectl -n database get cluster postgres
 kubectl -n database describe cluster postgres
 ```
@@ -230,7 +230,7 @@ talosctl --nodes 10.0.80.10 version --insecure
 If the node was already configured, regenerate Talos client config and try authenticated access:
 
 ```bash
-task talos:talosconfig
+just talos talosconfig
 talosctl --nodes 10.0.80.10 version
 ```
 
@@ -239,7 +239,7 @@ talosctl --nodes 10.0.80.10 version
 If interruption happened before Kubernetes was healthy, reset back to maintenance mode and rerun:
 
 ```bash
-task talos:nuke
+just talos nuke destroy-cluster
 ./scripts/bootstrap-cluster.sh
 ```
 
@@ -257,5 +257,5 @@ flux get helmreleases -A
 Then rerun:
 
 ```bash
-task bootstrap:verify-full
+just bootstrap verify-full
 ```

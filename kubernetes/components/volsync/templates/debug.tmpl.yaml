@@ -7,7 +7,7 @@ metadata:
   namespace: ${ns}
   labels:
     app.kubernetes.io/name: volsync-r2-debug
-    app.kubernetes.io/managed-by: taskfile
+    app.kubernetes.io/managed-by: just
     home-ops.petrovic.io/volsync-app: ${app}
 spec:
   automountServiceAccountToken: false

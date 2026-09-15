@@ -37,7 +37,7 @@ validate_name "Application" "${APP}"
 validate_name "Namespace" "${NAMESPACE}"
 for job_prefix in volsync-r2-locks- volsync-r2-unlock- volsync-r2-check- volsync-r2-debug-; do
     (( ${#job_prefix} + ${#APP} <= 63 )) || \
-        fail "Application name is too long for Taskfile operation Job names: ${APP}"
+        fail "Application name is too long for just operation Job names: ${APP}"
 done
 
 kubectl config get-contexts -o name | grep -Fxq "${CONTEXT}" || \
@@ -76,7 +76,7 @@ operation_jobs=$(kubectl --context "${CONTEXT}" -n "${NAMESPACE}" get jobs -o js
         | select(.metadata.labels["home-ops.petrovic.io/volsync-app"] == $app)
         | .metadata.name')
 if [[ -n ${operation_jobs} ]]; then
-    echo "Existing Taskfile operation Jobs:" >&2
+    echo "Existing just operation Jobs:" >&2
     print_items "${operation_jobs}"
     fail "Inspect or delete the existing Job before retrying"
 fi
