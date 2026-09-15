@@ -34,7 +34,6 @@ spec:
       - --crd-source-kind=DNSEndpoint
     logLevel: debug
     policy: sync
-    annotationPrefix: external-dns.alpha.kubernetes.io/
     sources: ["crd", "gateway-httproute"]
     txtPrefix: k8s.
     txtOwnerId: kubernetes-home-external
