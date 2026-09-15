@@ -95,7 +95,7 @@ If permanently removing the node, update your configuration:
 ```bash
 # Edit talos/inventory.yaml and remove the matching talos/nodes/** template
 # Validate remaining rendered configs
-task talos:validate-all
+just talos validate-all
 
 # Update Rook configuration if needed
 # Edit kubernetes/apps/rook-ceph/rook-ceph/cluster/helmrelease.yaml
@@ -177,8 +177,8 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
 
 ```bash
 # Validate and apply the existing node template to new hardware in maintenance mode
-task talos:validate node=k8s-node-X
-task talos:apply-insecure-node node=k8s-node-X confirm=bootstrap
+just talos validate k8s-node-X
+just --yes talos apply-insecure-node k8s-node-X
 ```
 
 The node will:
@@ -225,11 +225,11 @@ If the new hardware requires different configuration (disk model, network interf
 1. **Update the matching `talos/nodes/**/<node>.yaml.j2`** with new hardware selectors/specifications.
 2. **Validate rendered configuration**:
    ```bash
-   task talos:validate node=k8s-node-X
+   just talos validate k8s-node-X
    ```
 3. **Apply updated configuration**:
    ```bash
-   task talos:apply-insecure-node node=k8s-node-X confirm=bootstrap
+   just --yes talos apply-insecure-node k8s-node-X
    ```
 
 ## Troubleshooting

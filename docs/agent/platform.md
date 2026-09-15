@@ -23,7 +23,7 @@ talos/
 
 bootstrap/                   # Initial cluster bootstrap
 scripts/                     # Helper scripts
-.taskfiles/                  # Taskfile automation
+.justfile                   # Root just recipes and module definitions
 ```
 
 ## Storage
@@ -97,7 +97,7 @@ Operational notes:
 - Debug-level Talos logs are filtered before reaching Loki unless explicitly troubleshooting.
 - The per-node Talos Vector throttle is intentionally conservative at 500 events/sec/node.
 - Logs emitted before host-network `vector-agent` is listening can be dropped; this is accepted.
-- Render with `task talos:render-config node=<node>` and validate with `task talos:validate-all`; never commit rendered Talos machine configs or Talos client configs.
+- Render with `just talos render-config <node>` and validate with `just talos validate-all`; never commit rendered Talos machine configs or Talos client configs.
 
 Useful LogQL:
 

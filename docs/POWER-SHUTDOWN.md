@@ -47,15 +47,15 @@ Kick off an ad-hoc Kopia snapshot for critical apps so the most recent data is b
 # Snapshot all apps in parallel (max 4 concurrent)
 kubectl get replicationsources --all-namespaces --no-headers \
   | awk '{print $2, $1}' \
-  | xargs --max-procs=4 -l bash -c 'task volsync:snapshot app=$0 ns=$1'
+  | xargs --max-procs=4 -l bash -c 'just volsync backup "$0" "$1"'
 ```
 
 Or snapshot specific critical apps individually:
 
 ```bash
-task volsync:snapshot app=home-assistant ns=automation
-task volsync:snapshot app=paperless ns=default
-task volsync:snapshot app=memos ns=default
+just volsync backup home-assistant automation
+just volsync backup paperless default
+just volsync backup memos default
 ```
 
 ### 3. Set Ceph OSD noout flag
@@ -410,7 +410,7 @@ flux get kustomization --all-namespaces -w
 Some pods may have failed during the shutdown/startup cycle:
 
 ```bash
-task k8s:delete-failed-pods
+just kube delete-failed-pods
 ```
 
 ### 18. Final verification

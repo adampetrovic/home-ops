@@ -41,7 +41,7 @@ Read the relevant doc before making non-trivial changes:
 - `kubernetes/flux/cluster/` — top-level Flux Kustomization
 - `talos/*.yaml.j2` and `talos/nodes/**` — native Talos machine config templates
 - `talos/inventory.yaml` — node-to-management-IP mapping for Talos tasks
-- `.taskfiles/` — task automation
+- `.justfile` plus module `mod.just` files — just automation recipes
 
 ## Quick App Rules
 

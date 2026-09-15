@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 NODE="${1:-}"
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TALOS_DIR="${ROOT_DIR}/talos"
 SCHEMATIC_FILE="${TALOS_DIR}/schematic.yaml.j2"
 

@@ -136,7 +136,7 @@ function main() {
     if [[ "${mode}" == "full" ]]; then
         check_full_convergence
     else
-        log info "Core bootstrap verification complete; run 'task bootstrap:verify-full' for full GitOps convergence"
+        log info "Core bootstrap verification complete; run 'just bootstrap verify-full' for full GitOps convergence"
     fi
 
     if ((failures > 0)); then

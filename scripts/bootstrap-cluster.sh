@@ -8,12 +8,16 @@ export LOG_LEVEL="${LOG_LEVEL:-debug}"
 export ROOT_DIR="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 export TALOSCONFIG="${TALOSCONFIG:-${HOME}/.talos/config}"
 
+function run_just() {
+    (cd "${ROOT_DIR}" && just "$@")
+}
+
 # Generate the Talos client configuration before reading talosctl config state. This makes
 # the bootstrap path work from a clean workstation that has no ~/.talos/config yet.
 function generate_talos_config() {
     log debug "Generating Talos client configuration"
 
-    task --dir "${ROOT_DIR}" talos:talosconfig talosconfig="${TALOSCONFIG}"
+    run_just talos talosconfig "${TALOSCONFIG}"
 
     if [[ ! -f "${TALOSCONFIG}" ]]; then
         log error "Generated Talos client config does not exist" "file=${TALOSCONFIG}"
@@ -41,7 +45,7 @@ function apply_talos_config() {
     log debug "Applying Talos configuration"
 
     log debug "Applying Talos node configuration"
-    if ! output=$(task --dir "${ROOT_DIR}" --yes talos:apply-insecure-all confirm=bootstrap 2>&1); then
+    if ! output=$(run_just --yes talos apply-insecure-all bootstrap 2>&1); then
         if [[ "${output}" == *"certificate required"* ]]; then
             log warn "At least one Talos node is already configured; skipping insecure apply for configured nodes"
             return
@@ -65,7 +69,7 @@ function bootstrap_talos() {
     log debug "Talos controller discovered" "controller=${controller}"
 
     while true; do
-        if output=$(task --dir "${ROOT_DIR}" talos:bootstrap 2>&1); then
+        if output=$(run_just talos bootstrap 2>&1); then
             log info "Talos bootstrap command completed" "controller=${controller}"
             return
         fi
@@ -233,7 +237,7 @@ function sync_helm_releases() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli helm helmfile jq kubectl kustomize minijinja-cli op sops talosctl task yq
+    check_cli helm helmfile jq just kubectl kustomize minijinja-cli op sops talosctl yq
 
     # Bootstrap the Talos node configuration.
     generate_talos_config
@@ -248,7 +252,7 @@ function main() {
     sync_helm_releases
 
     log info "Congrats! The cluster is bootstrapped and Flux is syncing the Git repository"
-    log info "Run post-bootstrap verification with: task bootstrap:verify"
+    log info "Run post-bootstrap verification with: just bootstrap verify"
 }
 
 main "$@"

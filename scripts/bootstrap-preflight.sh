@@ -10,6 +10,10 @@ export TALOSCONFIG="${TALOSCONFIG:-${HOME}/.talos/config}"
 
 failures=0
 
+function run_just() {
+    (cd "${ROOT_DIR}" && just "$@")
+}
+
 function fail_check() {
     log warn "$@"
     failures=$((failures + 1))
@@ -57,7 +61,7 @@ function check_talos_nodes() {
 
     if [[ ! -f "${TALOSCONFIG}" ]]; then
         log info "Generating Talos client config for node reachability checks" "file=${TALOSCONFIG}"
-        if ! task --dir "${ROOT_DIR}" talos:talosconfig talosconfig="${TALOSCONFIG}"; then
+        if ! run_just talos talosconfig "${TALOSCONFIG}"; then
             fail_check "Failed to generate Talos client config for node checks" "file=${TALOSCONFIG}"
             return
         fi
@@ -76,7 +80,7 @@ function check_talos_nodes() {
 }
 
 function check_rendering() {
-    if task --dir "${ROOT_DIR}" talos:validate-all; then
+    if run_just talos validate-all; then
         log info "Talos native renderer validates all node configs"
     else
         fail_check "Talos native renderer validation failed"
@@ -97,7 +101,7 @@ function check_rendering() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli flux helm helmfile jq kubectl kustomize minijinja-cli op sops talosctl task yq
+    check_cli flux helm helmfile jq just kubectl kustomize minijinja-cli op sops talosctl yq
 
     mkdir -p "$(dirname "${KUBECONFIG}")"
     if [[ ! -w "$(dirname "${KUBECONFIG}")" ]]; then

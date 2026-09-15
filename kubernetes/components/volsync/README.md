@@ -125,22 +125,22 @@ Cloudflare R2 is the only Restic backend. Inspect repository locks before changi
 them:
 
 ```bash
-task volsync:locks-r2 app=home-assistant ns=automation
+just volsync locks-r2 home-assistant automation
 ```
 
 Remove only locks that Restic identifies as stale:
 
 ```bash
-task volsync:unlock-r2 app=home-assistant ns=automation
+just volsync unlock-r2 home-assistant automation
 ```
 
 To immediately prove the repository can complete a new backup after unlocking:
 
 ```bash
-task volsync:unlock-r2 app=home-assistant ns=automation verify=true
+just volsync unlock-r2 home-assistant automation 600 true
 ```
 
-The unlock task pins the `admin@home-kubernetes` context, targets only
+The unlock recipe pins the `admin@home-kubernetes` context, targets only
 `${APP}-volsync-r2-secret`, and refuses to run while a mover or another Pod may
 own a legitimate lock. It runs plain `restic unlock`; there is intentionally no
 `--remove-all` or force mode. Remaining locks require investigation.
@@ -158,13 +158,13 @@ Run repository recoveries sequentially by default. If several repositories are
 known to be idle, use no more than two concurrent inspection/unlock operations
 and only one `verify=true` backup at a time. Manual backup triggers are removed
 atomically after completion so the configured schedule resumes; cleanup failure
-fails the task and prints an exact recovery command.
+fails the recipe and prints an exact recovery command.
 
 A metadata-only repository check is also available, but it may be slow and incur
 R2 API/download costs:
 
 ```bash
-task volsync:check-r2 app=home-assistant ns=automation
+just volsync check-r2 home-assistant automation
 ```
 
 ### Kopia Web UI
@@ -288,7 +288,7 @@ EOF
 #### 4. Wait for restore and PVC binding
 
 ```bash
-bash .taskfiles/VolSync/scripts/wait-for-replicationdestination.sh "${app}-dst" "${ns}" 7200
+bash kubernetes/components/volsync/scripts/wait-for-replicationdestination.sh "${app}-dst" "${ns}" 7200
 kubectl -n "${ns}" wait pvc/"${app}" --for=jsonpath='{.status.phase}'=Bound --timeout=10m
 ```
 
@@ -351,7 +351,7 @@ To restore an older snapshot, add either `previous: <n>` or `restoreAsOf: "<RFC3
 #### 3. Wait, clean up, and resume the app
 
 ```bash
-bash .taskfiles/VolSync/scripts/wait-for-replicationdestination.sh "${app}-r2-restore" "${ns}" 7200
+bash kubernetes/components/volsync/scripts/wait-for-replicationdestination.sh "${app}-r2-restore" "${ns}" 7200
 kubectl -n "${ns}" delete replicationdestination "${app}-r2-restore"
 flux -n "${ns}" resume helmrelease "${app}" || true
 flux -n flux-system resume kustomization "${app}"
