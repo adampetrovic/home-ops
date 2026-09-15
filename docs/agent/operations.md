@@ -23,11 +23,13 @@ Run tasks with `task <namespace>:<task>`.
 Talos operations:
 
 ```bash
-task talos:generate
-task talos:apply
-task talos:upgrade node=<ip>
+task talos:render-config node=k8s-node-1
+task talos:validate-all
+task talos:dry-run-all
+task talos:apply-node node=k8s-node-1
+task talos:upgrade node=k8s-node-4
 task talos:upgrade-rollout
-task talos:upgrade-k8s node=<ip> to=<version>
+task talos:upgrade-k8s node=k8s-node-1 to=<version>
 task talos:fetch-kubeconfig
 ```
 

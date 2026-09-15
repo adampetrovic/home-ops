@@ -6,17 +6,17 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 export LOG_LEVEL="${LOG_LEVEL:-debug}"
 export ROOT_DIR="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
-export TALOSCONFIG="${TALOSCONFIG:-${ROOT_DIR}/talos/clusterconfig/talosconfig}"
+export TALOSCONFIG="${TALOSCONFIG:-${HOME}/.talos/config}"
 
-# Generate the Talos configuration before reading talosctl config state. This makes
+# Generate the Talos client configuration before reading talosctl config state. This makes
 # the bootstrap path work from a clean workstation that has no ~/.talos/config yet.
 function generate_talos_config() {
-    log debug "Generating Talos node configuration"
+    log debug "Generating Talos client configuration"
 
-    task --dir "${ROOT_DIR}" talos:generate
+    task --dir "${ROOT_DIR}" talos:talosconfig talosconfig="${TALOSCONFIG}"
 
     if [[ ! -f "${TALOSCONFIG}" ]]; then
-        log error "Generated Talos config does not exist" "file=${TALOSCONFIG}"
+        log error "Generated Talos client config does not exist" "file=${TALOSCONFIG}"
     fi
 
     log info "Talos client configuration is available" "file=${TALOSCONFIG}"
@@ -33,7 +33,7 @@ function talos_controller() {
 }
 
 function expected_node_count() {
-    yq '.nodes | length' "${ROOT_DIR}/talos/talconfig.yaml"
+    yq '.nodes | length' "${ROOT_DIR}/talos/inventory.yaml"
 }
 
 # Apply the Talos configuration to all the nodes.
@@ -41,7 +41,7 @@ function apply_talos_config() {
     log debug "Applying Talos configuration"
 
     log debug "Applying Talos node configuration"
-    if ! output=$(task --dir "${ROOT_DIR}" talos:apply 2>&1); then
+    if ! output=$(task --dir "${ROOT_DIR}" --yes talos:apply-insecure-all confirm=bootstrap 2>&1); then
         if [[ "${output}" == *"certificate required"* ]]; then
             log warn "At least one Talos node is already configured; skipping insecure apply for configured nodes"
             return
@@ -233,11 +233,7 @@ function sync_helm_releases() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli helm helmfile jq kubectl kustomize op sops talhelper talosctl task yq
-
-    if ! op whoami --format=json &>/dev/null; then
-        log error "Failed to authenticate with 1Password CLI"
-    fi
+    check_cli helm helmfile jq kubectl kustomize minijinja-cli op sops talosctl task yq
 
     # Bootstrap the Talos node configuration.
     generate_talos_config

@@ -6,7 +6,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 export LOG_LEVEL="${LOG_LEVEL:-info}"
 export ROOT_DIR="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
-export TALOSCONFIG="${TALOSCONFIG:-${ROOT_DIR}/talos/clusterconfig/talosconfig}"
+export TALOSCONFIG="${TALOSCONFIG:-${HOME}/.talos/config}"
 
 failures=0
 
@@ -30,7 +30,8 @@ function check_op_refs() {
 
     refs_file="$(mktemp)"
     grep -RhoE 'op://[^[:space:]}",]+' \
-        "${ROOT_DIR}/talos/.env" \
+        "${ROOT_DIR}/talos"/*.yaml.j2 \
+        "${ROOT_DIR}/talos/nodes"/*/*.yaml.j2 \
         "${ROOT_DIR}/bootstrap/resources.yaml.j2" \
         | sort -u >"${refs_file}"
 
@@ -55,9 +56,9 @@ function check_talos_nodes() {
     fi
 
     if [[ ! -f "${TALOSCONFIG}" ]]; then
-        log info "Generating Talos config for node reachability checks" "file=${TALOSCONFIG}"
-        if ! task --dir "${ROOT_DIR}" talos:generate; then
-            fail_check "Failed to generate Talos config for node checks" "file=${TALOSCONFIG}"
+        log info "Generating Talos client config for node reachability checks" "file=${TALOSCONFIG}"
+        if ! task --dir "${ROOT_DIR}" talos:talosconfig talosconfig="${TALOSCONFIG}"; then
+            fail_check "Failed to generate Talos client config for node checks" "file=${TALOSCONFIG}"
             return
         fi
     fi
@@ -67,14 +68,20 @@ function check_talos_nodes() {
         if talosctl --nodes "${ip}" version --insecure >/dev/null 2>&1; then
             log info "Talos node is reachable in maintenance mode" "node=${ip}"
         elif talosctl --talosconfig "${TALOSCONFIG}" --nodes "${ip}" version >/dev/null 2>&1; then
-            log info "Talos node is reachable with generated config" "node=${ip}"
+            log info "Talos node is reachable with Talos client config" "node=${ip}"
         else
             fail_check "Talos node is not reachable" "node=${ip}"
         fi
-    done < <(yq '.nodes[].ipAddress' "${ROOT_DIR}/talos/talconfig.yaml")
+    done < <(yq '.nodes[]' "${ROOT_DIR}/talos/inventory.yaml")
 }
 
 function check_rendering() {
+    if task --dir "${ROOT_DIR}" talos:validate-all; then
+        log info "Talos native renderer validates all node configs"
+    else
+        fail_check "Talos native renderer validation failed"
+    fi
+
     if render_template "${ROOT_DIR}/bootstrap/resources.yaml.j2" >/dev/null; then
         log info "Bootstrap resources render with 1Password injection"
     else
@@ -90,21 +97,19 @@ function check_rendering() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli flux helm helmfile jq kubectl kustomize op sops talhelper talosctl task yq
-
-    if ! op whoami --format=json >/dev/null 2>&1; then
-        log error "Failed to authenticate with 1Password CLI"
-    fi
+    check_cli flux helm helmfile jq kubectl kustomize minijinja-cli op sops talosctl task yq
 
     mkdir -p "$(dirname "${KUBECONFIG}")"
     if [[ ! -w "$(dirname "${KUBECONFIG}")" ]]; then
         fail_check "KUBECONFIG directory is not writable" "directory=$(dirname "${KUBECONFIG}")"
     fi
 
-    check_file "${ROOT_DIR}/talos/.env"
-    check_file "${ROOT_DIR}/talos/talconfig.yaml"
-    check_file "${ROOT_DIR}/talos/talenv.yaml"
-    check_file "${ROOT_DIR}/talos/talsecret.yaml"
+    check_file "${ROOT_DIR}/talos/cluster.yaml.j2"
+    check_file "${ROOT_DIR}/talos/controlplane.yaml.j2"
+    check_file "${ROOT_DIR}/talos/workers.yaml.j2"
+    check_file "${ROOT_DIR}/talos/inventory.yaml"
+    check_file "${ROOT_DIR}/talos/secrets.yaml.j2"
+    check_file "${ROOT_DIR}/talos/schematic.yaml.j2"
     check_file "${ROOT_DIR}/bootstrap/helmfile.yaml"
     check_file "${ROOT_DIR}/bootstrap/resources.yaml.j2"
     check_file "${ROOT_DIR}/kubernetes/apps/external-secrets/external-secrets/stores/onepassword/clustersecretstore.yaml"
