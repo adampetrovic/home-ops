@@ -85,7 +85,6 @@ spec:
       streams:
         type: LoadBalancer
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: cameras.${SECRET_DOMAIN}
           external-dns.kubernetes.io/hostname: cameras.${SECRET_DOMAIN}
           lbipam.cilium.io/ips: 10.0.88.14
         ports:
