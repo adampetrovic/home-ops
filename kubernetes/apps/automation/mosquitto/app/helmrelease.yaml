@@ -72,6 +72,7 @@ spec:
         controller: mosquitto
         annotations:
           external-dns.alpha.kubernetes.io/hostname: mqtt.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: mqtt.${SECRET_DOMAIN}
           lbipam.cilium.io/ips: 10.0.88.2
         ports:
           http:
