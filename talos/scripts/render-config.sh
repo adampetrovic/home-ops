@@ -39,6 +39,20 @@ fi
 
 SCHEMATIC="$(${SCRIPT_DIR}/schematic-id.sh "${NODE}")"
 
+if [[ "${ROLE}" == "controlplane" ]]; then
+    if ! command -v op >/dev/null 2>&1; then
+        echo "1Password CLI 'op' is required for service-account key decoding" >&2
+        exit 69
+    fi
+
+    TALOS_K8S_SERVICE_ACCOUNT_KEY="$(op read op://k8s/talsecret/CERTS_K8SSERVICEACCOUNT_KEY | base64 --decode)"
+    if [[ -z "${TALOS_K8S_SERVICE_ACCOUNT_KEY// }" ]]; then
+        echo "Decoded Kubernetes service-account key is empty" >&2
+        exit 65
+    fi
+    export TALOS_K8S_SERVICE_ACCOUNT_KEY
+fi
+
 # Layer order mirrors onedr0p/home-ops: cluster-wide baseline, role patch, node patch.
 talosctl machineconfig patch <("${SCRIPT_DIR}/template.sh" "${TALOS_DIR}/cluster.yaml.j2" -D "schematic=${SCHEMATIC}") \
     -p @<("${SCRIPT_DIR}/template.sh" "${ROLE_FILE}" -D "schematic=${SCHEMATIC}") \
