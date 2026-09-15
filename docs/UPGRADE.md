@@ -16,14 +16,14 @@ Check official release pages for installer images. Talos v1.14+ Image Factory me
 ## Upgrade Procedure
 
 1.  **Decide whether this is OS-only or machine-config-changing:**
-    For OS-only upgrades, keep Talos machine-config modernization separate. Do not run `task talos:generate` or `task talos:apply` unless the approved plan includes applying generated machine config.
+    For OS-only upgrades, keep Talos machine-config modernization separate. Do not run `task talos:apply-node` or `task talos:apply-node-all` unless the approved plan includes applying rendered machine config.
 
 2.  **Perform a one-node rollout:**
     Prefer the GitOps-managed Tuppr `TalosUpgrade` with a temporary `nodeSelector` and `parallelism: 1`. For manual fallback only, use the Taskfile with an explicit node:
     ```sh
-    task talos:upgrade node=<NODE_IP>
+    task talos:upgrade node=<node-name>
     ```
-    Replace `<NODE_IP>` with the IP address of the node you wish to upgrade.
+    Replace `<node-name>` with a node from `talos/inventory.yaml`, for example `k8s-node-4`.
 
 ### Worker Nodes
 
@@ -46,7 +46,7 @@ The upgrade task uses `--wait=true`, so it will block until completion or timeou
 
 -   **Workload Disruption:** Node reboots are expected. The script attempts to manage service states (Flux, CNPG).
 -   **Kubernetes Compatibility:** Verify Talos & K8s version compatibility.
--   **Machine Config Changes:** Review release notes for any impact on your `talhelper` configs.
+-   **Machine Config Changes:** Review release notes for any impact on the native Talos templates under `talos/`; validate with `task talos:validate-all` and dry-run with `task talos:dry-run-all` before applying.
 
 ## Upgrading Kubernetes
 

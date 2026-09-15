@@ -13,11 +13,13 @@ kubernetes/
 └── flux/cluster/            # Top-level Flux Kustomization
 
 talos/
-├── talconfig.yaml           # Node definitions managed by talhelper
-├── talenv.yaml              # Talos environment vars
-├── talsecret.yaml           # Talos secrets
-├── clusterconfig/           # Generated node configs; do not edit directly
-└── patches/                 # Editable Talos machine patches
+├── cluster.yaml.j2          # Cluster-wide native Talos multi-doc template
+├── controlplane.yaml.j2     # Control-plane-only template
+├── workers.yaml.j2          # Worker-only template
+├── inventory.yaml           # Node name to management IP mapping
+├── secrets.yaml.j2          # 1Password-backed Talos secrets bundle for talosconfig
+├── schematic.yaml.j2        # Talos Image Factory schematic
+└── nodes/                   # Per-node native Talos templates
 
 bootstrap/                   # Initial cluster bootstrap
 scripts/                     # Helper scripts
@@ -80,7 +82,7 @@ Talos machine.logging / KmsgLogConfig
 
 Key files:
 
-- `talos/patches/global/machine-logging.yaml`
+- `talos/cluster.yaml.j2`
 - `kubernetes/apps/observability/vector/app/agent/resources/vector.yaml`
 - `kubernetes/apps/observability/vector/app/aggregator/resources/vector.yaml`
 - `kubernetes/apps/observability/loki/app/helmrelease.yaml`
@@ -95,7 +97,7 @@ Operational notes:
 - Debug-level Talos logs are filtered before reaching Loki unless explicitly troubleshooting.
 - The per-node Talos Vector throttle is intentionally conservative at 500 events/sec/node.
 - Logs emitted before host-network `vector-agent` is listening can be dropped; this is accepted.
-- Do not edit `talos/clusterconfig/` directly. Change Talos patches, run `task talos:generate`, then inspect/apply generated node configs.
+- Render with `task talos:render-config node=<node>` and validate with `task talos:validate-all`; never commit rendered Talos machine configs or Talos client configs.
 
 Useful LogQL:
 

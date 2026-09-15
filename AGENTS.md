@@ -15,7 +15,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 - Use **Jujutsu (`jj`)** for all version-control operations. Do not use `git` directly in this repo.
 - For `fix:` and `chore:` jj commits, add a concise one-line body explaining *why* where useful, for example `Why: avoid paging on brittle cause-based Talos log patterns`.
 - Never commit plaintext secrets. Use ExternalSecrets backed by 1Password, or SOPS for files that are intentionally encrypted.
-- Never edit `talos/clusterconfig/`; it is generated. Change Talos patches, run `task talos:generate`, then inspect generated output.
+- Talos machine configs are rendered natively from `talos/*.yaml.j2` and `talos/nodes/**`; do not commit rendered machine configs or talosconfig output.
 - Never check application source code into this repository alongside deployments. Application code belongs in its own source repo and must be deployed here as a pre-built immutable container image.
 - All workloads must be represented by HelmRelease resources, normally using the `app-template` OCIRepository. Do not add raw Deployments, StatefulSets, DaemonSets, or CronJobs.
 - Container images must include both tag and digest, and Docker Hub images must use `mirror.gcr.io` rather than `docker.io`.
@@ -39,8 +39,8 @@ Read the relevant doc before making non-trivial changes:
 - `kubernetes/apps/<namespace>/<app>/` — Flux-managed applications
 - `kubernetes/components/` — reusable Kustomize components, including VolSync and common vars
 - `kubernetes/flux/cluster/` — top-level Flux Kustomization
-- `talos/patches/` — editable Talos patches
-- `talos/clusterconfig/` — generated Talos configs; do not edit
+- `talos/*.yaml.j2` and `talos/nodes/**` — native Talos machine config templates
+- `talos/inventory.yaml` — node-to-management-IP mapping for Talos tasks
 - `.taskfiles/` — task automation
 
 ## Quick App Rules
@@ -79,4 +79,4 @@ Read the relevant doc before making non-trivial changes:
 - Never modify Flux-managed live resources as a substitute for GitOps changes.
 - Never deploy app source from ConfigMaps or build application code at container startup.
 - Never use `docker.io` directly; use `mirror.gcr.io` for Docker Hub images.
-- Never edit generated Talos cluster configs.
+- Never commit rendered Talos machine configs or Talos client configs.

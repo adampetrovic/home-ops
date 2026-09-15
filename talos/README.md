@@ -1,12 +1,9 @@
 # Talos
 
-Declarative Talos Linux machine configuration for the home Kubernetes cluster.
-This directory is migrating away from talhelper toward the same native rendering
-pattern used by onedr0p/home-ops: composable multi-document templates rendered
-on demand and applied with `talosctl`.
-
-Nothing here is applied automatically. Live node changes require an explicit
-`task talos:apply-node ...` or Tuppr OS upgrade.
+Declarative Talos Linux machine configuration for the home Kubernetes cluster,
+built from composable native Talos multi-document templates. Nothing in this
+directory is applied automatically; configs are rendered on demand and pushed to
+nodes with `talosctl`.
 
 ## Layout
 
@@ -19,8 +16,8 @@ Nothing here is applied automatically. Live node changes require an explicit
 | `nodes/workers/<node>.yaml.j2` | Per-worker node networking, hostname, install config |
 | `nodes/*/<node>.schematic.yaml.j2` | Optional complete per-node schematic override |
 | `schematic.yaml.j2` | Shared Talos Image Factory schematic |
+| `secrets.yaml.j2` | 1Password-backed Talos secrets bundle for generating talosconfig |
 | `inventory.yaml` | Node name to Talos management address mapping for tasks |
-| `patches/` | Legacy talhelper-era patches kept during migration |
 
 Role is derived from directory placement under `nodes/`; node files should not
 claim a different role in their content.
@@ -54,6 +51,7 @@ task talos:dry-run node=k8s-node-1            # live apply-config --dry-run
 task talos:apply-node node=k8s-node-1         # explicit live mutation; defaults mode=try
 task talos:machine-image node=k8s-node-1      # image from UnattendedInstallConfig
 task talos:schematic-id                       # shared Image Factory schematic ID
+task talos:talosconfig                        # regenerate ~/.talos/config from 1Password
 ```
 
 ## Schematics and Tuppr
@@ -72,13 +70,12 @@ install image, so keeping this document accurate is important. GitOps-managed
 Tuppr remains the preferred OS rollout path; manual `task talos:upgrade` is a
 break-glass fallback and derives the installer image from the rendered config.
 
-## Migration notes
+## Deferred modernization
 
-- `talconfig.yaml`, `talenv.yaml`, `talsecret.yaml`, `talos/clusterconfig/`, and
-  `talos/patches/` are retained temporarily for comparison and rollback.
 - Kubelet remains in the legacy `machine.kubelet` block for now because the
   v1.14 `KubeletConfig` document does not represent the existing
   `/var/openebs/local` `extraMounts` requirement.
+- Broader Kubernetes control-plane typed-document migration is tracked in GitHub
+  issues and should be handled separately from routine Talos upgrades.
 - Workload isolation / `SecurityProfileConfig` is intentionally deferred due to
   storage and NFS risk.
-- Do not edit `talos/clusterconfig/`; it is generated/ignored legacy output.

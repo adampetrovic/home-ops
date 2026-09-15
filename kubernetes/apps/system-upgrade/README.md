@@ -60,17 +60,15 @@ Flux deploys in two phases via `ks.yaml`:
 
 ### Prerequisites
 
-Talos API access for the `system-upgrade` namespace is configured in `talos/patches/controller/machine-features.yaml`:
+Talos API access for the `system-upgrade` namespace is configured in `talos/controlplane.yaml.j2`:
 
 ```yaml
-machine:
-  features:
-    kubernetesTalosAPIAccess:
-      enabled: true
-      allowedRoles:
-        - os:admin
-      allowedKubernetesNamespaces:
-        - system-upgrade
+apiVersion: v1alpha1
+kind: KubeTalosAPIAccessConfig
+allowedRoles:
+  - os:admin
+allowedKubernetesNamespaces:
+  - system-upgrade
 ```
 
 ## Monitoring a Rollout

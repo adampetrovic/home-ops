@@ -34,6 +34,30 @@ tasks:
     preconditions:
       - test -f {{.TALOS_DIR}}/cluster.yaml.j2
 
+  talosconfig:
+    desc: Generate a Talos client config from 1Password-backed secrets [talosconfig=$HOME/.talos/config]
+    cmd: |
+      talosconfig="{{.talosconfig}}"
+      mkdir -p "$(dirname "${talosconfig}")"
+      tmp_secrets="$(mktemp)"
+      trap 'rm -f "${tmp_secrets}"' EXIT
+      {{.TALOS_SCRIPTS_DIR}}/template.sh {{.TALOS_DIR}}/secrets.yaml.j2 > "${tmp_secrets}"
+      talosctl gen config home-kubernetes https://10.0.80.99:6443 \
+          --with-secrets "${tmp_secrets}" \
+          --output "${talosconfig}" \
+          --output-types talosconfig \
+          --with-docs=false \
+          --with-examples=false \
+          --force >/dev/null
+      talosctl --talosconfig "${talosconfig}" config endpoint 10.0.80.99
+      talosctl --talosconfig "${talosconfig}" config node 10.0.80.10 10.0.80.11 10.0.80.12 10.0.80.13 10.0.80.14
+    vars:
+      talosconfig: '{{.talosconfig | default "$HOME/.talos/config"}}'
+    preconditions:
+      - test -f {{.TALOS_DIR}}/secrets.yaml.j2
+      - which talosctl
+      - which op
+
   schematic-id:
     desc: Resolve Talos Image Factory schematic ID [node=optional]
     cmd: "{{.TALOS_SCRIPTS_DIR}}/schematic-id.sh {{.node}}"
@@ -89,7 +113,7 @@ tasks:
 
   apply-node:
     aliases: [apply]
-    desc: Apply rendered native Talos config to one node [node=required] [mode=try]
+    desc: Apply rendered native Talos config to one live node [node=required] [mode=try]
     prompt: Apply rendered Talos config to {{.node}} with mode={{.mode}}? This mutates the live node.
     cmd: |
       node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
@@ -103,8 +127,33 @@ tasks:
       - talosctl config info >/dev/null 2>&1
       - talosctl --nodes $$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}) get machineconfig >/dev/null 2>&1
 
+  apply-insecure-node:
+    desc: Apply rendered Talos config to one node in maintenance mode [node=required]
+    prompt: Apply rendered Talos config insecurely to {{.node}}? Use only during bootstrap/replacement.
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      {{.TALOS_SCRIPTS_DIR}}/render-config.sh {{.node}} \
+          | talosctl --nodes "${node_address}" apply-config --insecure -f /dev/stdin
+    requires:
+      vars: [node]
+    preconditions:
+      - which talosctl
+
+  apply-insecure-all:
+    desc: Apply rendered Talos configs insecurely to all nodes [confirm=bootstrap]
+    cmds:
+      - for: { var: TALOS_NODES, split: "," }
+        task: apply-insecure-node
+        vars:
+          node: "{{.ITEM}}"
+    requires:
+      vars: [confirm]
+    preconditions:
+      - sh: test "{{.confirm}}" = "bootstrap"
+        msg: Refusing insecure all-node apply unless confirm=bootstrap is set
+
   generate:
-    desc: Validate all native Talos configs; native rendering writes no generated files
+    desc: Validate all native Talos configs; native rendering writes no generated machine configs
     cmds:
       - task: validate-all
 
@@ -143,29 +192,34 @@ tasks:
       - talosctl config info >/dev/null 2>&1
 
   upgrade-k8s:
-    desc: Upgrade k8s on a node
-    cmd: talosctl --nodes {{.node}} upgrade-k8s --to {{.to}}
+    desc: Upgrade k8s from a control-plane node [node=k8s-node-1] [to=required]
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      talosctl --nodes "${node_address}" upgrade-k8s --to {{.to}}
+    vars:
+      node: '{{.node | default "k8s-node-1"}}'
     requires:
-      vars: [node, to]
+      vars: [to]
     preconditions:
-      - { msg: "Node not found", sh: "talosctl --nodes {{.node}} get machineconfig" }
+      - talosctl --nodes $$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}) get machineconfig >/dev/null 2>&1
 
   reboot-node:
-    desc: Reboot Talos on a single node [IP=required] [MODE=powercycle]
-    cmd: talosctl --nodes {{.IP}} reboot --mode={{.MODE}}
+    desc: Reboot Talos on a single node [node=required] [mode=powercycle]
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      talosctl --nodes "${node_address}" reboot --mode={{.mode}}
     vars:
-      MODE: '{{.MODE | default "powercycle"}}'
+      mode: '{{.mode | default "powercycle"}}'
     requires:
-      vars: [IP]
+      vars: [node]
     preconditions:
-      - talosctl --nodes {{.IP}} get machineconfig
+      - talosctl --nodes $$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}}) get machineconfig >/dev/null 2>&1
       - which talosctl
 
   fetch-kubeconfig:
     desc: Fetch kubeconfig from a Talos node [node=k8s-node-1]
     cmd: |
-      node="{{.node}}"
-      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh "${node}")"
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
       talosctl --nodes "${node_address}" kubeconfig --force
     vars:
       node: '{{.node | default "k8s-node-1"}}'
@@ -173,55 +227,32 @@ tasks:
       - talosctl config info >/dev/null 2>&1
 
   bootstrap:
-    desc: Legacy talhelper bootstrap during migration; native bootstrap is not implemented yet
-    cmds:
-      - task: legacy-bootstrap
+    desc: Bootstrap etcd from a rendered control-plane node [node=k8s-node-1]
+    cmd: |
+      node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh {{.node}})"
+      talosctl --nodes "${node_address}" bootstrap
+    vars:
+      node: '{{.node | default "k8s-node-1"}}'
+    preconditions:
+      - talosctl config info >/dev/null 2>&1
 
   nuke:
-    desc: Legacy talhelper reset during migration
-    cmds:
-      - task: legacy-nuke
-
-  legacy-generate:
-    desc: Legacy talhelper generation during migration
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper genconfig --debug -c talconfig.yaml -e talenv.yaml -s talsecret.yaml
-    preconditions:
-      - test -f {{.ROOT_DIR}}/talos/talconfig.yaml
-      - test -f {{.ROOT_DIR}}/talos/talenv.yaml
-      - test -f {{.ROOT_DIR}}/talos/talsecret.yaml
-
-  legacy-apply:
-    desc: Legacy talhelper apply during migration
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper gencommand apply --extra-flags=--insecure | bash
-
-  legacy-bootstrap:
-    desc: Legacy talhelper bootstrap during migration
-    dir: "{{.TALOS_DIR}}"
-    cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
-
-  legacy-fetch-kubeconfig:
-    desc: Legacy talhelper kubeconfig fetch during migration
-    dir: "{{.TALOS_DIR}}"
+    desc: Reset all Talos nodes back to maintenance mode [confirm=destroy-cluster]
+    prompt: This will DESTROY the cluster and reset all nodes to maintenance mode... continue?
     cmd: |
-      op run --env-file=".env" -- bash -Eeuo pipefail <<'EOF'
-      for attempt in {1..30}; do
-          if talhelper gencommand kubeconfig --extra-flags "--force" | bash; then
-              break
-          fi
-
-          if [[ "${attempt}" == "30" ]]; then
-              echo "failed to fetch kubeconfig after ${attempt} attempts" >&2
-              exit 1
-          fi
-
-          sleep 10
+      IFS="," read -ra nodes <<< "{{.TALOS_NODES}}"
+      for node in "${nodes[@]}"; do
+          node_address="$({{.TALOS_SCRIPTS_DIR}}/node-address.sh "${node}")"
+          talosctl --nodes "${node_address}" reset \
+              --reboot \
+              --system-labels-to-wipe STATE \
+              --system-labels-to-wipe EPHEMERAL \
+              --graceful=false \
+              --wait=false
       done
-      EOF
-
-  legacy-nuke:
-    desc: Legacy talhelper reset during migration
-    prompt: This will DESTROY your cluster and reset the nodes back to maintenance mode... continue?
-    dir: "{{.TALOS_DIR}}"
-    cmd: talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
+    requires:
+      vars: [confirm]
+    preconditions:
+      - sh: test "{{.confirm}}" = "destroy-cluster"
+        msg: Refusing cluster reset unless confirm=destroy-cluster is set
+      - talosctl config info >/dev/null 2>&1

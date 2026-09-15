@@ -262,7 +262,7 @@ Wake all 5 nodes:
 ./scripts/wake-cluster.sh
 ```
 
-The script sends magic packets to every node MAC (sourced from `talos/talconfig.yaml`).
+The script sends magic packets to every node MAC (sourced from `scripts/wake-cluster.sh`, matching `talos/inventory.yaml` and node template NIC selectors).
 Talos boots automatically once power is applied — expect the nodes to be reachable within
 60-90 seconds.
 

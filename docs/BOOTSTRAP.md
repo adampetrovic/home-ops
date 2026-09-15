@@ -8,7 +8,7 @@ Do **not** use this runbook if your goal is to preserve/adopt existing Ceph OSDs
 
 - **Infrastructure source of truth:** this Git repository on `main`.
 - **Secrets source of truth:** 1Password vault `k8s` plus the SOPS age key.
-- **Talos source of truth:** `talos/talconfig.yaml`, `talos/talenv.yaml`, `talos/talsecret.yaml`, and patches under `talos/patches/`.
+- **Talos source of truth:** native templates under `talos/` (`cluster.yaml.j2`, role templates, `nodes/**`, `inventory.yaml`, `secrets.yaml.j2`, and `schematic.yaml.j2`).
 - **Primary app PVC restore:** VolSync Kopia restore from the UNAS NFS repository at `/var/nfs/shared/kopia`.
 - **Secondary app backup:** Cloudflare R2 Restic backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
 - **Ceph stance:** always rebuild in this runbook. `wipeDevicesFromOtherClusters: true` is expected for this destructive path.
@@ -35,7 +35,7 @@ The bootstrap scripts expect these tools in `PATH`:
 - `kustomize`
 - `op`
 - `sops`
-- `talhelper`
+- `minijinja-cli`
 - `talosctl`
 - `task`
 - `yq`
@@ -61,7 +61,8 @@ test -f ~/.config/sops/age/keys.txt
 
 The bootstrap process also reads Talos secrets and initial Kubernetes secrets from 1Password references in:
 
-- `talos/.env`
+- `talos/*.yaml.j2`
+- `talos/nodes/**/*.yaml.j2`
 - `bootstrap/resources.yaml.j2`
 
 ### Hardware and network
@@ -101,10 +102,10 @@ This checks:
 - `KUBECONFIG` parent directory writability
 - required repo files
 - 1Password references used by Talos/bootstrap resources
+- native Talos render validation with `task talos:validate-all`
 - rendering of `bootstrap/helmfile.yaml`, using chart refs from that file
 - rendering of `bootstrap/resources.yaml.j2`
-- rendering of `bootstrap/helmfile.yaml`
-- Talos node reachability in maintenance mode or with generated Talos config
+- Talos node reachability in maintenance mode or with generated Talos client config
 
 If node reachability must be skipped temporarily:
 
@@ -122,15 +123,14 @@ Run the automated bootstrap:
 
 The script performs these steps:
 
-1. Generate Talos configuration with `task talos:generate`.
-2. Export and use the generated Talos client config at `talos/clusterconfig/talosconfig`.
-3. Apply Talos machine configs to nodes.
-4. Bootstrap etcd/Kubernetes on a controller node.
-5. Fetch kubeconfig to the exact path in `$KUBECONFIG`.
-6. Wait for all Kubernetes node objects to register.
-7. Apply early CRDs required by Flux-managed resources.
-8. Render and apply bootstrap secrets/namespaces from `bootstrap/resources.yaml.j2`.
-9. Sync bootstrap Helm releases with `bootstrap/helmfile.yaml`:
+1. Generate a Talos client config with `task talos:talosconfig`.
+2. Render native Talos machine configs and apply them insecurely to maintenance-mode nodes.
+3. Bootstrap etcd/Kubernetes on a controller node.
+4. Fetch kubeconfig to the exact path in `$KUBECONFIG`.
+5. Wait for all Kubernetes node objects to register.
+6. Apply early CRDs required by Flux-managed resources.
+7. Render and apply bootstrap secrets/namespaces from `bootstrap/resources.yaml.j2`.
+8. Sync bootstrap Helm releases with `bootstrap/helmfile.yaml`:
 
    ```text
    Cilium → CoreDNS → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
@@ -227,11 +227,11 @@ Confirm the node is booted into Talos maintenance mode and has the expected IP:
 talosctl --nodes 10.0.80.10 version --insecure
 ```
 
-If the node was already configured, regenerate Talos config and try authenticated access:
+If the node was already configured, regenerate Talos client config and try authenticated access:
 
 ```bash
-task talos:generate
-TALOSCONFIG=talos/clusterconfig/talosconfig talosctl --nodes 10.0.80.10 version
+task talos:talosconfig
+talosctl --nodes 10.0.80.10 version
 ```
 
 ### Bootstrap interrupted

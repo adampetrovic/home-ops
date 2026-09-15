@@ -272,15 +272,16 @@ The repository includes comprehensive [Taskfile](https://taskfile.dev) automatio
 
 ```bash
 # Cluster operations
-task talos:generate           # Generate Talos configuration
-task talos:apply              # Apply Talos configuration
-task talos:bootstrap          # Bootstrap new cluster
-task talos:fetch-kubeconfig   # Generate talos kubeconfig
-task talos:upgrade            # Upgrade Talos on a node (requires: node=<ip>)
-task talos:upgrade-rollout    # Rolling Talos upgrade on all nodes
-task talos:upgrade-k8s        # Upgrade Kubernetes version (requires: node=<ip> to=<version>)
-task talos:reboot-node        # Reboot node (requires: IP=<ip>)
-task talos:nuke               # Reset nodes to maintenance mode (DESTRUCTIVE!)
+task talos:render-config node=k8s-node-1 # Render native Talos config to stdout
+task talos:validate-all                  # Validate all rendered Talos configs
+task talos:dry-run-all                   # Dry-run apply all node configs
+task talos:bootstrap                     # Bootstrap new cluster
+task talos:fetch-kubeconfig              # Generate kubeconfig
+task talos:upgrade node=k8s-node-4       # Upgrade Talos on a node
+task talos:upgrade-rollout               # Rolling Talos upgrade on all nodes
+task talos:upgrade-k8s node=k8s-node-1 to=v1.36.3 # Upgrade Kubernetes version
+task talos:reboot-node node=k8s-node-4   # Reboot node
+task talos:nuke                          # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
 # Bootstrap / disaster recovery
 task bootstrap:preflight      # Check tools, credentials, rendering, and node reachability
@@ -348,14 +349,16 @@ Complete destructive cluster rebuild capability:
 └── 📁 flux/              # Flux system configuration
     └── 📁 cluster/       # Cluster-wide configurations
 
-📁 talos/                 # Talos Linux configuration
-├── talconfig.yaml        # Node definitions (managed by talhelper)
-├── talenv.yaml           # Talos environment vars
-├── talsecret.yaml        # Talos secrets (encrypted)
-├── 📁 clusterconfig/     # Generated cluster configs (do not edit)
-└── 📁 patches/           # Configuration patches
-    ├── 📁 controller/    # Controller-specific patches
-    └── 📁 global/        # Global patches
+📁 talos/                 # Native Talos Linux configuration templates
+├── cluster.yaml.j2       # Cluster-wide multi-document template
+├── controlplane.yaml.j2  # Control-plane-only template
+├── workers.yaml.j2       # Worker-only template
+├── inventory.yaml        # Node name to management IP mapping
+├── secrets.yaml.j2       # 1Password-backed Talos secrets bundle for talosconfig
+├── schematic.yaml.j2     # Talos Image Factory schematic
+└── 📁 nodes/             # Per-node configuration templates
+    ├── 📁 controlplane/  # Control-plane nodes
+    └── 📁 workers/      # Worker nodes
 
 📁 bootstrap/             # Initial cluster bootstrapping
 ├── helmfile.yaml         # Helmfile for bootstrapping
@@ -400,7 +403,7 @@ app-name/
 - **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management (external), UniFi gateway for internal DNS
 - **Secrets**: 1Password account for secrets management
-- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `talhelper`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `task`, `jq`, `yq`, etc.)
+- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `minijinja-cli`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `task`, `jq`, `yq`, etc.)
 
 ### Quick Start
 
@@ -424,7 +427,7 @@ app-name/
 ### Configuration Areas
 
 Key files to customize for your environment:
-- `talos/talconfig.yaml` - Hardware and network configuration
+- `talos/cluster.yaml.j2`, `talos/nodes/**`, and `talos/inventory.yaml` - Talos hardware and network configuration
 - `kubernetes/components/common/vars/cluster-settings.yaml` - Cluster-wide configuration
 - `kubernetes/components/common/vars/cluster-secrets.sops.yaml` - Encrypted secrets
 
