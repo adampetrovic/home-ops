@@ -62,7 +62,7 @@ The rendered `UnattendedInstallConfig` owns the installer image:
 apiVersion: v1alpha1
 kind: UnattendedInstallConfig
 installer:
-  image: factory.talos.dev/metal-installer/<schematic>:v1.14.0
+  image: factory.talos.dev/metal-installer/<schematic>:v1.14.1
 ```
 
 Tuppr resolves future OS upgrade images from node runtime state and the current
