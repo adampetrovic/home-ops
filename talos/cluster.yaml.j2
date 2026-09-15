@@ -1,0 +1,149 @@
+---
+version: v1alpha1
+debug: false
+persist: true
+machine:
+  token: op://k8s/talsecret/TRUSTDINFO_TOKEN
+  ca:
+    crt: op://k8s/talsecret/CERTS_OS_CRT
+  certSANs:
+    - 10.0.80.99
+    - 127.0.0.1 # KubePrism
+  kubelet:
+    image: ghcr.io/siderolabs/kubelet:v1.36.3
+    clusterDNS:
+      - 10.96.0.10
+    extraArgs:
+      image-gc-low-threshold: "50"
+      image-gc-high-threshold: "55"
+      rotate-server-certificates: "false"
+    extraMounts:
+      - destination: /var/openebs/local
+        type: bind
+        source: /var/openebs/local
+        options:
+          - bind
+          - rshared
+          - rw
+    defaultRuntimeSeccompProfileEnabled: true
+    nodeIP:
+      validSubnets:
+        - 10.0.80.0/21
+    disableManifestsDirectory: true
+  features:
+    diskQuotaSupport: true
+  logging:
+    destinations:
+      - endpoint: tcp://127.0.0.1:6050/
+        format: json_lines
+        extraTags:
+          cluster: home-kubernetes
+cluster:
+  controlPlane:
+    endpoint: https://10.0.80.99:6443
+  clusterName: home-kubernetes
+  token: op://k8s/talsecret/SECRETS_BOOTSTRAPTOKEN
+  network:
+    cni:
+      name: none
+    dnsDomain: cluster.local
+    podSubnets:
+      - 10.69.0.0/16
+    serviceSubnets:
+      - 10.96.0.0/16
+  ca:
+    crt: op://k8s/talsecret/CERTS_K8S_CRT
+---
+apiVersion: v1alpha1
+kind: DiscoveryServiceConfig
+name: default
+endpoint: https://discovery.talos.dev/
+---
+apiVersion: v1alpha1
+kind: DiscoveryIdentityConfig
+clusterID: op://k8s/talsecret/CLUSTER_ID
+clusterSecret: op://k8s/talsecret/CLUSTER_SECRET
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+  - address: 10.0.0.1
+  - address: 1.1.1.1
+  - address: 8.8.8.8
+searchDomains:
+  domains: []
+  disableDefault: true
+hostDNS:
+  enabled: true
+  resolveMemberNames: true
+  forwardKubeDNSToHost: true
+---
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+enabled: true
+ntp:
+  servers:
+    - time.cloudflare.com
+---
+apiVersion: v1alpha1
+kind: SysctlConfig
+params:
+  fs.inotify.max_user_watches: "1048576"
+  fs.inotify.max_user_instances: "8192"
+  net.core.default_qdisc: fq
+  net.core.rmem_max: "67108864"
+  net.core.wmem_max: "67108864"
+  net.ipv4.tcp_congestion_control: bbr
+  net.ipv4.tcp_fastopen: "3"
+  net.ipv4.tcp_rmem: 4096 87380 33554432
+  net.ipv4.tcp_wmem: 4096 65536 33554432
+  net.ipv4.tcp_window_scaling: "1"
+  sunrpc.tcp_slot_table_entries: "128"
+  sunrpc.tcp_max_slot_table_entries: "128"
+  user.max_user_namespaces: "11255"
+  net/ipv6/conf/bond0.10/disable_ipv6: "1"
+---
+apiVersion: v1alpha1
+kind: UdevRulesConfig
+rules:
+  - ACTION=="add", SUBSYSTEM=="thunderbolt", ATTR{authorized}=="0", ATTR{authorized}="1"
+  - SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="44", MODE="0660"
+  - KERNEL=="ttyACM[0-9]", GROUP="20", MODE="0660"
+---
+apiVersion: v1alpha1
+kind: CRICustomizationConfig
+name: containerd
+content: |
+  [plugins."io.containerd.cri.v1.images"]
+    discard_unpacked_layers = false
+  [plugins."io.containerd.grpc.v1.cri"]
+    enable_unprivileged_ports = true
+    enable_unprivileged_icmp = true
+---
+apiVersion: v1alpha1
+kind: EtcFileConfig
+name: nfsmount.conf
+mode: 0o644
+contents: |
+  [ NFSMount_Global_Options ]
+  Nolock=True
+  Nconnect=8
+---
+apiVersion: v1alpha1
+kind: ExtensionServiceConfig
+name: nut-client
+configFiles:
+  - content: |-
+      MONITOR {% raw %}{{ op://k8s/talsecret/UPS_HOST }}{% endraw %}:3493 1 {% raw %}{{ op://k8s/talsecret/UPS_USER }}{% endraw %} {% raw %}{{ op://k8s/talsecret/UPS_PASS }}{% endraw %} secondary
+      FINALDELAY 0
+      SHUTDOWNCMD "/sbin/poweroff"
+    mountPath: /usr/local/etc/nut/upsmon.conf
+---
+apiVersion: v1alpha1
+kind: KmsgLogConfig
+name: loki-vector
+url: tcp://127.0.0.1:6050/
+---
+apiVersion: v1alpha1
+kind: KubePrismConfig
+port: 7445
