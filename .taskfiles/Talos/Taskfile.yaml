@@ -4,9 +4,10 @@ version: "3"
 
 vars:
   TALOS_DIR: "{{.ROOT_DIR}}/talos"
-  # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-  TALOS_VERSION: v1.13.9
+  # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+  TALOS_VERSION: v1.14.0
   TALOS_SCHEMATIC_ID: 76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+  TALOS_INSTALLER_BASE: factory.talos.dev/metal-installer
   # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
   KUBERNETES_VERSION: v1.36.3
   TALOS_SCRIPTS_DIR: "{{.ROOT_DIR}}/.taskfiles/Talos/scripts"
@@ -32,8 +33,8 @@ tasks:
     cmd: op run --env-file=".env" -- talhelper gencommand bootstrap --extra-flags=--insecure | bash
 
   upgrade:
-    desc: Upgrade Talos on a node
-    cmd: bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "{{.node}}" "{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" "{{.rollout}}"
+    desc: Upgrade Talos on a single node
+    cmd: bash {{.TALOS_SCRIPTS_DIR}}/upgrade.sh "{{.node}}" "{{.TALOS_INSTALLER_BASE}}/{{.TALOS_SCHEMATIC_ID}}:{{.TALOS_VERSION}}" "{{.rollout}}"
     vars:
       rollout: '{{.rollout | default "false"}}'
     requires:
@@ -44,7 +45,7 @@ tasks:
       - talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1
 
   upgrade-rollout:
-    desc: Rollout Talos upgrade on all nodes
+    desc: Rollout Talos upgrade on explicitly supplied nodes [nodes=comma-separated confirm=all-nodes]
     cmds:
       - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux suspend kustomization --all -n {}
       - kubectl cnpg maintenance set --reusePVC --all-namespaces
@@ -56,10 +57,11 @@ tasks:
       - kubectl cnpg maintenance unset --reusePVC --all-namespaces
       - kubectl get ns -o jsonpath='{.items[*].metadata.name}' | xargs -n1 -I {} flux resume kustomization --all -n {}
       - task: :kubernetes:delete-failed-pods
-    vars:
-      nodes:
-        sh: talosctl config info --output json | jq --join-output '[.nodes[]] | join(",")'
+    requires:
+      vars: ["nodes", "confirm"]
     preconditions:
+      - sh: test "{{.confirm}}" = "all-nodes"
+        msg: Refusing all-node Talos rollout unless confirm=all-nodes is set
       - talosctl config info >/dev/null 2>&1
       - talosctl --nodes {{.nodes}} get machineconfig >/dev/null 2>&1
 

@@ -59,8 +59,8 @@ Key conventions:
 - Talos/Kubernetes versions use annotated comments for Renovate detection:
 
 ```yaml
-# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-TALOS_VERSION: v1.11.3
+# renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+TALOS_VERSION: v1.14.0
 ```
 
 - CRD URLs in bootstrap scripts use similar annotations.
