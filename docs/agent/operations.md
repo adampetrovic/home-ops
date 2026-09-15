@@ -28,8 +28,6 @@ just talos validate-all
 just talos dry-run-all
 just talos apply-node k8s-node-1
 just talos upgrade k8s-node-4
-just talos upgrade-rollout k8s-node-4 all-nodes
-just talos upgrade-k8s <version> k8s-node-1
 just talos fetch-kubeconfig
 ```
 
@@ -48,7 +46,6 @@ just volsync locks-r2 <name> <namespace>
 just volsync unlock-r2 <name> <namespace> <timeout> <verify>
 just volsync check-r2 <name> <namespace>
 just volsync debug-r2 <name> <namespace>
-just volsync restore <name> <namespace>
 ```
 
 R2 lock recovery is deliberately stale-only: `unlock-r2` runs plain `restic unlock`
