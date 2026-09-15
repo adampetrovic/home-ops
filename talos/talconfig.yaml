@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/budimanjojo/talhelper/master/pkg/config/schemas/talconfig.json
 ---
-# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-talosVersion: v1.13.9
+# renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+talosVersion: v1.14.0
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.36.3
 
@@ -23,7 +23,7 @@ nodes:
     ipAddress: 10.0.80.10
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+    talosImageURL: factory.talos.dev/metal-installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: bond0
@@ -41,7 +41,7 @@ nodes:
     ipAddress: 10.0.80.11
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+    talosImageURL: factory.talos.dev/metal-installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: bond0
@@ -59,7 +59,7 @@ nodes:
     ipAddress: 10.0.80.12
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+    talosImageURL: factory.talos.dev/metal-installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: true
     networkInterfaces:
       - interface: bond0
@@ -77,7 +77,7 @@ nodes:
     ipAddress: 10.0.80.13
     installDiskSelector:
       model: Samsung SSD 870
-    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+    talosImageURL: factory.talos.dev/metal-installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: false
     networkInterfaces:
       - interface: bond0
@@ -93,7 +93,7 @@ nodes:
     ipAddress: 10.0.80.14
     installDiskSelector:
       model: CT1000P310SSD8
-    talosImageURL: factory.talos.dev/installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
+    talosImageURL: factory.talos.dev/metal-installer/76c84cdf5aa9d680bbb6bdd1f5d643d11462b5ce7f2b273c1f8d22e8f5e0af2b
     controlPlane: false
     nodeLabels:
       drivers.talos.dev/nic: "i40e"

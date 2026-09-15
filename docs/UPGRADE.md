@@ -11,31 +11,28 @@ Talos Linux OS upgrades are API-driven, typically via `task` files wrapping `tal
 
 Upgrade to the latest patch release of all intermediate minor releases.
 Example: `v1.0.x` -> latest `v1.0.y` -> latest `v1.1.z` -> `v1.2.x`.
-Check official release pages for installer images. Your tasks likely use `factory.talos.dev/installer/`.
+Check official release pages for installer images. Talos v1.14+ Image Factory metal installs use `factory.talos.dev/metal-installer/<schematic>:<version>`.
 
 ## Upgrade Procedure
 
-1.  **Generate latest configuration:**
-    Ensure your Talos machine configurations are up-to-date before upgrading any node. Run the following command:
-    ```sh
-    task talos:generate
-    ```
+1.  **Decide whether this is OS-only or machine-config-changing:**
+    For OS-only upgrades, keep Talos machine-config modernization separate. Do not run `task talos:generate` or `task talos:apply` unless the approved plan includes applying generated machine config.
 
-2.  **Perform the upgrade via Taskfile:**
-    Use your `Taskfile` to upgrade the node. The node IP is the primary parameter:
+2.  **Perform a one-node rollout:**
+    Prefer the GitOps-managed Tuppr `TalosUpgrade` with a temporary `nodeSelector` and `parallelism: 1`. For manual fallback only, use the Taskfile with an explicit node:
     ```sh
     task talos:upgrade node=<NODE_IP>
     ```
     Replace `<NODE_IP>` with the IP address of the node you wish to upgrade.
 
-### Control Plane Nodes
-
--   Upgrade sequentially.
-
 ### Worker Nodes
 
--   Upgrade after control plane nodes are stable.
--   Consider upgrading a small batch first if not using a rollout strategy via your task.
+-   Prefer a worker canary first.
+-   Upgrade remaining workers only after the canary is stable.
+
+### Control Plane Nodes
+
+-   Upgrade one control-plane node at a time after workers are stable.
 
 ## Monitoring
 
