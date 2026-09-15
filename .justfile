@@ -13,10 +13,6 @@ set shell := ['bash', '-euo', 'pipefail', '-c']
 [group('Bootstrap')]
 mod bootstrap "bootstrap"
 
-# GitHub Recipes
-[group('GitHub')]
-mod gh ".just/github"
-
 # Kube Recipes
 [group('Kube')]
 mod kube "kubernetes"
@@ -28,11 +24,3 @@ mod talos "talos"
 # VolSync Recipes
 [group('VolSync')]
 mod volsync "kubernetes/components/volsync"
-
-[private]
-log lvl msg *args:
-    printf '%s %s %s\n' "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" "{{ lvl }}" "{{ msg }}" {{ args }}
-
-[private]
-template file *args:
-    minijinja-cli "{{ file }}" {{ args }} | op inject

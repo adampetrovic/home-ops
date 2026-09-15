@@ -92,7 +92,7 @@ R2/Restic `ReplicationSource` resources for both active PVCs.
 
 The ordinal Kopia sources share `adguard-volsync-secret` but have distinct source
 identities (`adguard-0` and `adguard-1`). R2 uses separate repository secrets and
-paths. The generic `just volsync restore ...` helper is therefore not suitable
+paths. The standard single-PVC VolSync restore flow is therefore not suitable
 for these PVCs.
 
 To restore an ordinal, first suspend reconciliation and stop both AdGuard

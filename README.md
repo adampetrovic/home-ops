@@ -268,19 +268,16 @@ flowchart LR
 
 ### Just Automation
 
-The repository includes comprehensive [just](https://just.systems) automation:
+The repository includes a focused set of [just](https://just.systems) recipes for operations we actually run:
 
 ```bash
 # Cluster operations
 just talos render-config k8s-node-1      # Render native Talos config to stdout
 just talos validate-all                  # Validate all rendered Talos configs
 just talos dry-run-all                   # Dry-run apply all node configs
-just talos bootstrap                     # Bootstrap new cluster
+just talos apply-node k8s-node-1         # Apply a reviewed config change
 just talos fetch-kubeconfig              # Generate kubeconfig
-just talos upgrade k8s-node-4            # Upgrade Talos on a node
-just talos upgrade-rollout k8s-node-4 all-nodes # Rolling Talos upgrade on supplied nodes
-just talos upgrade-k8s v1.36.3 k8s-node-1 # Upgrade Kubernetes version
-just talos reboot-node k8s-node-4        # Reboot node
+just talos upgrade k8s-node-4            # Break-glass Talos OS upgrade on one node
 just talos nuke destroy-cluster          # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
 # Bootstrap / disaster recovery
@@ -295,8 +292,6 @@ just volsync locks-r2 <app> <ns>   # Inspect R2 Restic locks
 just volsync unlock-r2 <app> <ns>  # Safely remove stale R2 locks
 just volsync check-r2 <app> <ns>   # Check R2 Restic metadata
 just volsync debug-r2 <app> <ns>   # Create an R2 Restic debug Pod
-just volsync restore <app> <ns>    # Restore from snapshot
-just volsync cleanup               # Delete volume populator PVCs
 
 # Kubernetes operations
 just kube delete-failed-pods       # Delete pods with failed status
@@ -372,10 +367,8 @@ Complete destructive cluster rebuild capability:
 ├── NODE-REPLACEMENT.md   # Node replacement guide
 └── UPGRADE.md            # Upgrade procedures
 
-.justfile                  # Root just module definitions
-📁 .just/                 # Miscellaneous just modules
-├── 📁 github/            # GitHub recipes
-📁 talos/scripts/         # Talos helper scripts used by just recipes
+.justfile                 # Root just module definitions
+📁 talos/scripts/        # Talos helper scripts used by just recipes
 📁 kubernetes/components/volsync/
 ├── mod.just              # VolSync just recipes
 ├── 📁 scripts/           # VolSync helper scripts
