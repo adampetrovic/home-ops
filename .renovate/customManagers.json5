@@ -33,5 +33,15 @@
       ],
       datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
     },
+    {
+      customType: "regex",
+      description: "Process Talos Image Factory installer tags in native node templates",
+      managerFilePatterns: ["/(^|/)talos/nodes/.+\\.ya?ml\\.j2$/"],
+      matchStrings: [
+        "factory\\.talos\\.dev/metal-installer/\\{\\{\\s*schematic\\s*\\}\\}:(?<currentValue>v\\d+\\.\\d+\\.\\d+)",
+      ],
+      datasourceTemplate: "docker",
+      depNameTemplate: "ghcr.io/siderolabs/talos",
+    },
   ],
 }
