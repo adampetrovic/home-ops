@@ -266,45 +266,45 @@ flowchart LR
 
 ## 🔧 Operations & Automation
 
-### Task Automation
+### Just Automation
 
-The repository includes comprehensive [Taskfile](https://taskfile.dev) automation:
+The repository includes comprehensive [just](https://just.systems) automation:
 
 ```bash
 # Cluster operations
-task talos:render-config node=k8s-node-1 # Render native Talos config to stdout
-task talos:validate-all                  # Validate all rendered Talos configs
-task talos:dry-run-all                   # Dry-run apply all node configs
-task talos:bootstrap                     # Bootstrap new cluster
-task talos:fetch-kubeconfig              # Generate kubeconfig
-task talos:upgrade node=k8s-node-4       # Upgrade Talos on a node
-task talos:upgrade-rollout               # Rolling Talos upgrade on all nodes
-task talos:upgrade-k8s node=k8s-node-1 to=v1.36.3 # Upgrade Kubernetes version
-task talos:reboot-node node=k8s-node-4   # Reboot node
-task talos:nuke                          # Reset nodes to maintenance mode (DESTRUCTIVE!)
+just talos render-config k8s-node-1      # Render native Talos config to stdout
+just talos validate-all                  # Validate all rendered Talos configs
+just talos dry-run-all                   # Dry-run apply all node configs
+just talos bootstrap                     # Bootstrap new cluster
+just talos fetch-kubeconfig              # Generate kubeconfig
+just talos upgrade k8s-node-4            # Upgrade Talos on a node
+just talos upgrade-rollout k8s-node-4 all-nodes # Rolling Talos upgrade on supplied nodes
+just talos upgrade-k8s v1.36.3 k8s-node-1 # Upgrade Kubernetes version
+just talos reboot-node k8s-node-4        # Reboot node
+just talos nuke destroy-cluster          # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
 # Bootstrap / disaster recovery
-task bootstrap:preflight      # Check tools, credentials, rendering, and node reachability
-task bootstrap:verify         # Verify the core bootstrap substrate
-task bootstrap:verify-full    # Verify full GitOps/storage/app convergence
+just bootstrap preflight      # Check tools, credentials, rendering, and node reachability
+just bootstrap verify         # Verify the core bootstrap substrate
+just bootstrap verify-full    # Verify full GitOps/storage/app convergence
 
 # Volume backup operations
-task volsync:list             # List primary Kopia snapshots (requires: app=<name>)
-task volsync:backup           # Trigger and verify Kopia/R2 backup (requires: app=<name>)
-task volsync:locks-r2         # Inspect R2 Restic locks (requires: app=<name>)
-task volsync:unlock-r2        # Safely remove stale R2 locks (requires: app=<name>)
-task volsync:check-r2         # Check R2 Restic metadata (requires: app=<name>)
-task volsync:debug-r2         # Create an R2 Restic debug Pod (requires: app=<name>)
-task volsync:restore          # Restore from snapshot (requires: app=<name>)
-task volsync:cleanup          # Delete volume populator PVCs
+just volsync list <app> <ns>       # List primary Kopia snapshots
+just volsync backup <app> <ns>     # Trigger and verify Kopia/R2 backup
+just volsync locks-r2 <app> <ns>   # Inspect R2 Restic locks
+just volsync unlock-r2 <app> <ns>  # Safely remove stale R2 locks
+just volsync check-r2 <app> <ns>   # Check R2 Restic metadata
+just volsync debug-r2 <app> <ns>   # Create an R2 Restic debug Pod
+just volsync restore <app> <ns>    # Restore from snapshot
+just volsync cleanup               # Delete volume populator PVCs
 
 # Kubernetes operations
-task k8s:delete-failed-pods   # Delete pods with failed status
+just kube delete-failed-pods       # Delete pods with failed status
 ```
 
 ### Upgrade Procedures
 
-- **Talos OS**: Automated rolling upgrades via [Tuppr](https://github.com/home-operations/tuppr) or manual via `task talos:upgrade node=<ip>`
+- **Talos OS**: Automated rolling upgrades via [Tuppr](https://github.com/home-operations/tuppr) or manual via `just talos upgrade <node-name>`
 - **Kubernetes**: Automated via Tuppr or manual coordinated upgrades following compatibility matrix
 - **Applications**: Automated via Renovate bot + Flux CD
 - **Full documentation**: See [docs/UPGRADE.md](docs/UPGRADE.md)
@@ -312,11 +312,11 @@ task k8s:delete-failed-pods   # Delete pods with failed status
 ### Disaster Recovery
 
 Complete destructive cluster rebuild capability:
-1. **Preflight**: `task bootstrap:preflight` checks tools, credentials, rendering, and Talos node reachability
-2. **Hardware Reset**: PXE boot into Talos maintenance mode or run `task talos:nuke`
+1. **Preflight**: `just bootstrap preflight` checks tools, credentials, rendering, and Talos node reachability
+2. **Hardware Reset**: PXE boot into Talos maintenance mode or run `just talos nuke destroy-cluster`
 3. **Cluster Bootstrap**: `./scripts/bootstrap-cluster.sh` recreates Talos/Kubernetes and installs Flux
 4. **Backup Restoration**: VolSync automatically restores PVCs from Kopia on NAS/NFS; R2 is the manual fallback copy
-5. **Verification**: `task bootstrap:verify` then `task bootstrap:verify-full`
+5. **Verification**: `just bootstrap verify` then `just bootstrap verify-full`
 6. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
 
 ---
@@ -372,12 +372,14 @@ Complete destructive cluster rebuild capability:
 ├── NODE-REPLACEMENT.md   # Node replacement guide
 └── UPGRADE.md            # Upgrade procedures
 
-📁 .taskfiles/            # Task automation scripts
-├── 📁 Kubernetes/        # Kubernetes tasks
-├── 📁 Talos/             # Talos tasks and scripts
-└── 📁 VolSync/           # VolSync tasks and templates
-
-Taskfile.yaml             # Main task definitions
+.justfile                  # Root just module definitions
+📁 .just/                 # Miscellaneous just modules
+├── 📁 github/            # GitHub recipes
+📁 talos/scripts/         # Talos helper scripts used by just recipes
+📁 kubernetes/components/volsync/
+├── mod.just              # VolSync just recipes
+├── 📁 scripts/           # VolSync helper scripts
+└── 📁 templates/         # VolSync operation templates
 ```
 
 ### Application Organization
@@ -403,7 +405,7 @@ app-name/
 - **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management (external), UniFi gateway for internal DNS
 - **Secrets**: 1Password account for secrets management
-- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `minijinja-cli`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `task`, `jq`, `yq`, etc.)
+- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `minijinja-cli`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `just`, `jq`, `yq`, etc.)
 
 ### Quick Start
 
@@ -412,7 +414,7 @@ app-name/
 3. **Prepare hardware**: Boot Talos Linux maintenance mode on your nodes
 4. **Run bootstrap preflight**:
    ```bash
-   task bootstrap:preflight
+   just bootstrap preflight
    ```
 5. **Bootstrap cluster**:
    ```bash
@@ -420,8 +422,8 @@ app-name/
    ```
 6. **Verify convergence**:
    ```bash
-   task bootstrap:verify
-   task bootstrap:verify-full
+   just bootstrap verify
+   just bootstrap verify-full
    ```
 
 ### Configuration Areas

@@ -4,7 +4,7 @@ This document is a reminder for upgrading your Talos Linux cluster, reflecting c
 
 ## Overview
 
-Talos Linux OS upgrades are API-driven, typically via `task` files wrapping `talosctl` commands and custom scripts. Upgrades use an A-B image scheme for rollbacks.
+Talos Linux OS upgrades are API-driven, typically via `just` recipes wrapping `talosctl` commands and custom scripts. Upgrades use an A-B image scheme for rollbacks.
 **Note:** Talos OS upgrade does not upgrade Kubernetes.
 
 ## Supported Upgrade Paths
@@ -16,12 +16,12 @@ Check official release pages for installer images. Talos v1.14+ Image Factory me
 ## Upgrade Procedure
 
 1.  **Decide whether this is OS-only or machine-config-changing:**
-    For OS-only upgrades, keep Talos machine-config modernization separate. Do not run `task talos:apply-node` or `task talos:apply-node-all` unless the approved plan includes applying rendered machine config.
+    For OS-only upgrades, keep Talos machine-config modernization separate. Do not run `just talos apply-node` or `just talos apply-insecure-all` unless the approved plan includes applying rendered machine config.
 
 2.  **Perform a one-node rollout:**
-    Prefer the GitOps-managed Tuppr `TalosUpgrade` with a temporary `nodeSelector` and `parallelism: 1`. For manual fallback only, use the Taskfile with an explicit node:
+    Prefer the GitOps-managed Tuppr `TalosUpgrade` with a temporary `nodeSelector` and `parallelism: 1`. For manual fallback only, use the just recipe with an explicit node:
     ```sh
-    task talos:upgrade node=<node-name>
+    just talos upgrade <node-name>
     ```
     Replace `<node-name>` with a node from `talos/inventory.yaml`, for example `k8s-node-4`.
 
@@ -40,13 +40,13 @@ Kernel messages directly from the node:
 ```sh
 talosctl dmesg -f --nodes <NODE_IP>
 ```
-The upgrade task uses `--wait=true`, so it will block until completion or timeout. The script also has explicit health checks.
+The upgrade recipe uses `--wait=true`, so it will block until completion or timeout. The script also has explicit health checks.
 
 ## Key Considerations
 
 -   **Workload Disruption:** Node reboots are expected. The script attempts to manage service states (Flux, CNPG).
 -   **Kubernetes Compatibility:** Verify Talos & K8s version compatibility.
--   **Machine Config Changes:** Review release notes for any impact on the native Talos templates under `talos/`; validate with `task talos:validate-all` and dry-run with `task talos:dry-run-all` before applying.
+-   **Machine Config Changes:** Review release notes for any impact on the native Talos templates under `talos/`; validate with `just talos validate-all` and dry-run with `just talos dry-run-all` before applying.
 
 ## Upgrading Kubernetes
 

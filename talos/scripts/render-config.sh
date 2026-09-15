@@ -12,7 +12,7 @@ if [[ -z "${NODE// }" ]]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 TALOS_DIR="${ROOT_DIR}/talos"
 
 ROLE=""

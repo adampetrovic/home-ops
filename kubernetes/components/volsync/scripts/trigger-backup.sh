@@ -36,7 +36,7 @@ cleanup_manual_trigger() {
             get replicationsource "${cleanup_source}" \
             -o jsonpath='{.spec.trigger.manual}' 2>/dev/null); then
             if [[ ${current_manual} != "${cleanup_token}" ]]; then
-                echo "Manual trigger on ${cleanup_source} no longer belongs to this task; leaving it unchanged."
+                echo "Manual trigger on ${cleanup_source} no longer belongs to this run; leaving it unchanged."
                 cleanup_source=""
                 cleanup_token=""
                 return 0
@@ -64,7 +64,7 @@ run_backup() {
     local label=$2
     local existing_manual patch resource_version source_json status token rc
 
-    token="task-$(date -u +%Y%m%dT%H%M%S)-$$"
+    token="just-$(date -u +%Y%m%dT%H%M%S)-$$"
     source_json=$(kubectl --context "${CONTEXT}" -n "${NAMESPACE}" \
         get replicationsource "${source}" -o json)
     status=$(jq -r '[.status.conditions[]?

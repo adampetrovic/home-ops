@@ -22,7 +22,7 @@ if ! command -v minijinja-cli >/dev/null 2>&1; then
     exit 69
 fi
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export MINIJINJA_CONFIG_FILE="${MINIJINJA_CONFIG_FILE:-${ROOT_DIR}/.minijinja.toml}"
 
 if [[ "${TALOS_SKIP_OP_INJECT:-false}" == "true" ]]; then

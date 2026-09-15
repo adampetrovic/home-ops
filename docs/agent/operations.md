@@ -16,44 +16,44 @@ Why: keep paging signals symptom-based instead of brittle cause-based log regexe
 
 Prefer change IDs when referencing revisions. Use `jj diff --git` for reviewable diffs.
 
-## Task Automation
+## Just Automation
 
-Run tasks with `task <namespace>:<task>`.
+Run recipes with `just <module> <recipe> [args...]`.
 
 Talos operations:
 
 ```bash
-task talos:render-config node=k8s-node-1
-task talos:validate-all
-task talos:dry-run-all
-task talos:apply-node node=k8s-node-1
-task talos:upgrade node=k8s-node-4
-task talos:upgrade-rollout
-task talos:upgrade-k8s node=k8s-node-1 to=<version>
-task talos:fetch-kubeconfig
+just talos render-config k8s-node-1
+just talos validate-all
+just talos dry-run-all
+just talos apply-node k8s-node-1
+just talos upgrade k8s-node-4
+just talos upgrade-rollout k8s-node-4 all-nodes
+just talos upgrade-k8s <version> k8s-node-1
+just talos fetch-kubeconfig
 ```
 
 Kubernetes:
 
 ```bash
-task k8s:delete-failed-pods
+just kube delete-failed-pods
 ```
 
 VolSync:
 
 ```bash
-task volsync:list app=<name> ns=<namespace>
-task volsync:backup app=<name> ns=<namespace> type=<kopia|r2|all>
-task volsync:locks-r2 app=<name> ns=<namespace>
-task volsync:unlock-r2 app=<name> ns=<namespace> verify=<false|true>
-task volsync:check-r2 app=<name> ns=<namespace>
-task volsync:debug-r2 app=<name> ns=<namespace>
-task volsync:restore app=<name> ns=<namespace>
+just volsync list <name> <namespace>
+just volsync backup <name> <namespace> <kopia|r2|all>
+just volsync locks-r2 <name> <namespace>
+just volsync unlock-r2 <name> <namespace> <timeout> <verify>
+just volsync check-r2 <name> <namespace>
+just volsync debug-r2 <name> <namespace>
+just volsync restore <name> <namespace>
 ```
 
 R2 lock recovery is deliberately stale-only: `unlock-r2` runs plain `restic unlock`
 after checking for active repository owners. It has no `--remove-all` or force mode.
-All R2 operational tasks pin the `admin@home-kubernetes` context.
+All R2 operational recipes pin the `admin@home-kubernetes` context.
 
 ## GitOps Reconciliation
 
