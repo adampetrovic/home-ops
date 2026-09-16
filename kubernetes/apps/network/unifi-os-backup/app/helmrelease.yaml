@@ -74,8 +74,7 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /healthz
+                  tcpSocket:
                     port: &port 8080
                   initialDelaySeconds: 5
                   periodSeconds: 30
@@ -86,12 +85,11 @@ spec:
                 enabled: true
                 custom: true
                 spec:
-                  httpGet:
-                    path: /readyz
+                  tcpSocket:
                     port: *port
-                  periodSeconds: 30
+                  periodSeconds: 10
                   timeoutSeconds: 5
-                  failureThreshold: 120
+                  failureThreshold: 30
             resources:
               requests:
                 cpu: 10m
