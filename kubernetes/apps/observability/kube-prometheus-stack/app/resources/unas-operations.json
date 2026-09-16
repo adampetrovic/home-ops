@@ -726,7 +726,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "UNAS is now the shared storage dependency for Home Assistant music, Plex/media libraries, Arr imports, qBittorrent/SAB downloads, Immich photos, Garage object data, and the primary VolSync Kopia repository. Use the top row first: exporter reachability, RAID/SMART health, pool pressure, NFS server pressure, and whether the NVMe write-back cache is helping or accumulating dirty data.",
+        "content": "UNAS is now the shared storage dependency for Home Assistant music, Plex/media libraries, Arr imports, qBittorrent/SAB downloads, Immich photos, Garage object data, and the primary VolSync Kopia repository. Use the top row first: exporter reachability, RAID/SMART health, pool pressure, NFS server pressure, and whether the NVMe write-back cache is helping or accumulating dirty data. The Share drives row tracks per-share `.data` usage from the UNAS filesystem so media/photos/garage/kopia growth is visible without relying on Unpoller.",
         "mode": "markdown"
       },
       "pluginVersion": "10.2.3",
@@ -1649,7 +1649,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 45
       },
       "id": 21,
       "panels": [],
@@ -1696,7 +1696,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 29
+        "y": 46
       },
       "id": 22,
       "options": {
@@ -1769,7 +1769,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 29
+        "y": 46
       },
       "id": 23,
       "options": {
@@ -1842,7 +1842,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 29
+        "y": 46
       },
       "id": 24,
       "options": {
@@ -1915,7 +1915,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 29
+        "y": 46
       },
       "id": 25,
       "options": {
@@ -2012,7 +2012,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 53
       },
       "id": 26,
       "options": {
@@ -2134,7 +2134,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 53
       },
       "id": 27,
       "options": {
@@ -2245,7 +2245,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 61
       },
       "id": 28,
       "options": {
@@ -2330,7 +2330,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 44
+        "y": 61
       },
       "id": 29,
       "options": {
@@ -2370,7 +2370,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 69
       },
       "id": 30,
       "panels": [],
@@ -2417,7 +2417,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 53
+        "y": 70
       },
       "id": 31,
       "options": {
@@ -2490,7 +2490,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 53
+        "y": 70
       },
       "id": 32,
       "options": {
@@ -2563,7 +2563,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 53
+        "y": 70
       },
       "id": 33,
       "options": {
@@ -2636,7 +2636,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 53
+        "y": 70
       },
       "id": 34,
       "options": {
@@ -2733,7 +2733,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 60
+        "y": 77
       },
       "id": 35,
       "options": {
@@ -2843,7 +2843,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 60
+        "y": 77
       },
       "id": 36,
       "options": {
@@ -2975,7 +2975,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 68
+        "y": 85
       },
       "id": 37,
       "options": {
@@ -3085,7 +3085,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 68
+        "y": 85
       },
       "id": 38,
       "options": {
@@ -3137,7 +3137,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 93
       },
       "id": 39,
       "panels": [],
@@ -3208,7 +3208,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 77
+        "y": 94
       },
       "id": 40,
       "options": {
@@ -3307,7 +3307,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 77
+        "y": 94
       },
       "id": 41,
       "options": {
@@ -3406,7 +3406,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 85
+        "y": 102
       },
       "id": 42,
       "options": {
@@ -3516,7 +3516,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 85
+        "y": 102
       },
       "id": 43,
       "options": {
@@ -3557,7 +3557,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 110
       },
       "id": 44,
       "panels": [],
@@ -3628,7 +3628,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 111
       },
       "id": 45,
       "options": {
@@ -3727,7 +3727,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 111
       },
       "id": 46,
       "options": {
@@ -3837,7 +3837,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 102
+        "y": 119
       },
       "id": 47,
       "options": {
@@ -3958,7 +3958,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 102
+        "y": 119
       },
       "id": 48,
       "options": {
@@ -4032,7 +4032,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 110
+        "y": 127
       },
       "id": 49,
       "options": {
@@ -4094,7 +4094,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 110
+        "y": 127
       },
       "id": 50,
       "options": {
@@ -4134,7 +4134,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 118
+        "y": 135
       },
       "id": 51,
       "panels": [],
@@ -4205,7 +4205,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 119
+        "y": 136
       },
       "id": 52,
       "options": {
@@ -4326,7 +4326,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 119
+        "y": 136
       },
       "id": 53,
       "options": {
@@ -4437,7 +4437,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 127
+        "y": 144
       },
       "id": 54,
       "options": {
@@ -4547,7 +4547,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 127
+        "y": 144
       },
       "id": 55,
       "options": {
@@ -4581,6 +4581,583 @@
       ],
       "title": "System filesystems",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 56,
+      "panels": [],
+      "title": "Share drives",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Per-share .data usage from btrfs filesystem du, exported via node_exporter textfile collector.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 57,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_usage_bytes{job=\"unas-node\",instance=\"$instance\",kind=\"total\"}",
+          "legendFormat": "{{share}}",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "title": "Share usage by share",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Largest UNAS share by current .data usage.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 12,
+        "y": 29
+      },
+      "id": 58,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "topk(1, unas_share_usage_bytes{job=\"unas-node\",instance=\"$instance\",kind=\"total\"})",
+          "legendFormat": "{{share}}",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "title": "Largest share",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Whether the share usage textfile collector completed successfully.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "Fail"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "OK"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 16,
+        "y": 29
+      },
+      "id": 59,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_collect_success{job=\"unas-node\",instance=\"$instance\"}",
+          "legendFormat": "{{share}}",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "title": "Share collector",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Slowest per-share usage scan duration. This catches expensive btrfs du walks.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 120
+              }
+            ]
+          },
+          "unit": "s",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 29
+      },
+      "id": 60,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max(unas_share_usage_scan_duration_seconds{job=\"unas-node\",instance=\"$instance\"})",
+          "legendFormat": "{{share}}",
+          "range": false,
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "title": "Max scan time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Per-share usage trend for media, photos, garage, and kopia.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes",
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 37
+      },
+      "id": 61,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_usage_bytes{job=\"unas-node\",instance=\"$instance\",kind=\"total\"}",
+          "legendFormat": "{{share}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Share usage over time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Collector runtime; useful because these are periodic filesystem usage scans.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s",
+          "decimals": 0,
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 37
+      },
+      "id": 62,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_usage_scan_duration_seconds{job=\"unas-node\",instance=\"$instance\"}",
+          "legendFormat": "{{share}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_collect_duration_seconds{job=\"unas-node\",instance=\"$instance\"}",
+          "legendFormat": "total collect",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Share scan duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$${DS_PROMETHEUS}"
+      },
+      "description": "Share metadata discovered from UNAS Samba configuration. Quotas are currently exposed separately and zero means unlimited.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 37
+      },
+      "id": 63,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "unas_share_info{job=\"unas-node\",instance=\"$instance\"}",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "title": "Share details",
+      "type": "table"
     }
   ],
   "refresh": "30s",
@@ -4647,6 +5224,6 @@
   "timezone": "browser",
   "title": "UNAS Operations",
   "uid": "unas-operations",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
