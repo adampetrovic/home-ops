@@ -150,6 +150,7 @@ kind: GrafanaDashboard
 metadata:
   name: unas-operations
 spec:
+  resyncPeriod: 1m
   allowCrossNamespaceImport: true
   instanceSelector:
     matchLabels:
