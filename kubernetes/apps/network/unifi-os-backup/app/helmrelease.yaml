@@ -47,25 +47,25 @@ spec:
               LISTEN_ADDRESS: 0.0.0.0:8080
               BACKUP_DIRECTORY: /backups
               CONSOLES: cloudkey,unas
-              CONSOLE_CLOUDKEY_URL: https://unifi.${SECRET_DOMAIN}
+              CONSOLE_CLOUDKEY_URL: https://10.0.0.1
               CONSOLE_CLOUDKEY_USERNAME_FILE: /run/secrets/unifi-os-backup/username
               CONSOLE_CLOUDKEY_PASSWORD_FILE: /run/secrets/unifi-os-backup/password
               CONSOLE_CLOUDKEY_TARGETS: full,network
               CONSOLE_CLOUDKEY_BACKUP_INTERVAL: 24h
               CONSOLE_CLOUDKEY_HEALTH_MAX_AGE: 48h
               CONSOLE_CLOUDKEY_HTTP_TIMEOUT: 30m
-              CONSOLE_CLOUDKEY_SKIP_TLS_VERIFY: "false"
+              CONSOLE_CLOUDKEY_SKIP_TLS_VERIFY: "true"
               CONSOLE_CLOUDKEY_RETENTION_DAILY: "14"
               CONSOLE_CLOUDKEY_RETENTION_WEEKLY: "12"
               CONSOLE_CLOUDKEY_WEEKLY_INTERVAL: 168h
-              CONSOLE_UNAS_URL: https://unas.${SECRET_DOMAIN}
+              CONSOLE_UNAS_URL: https://unas-direct.${SECRET_DOMAIN}
               CONSOLE_UNAS_USERNAME_FILE: /run/secrets/unifi-os-backup/username
               CONSOLE_UNAS_PASSWORD_FILE: /run/secrets/unifi-os-backup/password
               CONSOLE_UNAS_TARGETS: full
               CONSOLE_UNAS_BACKUP_INTERVAL: 24h
               CONSOLE_UNAS_HEALTH_MAX_AGE: 48h
               CONSOLE_UNAS_HTTP_TIMEOUT: 30m
-              CONSOLE_UNAS_SKIP_TLS_VERIFY: "false"
+              CONSOLE_UNAS_SKIP_TLS_VERIFY: "true"
               CONSOLE_UNAS_RETENTION_DAILY: "14"
               CONSOLE_UNAS_RETENTION_WEEKLY: "12"
               CONSOLE_UNAS_WEEKLY_INTERVAL: 168h
