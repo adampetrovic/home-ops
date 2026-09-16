@@ -546,7 +546,6 @@ Wait for the NAS to fully boot before expecting VolSync and media pods to recove
 
 ## Notes
 
-- **NUT client**: All nodes have `nut-client` configured. For _unplanned_ outages, the UPS will signal a graceful shutdown automatically via NUT. This runbook is for _planned_ shutdowns where you want a cleaner process.
+- **UPS automation**: Talos nodes do not currently run a NUT client; unplanned outages will not trigger automatic node shutdown from UPS signalling. This runbook is the supported planned shutdown path.
 - **Estimated downtime**: Shutdown takes ~5 minutes. Startup and full recovery typically takes 10-15 minutes once power is restored.
 - **Synology NAS**: The NAS is external to the cluster but critical for NFS-backed storage (Kopia backups, media). Ensure it's powered on before the cluster nodes.
-
