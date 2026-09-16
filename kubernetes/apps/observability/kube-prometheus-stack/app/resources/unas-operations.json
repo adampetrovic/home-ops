@@ -138,7 +138,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -223,8 +223,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 3,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "id": 2,
@@ -258,7 +258,7 @@
           "instant": true
         }
       ],
-      "title": "RAID attention",
+      "title": "RAID alerts",
       "type": "stat"
     },
     {
@@ -308,8 +308,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 6,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "id": 3,
@@ -382,8 +382,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 9,
+        "w": 6,
+        "x": 18,
         "y": 0
       },
       "id": 4,
@@ -448,9 +448,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 12,
-        "y": 0
+        "w": 6,
+        "x": 0,
+        "y": 4
       },
       "id": 5,
       "options": {
@@ -483,7 +483,7 @@
           "instant": true
         }
       ],
-      "title": "NFS throughput",
+      "title": "NFS I/O",
       "type": "stat"
     },
     {
@@ -522,9 +522,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 15,
-        "y": 0
+        "w": 6,
+        "x": 6,
+        "y": 4
       },
       "id": 6,
       "options": {
@@ -596,9 +596,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 18,
-        "y": 0
+        "w": 6,
+        "x": 12,
+        "y": 4
       },
       "id": 7,
       "options": {
@@ -631,7 +631,7 @@
           "instant": true
         }
       ],
-      "title": "Cache read hit",
+      "title": "Read hit",
       "type": "stat"
     },
     {
@@ -670,9 +670,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 21,
-        "y": 0
+        "w": 6,
+        "x": 18,
+        "y": 4
       },
       "id": 8,
       "options": {
@@ -709,37 +709,12 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "grafana",
-        "uid": "-- Grafana --"
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "id": 9,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "UNAS is now the shared storage dependency for Home Assistant music, Plex/media libraries, Arr imports, qBittorrent/SAB downloads, Immich photos, Garage object data, and the primary VolSync Kopia repository. Use the top row first: exporter reachability, RAID/SMART health, pool pressure, NFS server pressure, and whether the NVMe write-back cache is helping or accumulating dirty data. The Share drives row tracks per-share `.data` usage from the UNAS filesystem so media/photos/garage/kopia growth is visible without relying on Unpoller.",
-        "mode": "markdown"
-      },
-      "pluginVersion": "10.2.3",
-      "title": "Why this exists",
-      "type": "text"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 8
       },
       "id": 10,
       "panels": [],
@@ -796,7 +771,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 8
+        "y": 9
       },
       "id": 11,
       "options": {
@@ -829,7 +804,7 @@
           "instant": true
         }
       ],
-      "title": "Critical dependents",
+      "title": "Dependents",
       "type": "stat"
     },
     {
@@ -870,7 +845,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 8
+        "y": 9
       },
       "id": 12,
       "options": {
@@ -944,7 +919,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 8
+        "y": 9
       },
       "id": 13,
       "options": {
@@ -1018,7 +993,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 8
+        "y": 9
       },
       "id": 14,
       "options": {
@@ -1092,7 +1067,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 8
+        "y": 9
       },
       "id": 15,
       "options": {
@@ -1178,7 +1153,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 8
+        "y": 9
       },
       "id": 16,
       "options": {
@@ -1211,7 +1186,7 @@
           "instant": true
         }
       ],
-      "title": "Textfile collector",
+      "title": "Collector",
       "type": "stat"
     },
     {
@@ -1278,7 +1253,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 17,
       "options": {
@@ -1388,7 +1363,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 13
       },
       "id": 18,
       "options": {
@@ -1487,7 +1462,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "id": 19,
       "options": {
@@ -1597,7 +1572,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 21
       },
       "id": 20,
       "options": {
@@ -1649,7 +1624,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "id": 21,
       "panels": [],
@@ -1696,7 +1671,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 46
+        "y": 47
       },
       "id": 22,
       "options": {
@@ -1769,7 +1744,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 46
+        "y": 47
       },
       "id": 23,
       "options": {
@@ -1842,7 +1817,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 46
+        "y": 47
       },
       "id": 24,
       "options": {
@@ -1915,7 +1890,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 46
+        "y": 47
       },
       "id": 25,
       "options": {
@@ -2012,7 +1987,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 53
+        "y": 54
       },
       "id": 26,
       "options": {
@@ -2134,7 +2109,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 53
+        "y": 54
       },
       "id": 27,
       "options": {
@@ -2245,7 +2220,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 61
+        "y": 62
       },
       "id": 28,
       "options": {
@@ -2330,7 +2305,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 61
+        "y": 62
       },
       "id": 29,
       "options": {
@@ -2370,7 +2345,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 70
       },
       "id": 30,
       "panels": [],
@@ -2417,7 +2392,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 70
+        "y": 71
       },
       "id": 31,
       "options": {
@@ -2490,7 +2465,7 @@
         "h": 7,
         "w": 6,
         "x": 6,
-        "y": 70
+        "y": 71
       },
       "id": 32,
       "options": {
@@ -2563,7 +2538,7 @@
         "h": 7,
         "w": 6,
         "x": 12,
-        "y": 70
+        "y": 71
       },
       "id": 33,
       "options": {
@@ -2636,7 +2611,7 @@
         "h": 7,
         "w": 6,
         "x": 18,
-        "y": 70
+        "y": 71
       },
       "id": 34,
       "options": {
@@ -2733,7 +2708,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 77
+        "y": 78
       },
       "id": 35,
       "options": {
@@ -2843,7 +2818,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 77
+        "y": 78
       },
       "id": 36,
       "options": {
@@ -2975,7 +2950,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 85
+        "y": 86
       },
       "id": 37,
       "options": {
@@ -3085,7 +3060,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 85
+        "y": 86
       },
       "id": 38,
       "options": {
@@ -3137,7 +3112,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 93
+        "y": 94
       },
       "id": 39,
       "panels": [],
@@ -3208,7 +3183,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 94
+        "y": 95
       },
       "id": 40,
       "options": {
@@ -3307,7 +3282,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 94
+        "y": 95
       },
       "id": 41,
       "options": {
@@ -3406,7 +3381,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 102
+        "y": 103
       },
       "id": 42,
       "options": {
@@ -3516,7 +3491,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 102
+        "y": 103
       },
       "id": 43,
       "options": {
@@ -3557,7 +3532,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 110
+        "y": 111
       },
       "id": 44,
       "panels": [],
@@ -3628,7 +3603,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 111
+        "y": 112
       },
       "id": 45,
       "options": {
@@ -3727,7 +3702,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 111
+        "y": 112
       },
       "id": 46,
       "options": {
@@ -3837,7 +3812,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 119
+        "y": 120
       },
       "id": 47,
       "options": {
@@ -3958,7 +3933,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 119
+        "y": 120
       },
       "id": 48,
       "options": {
@@ -4032,7 +4007,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 127
+        "y": 128
       },
       "id": 49,
       "options": {
@@ -4094,7 +4069,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 127
+        "y": 128
       },
       "id": 50,
       "options": {
@@ -4134,7 +4109,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 135
+        "y": 136
       },
       "id": 51,
       "panels": [],
@@ -4205,7 +4180,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 136
+        "y": 137
       },
       "id": 52,
       "options": {
@@ -4326,7 +4301,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 136
+        "y": 137
       },
       "id": 53,
       "options": {
@@ -4437,7 +4412,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 144
+        "y": 145
       },
       "id": 54,
       "options": {
@@ -4547,7 +4522,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 144
+        "y": 145
       },
       "id": 55,
       "options": {
@@ -4588,7 +4563,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 56,
       "panels": [],
@@ -4625,7 +4600,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 30
       },
       "id": 57,
       "options": {
@@ -4658,7 +4633,7 @@
           "instant": true
         }
       ],
-      "title": "Share usage by share",
+      "title": "Share usage",
       "type": "stat"
     },
     {
@@ -4691,7 +4666,7 @@
         "h": 8,
         "w": 4,
         "x": 12,
-        "y": 29
+        "y": 30
       },
       "id": 58,
       "options": {
@@ -4777,7 +4752,7 @@
         "h": 8,
         "w": 4,
         "x": 16,
-        "y": 29
+        "y": 30
       },
       "id": 59,
       "options": {
@@ -4851,7 +4826,7 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 29
+        "y": 30
       },
       "id": 60,
       "options": {
@@ -4951,7 +4926,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 37
+        "y": 38
       },
       "id": 61,
       "options": {
@@ -5051,7 +5026,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 37
+        "y": 38
       },
       "id": 62,
       "options": {
@@ -5125,7 +5100,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 37
+        "y": 38
       },
       "id": 63,
       "options": {
@@ -5224,6 +5199,6 @@
   "timezone": "browser",
   "title": "UNAS Operations",
   "uid": "unas-operations",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
