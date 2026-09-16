@@ -22,6 +22,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 - Use Gateway API routes only. Do not add legacy `Ingress` resources.
 - Validate changed YAML/JSON files that declare schemas before reporting completion.
 - Preserve `dependsOn` chains and be cautious with `prune: true`; removing resources from Git deletes them from the cluster.
+- Ask for confirmation before destructive or live-impacting operations such as cluster mutations, secret changes, production database work, node rollouts, or service restarts.
 
 ## Required Read Gates
 
