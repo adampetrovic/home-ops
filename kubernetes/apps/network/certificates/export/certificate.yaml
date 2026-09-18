@@ -2,16 +2,16 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "${SECRET_DOMAIN/./-}-production"
+  name: "petrovic-network-production"
 spec:
-  secretName: "${SECRET_DOMAIN/./-}-production-tls"
+  secretName: "petrovic-network-production-tls"
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "${SECRET_DOMAIN}"
+  commonName: "petrovic.network"
   dnsNames:
-    - "${SECRET_DOMAIN}"
-    - "*.${SECRET_DOMAIN}"
+    - "petrovic.network"
+    - "*.petrovic.network"
     - "${SECRET_PUBLIC_DOMAIN}"
     - "*.${SECRET_PUBLIC_DOMAIN}"
     - "${SECRET_PUBLIC_ANON_DOMAIN}"

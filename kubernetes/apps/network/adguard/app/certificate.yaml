@@ -8,9 +8,9 @@ spec:
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: dns.${SECRET_DOMAIN}
+  commonName: dns.petrovic.network
   dnsNames:
-    - dns.${SECRET_DOMAIN}
-    - adguard.${SECRET_DOMAIN}
+    - dns.petrovic.network
+    - adguard.petrovic.network
   privateKey:
     rotationPolicy: Always

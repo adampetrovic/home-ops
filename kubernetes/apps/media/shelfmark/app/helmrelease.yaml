@@ -72,7 +72,7 @@ spec:
     route:
       main:
         hostnames:
-          - shelfmark.${SECRET_DOMAIN}
+          - shelfmark.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

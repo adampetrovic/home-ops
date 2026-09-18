@@ -172,7 +172,7 @@ spec:
                 port: http
       internal:
         hostnames:
-          - "photos.${SECRET_DOMAIN}"
+          - "photos.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -56,7 +56,7 @@ spec:
     route:
       app:
         hostnames:
-          - garage.${SECRET_DOMAIN}
+          - garage.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

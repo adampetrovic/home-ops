@@ -42,7 +42,7 @@ spec:
             env:
               APP_ENV: production
               CACHE_TTL: 30m
-              CORS_ORIGINS: https://gdb.${SECRET_DOMAIN}
+              CORS_ORIGINS: https://gdb.petrovic.network
               LOG_LEVEL: info
               RATE_LIMIT_PER_MIN: "600"
               SERVER_HOST: 0.0.0.0
@@ -87,7 +87,7 @@ spec:
     route:
       app:
         hostnames:
-          - gdb.${SECRET_DOMAIN}
+          - gdb.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

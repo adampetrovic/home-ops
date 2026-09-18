@@ -89,7 +89,7 @@ spec:
     route:
       app:
         hostnames:
-          - bazarr.${SECRET_DOMAIN}
+          - bazarr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

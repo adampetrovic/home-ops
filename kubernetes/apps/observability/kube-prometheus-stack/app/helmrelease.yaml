@@ -65,7 +65,7 @@ spec:
                 - matchExpressions:
                     - key: node-role.kubernetes.io/control-plane
                       operator: DoesNotExist
-        externalUrl: https://prometheus.${SECRET_DOMAIN}
+        externalUrl: https://prometheus.petrovic.network
         image:
           registry: quay.io
           repository: prometheus/prometheus

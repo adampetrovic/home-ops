@@ -90,7 +90,7 @@ spec:
     route:
       app:
         hostnames:
-          - prowlarr.${SECRET_DOMAIN}
+          - prowlarr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

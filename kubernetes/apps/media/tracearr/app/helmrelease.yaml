@@ -89,7 +89,7 @@ spec:
     route:
       main:
         hostnames:
-          - tracearr.${SECRET_DOMAIN}
+          - tracearr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

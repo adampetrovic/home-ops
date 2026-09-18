@@ -90,7 +90,7 @@ spec:
     route:
       app:
         hostnames:
-          - bambuddy.${SECRET_DOMAIN}
+          - bambuddy.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

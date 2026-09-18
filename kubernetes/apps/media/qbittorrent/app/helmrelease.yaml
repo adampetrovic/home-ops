@@ -115,7 +115,7 @@ spec:
     route:
       main:
         hostnames:
-          - qb.${SECRET_DOMAIN}
+          - qb.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

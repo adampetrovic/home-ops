@@ -56,7 +56,7 @@ spec:
     route:
       app:
         hostnames:
-          - pgadmin.${SECRET_DOMAIN}
+          - pgadmin.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

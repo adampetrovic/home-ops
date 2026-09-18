@@ -40,7 +40,7 @@ spec:
               TZ: ${TZ}
               GOMEMLIMIT: 2300MiB
               HISTER__SERVER__ADDRESS: 0.0.0.0:4433
-              HISTER__SERVER__BASE_URL: https://hister.${SECRET_DOMAIN}
+              HISTER__SERVER__BASE_URL: https://hister.petrovic.network
             probes:
               liveness: &probes
                 enabled: true
@@ -75,7 +75,7 @@ spec:
     route:
       app:
         hostnames:
-          - "hister.${SECRET_DOMAIN}"
+          - "hister.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

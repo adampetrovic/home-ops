@@ -18,6 +18,16 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
-  valuesFrom:
-    - kind: ConfigMap
-      name: external-secrets-values
+  values:
+    installCRDs: true
+    serviceMonitor:
+      enabled: true
+      interval: 1m
+    webhook:
+      serviceMonitor:
+        enabled: true
+        interval: 1m
+    certController:
+      serviceMonitor:
+        enabled: true
+        interval: 1m

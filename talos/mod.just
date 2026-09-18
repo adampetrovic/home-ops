@@ -4,7 +4,10 @@ set quiet
 set script-interpreter := ['bash', '-euo', 'pipefail']
 set shell := ['bash', '-euo', 'pipefail', '-c']
 
-nodes := 'k8s-node-1 k8s-node-2 k8s-node-3 k8s-node-4 k8s-node-5'
+kubernetes_api_endpoint := '10.0.80.99'
+bootstrap_controller := 'k8s-node-1'
+nodes := `yq -r '.nodes | keys | join(" ")' inventory.yaml`
+node_addresses := `yq -r '.nodes | to_entries | map(.value) | join(" ")' inventory.yaml`
 scripts_dir := source_directory() + '/scripts'
 
 [doc('Render native Talos machine config for one node to stdout')]
@@ -25,15 +28,16 @@ talosconfig talosconfig="":
     tmp_secrets="$(mktemp)"
     trap 'rm -f "${tmp_secrets}"' EXIT
     "{{ scripts_dir }}/template.sh" "{{ source_directory() }}/secrets.yaml.j2" > "${tmp_secrets}"
-    talosctl gen config home-kubernetes https://10.0.80.99:6443 \
+    talosctl gen config home-kubernetes https://{{ kubernetes_api_endpoint }}:6443 \
         --with-secrets "${tmp_secrets}" \
         --output "${output}" \
         --output-types talosconfig \
         --with-docs=false \
         --with-examples=false \
         --force >/dev/null
-    talosctl --talosconfig "${output}" config endpoint 10.0.80.99
-    talosctl --talosconfig "${output}" config node 10.0.80.10 10.0.80.11 10.0.80.12 10.0.80.13 10.0.80.14
+    chmod 0600 "${output}"
+    talosctl --talosconfig "${output}" config endpoint {{ node_addresses }}
+    talosctl --talosconfig "${output}" config node {{ node_addresses }}
 
 [doc('Validate rendered native Talos config for one node')]
 validate node:
@@ -98,16 +102,16 @@ upgrade node rollout="false":
     bash "{{ scripts_dir }}/upgrade.sh" "${node_address}" "${talos_image}" "{{ rollout }}"
 
 [doc('Fetch kubeconfig from a Talos node')]
-fetch-kubeconfig node="k8s-node-1":
+fetch-kubeconfig node=bootstrap_controller:
     talosctl config info >/dev/null 2>&1
     node_address="$({{ scripts_dir }}/node-address.sh "{{ node }}")"
-    talosctl --nodes "${node_address}" kubeconfig --force
+    talosctl --endpoints "${node_address}" --nodes "${node_address}" kubeconfig --force
 
 [doc('Bootstrap etcd from a rendered control-plane node')]
-bootstrap node="k8s-node-1":
+bootstrap node=bootstrap_controller:
     talosctl config info >/dev/null 2>&1
     node_address="$({{ scripts_dir }}/node-address.sh "{{ node }}")"
-    talosctl --nodes "${node_address}" bootstrap
+    talosctl --endpoints "${node_address}" --nodes "${node_address}" bootstrap
 
 [confirm('DESTROY the cluster and reset all nodes to maintenance mode [y/N]?')]
 [doc('Reset all Talos nodes back to maintenance mode')]

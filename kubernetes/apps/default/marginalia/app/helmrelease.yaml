@@ -77,7 +77,7 @@ spec:
     route:
       app:
         hostnames:
-          - "marginalia.${SECRET_DOMAIN}"
+          - "marginalia.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

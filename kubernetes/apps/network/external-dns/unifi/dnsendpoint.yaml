@@ -5,15 +5,15 @@ metadata:
   name: internal-dns
 spec:
   endpoints:
-    - dnsName: "iota.${SECRET_DOMAIN}"
+    - dnsName: "iota.petrovic.network"
       recordType: A
       targets: ["10.0.22.9"]
-    - dnsName: "nas-direct.${SECRET_DOMAIN}"
+    - dnsName: "nas-direct.petrovic.network"
       recordType: A
       targets: ["10.0.10.3"]
-    - dnsName: "unas-direct.${SECRET_DOMAIN}"
+    - dnsName: "unas-direct.petrovic.network"
       recordType: A
       targets: ["10.0.10.95"]
-    - dnsName: "nvr-direct.${SECRET_DOMAIN}"
+    - dnsName: "nvr-direct.petrovic.network"
       recordType: A
       targets: ["10.0.50.2"]

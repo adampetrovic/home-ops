@@ -68,8 +68,8 @@ spec:
               AUTHELIA_LOG_LEVEL: debug
               AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: 'true'
               AUTHELIA_NOTIFIER_SMTP_DISABLE_REQUIRE_TLS: 'true'
-              AUTHELIA_NOTIFIER_SMTP_ADDRESS: smtp.${SECRET_DOMAIN}:25
-              AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <authelia@${SECRET_DOMAIN}>
+              AUTHELIA_NOTIFIER_SMTP_ADDRESS: smtp.petrovic.network:25
+              AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <authelia@petrovic.network>
               AUTHELIA_SERVER_DISABLE_HEALTHCHECK: 'true'
               AUTHELIA_SERVER_PORT: &port 80
               AUTHELIA_TELEMETRY_METRICS_ADDRESS: tcp://0.0.0.0:8080
@@ -81,7 +81,6 @@ spec:
               AUTHELIA_WEBAUTHN_EXPERIMENTAL_ENABLE_PASSKEY_UV_TWO_FACTORS: 'true'
               AUTHELIA_WEBAUTHN_SELECTION_CRITERIA_DISCOVERABILITY: required
               AUTHELIA_WEBAUTHN_SELECTION_CRITERIA_USER_VERIFICATION: required
-              SECRET_DOMAIN: ${SECRET_DOMAIN}
               SECRET_PUBLIC_DOMAIN: ${SECRET_PUBLIC_DOMAIN}
             resources:
               requests:
@@ -104,7 +103,11 @@ spec:
               readiness: *probes
               startup:
                 enabled: false
-            args: [--config, /config/configuration.yml, --config.experimental.filters, expand-env]
+            args:
+              - --config
+              - /config/configuration.yml
+              - --config.experimental.filters
+              - expand-env
     service:
       app:
         controller: authelia
@@ -127,7 +130,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "true"
         hostnames:
-          - auth.${SECRET_DOMAIN}
+          - auth.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

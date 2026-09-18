@@ -69,7 +69,7 @@ spec:
     route:
       app:
         hostnames:
-          - "meals.${SECRET_DOMAIN}"
+          - "meals.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

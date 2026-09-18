@@ -9,7 +9,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - unifi.${SECRET_DOMAIN}
+    - unifi.petrovic.network
   rules:
     - backendRefs:
         - group: gateway.envoyproxy.io

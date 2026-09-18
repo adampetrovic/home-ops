@@ -32,9 +32,9 @@ spec:
       use_pkce: "true"
       client_id: grafana
       client_secret: $GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
-      api_url: "https://auth.${SECRET_DOMAIN}/api/oidc/userinfo"
-      auth_url: "https://auth.${SECRET_DOMAIN}/api/oidc/authorization"
-      token_url: "https://auth.${SECRET_DOMAIN}/api/oidc/token"
+      api_url: "https://auth.petrovic.network/api/oidc/userinfo"
+      auth_url: "https://auth.petrovic.network/api/oidc/authorization"
+      token_url: "https://auth.petrovic.network/api/oidc/token"
     auth.generic_oauth.group_mapping:
       org_id: "1"
       role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || contains(groups[*], 'people') && 'Viewer'"
@@ -56,7 +56,7 @@ spec:
     security:
       cookie_samesite: grafana
     server:
-      root_url: "https://grafana.${SECRET_DOMAIN}"
+      root_url: "https://grafana.petrovic.network"
   deployment:
     spec:
       strategy:
@@ -86,7 +86,7 @@ spec:
   httpRoute:
     spec:
       hostnames:
-        - "grafana.${SECRET_DOMAIN}"
+        - "grafana.petrovic.network"
       parentRefs:
         - name: envoy-internal
           namespace: network

@@ -111,7 +111,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "false"
         hostnames:
-          - "gatus.${SECRET_DOMAIN}"
+          - "gatus.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network
