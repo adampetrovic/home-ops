@@ -132,7 +132,7 @@ spec:
           proxy:
             image:
               repository: mirror.gcr.io/library/caddy
-              tag: 2.11.4-alpine@sha256:ad27e531c8b286ff153c0e6e16587a1583e4111bb58c4d83bd73d6d3ef0a0ce1
+              tag: 2.11.4-alpine@sha256:de23def33b17fb5d1290b0f6c2add1d70780e52341896c00a4c8a2a2fe9d355e
             command: ["/bin/sh", "-c"]
             args:
               - |
