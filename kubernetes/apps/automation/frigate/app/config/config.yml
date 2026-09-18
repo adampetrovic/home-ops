@@ -133,7 +133,8 @@ cameras:
     detect:
       width: 704
       height: 576
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 3
       stationary:
         interval: 50
         threshold: 100
@@ -191,7 +192,8 @@ cameras:
     detect:
       width: 480
       height: 640
-      fps: 7
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 4
     objects:
       track:
         - person
@@ -218,7 +220,8 @@ cameras:
     detect:
       width: 1280
       height: 720
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 3
     objects:
       track:
         - person
@@ -452,7 +455,8 @@ cameras:
             - detect
     detect:
       enabled: True
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 2
       stationary:
         interval: 50
         threshold: 100
@@ -504,7 +508,8 @@ cameras:
     detect:
       width: 1280
       height: 720
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 3
     objects:
       track:
         - person
@@ -544,7 +549,8 @@ cameras:
     detect:
       width: 1280
       height: 720
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 3
     objects:
       track:
         - person
@@ -575,7 +581,8 @@ cameras:
     detect:
       width: 1280
       height: 720
-      fps: 5
+      # Non-critical camera: lower detect frame rate to reduce CPU.
+      fps: 3
     objects:
       track:
         - person
