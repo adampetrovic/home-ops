@@ -70,9 +70,9 @@ function check_talos_nodes() {
 
     while IFS= read -r ip; do
         [[ -z "${ip}" ]] && continue
-        if talosctl --nodes "${ip}" version --insecure >/dev/null 2>&1; then
+        if talosctl --endpoints "${ip}" --nodes "${ip}" version --insecure >/dev/null 2>&1; then
             log info "Talos node is reachable in maintenance mode" "node=${ip}"
-        elif talosctl --talosconfig "${TALOSCONFIG}" --nodes "${ip}" version >/dev/null 2>&1; then
+        elif talosctl --talosconfig "${TALOSCONFIG}" --endpoints "${ip}" --nodes "${ip}" version >/dev/null 2>&1; then
             log info "Talos node is reachable with Talos client config" "node=${ip}"
         else
             fail_check "Talos node is not reachable" "node=${ip}"
