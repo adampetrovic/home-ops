@@ -71,7 +71,7 @@ spec:
         type: LoadBalancer
         controller: mosquitto
         annotations:
-          external-dns.kubernetes.io/hostname: mqtt.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: mqtt.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.2
         ports:
           http:

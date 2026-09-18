@@ -116,8 +116,8 @@ spec:
               PAPERLESS_TIKA_ENABLED: 1
               PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://localhost:3000
               PAPERLESS_TIKA_ENDPOINT: http://localhost:9998
-              PAPERLESS_URL: https://paperless.${SECRET_DOMAIN}
-              PAPERLESS_ALLOWED_HOSTS: paperless.${SECRET_DOMAIN},paperless-ngx.default.svc.cluster.local
+              PAPERLESS_URL: https://paperless.petrovic.network
+              PAPERLESS_ALLOWED_HOSTS: paperless.petrovic.network,paperless-ngx.default.svc.cluster.local
               PAPERLESS_ENABLE_HTTP_REMOTE_USER: 'true'
               PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: HTTP_REMOTE_USER
               PAPERLESS_CONSUMPTION_DIR: /data/scan-inbox
@@ -167,7 +167,7 @@ spec:
     route:
       app:
         hostnames:
-          - paperless.${SECRET_DOMAIN}
+          - paperless.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

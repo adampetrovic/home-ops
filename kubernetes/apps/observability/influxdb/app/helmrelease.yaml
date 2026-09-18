@@ -57,7 +57,7 @@ spec:
         type: LoadBalancer
         controller: influxdb
         annotations:
-          external-dns.kubernetes.io/hostname: influx-direct.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: influx-direct.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.9
         externalTrafficPolicy: Cluster
         ports:
@@ -66,7 +66,7 @@ spec:
     route:
       app:
         hostnames:
-          - influx.${SECRET_DOMAIN}
+          - influx.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

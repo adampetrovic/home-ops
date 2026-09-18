@@ -1,0 +1,20 @@
+---
+# yamllint disable rule:line-length
+# Standalone CRD manifests that are required before Flux reconciles resources
+# that depend on them. Chart-owned CRDs are rendered from bootstrap/helmfile/crds.yaml.
+crds:
+  - name: external-dns-dnsendpoint
+    owner: external-dns
+    # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
+    version: v0.22.0
+    urlTemplate: https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/{version}/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml
+  - name: multus-network-attachment-definition
+    owner: multus
+    # renovate: datasource=github-releases depName=k8snetworkplumbingwg/network-attachment-definition-client
+    version: v1.7.7
+    urlTemplate: https://raw.githubusercontent.com/k8snetworkplumbingwg/network-attachment-definition-client/refs/tags/{version}/artifacts/networks-crd.yaml
+  - name: cnpg-barman-objectstore
+    owner: cloudnative-pg-barman-cloud-plugin
+    # renovate: datasource=github-releases depName=cloudnative-pg/plugin-barman-cloud
+    version: v0.15.0
+    urlTemplate: https://raw.githubusercontent.com/cloudnative-pg/plugin-barman-cloud/refs/tags/{version}/config/crd/bases/barmancloud.cnpg.io_objectstores.yaml

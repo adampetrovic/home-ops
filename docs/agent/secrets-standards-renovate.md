@@ -5,13 +5,13 @@ Read this before touching secrets, encrypted files, schema-backed YAML/JSON, for
 ## SOPS and Secret Management
 
 - Encrypted files match `*.sops.yaml`.
-- Encryption uses age keys from `~/.config/sops/age/keys.txt`.
+- Local SOPS commands may use the normal age key file, but bootstrap/recovery workflows resolve `SOPS_AGE_KEY` at runtime from 1Password via `op run` after the mise environment is active.
 - Kubernetes secrets encrypt only `data` and `stringData` fields via `encrypted_regex: "^(data|stringData)$"`.
 - Talos secrets encrypt the entire file.
 - Never commit unencrypted secrets or derived secret values.
 - Prefer ExternalSecrets referencing 1Password for application secrets.
 - Cluster-wide variables live in `kubernetes/components/common/vars/cluster-secrets.sops.yaml`.
-- Variables such as `${SECRET_DOMAIN}` are substituted into Flux Kustomizations via `postBuild.substituteFrom`.
+- Public internal hostnames use the literal domain `petrovic.network`; secret/public domains such as `${SECRET_PUBLIC_DOMAIN}` are still substituted into Flux Kustomizations via `postBuild.substituteFrom`.
 
 ## YAML Formatting
 
@@ -63,6 +63,6 @@ Key conventions:
 TALOS_VERSION: v1.14.1
 ```
 
-- CRD URLs in bootstrap scripts use similar annotations.
+- Standalone bootstrap CRD inventories use Renovate-managed `version` fields plus `urlTemplate`; bootstrap derives the consumed URL from the version.
 - Renovate config lives in `.renovaterc.json5` and `.renovate/`.
 - Semantic commits are enforced, for example `feat(container)!:`, `fix(helm):`, `chore(container):`.

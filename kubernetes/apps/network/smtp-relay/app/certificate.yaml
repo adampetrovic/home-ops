@@ -8,9 +8,9 @@ spec:
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: smtp.${SECRET_DOMAIN}
+  commonName: smtp.petrovic.network
   dnsNames:
-    - smtp.${SECRET_DOMAIN}
+    - smtp.petrovic.network
   privateKey:
     rotationPolicy: Always
 

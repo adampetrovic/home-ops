@@ -55,7 +55,7 @@ spec:
         type: LoadBalancer
         controller: ntpd
         annotations:
-          external-dns.kubernetes.io/hostname: ntpd.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: ntpd.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.5
         externalTrafficPolicy: Cluster
         ports:

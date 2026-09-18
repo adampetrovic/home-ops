@@ -1,0 +1,9 @@
+{{- $helmReleasePath := printf "../../../kubernetes/apps/%s/%s/app/helmrelease.yaml" .Release.Namespace .Release.Name -}}
+{{- if eq .Release.Name "onepassword-connect" -}}
+  {{- $helmReleasePath = "../../../kubernetes/apps/external-secrets/external-secrets/stores/onepassword/helmrelease.yaml" -}}
+{{- else if eq .Release.Name "grafana-operator" -}}
+  {{- $helmReleasePath = "../../../kubernetes/apps/observability/grafana/app/helmrelease.yaml" -}}
+{{- else if eq .Release.Name "cnpg" -}}
+  {{- $helmReleasePath = "../../../kubernetes/apps/database/cloudnative-pg/app/helmrelease.yaml" -}}
+{{- end -}}
+{{ (fromYaml (readFile $helmReleasePath)).spec.values | toYaml }}

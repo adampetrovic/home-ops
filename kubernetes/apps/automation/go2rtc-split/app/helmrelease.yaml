@@ -89,7 +89,7 @@ spec:
     route:
       split:
         hostnames:
-          - "go2rtc.${SECRET_DOMAIN}"
+          - "go2rtc.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

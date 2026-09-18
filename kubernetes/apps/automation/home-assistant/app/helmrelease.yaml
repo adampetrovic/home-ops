@@ -112,7 +112,7 @@ spec:
         controller: homeassistant
         type: LoadBalancer
         annotations:
-          external-dns.kubernetes.io/hostname: hass-direct.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: hass-direct.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.4
         ports:
           http:
@@ -133,7 +133,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "true"
         hostnames:
-          - "hass.${SECRET_DOMAIN}"
+          - "hass.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -155,7 +155,7 @@ spec:
                 port: http
       codeserver:
         hostnames:
-          - "hass-code.${SECRET_DOMAIN}"
+          - "hass-code.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

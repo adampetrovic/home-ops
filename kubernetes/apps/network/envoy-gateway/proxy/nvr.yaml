@@ -9,7 +9,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - nvr.${SECRET_DOMAIN}
+    - nvr.petrovic.network
   rules:
     - backendRefs:
         - group: gateway.envoyproxy.io
@@ -27,7 +27,7 @@ spec:
     - gateway.envoyproxy.io/wss
   endpoints:
     - fqdn:
-        hostname: nvr-direct.${SECRET_DOMAIN}
+        hostname: nvr-direct.petrovic.network
         port: 5001
   tls:
     insecureSkipVerify: true

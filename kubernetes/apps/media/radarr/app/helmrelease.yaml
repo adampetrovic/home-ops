@@ -43,7 +43,7 @@ spec:
               TZ: "${TZ}"
               RADARR__INSTANCE_NAME: Radarr
               RADARR__PORT: &port 80
-              RADARR__APPLICATION_URL: https://radarr.${SECRET_DOMAIN}
+              RADARR__APPLICATION_URL: https://radarr.petrovic.network
               RADARR__LOG_LEVEL: info
             resources:
               requests:
@@ -86,7 +86,7 @@ spec:
     route:
       main:
         hostnames:
-          - radarr.${SECRET_DOMAIN}
+          - radarr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

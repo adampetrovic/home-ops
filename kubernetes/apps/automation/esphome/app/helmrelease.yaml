@@ -95,7 +95,7 @@ spec:
     route:
       app:
         hostnames:
-          - esphome.${SECRET_DOMAIN}
+          - esphome.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -105,7 +105,7 @@ spec:
                 port: http
       codeserver:
         hostnames:
-          - "esphome-code.${SECRET_DOMAIN}"
+          - "esphome-code.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

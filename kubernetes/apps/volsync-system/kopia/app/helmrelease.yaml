@@ -71,7 +71,7 @@ spec:
     route:
       app:
         hostnames:
-          - "kopia.${SECRET_DOMAIN}"
+          - "kopia.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

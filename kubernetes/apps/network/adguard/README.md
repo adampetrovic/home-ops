@@ -8,7 +8,7 @@ AdGuard is the filtering resolver for clients on the UniFi-managed internal netw
 
 | Purpose | Value |
 | --- | --- |
-| Hostname | `dns.${SECRET_DOMAIN}` |
+| Hostname | `dns.petrovic.network` |
 | LoadBalancer VIP | `10.0.88.53` |
 | Kubernetes Service | `network/adguard-dns` |
 | Plain DNS | UDP/TCP `53` |
@@ -31,7 +31,7 @@ This avoids a circular dependency where Kubernetes nodes would need the in-clust
 ```mermaid
 flowchart LR
     C["UniFi client\nlaptop / phone / IoT"] -->|"DNS query\nUDP/TCP 53, DoH 443, DoT 853"| U["UniFi LAN / VLAN routing"]
-    U --> VIP["AdGuard LoadBalancer VIP\n10.0.88.53\ndns.${SECRET_DOMAIN}"]
+    U --> VIP["AdGuard LoadBalancer VIP\n10.0.88.53\ndns.petrovic.network"]
     VIP -->|"Cilium load-balances\nready endpoints only"| A0["adguard-0\nStatefulSet pod"]
     VIP -->|"Cilium load-balances\nready endpoints only"| A1["adguard-1\nStatefulSet pod"]
     A0 -->|"allowed cache miss"| R["Configured recursive\nupstream resolver"]
@@ -182,8 +182,8 @@ dig @10.0.88.53 example.com
 dig +tcp @10.0.88.53 example.com
 
 # DoH / DoT smoke tests
-doggo example.com A @https://dns.${SECRET_DOMAIN}/dns-query/adam-laptop --short
-doggo example.com A @tls://10.0.88.53 --tls-hostname=dns.${SECRET_DOMAIN} --short
+doggo example.com A @https://dns.petrovic.network/dns-query/adam-laptop --short
+doggo example.com A @tls://10.0.88.53 --tls-hostname=dns.petrovic.network --short
 ```
 
 ## Files

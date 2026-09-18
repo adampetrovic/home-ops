@@ -96,7 +96,7 @@ spec:
     route:
       app:
         hostnames:
-          - maintainerr.${SECRET_DOMAIN}
+          - maintainerr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

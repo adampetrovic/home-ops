@@ -249,7 +249,7 @@ See [full AdGuard DNS documentation](kubernetes/apps/network/adguard/README.md).
 ```mermaid
 flowchart LR
     C["UniFi client"] --> U["UniFi LAN / VLAN"]
-    U --> VIP["10.0.88.53\ndns.${SECRET_DOMAIN}"]
+    U --> VIP["10.0.88.53\ndns.petrovic.network"]
     VIP --> S["network/adguard-dns\nLoadBalancer Service"]
     S --> A0["adguard-0"]
     S --> A1["adguard-1"]
@@ -281,9 +281,9 @@ just talos upgrade k8s-node-4            # Break-glass Talos OS upgrade on one n
 just talos nuke destroy-cluster          # Reset nodes to maintenance mode (DESTRUCTIVE!)
 
 # Bootstrap / disaster recovery
-just bootstrap preflight      # Check tools, credentials, rendering, and node reachability
-just bootstrap verify         # Verify the core bootstrap substrate
-just bootstrap verify-full    # Verify full GitOps/storage/app convergence
+op run -- just bootstrap preflight      # Check tools, credentials, rendering, and node reachability
+op run -- just bootstrap verify         # Verify the core bootstrap substrate
+op run -- just bootstrap verify-full    # Verify full GitOps/storage/app convergence
 
 # Volume backup operations
 just volsync list <app> <ns>       # List primary Kopia snapshots
@@ -307,11 +307,11 @@ just kube delete-failed-pods       # Delete pods with failed status
 ### Disaster Recovery
 
 Complete destructive cluster rebuild capability:
-1. **Preflight**: `just bootstrap preflight` checks tools, credentials, rendering, and Talos node reachability
+1. **Preflight**: `op run -- just bootstrap preflight` checks tools, credentials, rendering, and Talos node reachability
 2. **Hardware Reset**: PXE boot into Talos maintenance mode or run `just talos nuke destroy-cluster`
-3. **Cluster Bootstrap**: `./scripts/bootstrap-cluster.sh` recreates Talos/Kubernetes and installs Flux
+3. **Cluster Bootstrap**: `op run -- just bootstrap cluster` recreates Talos/Kubernetes and installs Flux
 4. **Backup Restoration**: VolSync automatically restores PVCs from Kopia on NAS/NFS; R2 is the manual fallback copy
-5. **Verification**: `just bootstrap verify` then `just bootstrap verify-full`
+5. **Verification**: `op run -- just bootstrap verify` then `op run -- just bootstrap verify-full`
 6. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
 
 ---
@@ -356,8 +356,9 @@ Complete destructive cluster rebuild capability:
     └── 📁 workers/      # Worker nodes
 
 📁 bootstrap/             # Initial cluster bootstrapping
-├── helmfile.yaml         # Helmfile for bootstrapping
-└── resources.yaml.j2     # Template for resources
+├── crds/                 # Standalone bootstrap CRD inventory
+├── helmfile/             # Split Helmfile state for bootstrap apps and chart-owned CRDs
+└── kustomize/            # Bootstrap namespaces and seed resources
 
 📁 scripts/               # Helper scripts
 └── 📁 lib/               # Script libraries
@@ -407,11 +408,11 @@ app-name/
 3. **Prepare hardware**: Boot Talos Linux maintenance mode on your nodes
 4. **Run bootstrap preflight**:
    ```bash
-   just bootstrap preflight
+   op run -- just bootstrap preflight
    ```
 5. **Bootstrap cluster**:
    ```bash
-   ./scripts/bootstrap-cluster.sh
+   op run -- just bootstrap cluster
    ```
 6. **Verify convergence**:
    ```bash

@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+helmDefaults:
+  cleanupOnFail: true
+  forceConflicts: true
+  wait: true
+  waitForJobs: true
+
+bases:
+  - default.yaml
+
+defaultInherit: default
+
+releases:
+  - name: cilium
+    namespace: kube-system
+    hooks:
+      - events: ["postsync"]
+        command: kubectl
+        args:
+          - wait
+          - --for=create
+          - crd/ciliumloadbalancerippools.cilium.io
+          - --timeout=2m
+        showlogs: true
+      - events: ["postsync"]
+        command: kubectl
+        args:
+          - apply
+          - --namespace={{ .Release.Namespace }}
+          - --server-side
+          - --force-conflicts
+          - --filename=../../kubernetes/apps/kube-system/cilium/app/network.yaml
+        showlogs: true
+
+  - name: coredns
+    namespace: kube-system
+    needs:
+      - kube-system/cilium
+
+  - name: spegel
+    namespace: kube-system
+    needs:
+      - kube-system/coredns
+
+  - name: cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    needs:
+      - kube-system/spegel
+
+  - name: external-secrets
+    namespace: external-secrets
+    createNamespace: true
+    needs:
+      - cert-manager/cert-manager
+
+  - name: onepassword-connect
+    namespace: external-secrets
+    createNamespace: true
+    hooks:
+      - events: ["postsync"]
+        command: kubectl
+        args:
+          - wait
+          - --for=create
+          - crd/clustersecretstores.external-secrets.io
+          - --timeout=2m
+        showlogs: true
+      - events: ["postsync"]
+        command: kubectl
+        args:
+          - apply
+          - --server-side
+          - --force-conflicts
+          - --filename=../../kubernetes/apps/external-secrets/external-secrets/stores/onepassword/clustersecretstore.yaml
+        showlogs: true
+    needs:
+      - external-secrets/external-secrets
+
+  - name: flux-operator
+    namespace: flux-system
+    createNamespace: true
+    needs:
+      - external-secrets/onepassword-connect
+
+  - name: flux-instance
+    namespace: flux-system
+    createNamespace: true
+    needs:
+      - flux-system/flux-operator

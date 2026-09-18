@@ -97,7 +97,7 @@ spec:
     route:
       app:
         hostnames:
-          - "atuin.${SECRET_DOMAIN}"
+          - "atuin.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

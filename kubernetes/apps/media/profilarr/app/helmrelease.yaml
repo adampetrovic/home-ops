@@ -42,7 +42,7 @@ spec:
               TZ: "${TZ}"
               HOST: 0.0.0.0
               PORT: &port 6868
-              ORIGIN: https://profilarr.${SECRET_DOMAIN}
+              ORIGIN: https://profilarr.petrovic.network
               APP_BASE_PATH: /config
               AUTH: "off"
               UMASK: "022"
@@ -144,7 +144,7 @@ spec:
     route:
       app:
         hostnames:
-          - profilarr.${SECRET_DOMAIN}
+          - profilarr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

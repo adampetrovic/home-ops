@@ -55,7 +55,7 @@ spec:
     route:
       main:
         hostnames:
-          - tautulli.${SECRET_DOMAIN}
+          - tautulli.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network
