@@ -651,6 +651,19 @@ cameras:
         labels: []
 classification:
   custom:
+    Garbage Bins:
+      enabled: true
+      name: Garbage Bins
+      threshold: 0.8
+      state_config:
+        cameras:
+          front_yard:
+            crop:
+              - 0.296400028844304
+              - 0
+              - 0.4651500288443039
+              - 0.29999999999999993
+        motion: true
     Side Gate Status:
       enabled: true
       name: Side Gate Status
