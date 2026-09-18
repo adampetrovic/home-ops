@@ -15,6 +15,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 - Use **Jujutsu (`jj`)** for all version-control operations. Do not use `git` directly in this repo.
 - For `fix:` and `chore:` jj commits, add a concise one-line body explaining *why* where useful, for example `Why: avoid paging on brittle cause-based Talos log patterns`.
 - Never commit plaintext secrets. Use ExternalSecrets backed by 1Password, or SOPS for files that are intentionally encrypted.
+- Make all cluster changes via Git-tracked manifests and Flux reconciliation. Never mutate live cluster resources outside version control unless it is an explicit emergency/break-glass action confirmed by the operator.
 - Talos machine configs are rendered natively from `talos/*.yaml.j2` and `talos/nodes/**`; do not commit rendered machine configs or talosconfig output.
 - Never check application source code into this repository alongside deployments. Application code belongs in its own source repo and must be deployed here as a pre-built immutable container image.
 - All workloads must be represented by HelmRelease resources, normally using the `app-template` OCIRepository. Do not add raw Deployments, StatefulSets, DaemonSets, or CronJobs.
@@ -77,7 +78,7 @@ Read the relevant doc before making non-trivial changes:
 ## High-Priority Warnings
 
 - Never commit unencrypted secrets or derived secret values.
-- Never modify Flux-managed live resources as a substitute for GitOps changes.
+- Never modify Flux-managed live resources as a substitute for GitOps changes; use Git-tracked changes and Flux instead, except for confirmed emergency break-glass operations.
 - Never deploy app source from ConfigMaps or build application code at container startup.
 - Never use `docker.io` directly; use `mirror.gcr.io` for Docker Hub images.
 - Never commit rendered Talos machine configs or Talos client configs.
