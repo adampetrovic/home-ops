@@ -57,7 +57,7 @@ spec:
               CONSOLE_CLOUDKEY_RETENTION_DAILY: "14"
               CONSOLE_CLOUDKEY_RETENTION_WEEKLY: "12"
               CONSOLE_CLOUDKEY_WEEKLY_INTERVAL: 168h
-              CONSOLE_UNAS_URL: https://unas-direct.${SECRET_DOMAIN}
+              CONSOLE_UNAS_URL: https://unas-direct.petrovic.network
               CONSOLE_UNAS_USERNAME_FILE: /run/secrets/unifi-os-backup/username
               CONSOLE_UNAS_PASSWORD_FILE: /run/secrets/unifi-os-backup/password
               CONSOLE_UNAS_TARGETS: full

@@ -42,8 +42,11 @@ The bootstrap scripts expect these tools in `PATH`:
 
 ### Environment
 
+Bootstrap defaults to repository-local generated config files:
+
 ```bash
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG="${PWD}/kubeconfig"
+export TALOSCONFIG="${PWD}/talosconfig"
 ```
 
 Authenticate to 1Password:
@@ -53,17 +56,22 @@ op signin
 op whoami
 ```
 
-Ensure the SOPS age key exists locally:
+The SOPS age private key is resolved at runtime from 1Password via
+`SOPS_AGE_KEY=op://k8s/sops/SOPS_PRIVATE_KEY` in `.mise.toml`. Activate or enter
+the pinned mise environment first, then run bootstrap commands through `op run`
+so SOPS can decrypt without a workstation-local age key file:
 
 ```bash
-test -f ~/.config/sops/age/keys.txt
+op run -- just bootstrap preflight
+op run -- just bootstrap cluster
 ```
 
-The bootstrap process also reads Talos secrets and initial Kubernetes secrets from 1Password references in:
+The bootstrap process also reads Talos secrets and initial Kubernetes secrets
+from 1Password references in:
 
 - `talos/*.yaml.j2`
 - `talos/nodes/**/*.yaml.j2`
-- `bootstrap/resources.yaml.j2`
+- `bootstrap/kustomize/home/**`
 
 ### Hardware and network
 
@@ -93,7 +101,7 @@ The bootstrap process also reads Talos secrets and initial Kubernetes secrets fr
 Run preflight before applying Talos configs:
 
 ```bash
-just bootstrap preflight
+op run -- just bootstrap preflight
 ```
 
 This checks:
@@ -103,47 +111,66 @@ This checks:
 - required repo files
 - 1Password references used by Talos/bootstrap resources
 - native Talos render validation with `just talos validate-all`
-- rendering of `bootstrap/helmfile.yaml`, using chart refs from that file
-- rendering of `bootstrap/resources.yaml.j2`
+- rendering of `bootstrap/helmfile/apps.yaml` and `bootstrap/helmfile/crds.yaml`
+- rendering and in-memory 1Password injection of `bootstrap/kustomize/home` without writing resolved Secrets
+- duplicate checks across standalone and chart-rendered bootstrap CRD sources
 - Talos node reachability in maintenance mode or with generated Talos client config
 
 If node reachability must be skipped temporarily:
 
 ```bash
-BOOTSTRAP_PREFLIGHT_SKIP_NODES=true just bootstrap preflight
+BOOTSTRAP_PREFLIGHT_SKIP_NODES=true op run -- just bootstrap preflight
 ```
 
 ## Bootstrap
 
-Run the automated bootstrap:
+Run the staged automated bootstrap:
 
 ```bash
-./scripts/bootstrap-cluster.sh
+op run -- just bootstrap cluster
 ```
 
-The script performs these steps:
+The recipe performs these stages:
 
-1. Generate a Talos client config with `just talos talosconfig`.
-2. Render native Talos machine configs and apply them insecurely to maintenance-mode nodes.
-3. Bootstrap etcd/Kubernetes on a controller node.
-4. Fetch kubeconfig to the exact path in `$KUBECONFIG`.
-5. Wait for all Kubernetes node objects to register.
-6. Apply early CRDs required by Flux-managed resources.
-7. Render and apply bootstrap secrets/namespaces from `bootstrap/resources.yaml.j2`.
-8. Sync bootstrap Helm releases with `bootstrap/helmfile.yaml`:
+1. `preflight` — check local tools, 1Password references, renders, and node reachability.
+2. `talosconfig` — generate `${TALOSCONFIG}` from 1Password-backed Talos secrets.
+3. `nodes` — render native Talos machine configs and apply them insecurely to maintenance-mode nodes, skipping nodes that are already configured.
+4. `k8s` — bootstrap etcd/Kubernetes on `k8s-node-1` and treat an existing etcd cluster as a successful rerun.
+5. `kubeconfig` — fetch kubeconfig to `${KUBECONFIG}`.
+6. `base` — wait for the API and node registration, apply prerequisite CRDs, then apply bootstrap namespaces and seed Secrets from `bootstrap/kustomize/home` via `op inject`.
+7. `apps` — sync bootstrap Helm releases with `bootstrap/helmfile/apps.yaml`:
 
    ```text
-   Cilium → CoreDNS → Spegel → cert-manager → External Secrets → Flux Operator → Flux Instance
+   Cilium → CoreDNS → Spegel → cert-manager → External Secrets → 1Password Connect → Flux Operator → Flux Instance
    ```
 
+8. `verify-core` — run core post-bootstrap verification before reporting success.
+
 Flux then reconciles `kubernetes/flux/cluster/ks.yaml` from `main` and starts applying the full app graph.
+
+## Static validation
+
+Before relying on the workflow for a recovery, run the non-destructive checks:
+
+```bash
+BOOTSTRAP_PREFLIGHT_SKIP_NODES=true op run -- just bootstrap preflight
+just talos validate-all
+kustomize build bootstrap/kustomize/home >/dev/null
+helmfile --file bootstrap/helmfile/apps.yaml build >/dev/null
+helmfile --file bootstrap/helmfile/crds.yaml template --quiet \
+  | yq ea 'select(.kind == "CustomResourceDefinition" and ((.spec.group | test("^gateway\\.networking\\.(x-)?k8s\\.io$")) | not))' - >/dev/null
+scripts/bootstrap-helmfile-parity.sh
+```
+
+A live disaster-recovery or disposable-cluster drill is intentionally outside
+this implementation scope and should be scheduled separately.
 
 ## Verification
 
 First verify the core bootstrap substrate:
 
 ```bash
-just bootstrap verify
+op run -- just bootstrap verify
 ```
 
 This checks:
@@ -159,7 +186,7 @@ This checks:
 After Flux has had time to reconcile the full repository, verify full convergence:
 
 ```bash
-just bootstrap verify-full
+op run -- just bootstrap verify-full
 ```
 
 This additionally checks:
@@ -198,7 +225,7 @@ CNPG clusters use their declarative manifests and backup configuration in Git. D
 Use the full verifier and CNPG checks:
 
 ```bash
-just bootstrap verify-full
+op run -- just bootstrap verify-full
 kubectl -n database get cluster postgres
 kubectl -n database describe cluster postgres
 ```
@@ -230,18 +257,19 @@ talosctl --nodes 10.0.80.10 version --insecure
 If the node was already configured, regenerate Talos client config and try authenticated access:
 
 ```bash
-just talos talosconfig
-talosctl --nodes 10.0.80.10 version
+op run -- just talos talosconfig
+talosctl --endpoints 10.0.80.10 --nodes 10.0.80.10 version
 ```
 
 ### Bootstrap interrupted
 
-If interruption happened before Kubernetes was healthy, reset back to maintenance mode and rerun:
+If bootstrap is interrupted, rerun the same staged command. Stages are designed to tolerate already-configured nodes, existing etcd bootstrap state, and already-applied Kubernetes resources:
 
 ```bash
-just talos nuke destroy-cluster
-./scripts/bootstrap-cluster.sh
+op run -- just bootstrap cluster
 ```
+
+Do not reset nodes unless you intentionally want to restart the destructive rebuild from maintenance mode.
 
 ### Flux is installed but apps are still reconciling
 
@@ -257,5 +285,5 @@ flux get helmreleases -A
 Then rerun:
 
 ```bash
-just bootstrap verify-full
+op run -- just bootstrap verify-full
 ```

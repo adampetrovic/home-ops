@@ -57,7 +57,7 @@ spec:
     txtPrefix: k8s.
     txtOwnerId: kubernetes-home-unifi
     domainFilters:
-      - "${SECRET_DOMAIN}"
+      - "petrovic.network"
     serviceMonitor:
       enabled: true
     podAnnotations:

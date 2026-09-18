@@ -37,7 +37,7 @@ spec:
               TZ: "${TZ}"
               SONARR__INSTANCE_NAME: Sonarr
               SONARR__PORT: &port 80
-              SONARR__APPLICATION_URL: https://sonarr.${SECRET_DOMAIN}
+              SONARR__APPLICATION_URL: https://sonarr.petrovic.network
               SONARR__LOG_LEVEL: info
             resources:
               requests:
@@ -79,7 +79,7 @@ spec:
     route:
       app:
         hostnames:
-          - sonarr.${SECRET_DOMAIN}
+          - sonarr.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

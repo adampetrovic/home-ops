@@ -159,7 +159,7 @@ spec:
         controller: adguard
         type: LoadBalancer
         annotations:
-          external-dns.kubernetes.io/hostname: dns.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: dns.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.53
         ports:
           dns-https:
@@ -205,7 +205,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "true"
         hostnames:
-          - "adguard.${SECRET_DOMAIN}"
+          - "adguard.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

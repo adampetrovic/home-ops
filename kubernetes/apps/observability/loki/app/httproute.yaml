@@ -8,7 +8,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - loki.${SECRET_DOMAIN}
+    - loki.petrovic.network
   rules:
     - backendRefs:
         - name: loki-gateway

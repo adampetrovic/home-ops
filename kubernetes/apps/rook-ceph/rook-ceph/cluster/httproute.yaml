@@ -8,7 +8,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - rook.${SECRET_DOMAIN}
+    - rook.petrovic.network
   rules:
     - backendRefs:
         - name: rook-ceph-mgr-dashboard
@@ -23,7 +23,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - rgw.${SECRET_DOMAIN}
+    - rgw.petrovic.network
   rules:
     - backendRefs:
         - name: rook-ceph-rgw-ceph-objectstore

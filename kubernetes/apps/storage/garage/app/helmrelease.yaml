@@ -62,7 +62,7 @@ spec:
     route:
       s3:
         hostnames:
-          - s3.${SECRET_DOMAIN}
+          - s3.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -35,7 +35,7 @@ Do **not** retain command, action, or one-shot event topics such as `.../set`, `
 Clear a bad retained topic by publishing a zero-length retained payload. Mosquitto requires authentication; load `MQTT_USERNAME` and `MQTT_PASSWORD` from the `mosquitto-secret` Kubernetes Secret or 1Password first.
 
 ```bash
-mosquitto_pub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" -r -n -t '<topic>'
+mosquitto_pub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" -r -n -t '<topic>'
 ```
 
 ## Validation after upgrades
@@ -43,11 +43,11 @@ mosquitto_pub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" -
 Check retained topics before and after restarting Mosquitto and Home Assistant:
 
 ```bash
-mosquitto_sub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'homeassistant/#' -v
-mosquitto_sub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'zigbee2mqtt/#' -v
-mosquitto_sub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'sigenergy2mqtt/#' -v
-mosquitto_sub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'shellies/#' -v
-mosquitto_sub -h mqtt.${SECRET_DOMAIN} -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'shelly/#' -v
+mosquitto_sub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'homeassistant/#' -v
+mosquitto_sub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'zigbee2mqtt/#' -v
+mosquitto_sub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'sigenergy2mqtt/#' -v
+mosquitto_sub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'shellies/#' -v
+mosquitto_sub -h mqtt.petrovic.network -u "$MQTT_USERNAME" -P "$MQTT_PASSWORD" --retained-only -t 'shelly/#' -v
 ```
 
 Shelly Gen1 devices commonly use `shellies/<device-id>/...`; newer devices or custom configurations may use a different prefix.

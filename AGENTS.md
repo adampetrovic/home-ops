@@ -54,7 +54,7 @@ Read the relevant doc before making non-trivial changes:
 
 ## Quick Routing Rules
 
-- Internal-only apps route through `network/envoy-internal` and `${SECRET_DOMAIN}`.
+- Internal-only apps route through `network/envoy-internal` and `petrovic.network`.
 - Public apps route through `network/envoy-external` and `${SECRET_PUBLIC_DOMAIN}` via Cloudflare Tunnel.
 - Authelia-protected apps add the `components/authelia-proxy` component to the app-level `kustomization.yaml`.
 - If adding Authelia in a new namespace, update `kubernetes/apps/security/authelia/app/referencegrant.yaml`.

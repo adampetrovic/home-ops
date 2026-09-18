@@ -96,7 +96,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "true"
         hostnames:
-          - "frigate.${SECRET_DOMAIN}"
+          - "frigate.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -6,6 +6,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 export LOG_LEVEL="${LOG_LEVEL:-info}"
 export ROOT_DIR="${ROOT_DIR:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+export KUBECONFIG="${KUBECONFIG:-${ROOT_DIR}/kubeconfig}"
 
 failures=0
 mode="core"
@@ -58,8 +59,8 @@ function wait_for_flux_object() {
 function count_not_ready() {
     local resource="${1}"
 
-    kubectl get "${resource}" --all-namespaces -o json \
-        | jq '[.items[] | select(((.status.conditions // []) | map(select(.type == "Ready")) | .[0].status // "False") != "True")] | length'
+    kubectl get "${resource}" --all-namespaces -o json |
+        jq '[.items[] | select(((.status.conditions // []) | map(select(.type == "Ready")) | .[0].status // "False") != "True")] | length'
 }
 
 function check_flux_convergence() {
@@ -104,20 +105,20 @@ function check_full_convergence() {
 function main() {
     while [[ $# -gt 0 ]]; do
         case "${1}" in
-            --core)
-                mode="core"
-                ;;
-            --full)
-                mode="full"
-                ;;
-            -h|--help)
-                usage
-                exit 0
-                ;;
-            *)
-                usage >&2
-                exit 2
-                ;;
+        --core)
+            mode="core"
+            ;;
+        --full)
+            mode="full"
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            exit 2
+            ;;
         esac
         shift
     done

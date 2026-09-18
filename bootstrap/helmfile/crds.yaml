@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+# Renders chart-owned CRDs only. Standalone URL CRDs are inventoried in
+# bootstrap/crds/standalone.yaml and applied by the bootstrap base stage.
+helmDefaults:
+  args:
+    - --include-crds
+    - --no-hooks
+
+bases:
+  - default.yaml
+
+defaultInherit: default
+
+releases:
+  - name: envoy-gateway
+    namespace: network
+
+  - name: grafana-operator
+    namespace: observability
+
+  - name: kube-prometheus-stack
+    namespace: observability
+
+  - name: snapshot-controller
+    namespace: volsync-system
+
+  - name: volsync
+    namespace: volsync-system
+
+  - name: cnpg
+    namespace: database

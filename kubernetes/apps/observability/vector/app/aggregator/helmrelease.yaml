@@ -45,7 +45,7 @@ spec:
         type: LoadBalancer
         controller: vector-aggregator
         annotations:
-          external-dns.kubernetes.io/hostname: vector.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: vector.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.8
         ports:
           http:

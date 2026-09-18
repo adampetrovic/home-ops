@@ -32,7 +32,7 @@ spec:
               TZ: "${TZ}"
               PORT: &port 5000
               USE_X_SETTINGS: 1
-              BASE_URL: &host changedetection.${SECRET_DOMAIN}
+              BASE_URL: &host changedetection.petrovic.network
               PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/chromium?stealth=1&--disable-web-security=true
           browser:
             image:

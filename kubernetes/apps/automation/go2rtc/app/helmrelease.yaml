@@ -85,7 +85,7 @@ spec:
       streams:
         type: LoadBalancer
         annotations:
-          external-dns.kubernetes.io/hostname: cameras.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: cameras.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.14
         ports:
           streams-rtsp:
@@ -101,7 +101,7 @@ spec:
         annotations:
           gatus.home-operations.com/enabled: "true"
         hostnames:
-          - "go2rtc.${SECRET_DOMAIN}"
+          - "go2rtc.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

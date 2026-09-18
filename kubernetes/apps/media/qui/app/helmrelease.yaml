@@ -31,9 +31,9 @@ spec:
               QUI__PORT: &port 80
               QUI__LOG_LEVEL: INFO
               QUI__OIDC_ENABLED: true
-              QUI__OIDC_ISSUER: https://auth.${SECRET_DOMAIN}
+              QUI__OIDC_ISSUER: https://auth.petrovic.network
               QUI__OIDC_CLIENT_ID: qui
-              QUI__OIDC_REDIRECT_URL: https://qui.${SECRET_DOMAIN}/api/auth/oidc/callback
+              QUI__OIDC_REDIRECT_URL: https://qui.petrovic.network/api/auth/oidc/callback
               QUI__OIDC_DISABLE_BUILT_IN_LOGIN: true
               UMASK: "002"
               TZ: ${TZ}
@@ -79,7 +79,7 @@ spec:
     route:
       app:
         hostnames:
-          - qui.${SECRET_DOMAIN}
+          - qui.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -31,7 +31,7 @@ spec:
               tag: 1.43.4.10903@sha256:fdc6fe82bc7d8acd08fc0aa581fcb76722803ba5905e2537135a697347dd6149
             env:
               TZ: ${TZ}
-              PLEX_ADVERTISE_URL: https://plex.${SECRET_DOMAIN}:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
+              PLEX_ADVERTISE_URL: https://plex.petrovic.network:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
               PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23
             probes:
               liveness:
@@ -129,7 +129,7 @@ spec:
         type: LoadBalancer
         controller: plex
         annotations:
-          external-dns.kubernetes.io/hostname: plex-direct.${SECRET_DOMAIN}
+          external-dns.kubernetes.io/hostname: plex-direct.petrovic.network
           lbipam.cilium.io/ips: 10.0.88.3
         externalTrafficPolicy: Local
         ports:
@@ -138,7 +138,7 @@ spec:
     route:
       app:
         hostnames:
-          - "plex.${SECRET_DOMAIN}"
+          - "plex.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network
@@ -153,7 +153,7 @@ spec:
                     - name: X-Forwarded-Proto
                       value: https
                     - name: X-Forwarded-Host
-                      value: plex.${SECRET_DOMAIN}
+                      value: plex.petrovic.network
             backendRefs:
               - identifier: app
                 port: http

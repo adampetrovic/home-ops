@@ -8,9 +8,3 @@ resources:
   - ./ocirepository.yaml
 components:
   - ../../../../components/authelia-proxy
-configMapGenerator:
-  - name: flux-operator-values
-    files:
-      - values.yaml=./helm/values.yaml
-configurations:
-  - ./helm/kustomizeconfig.yaml

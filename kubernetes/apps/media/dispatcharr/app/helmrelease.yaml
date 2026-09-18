@@ -205,8 +205,8 @@ spec:
     route:
       app:
         hostnames:
-          - "dispatcharr.${SECRET_DOMAIN}"
-          - "xteve.${SECRET_DOMAIN}"
+          - "dispatcharr.petrovic.network"
+          - "xteve.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

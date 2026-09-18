@@ -97,7 +97,7 @@ spec:
                 port: http
       internal:
         hostnames:
-          - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - "{{ .Release.Name }}.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

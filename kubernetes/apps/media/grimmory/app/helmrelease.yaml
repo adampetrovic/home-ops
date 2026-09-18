@@ -114,7 +114,7 @@ spec:
     route:
       main:
         hostnames:
-          - grimmory.${SECRET_DOMAIN}
+          - grimmory.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network

@@ -433,7 +433,7 @@ kubectl -n database get cluster postgres
 kubectl -n database get pods -l cnpg.io/cluster=postgres -o wide
 
 # Ingress working (quick smoke test)
-curl -sk https://home-assistant.${SECRET_DOMAIN} -o /dev/null -w "%{http_code}"
+curl -sk https://home-assistant.petrovic.network -o /dev/null -w "%{http_code}"
 ```
 
 ---

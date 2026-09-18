@@ -44,7 +44,7 @@ spec:
               DISABLE_MQTT: "false"
               MQTT_HOME_ASSISTANT_DISCOVERY: "true"
               MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX: homeassistant
-              MQTT_HOME_ASSISTANT_DISCOVERY_URL: "https://teslamate.${SECRET_DOMAIN}"
+              MQTT_HOME_ASSISTANT_DISCOVERY_URL: "https://teslamate.petrovic.network"
               MQTT_HOST: mosquitto.automation.svc.cluster.local
             envFrom:
               - secretRef:
@@ -83,7 +83,7 @@ spec:
     route:
       app:
         hostnames:
-          - "teslamate.${SECRET_DOMAIN}"
+          - "teslamate.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

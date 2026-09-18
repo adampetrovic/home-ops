@@ -8,7 +8,7 @@ Ingress is handled by Envoy Gateway using Kubernetes Gateway API. Do not add leg
 
 Two Gateway resources live in the `network` namespace:
 
-- `envoy-internal` (`10.0.88.200`) for local-only apps using `${SECRET_DOMAIN}`.
+- `envoy-internal` (`10.0.88.200`) for local-only apps using `petrovic.network`.
 - `envoy-external` (`10.0.88.201`) for internet-exposed apps using `${SECRET_PUBLIC_DOMAIN}` via Cloudflare Tunnel.
 
 Both terminate TLS on port 443 with a wildcard certificate and redirect HTTP to HTTPS.
@@ -23,7 +23,7 @@ Internal-only app:
 route:
   app:
     hostnames:
-      - "app.${SECRET_DOMAIN}"
+      - "app.petrovic.network"
     parentRefs:
       - name: envoy-internal
         namespace: network
@@ -47,7 +47,7 @@ Dual internal and external exposure:
 route:
   internal:
     hostnames:
-      - "app.${SECRET_DOMAIN}"
+      - "app.petrovic.network"
     parentRefs:
       - name: envoy-internal
         namespace: network
@@ -65,7 +65,7 @@ When default backendRefs are not sufficient, add explicit rules:
 route:
   app:
     hostnames:
-      - "app.${SECRET_DOMAIN}"
+      - "app.petrovic.network"
     parentRefs:
       - name: envoy-internal
         namespace: network

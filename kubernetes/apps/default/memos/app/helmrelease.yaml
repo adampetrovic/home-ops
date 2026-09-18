@@ -65,7 +65,7 @@ spec:
     route:
       app:
         hostnames:
-          - "memos.${SECRET_DOMAIN}"
+          - "memos.petrovic.network"
         parentRefs:
           - name: envoy-internal
             namespace: network

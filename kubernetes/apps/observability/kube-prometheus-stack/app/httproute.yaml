@@ -10,7 +10,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - alertmanager.${SECRET_DOMAIN}
+    - alertmanager.petrovic.network
   rules:
     - backendRefs:
         - name: alertmanager-operated
@@ -27,7 +27,7 @@ spec:
     - name: envoy-internal
       namespace: network
   hostnames:
-    - prometheus.${SECRET_DOMAIN}
+    - prometheus.petrovic.network
   rules:
     - backendRefs:
         - name: prometheus-operated

@@ -30,7 +30,7 @@ spec:
       clusterIP: 10.96.0.10
     servers:
       - zones:
-          - zone: ${SECRET_DOMAIN}
+          - zone: petrovic.network
             scheme: dns://
         port: 53
         plugins:

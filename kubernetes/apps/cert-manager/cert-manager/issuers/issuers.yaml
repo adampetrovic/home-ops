@@ -17,7 +17,7 @@ spec:
               key: api-token
         selector:
           dnsZones:
-            - ${SECRET_DOMAIN}
+            - petrovic.network
             - ${SECRET_PUBLIC_DOMAIN}
             - ${SECRET_PUBLIC_ANON_DOMAIN}
             - ${SECRET_PLEX_DOMAIN}

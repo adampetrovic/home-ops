@@ -75,7 +75,7 @@ spec:
             namespace: network
       secondary:
         hostnames:
-          - requests.${SECRET_DOMAIN}
+          - requests.petrovic.network
         parentRefs:
           - name: envoy-internal
             namespace: network
