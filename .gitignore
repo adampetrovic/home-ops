@@ -24,5 +24,7 @@ Brewfile.lock.json
 # pi
 .kstack
 .pi/subagent-schedules/
+.pi/todos/
+plans/
 # wiki
 wiki
