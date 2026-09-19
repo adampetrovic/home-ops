@@ -18,6 +18,15 @@
     ":timezone(Australia/Sydney)",
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  packageRules: [
+    {
+      description: "Ignore digest updates for images that already have version tags",
+      matchDatasources: ["docker"],
+      matchUpdateTypes: ["digest"],
+      matchCurrentValue: "/^.+$/",
+      enabled: false,
+    },
+  ],
   suppressNotifications: [
     "prEditedNotification",
     "prIgnoreNotification",
