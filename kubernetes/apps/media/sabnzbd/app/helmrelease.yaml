@@ -50,6 +50,10 @@ spec:
             env:
               TZ: "${TZ}"
               SABNZBD__PORT: &port 80
+              # Keep high-churn article writes off the NFS media share.
+              SABNZBD__DOWNLOAD_DIR: /incomplete/sabnzbd
+              SABNZBD__COMPLETE_DIR: /downloads/complete/sabnzbd
+              SABNZBD__CACHE_LIMIT: 2G
               SABNZBD__HOST_WHITELIST_ENTRIES: >-
                 sabnzbd,
                 sabnzbd.media,
@@ -61,8 +65,10 @@ spec:
               requests:
                 cpu: 251m
                 memory: 3Gi
+                ephemeral-storage: 25Gi
               limits:
                 memory: 6Gi
+                ephemeral-storage: 175Gi
             probes:
               liveness: &probes
                 enabled: true
@@ -94,6 +100,11 @@ spec:
     persistence:
       config:
         existingClaim: sabnzbd
+      incomplete:
+        type: emptyDir
+        sizeLimit: 150Gi
+        globalMounts:
+          - path: /incomplete
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
