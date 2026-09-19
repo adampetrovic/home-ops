@@ -219,7 +219,8 @@ escalation.
 
 Power off any other relevant infrastructure:
 
-- **Synology NAS** (hosts NFS for Kopia backups and media) — shut down via DSM UI or SSH
+- **UNAS** (hosts NFS for Kopia backups, media, photos, and Garage) — shut down via its UI or SSH
+- **Synology DVA** (NVR/security cameras) — shut down via DSM UI or SSH if needed
 - **Network switches / router** — if they're on the same circuit
 - **UPS** — if the circuits need to be fully de-energised
 
@@ -235,10 +236,10 @@ cordon to avoid the scheduling cascade we hit previously.
 
 1. **UPS** — ensure it is online, stable and charging.
 2. **Network switches / router** — wait for VLAN, routing and DNS convergence.
-3. **Synology NAS** — wait for NFS exports and SSH to be available.
-4. **UNAS** — wait for all pools to report healthy and for NFS/SMB services to be available.
+3. **UNAS** — wait for all pools to report healthy and for NFS/SMB services to be available.
+4. **Synology DVA** — wait for DSM and camera services if NVR availability matters.
 
-Do not boot the Kubernetes nodes until both NAS units and the network are ready.
+Do not boot the Kubernetes nodes until UNAS and the network are ready.
 
 ### 11. Wake all nodes via Wake-on-LAN
 
@@ -532,15 +533,15 @@ kubectl describe pod <pod-name> -n <namespace> | tail -20
 
 ### NFS mounts failing (VolSync / media)
 
-If the Synology NAS isn't back online yet, VolSync mover jobs and media pods will fail:
+If UNAS isn't back online yet, VolSync mover jobs and media pods will fail:
 
 ```bash
-# Verify NAS is reachable
-ping <nas-ip>
-showmount -e <nas-ip>
+# Verify UNAS is reachable
+ping <unas-ip>
+showmount -e <unas-ip>
 ```
 
-Wait for the NAS to fully boot before expecting VolSync and media pods to recover.
+Wait for UNAS to fully boot before expecting VolSync and media pods to recover.
 
 ---
 
@@ -548,4 +549,4 @@ Wait for the NAS to fully boot before expecting VolSync and media pods to recove
 
 - **UPS automation**: Talos nodes do not currently run a NUT client; unplanned outages will not trigger automatic node shutdown from UPS signalling. This runbook is the supported planned shutdown path.
 - **Estimated downtime**: Shutdown takes ~5 minutes. Startup and full recovery typically takes 10-15 minutes once power is restored.
-- **Synology NAS**: The NAS is external to the cluster but critical for NFS-backed storage (Kopia backups, media). Ensure it's powered on before the cluster nodes.
+- **UNAS**: UNAS is external to the cluster but critical for NFS-backed storage (Kopia backups, media, photos, and Garage). Ensure it's powered on before the cluster nodes.
