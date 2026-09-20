@@ -31,7 +31,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/go2rtc-split
-              tag: v0.1.9@sha256:fb983e2db471b1d661f3416e29184b32cc3c96eb7213e87e887b487263ca9b3a
+              tag: v0.1.10@sha256:ca2202242c71c56f9f8569686e005ba2a37cd0e4b860c75cfa42749677da7fac
             env:
               TZ: ${TZ}
               PORT: "8080"
@@ -39,6 +39,7 @@ spec:
               APP_NAME: Kids Monitor
               PAGE_TITLE: Kids Monitor
               GO2RTC_STREAMS: "zoey_hq:Zoey,eliza_hq:Eliza"
+              GO2RTC_DENY_STREAMS: living_room_hq
               GO2RTC_WS_PATH: /api/ws
               LAYOUT: auto
               OBJECT_FIT: contain
