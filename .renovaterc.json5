@@ -21,6 +21,12 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   packageRules: [
     {
+      description: "Disable mise 1Password CLI updates because Renovate resolves it to a non-public GitHub repo",
+      matchManagers: ["mise"],
+      matchPackageNames: ["1password/cli"],
+      enabled: false,
+    },
+    {
       description: "Ignore digest updates for images that already have version tags",
       matchDatasources: ["docker"],
       matchUpdateTypes: ["digest"],
