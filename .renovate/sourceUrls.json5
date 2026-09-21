@@ -14,16 +14,10 @@
       sourceUrl: "https://github.com/babybuddy/babybuddy",
     },
     {
-      description: "Use upstream release notes for snapshot-controller chart",
+      description: "Use chart release notes for snapshot-controller chart",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/piraeusdatastore/helm-charts/snapshot-controller"],
       sourceUrl: "https://github.com/piraeusdatastore/helm-charts",
-    },
-    {
-      description: "Use upstream release notes for pgAdmin",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/dpage/pgadmin4"],
-      sourceUrl: "https://github.com/pgadmin-org/pgadmin4",
     },
     {
       description: "Use upstream release notes for Readeck",
@@ -33,28 +27,10 @@
       changelogUrl: "https://codeberg.org/readeck/readeck/releases",
     },
     {
-      description: "Use upstream release notes for sigenergy2mqtt",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/seud0nym/sigenergy2mqtt"],
-      sourceUrl: "https://github.com/seud0nym/sigenergy2mqtt",
-    },
-    {
-      description: "Use upstream release notes for Radarr",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/home-operations/radarr"],
-      sourceUrl: "https://github.com/Radarr/Radarr",
-    },
-    {
       description: "Use upstream release notes for Frigate",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/blakeblackshear/frigate"],
       sourceUrl: "https://github.com/blakeblackshear/frigate",
-    },
-    {
-      description: "Use upstream release notes for ExternalDNS chart mirror",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/home-operations/charts-mirror/external-dns"],
-      sourceUrl: "https://github.com/kubernetes-sigs/external-dns",
     },
     {
       description: "Use upstream release notes for Ceph CSI chart mirror",
@@ -76,53 +52,16 @@
       sourceUrl: "https://github.com/atuinsh/atuin",
     },
     {
-      description: "Use upstream release notes for Reloader chart",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/stakater/charts/reloader"],
-      sourceUrl: "https://github.com/stakater/Reloader",
-    },
-    {
-      description: "Use upstream release notes for CoreDNS chart",
+      description: "Use chart release notes for CoreDNS chart",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/coredns/charts/coredns"],
       sourceUrl: "https://github.com/coredns/helm",
-    },
-    {
-      description: "Use upstream release notes for Garage",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/dxflrs/garage"],
-      sourceUrl: "https://github.com/deuxfleurs-org/garage",
-      changelogUrl: "https://git.deuxfleurs.fr/Deuxfleurs/garage/releases",
-    },
-    {
-      description: "Use upstream release notes for Talos installer",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/siderolabs/installer"],
-      sourceUrl: "https://github.com/siderolabs/talos",
-    },
-    {
-      description: "Use upstream release notes for Actual Budget",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/actualbudget/actual-server"],
-      sourceUrl: "https://github.com/actualbudget/actual",
-    },
-    {
-      description: "Use upstream release notes for Vector",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/timberio/vector"],
-      sourceUrl: "https://github.com/vectordotdev/vector",
     },
     {
       description: "Use upstream release notes for Grafana Operator chart",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/grafana/helm-charts/grafana-operator"],
       sourceUrl: "https://github.com/grafana/grafana-operator",
-    },
-    {
-      description: "Use upstream release notes for kube-prometheus-stack chart",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/prometheus-community/charts/kube-prometheus-stack"],
-      sourceUrl: "https://github.com/prometheus-community/helm-charts",
     },
     {
       description: "Use upstream release notes for Ceph",
@@ -132,28 +71,10 @@
       changelogUrl: "https://docs.ceph.com/en/latest/releases/",
     },
     {
-      description: "Use upstream release notes for Metrics Server chart mirror",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/home-operations/charts-mirror/metrics-server"],
-      sourceUrl: "https://github.com/kubernetes-sigs/metrics-server",
-    },
-    {
-      description: "Use upstream release notes for app-template chart",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/bjw-s-labs/helm/app-template"],
-      sourceUrl: "https://github.com/bjw-s-labs/helm-charts",
-    },
-    {
-      description: "Use upstream release notes for postgres-init",
+      description: "Use container release notes for postgres-init",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/home-operations/postgres-init"],
       sourceUrl: "https://github.com/home-operations/containers",
-    },
-    {
-      description: "Use upstream release notes for Loki chart",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/grafana/helm-charts/loki"],
-      sourceUrl: "https://github.com/grafana/loki",
     },
   ],
 }
