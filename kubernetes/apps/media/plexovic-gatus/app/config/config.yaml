@@ -21,11 +21,11 @@ alerting:
 endpoints:
   - name: Plex Requests
     group: automation
-    url: https://requests.${SECRET_PLEX_DOMAIN}
+    url: http://jellyseerr.media.svc.cluster.local/api/v1/status
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: false
+      hide-hostname: true
+      hide-url: false
     conditions:
       - "[STATUS] == 200"
     alerts:
@@ -35,9 +35,10 @@ endpoints:
   # plex - lightweight health check
   - name: Plex
     group: plex
-    url: http://plex.media.svc.cluster.local:32400/identity?X-Plex-Token=${PLEX_TOKEN}
+    url: http://plex.media.svc.cluster.local:32400/identity
     headers:
       Accept: application/json
+      X-Plex-Token: ${PLEX_TOKEN}
     interval: 1m
     ui:
       hide-hostname: true
@@ -54,9 +55,11 @@ endpoints:
   # plex - library availability (less frequent, higher tolerance)
   - name: Plex Library
     group: plex
-    url: http://plex.media.svc.cluster.local:32400/library/sections/1/all?X-Plex-Container-Size=1&X-Plex-Token=${PLEX_TOKEN}
+    url: http://plex.media.svc.cluster.local:32400/library/sections/1/all
     headers:
       Accept: application/json
+      X-Plex-Container-Size: "1"
+      X-Plex-Token: ${PLEX_TOKEN}
     interval: 15m
     ui:
       hide-hostname: true
@@ -108,8 +111,8 @@ endpoints:
     url: http://qbittorrent.media.svc.cluster.local/api/v2/app/version
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: true
+      hide-hostname: true
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
     alerts:
@@ -121,8 +124,8 @@ endpoints:
     url: http://sabnzbd.media.svc.cluster.local/api?mode=version
     interval: 1m
     ui:
-        hide-hostname: true
-        hide-url: true
+      hide-hostname: true
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
     alerts:
