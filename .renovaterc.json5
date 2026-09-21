@@ -11,6 +11,7 @@
     "github>adampetrovic/home-ops//.renovate/hostRules.json5",
     "github>adampetrovic/home-ops//.renovate/labels.json5",
     "github>adampetrovic/home-ops//.renovate/semanticCommits.json5",
+    "github>adampetrovic/home-ops//.renovate/sourceUrls.json5",
     ":automergeBranch",
     ":disableRateLimiting",
     ":dependencyDashboard",
