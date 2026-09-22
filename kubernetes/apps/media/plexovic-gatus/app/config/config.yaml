@@ -21,7 +21,7 @@ alerting:
 endpoints:
   - name: Plex Requests
     group: automation
-    url: http://jellyseerr.media.svc.cluster.local/api/v1/status
+    url: https://requests.${SECRET_PLEX_DOMAIN}
     interval: 1m
     ui:
       hide-hostname: true
