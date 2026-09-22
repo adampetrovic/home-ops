@@ -34,6 +34,12 @@ servers:
           ttl 30
       - name: autopath
         parameters: "@kubernetes"
+      # This cluster is IPv4-only; suppress external AAAA answers so workloads
+      # do not try unroutable IPv6 addresses before falling back to IPv4.
+      - name: template
+        parameters: IN AAAA .
+        configBlock: |-
+          rcode NOERROR
       - name: forward
         parameters: . /etc/resolv.conf
         configBlock: |-
