@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/abb-cvc-extract
-              tag: 1.4.0@sha256:bd8069d4f47e0a6113f478b7665e2deae343b406a7a0fb87502000162679a6e2
+              tag: 1.4.1@sha256:79febdbc586c17debf6a2ae0031165b5e79c9e096bce9775e5196a6a6964b2d6
             args:
               - --discover
               - --yesterday
