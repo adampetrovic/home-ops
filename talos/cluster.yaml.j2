@@ -10,7 +10,7 @@ machine:
     - 10.0.80.99
     - 127.0.0.1 # KubePrism
   kubelet:
-    image: ghcr.io/siderolabs/kubelet:v1.36.3
+    image: ghcr.io/siderolabs/kubelet:v1.37.0
     clusterDNS:
       - 10.96.0.10
     extraArgs:
@@ -76,7 +76,6 @@ nameservers:
   - address: 1.1.1.1
   - address: 8.8.8.8
 searchDomains:
-  domains: []
   disableDefault: true
 hostDNS:
   enabled: true
