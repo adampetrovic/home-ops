@@ -58,6 +58,54 @@ jobs:
             --path /github/workspace/kubernetes/flux/cluster
             --verbose
 
+  bootstrap-parity:
+    name: Bootstrap - Helmfile Parity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: "${{ secrets.BOT_APP_ID }}"
+          private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          token: "${{ steps.app-token.outputs.token }}"
+
+      - name: Install tools
+        env:
+          HELM_INSTALL_SCRIPT: >-
+            https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          HELMFILE_ARCHIVE: >-
+            https://github.com/helmfile/helmfile/releases/download/v1.8.0/helmfile_1.8.0_linux_amd64.tar.gz
+          YQ_BINARY: >-
+            https://github.com/mikefarah/yq/releases/download/v4.53.6/yq_linux_amd64
+        run: |-
+          sudo apt-get update
+          sudo apt-get install --yes curl gzip jq tar
+
+          curl --fail --silent --show-error --location \
+            --output /tmp/yq \
+            "${YQ_BINARY}"
+          sudo install --mode 0755 /tmp/yq /usr/local/bin/yq
+
+          curl --fail --silent --show-error --location \
+            "${HELM_INSTALL_SCRIPT}" \
+            | DESIRED_VERSION=v4.3.0 bash
+
+          curl --fail --silent --show-error --location \
+            --output /tmp/helmfile.tar.gz \
+            "${HELMFILE_ARCHIVE}"
+          tar --extract --gzip --file /tmp/helmfile.tar.gz \
+            --directory /tmp helmfile
+          sudo install --mode 0755 /tmp/helmfile /usr/local/bin/helmfile
+
+      - name: Run bootstrap Helmfile parity check
+        run: scripts/bootstrap-helmfile-parity.sh
+
   diff:
     if: ${{ needs.filter.outputs.changed-files != '[]' }}
     needs: filter
@@ -133,6 +181,7 @@ jobs:
     if: ${{ !cancelled() }}
     needs:
       - test
+      - bootstrap-parity
       - diff
     name: Flux Local - Success
     runs-on: ubuntu-latest
