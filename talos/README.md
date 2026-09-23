@@ -82,5 +82,18 @@ break-glass fallback and derives the installer image from the rendered config.
   values without committing rendered secrets. The service-account key is already
   migrated to `KubeServiceAccountConfig`; `render-config.sh` decodes the
   1Password-backed base64 key into the environment at render time.
-- Workload isolation / `SecurityProfileConfig` is intentionally deferred due to
-  storage and NFS risk.
+## Workload isolation rollout
+
+`SecurityProfileConfig.workloadIsolation: true` is enabled in every node template.
+It was rolled out in stages: worker canaries `k8s-node-4` and `k8s-node-5`,
+control-plane canary `k8s-node-2`, then `k8s-node-3` and `k8s-node-1` after the
+previous nodes recovered. The config must be applied and the node rebooted to
+activate `sandboxd`; a successful `apply-config --mode=try` does not persist.
+
+No pod security-context or runtime changes were needed for the observed workload
+classes. Validation covered Talos/Kubernetes node health, `sandboxd`, etcd/API,
+Flux, Ceph monitors and OSDs, OpenEBS hostpath PVs, NFS-mounted media and VolSync
+movers, GPU/device plugins, privileged Cilium/Multus, and Envoy Local-policy
+endpoints. See [issue #3406](https://github.com/adampetrovic/home-ops/issues/3406)
+for the staged validation and follow-up observations. Continue monitoring
+storage, NFS, and device workloads after future Talos or runtime upgrades.
