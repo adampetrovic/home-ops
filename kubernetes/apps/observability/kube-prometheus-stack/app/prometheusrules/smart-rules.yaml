@@ -67,6 +67,26 @@ spec:
           for: 5m
           labels:
             severity: critical
+        - alert: SmartctlUNASNVMeWearIncreasingFast
+          annotations:
+            description: UNAS NVMe device {{ $labels.device }} has consumed {{ printf "%.0f" $value }} percentage point(s) of endurance in the last 7 days.
+            summary: UNAS NVMe endurance is increasing faster than expected.
+          expr: |-
+            max_over_time(smartctl_device_percentage_used{job="unas-smart", instance="UNAS-Pro-8", device=~"nvme.*"}[7d])
+            -
+            min_over_time(smartctl_device_percentage_used{job="unas-smart", instance="UNAS-Pro-8", device=~"nvme.*"}[7d])
+            >= 1
+          for: 6h
+          labels:
+            severity: warning
+        - alert: SmartctlUNASNVMeWearEarlyWarning
+          annotations:
+            description: UNAS NVMe device {{ $labels.device }} has consumed {{ printf "%.0f" $value }}% of its rated endurance soon after installation.
+            summary: UNAS NVMe endurance has reached the early watch threshold.
+          expr: smartctl_device_percentage_used{job="unas-smart", instance="UNAS-Pro-8", device=~"nvme.*"} >= 4
+          for: 30m
+          labels:
+            severity: warning
         - alert: SmartctlNVMeWearHigh
           annotations:
             description: NVMe device {{ $labels.device }} on {{ $labels.instance }} has consumed {{ printf "%.0f" $value }}% of its rated endurance.
