@@ -5,6 +5,10 @@ auto: "off"
 hostname: k8s-node-3
 ---
 apiVersion: v1alpha1
+kind: SecurityProfileConfig
+workloadIsolation: true
+---
+apiVersion: v1alpha1
 kind: LinkAliasConfig
 name: bond0-m0
 selector:
