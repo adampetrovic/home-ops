@@ -4,7 +4,7 @@ SOPS_AGE_KEY = "op://k8s/sops/SOPS_PRIVATE_KEY"
 
 [tools]
 # Kubernetes
-kubectl = "1.37.0"
+kubectl = "1.37.1"
 helm = "4.3.0"
 helmfile = "1.8.0"
 kustomize = "5.8.1"
