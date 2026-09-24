@@ -21,7 +21,7 @@ RWO Ceph-block inbox PVC.
   during upgrades). The existing HTTP Service name and Authelia route remain.
 - The old NAS mount was already removed from Paperless, Gotenberg and Tika on
   `main`; this change does not reintroduce it. No NAS source data is copied,
-  removed or migrated. VolSync configuration for the primary Paperless claim is
+  removed or migrated. Kopiur configuration for the primary Paperless claim is
   unchanged: the primary backup target still uses NAS, with R2 secondary. The
   transient inbox PVC is retained by Helm but is not included in those backups;
   documents become protected after Paperless consumes them into its primary PVC.
@@ -160,7 +160,7 @@ for unattended use. No custom ingestion daemon is introduced by this change.
   duplicate detection removes the inbox copy, not the existing library document.
 - A container/pod restart or node reschedule preserves pending scans on the
   dedicated Ceph PVC, but interrupts active SMB transfers. The inbox is not part
-  of the primary Paperless VolSync restore, so a full cluster rebuild can lose
+  of the primary Paperless Kopiur restore, so a full cluster rebuild can lose
   unconsumed scans. Samba credentials/runtime are recreated from the Secret.
   Review Paperless task failures, verify failed PDFs are complete, then rescan
   with a **new filename**. Do not blindly delete inbox contents or assume every

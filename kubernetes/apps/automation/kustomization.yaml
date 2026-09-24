@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: automation
 components:
   - ../../components/common
+  - ../../components/kopiur/secret
 resources:
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml

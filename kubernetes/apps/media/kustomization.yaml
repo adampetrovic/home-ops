@@ -5,10 +5,10 @@ kind: Kustomization
 namespace: media
 components:
   - ../../components/common
+  - ../../components/kopiur/secret
 resources:
   - ./bazarr/ks.yaml
   - ./cleanrr/ks.yaml
-  - ./dispatcharr/ks.yaml
   - ./grimmory/ks.yaml
   - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
