@@ -82,6 +82,9 @@ spec:
   scheduleDefaults:
     timezone: Australia/Sydney
     jitter: 10m
+  parameters:
+    epoch:
+      minDuration: 1h
   create:
     enabled: false
   deletionProtection:
@@ -97,6 +100,9 @@ spec:
     enabled: true
     namespace: kopiur-system
   moverDefaults:
+    cache:
+      contentCacheSizeMb: 512
+      metadataCacheSizeMb: 1024
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 65532
