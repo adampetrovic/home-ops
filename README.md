@@ -156,7 +156,7 @@ The platform hosts **70+ applications** across multiple categories:
 ### 💾 Storage Management
 - **[Rook-Ceph](https://rook.io)** - Distributed block and object storage
 - **[OpenEBS](https://openebs.io)** - Local persistent volumes
-- **[VolSync](https://volsync.readthedocs.io)** - Volume backup and synchronization
+- **[Kopiur](https://github.com/home-operations/kopiur)** - PVC backup and restore
 - **Snapshot Controller** - Volume snapshot management
 - **[Kopia](https://kopia.io)** - Backup repository web UI
 
@@ -221,17 +221,17 @@ graph TD
     A[Applications] -->|RWO Volumes| B[Rook-Ceph RBD]
     A -->|RWX Volumes| C[Rook-Ceph FS]
     A -->|Local Volumes| D[OpenEBS LocalPV]
-    B -->|Backup| E[VolSync]
-    C -->|Backup| E
+    B -->|Snapshot Backup| E[Kopiur]
+    C -->|Snapshot Backup| E
     E -->|Kopia| F[NFS Repository]
-    E -->|Restic| G[Cloudflare R2]
+    E -->|Kopia| G[Cloudflare R2]
     H[NAS] -->|NFS| A
 ```
 
 - **Distributed Storage**: Rook-Ceph across all nodes for redundancy
 - **Local Storage**: OpenEBS for high-performance local volumes
 - **Network Storage**: NFS mounts from UniFi UNAS Pro 8
-- **Backup Strategy**: Dual-storage — Kopia hourly to NFS, Restic daily to Cloudflare R2 for off-site disaster recovery
+- **Backup Strategy**: Kopiur dual-repository backups — hourly Kopia snapshots to NFS and weekly Kopia snapshots to Cloudflare R2 for off-site disaster recovery
 
 ### Networking Deep Dive
 
@@ -286,12 +286,10 @@ op run -- just bootstrap verify         # Verify the core bootstrap substrate
 op run -- just bootstrap verify-full    # Verify full GitOps/storage/app convergence
 
 # Volume backup operations
-just volsync list <app> <ns>       # List primary Kopia snapshots
-just volsync backup <app> <ns>     # Trigger and verify Kopia/R2 backup
-just volsync locks-r2 <app> <ns>   # Inspect R2 Restic locks
-just volsync unlock-r2 <app> <ns>  # Safely remove stale R2 locks
-just volsync check-r2 <app> <ns>   # Check R2 Restic metadata
-just volsync debug-r2 <app> <ns>   # Create an R2 Restic debug Pod
+kubectl kopiur status -A                                      # Repository, policy, and in-flight backup status
+kubectl kopiur snapshots -A                                   # List Kopiur snapshot CRs
+kubectl kopiur snapshot now -n <ns> --policy <policy> --wait  # Trigger and wait for a backup
+kubectl kopiur logs snapshot -n <ns> <snapshot>               # Stream mover logs for a backup
 
 # Kubernetes operations
 just kube delete-failed-pods       # Delete pods with failed status
@@ -310,7 +308,7 @@ Complete destructive cluster rebuild capability:
 1. **Preflight**: `op run -- just bootstrap preflight` checks tools, credentials, rendering, and Talos node reachability
 2. **Hardware Reset**: PXE boot into Talos maintenance mode or run `just talos nuke destroy-cluster`
 3. **Cluster Bootstrap**: `op run -- just bootstrap cluster` recreates Talos/Kubernetes and installs Flux
-4. **Backup Restoration**: VolSync automatically restores PVCs from Kopia on NAS/NFS; R2 is the manual fallback copy
+4. **Backup Restoration**: Kopiur restores PVCs from Kopia on NAS/NFS; R2 is the manual fallback copy
 5. **Verification**: `op run -- just bootstrap verify` then `op run -- just bootstrap verify-full`
 6. **Full documentation**: See [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md)
 
@@ -336,11 +334,12 @@ Complete destructive cluster rebuild capability:
 │   ├── 📁 security/      # Authentication and security
 │   ├── 📁 storage/       # Garage object storage
 │   ├── 📁 system-upgrade/ # Automated Talos/K8s upgrades (Tuppr)
-│   └── 📁 volsync-system/ # Volume backup services
+│   └── 📁 kopiur-system/ # Kopiur backup services
 ├── 📁 components/        # Reusable Kustomize components
 │   ├── 📁 authelia-proxy/ # Authelia ext-auth security policy
 │   ├── 📁 common/        # Common configurations
-│   └── 📁 volsync/       # VolSync components
+│   ├── 📁 kopiur/        # Kopiur backup/secret components
+│   └── 📁 persistence/   # Prune-protected PVC component
 └── 📁 flux/              # Flux system configuration
     └── 📁 cluster/       # Cluster-wide configurations
 
@@ -370,10 +369,9 @@ Complete destructive cluster rebuild capability:
 
 .justfile                 # Root just module definitions
 📁 talos/scripts/        # Talos helper scripts used by just recipes
-📁 kubernetes/components/volsync/
-├── mod.just              # VolSync just recipes
-├── 📁 scripts/           # VolSync helper scripts
-└── 📁 templates/         # VolSync operation templates
+📁 kubernetes/components/kopiur/
+├── 📁 backup/            # Shared SnapshotPolicy/SnapshotSchedule component
+└── 📁 secret/            # Shared Kopiur repository secret component
 ```
 
 ### Application Organization

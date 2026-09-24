@@ -39,23 +39,23 @@ kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
 kubectl -n database get cluster postgres
 ```
 
-### 2. Trigger fresh VolSync backups (optional but recommended)
+### 2. Trigger fresh Kopiur backups (optional but recommended)
 
 Kick off an ad-hoc Kopia snapshot for critical apps so the most recent data is backed up:
 
 ```bash
-# Snapshot all apps in parallel (max 4 concurrent)
-kubectl get replicationsources --all-namespaces --no-headers \
-  | awk '{print $2, $1}' \
-  | xargs --max-procs=4 -l bash -c 'just volsync backup "$0" "$1"'
+# Snapshot all NFS policies in parallel (max 4 concurrent)
+kubectl get snapshotpolicy.kopiur.home-operations.com --all-namespaces --no-headers \
+  | awk '$2 ~ /-nfs$/ {print $1, $2}' \
+  | xargs --max-procs=4 -n2 sh -c 'kubectl kopiur snapshot now -n "$1" --policy "$2" --wait' sh
 ```
 
 Or snapshot specific critical apps individually:
 
 ```bash
-just volsync backup home-assistant automation
-just volsync backup paperless default
-just volsync backup memos default
+kubectl kopiur snapshot now -n automation --policy home-assistant-nfs --wait
+kubectl kopiur snapshot now -n default --policy paperless-ngx-nfs --wait
+kubectl kopiur snapshot now -n default --policy memos-nfs --wait
 ```
 
 ### 3. Set Ceph OSD noout flag
@@ -531,9 +531,9 @@ kubectl get pvc -A | grep -v Bound
 kubectl describe pod <pod-name> -n <namespace> | tail -20
 ```
 
-### NFS mounts failing (VolSync / media)
+### NFS mounts failing (Kopiur / media)
 
-If UNAS isn't back online yet, VolSync mover jobs and media pods will fail:
+If UNAS isn't back online yet, Kopiur mover jobs and media pods will fail:
 
 ```bash
 # Verify UNAS is reachable
@@ -541,7 +541,7 @@ ping <unas-ip>
 showmount -e <unas-ip>
 ```
 
-Wait for UNAS to fully boot before expecting VolSync and media pods to recover.
+Wait for UNAS to fully boot before expecting Kopiur and media pods to recover.
 
 ---
 

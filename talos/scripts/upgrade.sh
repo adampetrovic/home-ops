@@ -57,12 +57,17 @@ for attempt in {1..30}; do
     sleep 10
 done
 
-active_backups="$(kubectl get replicationsource --all-namespaces -o json |
-    jq -r '[.items[] | select(any(.status.conditions[]?; .type == "Synchronizing" and .status == "True"))
-        | "\(.metadata.namespace)/\(.metadata.name)"] | join(", ")')"
+active_backups="$(kubectl get snapshots,restores,snapshotreplications,repositoryreplications --all-namespaces -o json |
+    jq -r '[.items[]
+        | select(.status.phase? as $phase | $phase | IN("Pending", "Running", "Resolving", "Restoring", "Replicating", "Deleting"))
+        | "\(.metadata.namespace)/\(.kind)/\(.metadata.name):\(.status.phase)"] | join(", ")')"
+active_maintenance="$(kubectl get maintenance.kopiur.home-operations.com --all-namespaces -o json |
+    jq -r '[.items[]
+        | select(.status.manualRun.phase? == "Running")
+        | "\(.metadata.namespace)/Maintenance/\(.metadata.name):Running"] | join(", ")')"
 ceph_health="$(kubectl -n rook-ceph get cephcluster rook-ceph -o jsonpath='{.status.ceph.health}')"
-if [[ -n "${active_backups}" || "${ceph_health}" != "HEALTH_OK" ]]; then
-    echo "Upgrade blocked: active VolSync backups: ${active_backups:-none}; Ceph: ${ceph_health}" >&2
+if [[ -n "${active_backups}${active_maintenance}" || "${ceph_health}" != "HEALTH_OK" ]]; then
+    echo "Upgrade blocked: active Kopiur work: ${active_backups:-none}${active_maintenance:+, ${active_maintenance}}; Ceph: ${ceph_health}" >&2
     exit 1
 fi
 
