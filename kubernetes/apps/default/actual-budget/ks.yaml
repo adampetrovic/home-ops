@@ -15,6 +15,8 @@ spec:
   dependsOn:
     - name: kopiur-repositories
       namespace: kopiur-system
+    - name: external-secrets-stores
+      namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/default/actual-budget/app
