@@ -23,7 +23,7 @@ Before each node upgrade (Talos) or before starting (Kubernetes), tuppr evaluate
 
 | Check | Expression | Purpose |
 |-------|-----------|---------|
-| Kopiur | `Snapshot`, `Restore`, replication, and manual `Maintenance` phases are not in-progress | Don't upgrade while backup/restore work is running |
+| Kopiur | `Snapshot`, replication, active `Restore`, and manual `Maintenance` phases are not in-progress | Don't upgrade while backup/restore work is running; passive restore populators may remain `Pending` while awaiting a new PVC |
 | Rook-Ceph | `CephCluster` health `in ['HEALTH_OK']` | Don't upgrade while Ceph is degraded |
 
 After a Talos node reboots, Ceph OSDs restart and health temporarily goes to `HEALTH_WARN`. tuppr waits for recovery before proceeding to the next node.
@@ -103,9 +103,12 @@ If an upgrade is stuck in `Pending` between nodes:
 kubectl get cephcluster -n rook-ceph -o jsonpath='{.items[0].status.ceph.health}'
 
 # Is Kopiur running backup/restore work?
-kubectl get snapshots,restores,snapshotreplications,repositoryreplications -A \
+kubectl get snapshots,snapshotreplications,repositoryreplications -A \
   -o custom-columns=KIND:.kind,NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase \
-  | awk 'NR == 1 || $4 ~ /^(Pending|Running|Resolving|Restoring|Replicating|Deleting)$/'
+  | awk 'NR == 1 || $4 ~ /^(Pending|Running|Replicating|Deleting)$/'; \
+kubectl get restores -A \
+  -o custom-columns=KIND:.kind,NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase \
+  | awk 'NR == 1 || $4 ~ /^(Resolving|Restoring)$/'
 ```
 
 ### Watch upgrade jobs

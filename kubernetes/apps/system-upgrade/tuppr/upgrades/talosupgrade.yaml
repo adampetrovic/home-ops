@@ -20,7 +20,7 @@ spec:
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Restore
       expr: |-
-        !has(status.phase) || !(status.phase in ["Pending", "Resolving", "Restoring"])
+        !has(status.phase) || !(status.phase in ["Resolving", "Restoring"])
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: SnapshotReplication
       expr: |-

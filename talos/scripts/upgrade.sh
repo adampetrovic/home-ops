@@ -57,10 +57,19 @@ for attempt in {1..30}; do
     sleep 10
 done
 
-active_backups="$(kubectl get snapshots,restores,snapshotreplications,repositoryreplications --all-namespaces -o json |
-    jq -r '[.items[]
-        | select(.status.phase? as $phase | $phase | IN("Pending", "Running", "Resolving", "Restoring", "Replicating", "Deleting"))
-        | "\(.metadata.namespace)/\(.kind)/\(.metadata.name):\(.status.phase)"] | join(", ")')"
+active_backups="$(
+    {
+        kubectl get snapshots,snapshotreplications,repositoryreplications --all-namespaces -o json
+        kubectl get restores --all-namespaces -o json
+    } | jq -rs '[
+        (.[0].items[]
+            | select(.status.phase? as $phase | $phase | IN("Pending", "Running", "Replicating", "Deleting"))
+            | "\(.metadata.namespace)/\(.kind)/\(.metadata.name):\(.status.phase)"),
+        (.[1].items[]
+            | select(.status.phase? as $phase | $phase | IN("Resolving", "Restoring"))
+            | "\(.metadata.namespace)/\(.kind)/\(.metadata.name):\(.status.phase)")
+    ] | join(", ")'
+)"
 active_maintenance="$(kubectl get maintenance.kopiur.home-operations.com --all-namespaces -o json |
     jq -r '[.items[]
         | select(.status.manualRun.phase? == "Running")
