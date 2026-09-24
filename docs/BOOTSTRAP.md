@@ -9,8 +9,8 @@ Do **not** use this runbook if your goal is to preserve/adopt existing Ceph OSDs
 - **Infrastructure source of truth:** this Git repository on `main`.
 - **Secrets source of truth:** 1Password vault `k8s` plus the SOPS age key.
 - **Talos source of truth:** native templates under `talos/` (`cluster.yaml.j2`, role templates, `nodes/**`, `inventory.yaml`, `secrets.yaml.j2`, and `schematic.yaml.j2`).
-- **Primary app PVC restore:** VolSync Kopia restore from the UNAS NFS repository at `/var/nfs/shared/kopia`.
-- **Secondary app backup:** Cloudflare R2 Restic backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
+- **Primary app PVC restore:** Kopiur Kopia restore from the UNAS NFS repository at `/var/nfs/shared/kopiur`.
+- **Secondary app backup:** Cloudflare R2 Kopia backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
 - **Ceph stance:** always rebuild in this runbook. `wipeDevicesFromOtherClusters: true` is expected for this destructive path.
 
 ## Prerequisites
@@ -92,7 +92,7 @@ from 1Password references in:
 
 3. Confirm the UNAS is online and serving NFS for at least:
 
-   - `/var/nfs/shared/kopia` — primary VolSync restore repository
+   - `/var/nfs/shared/kopiur` — primary Kopiur restore repository
    - `/var/nfs/shared/media` and `/var/nfs/shared/photos` — application data
    - `/var/nfs/shared/garage/{data,meta}` — Garage object storage state
 
@@ -195,26 +195,28 @@ This additionally checks:
 - all Flux Kustomizations and HelmReleases ready
 - `openebs-hostpath`, `ceph-block`, and `csi-ceph-blockpool`
 - Rook Ceph Kustomization readiness
-- VolSync Kustomization readiness
+- Kopiur Kustomization and repository readiness
 - Envoy Gateway programming
 - main CNPG `postgres` cluster readiness
-- VolSync ReplicationSource/ReplicationDestination API availability
+- Kopiur SnapshotPolicy/SnapshotSchedule API availability
 
 ## Data restoration expectations
 
-### VolSync PVCs
+### Kopiur PVCs
 
-Persistent apps using `kubernetes/components/volsync` create PVCs with a `dataSourceRef` to a VolSync `ReplicationDestination`. On a destructive rebuild, those PVCs should restore automatically from the latest Kopia snapshot in the UNAS repository.
+Persistent apps using `kubernetes/components/kopiur/backup` create Kopiur `SnapshotPolicy`, `SnapshotSchedule`, and passive `Restore` resources. PVCs created by `kubernetes/components/kopiur/backup` have a `dataSourceRef` to that `Restore`, so a destructive rebuild provisions the PVC from the latest **NFS** Kopia snapshot automatically. New apps still work because the restore uses `onMissingSnapshot: Continue`.
 
 Important details:
 
-- The default GitOps-created PVC restore uses **Kopia/NFS**. Use the manual R2 procedure if the Kopia repository is unavailable or missing the desired snapshot.
-- The UNAS and `/var/nfs/shared/kopia` must be available before VolSync mover jobs can restore.
-- Cloudflare R2 Restic backups are retained as a secondary disaster copy. Manual R2 restore steps are documented in `kubernetes/components/volsync/README.md`.
-- After bootstrap, inspect VolSync objects and PVCs:
+- The default GitOps-created PVC restore uses `${APP}-nfs` from the Kopiur NFS repository. Use the manual R2 procedure if the NFS repository is unavailable or missing the desired snapshot.
+- The UNAS and `/var/nfs/shared/kopiur` must be available before Kopiur mover jobs can restore from the primary repository.
+- Cloudflare R2 Kopia backups are retained as a secondary disaster copy. Use `kubectl kopiur restore` against the `*-r2` policy snapshots if the NFS repository is unavailable.
+- App-specific exceptions must keep `KOPIUR_RESTORE_NAME` and `KOPIUR_RESTORE_POLICY` aligned with the PVC that should be populated. For example, AdGuard restores the seed PVC `adguard` from policy `adguard-0-nfs`; StatefulSet ordinal `data-adguard-1` is then repopulated by sync.
+- After bootstrap, inspect Kopiur objects and PVCs:
 
   ```bash
-  kubectl get replicationdestinations,replicationsources -A
+  kubectl kopiur status -A
+  kubectl get restores,snapshotpolicies,snapshotschedules,snapshots.kopiur.home-operations.com -A
   kubectl get pvc -A
   ```
 

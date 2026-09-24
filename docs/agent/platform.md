@@ -9,7 +9,8 @@ kubernetes/
 ├── apps/                    # Application deployments organized by namespace
 ├── components/              # Reusable Kustomize components
 │   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
-│   └── volsync/             # VolSync backup/restore component
+│   ├── kopiur/              # Kopiur backup/credential components
+│   └── persistence/         # Prune-protected PVC component
 └── flux/cluster/            # Top-level Flux Kustomization
 
 talos/
@@ -30,14 +31,12 @@ scripts/                     # Helper scripts
 
 - Rook-Ceph `ceph-block` is the default StorageClass for most RWO volumes.
 - Rook-CephFS is used for RWX volumes.
-- OpenEBS `openebs-hostpath` provides local high-performance volumes, including VolSync R2 cache.
-- NFS on the UNAS Pro is used for media storage and the Kopia repository at `/var/nfs/shared/kopia`.
-- VolSync uses a dual-storage backup strategy:
-  - Kopia primary backups to NFS.
-  - Restic secondary backups to Cloudflare R2.
-  - MutatingAdmissionPolicies inject NFS mounts and backup jitter into mover jobs.
-  - KopiaMaintenance runs repository maintenance every 12 hours.
-  - Kopia web UI is available at `kopia.<domain>`.
+- OpenEBS `openebs-hostpath` provides local high-performance volumes for workloads that need node-local scratch space.
+- NFS on the UNAS Pro is used for media storage and the Kopiur NFS repository at `/var/nfs/shared/kopiur`.
+- Kopiur protects application PVCs with a dual-repository strategy:
+  - NFS Kopia backups use `*-nfs` policies on an hourly hashed schedule.
+  - Cloudflare R2 Kopia backups use `*-r2` policies on a weekly hashed schedule.
+  - The Kopia web UI is available at `kopia.<domain>` and points at the Kopiur NFS repository.
 
 ## Network
 

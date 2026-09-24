@@ -37,20 +37,15 @@ Kubernetes:
 just kube delete-failed-pods
 ```
 
-VolSync:
+Kopiur:
 
 ```bash
-just volsync list <name> <namespace>
-just volsync backup <name> <namespace> <kopia|r2|all>
-just volsync locks-r2 <name> <namespace>
-just volsync unlock-r2 <name> <namespace> <timeout> <verify>
-just volsync check-r2 <name> <namespace>
-just volsync debug-r2 <name> <namespace>
+kubectl kopiur status -A
+kubectl kopiur doctor -A
+kubectl kopiur snapshot now -n <namespace> --policy <name> --wait
+kubectl kopiur snapshots -A
+kubectl kopiur logs snapshot -n <namespace> <snapshot-name>
 ```
-
-R2 lock recovery is deliberately stale-only: `unlock-r2` runs plain `restic unlock`
-after checking for active repository owners. It has no `--remove-all` or force mode.
-All R2 operational recipes pin the `admin@home-kubernetes` context.
 
 ## GitOps Reconciliation
 
