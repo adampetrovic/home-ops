@@ -1,0 +1,44 @@
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/kopiur.home-operations.com/snapshotpolicy_v1alpha1.json
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: maintainerr-nfs
+spec:
+  repository:
+    kind: ClusterRepository
+    name: kopiur-nfs
+  sources:
+    - pvc:
+        name: maintainerr
+  volumeSnapshotClassName: csi-ceph-blockpool
+  compression:
+    compressor: zstd
+  retention:
+    keepLatest: 3
+    keepHourly: 24
+    keepDaily: 7
+    keepWeekly: 4
+    keepMonthly: 1
+  mover:
+    cache:
+      mode: Persistent
+      capacity: 5Gi
+      storageClassName: ceph-block
+    securityContext:
+      runAsUser: 568
+      runAsGroup: 568
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/kopiur.home-operations.com/snapshotschedule_v1alpha1.json
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotSchedule
+metadata:
+  name: maintainerr-nfs
+spec:
+  policyRef:
+    name: maintainerr-nfs
+  schedule:
+    cron: "H * * * *"
+    concurrencyPolicy: Forbid
+    runOnCreate: false
+    suspend: false
