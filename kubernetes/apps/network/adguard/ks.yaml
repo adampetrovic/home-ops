@@ -64,5 +64,7 @@ spec:
   postBuild:
     substitute:
       APP: data-adguard-0
-      KOPIUR_PUID: "1001"
-      KOPIUR_PGID: "568"
+      # AdGuardHome writes root-owned config files (for example conf/AdGuardHome.yaml),
+      # so the Kopiur mover needs root to read the snapshot source.
+      KOPIUR_PUID: "0"
+      KOPIUR_PGID: "0"
