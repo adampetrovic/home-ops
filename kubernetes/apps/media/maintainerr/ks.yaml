@@ -12,7 +12,6 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/kopiur/backup
-    - ../../../../components/kopiur/secret
   dependsOn:
     - name: kopiur-repositories
       namespace: kopiur-system
