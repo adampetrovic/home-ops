@@ -92,7 +92,7 @@ activate `sandboxd`; a successful `apply-config --mode=try` does not persist.
 
 No pod security-context or runtime changes were needed for the observed workload
 classes. Validation covered Talos/Kubernetes node health, `sandboxd`, etcd/API,
-Flux, Ceph monitors and OSDs, OpenEBS hostpath PVs, NFS-mounted media and VolSync
+Flux, Ceph monitors and OSDs, OpenEBS hostpath PVs, NFS-mounted media and Kopiur
 movers, GPU/device plugins, privileged Cilium/Multus, and Envoy Local-policy
 endpoints. See [issue #3406](https://github.com/adampetrovic/home-ops/issues/3406)
 for the staged validation and follow-up observations. Continue monitoring
