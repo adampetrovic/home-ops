@@ -17,6 +17,22 @@ spec:
       kind: ReplicationSource
       expr: |-
         status.conditions.filter(c, c.type == "Synchronizing").all(c, c.status == "False")
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Snapshot
+      expr: |-
+        !has(status.phase) || status.phase != "Running"
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Restore
+      expr: |-
+        !has(status.phase) || !(status.phase in ["Resolving", "Restoring"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: SnapshotReplication
+      expr: |-
+        !has(status.phase) || status.phase != "Running"
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Maintenance
+      expr: |-
+        !has(status.phase) || status.phase != "Running"
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-

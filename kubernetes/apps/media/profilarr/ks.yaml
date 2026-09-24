@@ -12,10 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/media/profilarr/app
@@ -31,8 +31,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_UID: "1000"
-      VOLSYNC_GID: "1000"
-      VOLSYNC_KOPIA_SCHEDULE: "52 * * * *"
-      VOLSYNC_R2_SCHEDULE: "18 5 * * *"
+      KOPIUR_CAPACITY: 5Gi
+      KOPIUR_PUID: "1000"
+      KOPIUR_PGID: "1000"

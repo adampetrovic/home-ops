@@ -11,8 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: external-secrets-stores
       namespace: external-secrets
     - name: cert-manager
@@ -21,7 +21,7 @@ spec:
       namespace: rook-ceph
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   path: ./kubernetes/apps/network/adguard/app
   prune: true
   sourceRef:
@@ -35,6 +35,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_KOPIA_SCHEDULE: "34 * * * *"
-      VOLSYNC_R2_SCHEDULE: "48 5 * * *"
+      KOPIUR_CAPACITY: 5Gi

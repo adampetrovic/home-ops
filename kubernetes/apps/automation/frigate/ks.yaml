@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   path: ./kubernetes/apps/automation/frigate/app
   prune: true
   sourceRef:
@@ -24,8 +24,8 @@ spec:
   retryInterval: 1m
   timeout: 5m
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: external-secrets-stores
       namespace: external-secrets
     - name: node-feature-discovery
@@ -35,6 +35,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
-      VOLSYNC_KOPIA_SCHEDULE: "30 * * * *"
-      VOLSYNC_R2_SCHEDULE: "50 1 * * *"
+      KOPIUR_CAPACITY: 5Gi

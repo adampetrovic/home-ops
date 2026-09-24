@@ -2,12 +2,12 @@
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: SnapshotSchedule
 metadata:
-  name: ${APP}
+  name: ${APP}-r2
 spec:
   policyRef:
-    name: ${APP}
+    name: ${APP}-r2
   schedule:
     cron: "H * * * *"
     concurrencyPolicy: Forbid
     runOnCreate: false
-    suspend: ${KOPIUR_SUSPEND:-true}
+    suspend: ${KOPIUR_SUSPEND:-false}

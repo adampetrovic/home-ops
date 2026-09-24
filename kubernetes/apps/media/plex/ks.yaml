@@ -12,10 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: intel-device-plugin-gpu
       namespace: kube-system
     - name: rook-ceph-cluster
@@ -35,10 +35,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 60Gi
-      VOLSYNC_KOPIA_SCHEDULE: "0 * * * *"
-      VOLSYNC_CACHE_CAPACITY: 15Gi
-      VOLSYNC_R2_SCHEDULE: "0 4 * * 1" # 4am Monday Mornings
+      KOPIUR_CAPACITY: 60Gi
+      KOPIUR_CACHE_CAPACITY: 15Gi
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json

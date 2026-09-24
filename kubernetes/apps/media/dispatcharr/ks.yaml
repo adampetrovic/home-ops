@@ -12,10 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: cloudnative-pg-cluster
       namespace: database
     - name: dragonfly-cluster
@@ -37,6 +37,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_KOPIA_SCHEDULE: "20 * * * *"
-      VOLSYNC_R2_SCHEDULE: "20 5 * * *"
+      KOPIUR_CAPACITY: 10Gi

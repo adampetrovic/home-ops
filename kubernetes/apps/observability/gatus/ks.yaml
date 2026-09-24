@@ -12,10 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: kube-prometheus-stack
       namespace: observability
     - name: envoy-gateway
@@ -35,8 +35,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 1Gi
-      VOLSYNC_UID: "1000"
-      VOLSYNC_GID: "1000"
-      VOLSYNC_KOPIA_SCHEDULE: "45 * * * *"
-      VOLSYNC_R2_SCHEDULE: "50 3 * * *"
+      KOPIUR_CAPACITY: 1Gi
+      KOPIUR_PUID: "1000"
+      KOPIUR_PGID: "1000"

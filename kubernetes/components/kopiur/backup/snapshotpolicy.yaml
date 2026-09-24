@@ -2,23 +2,31 @@
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: SnapshotPolicy
 metadata:
-  name: ${APP}
+  name: ${APP}-r2
 spec:
   repository:
     kind: ClusterRepository
-    name: ${KOPIUR_REPOSITORY:-kopiur-r2}
+    name: kopiur-r2
   sources:
     - pvc:
         name: ${APP}
+      readOnly: true
+  copyMethod: Snapshot
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
+  errorHandling:
+    ignoreDirErrors: false
+    ignoreFileErrors: false
+    ignoreUnknownTypes: false
   retention:
     keepLatest: 3
     keepHourly: 24
     keepDaily: 7
     keepWeekly: 4
     keepMonthly: 1
+  deletion:
+    onPolicyDelete: Retain
   mover:
     cache:
       mode: Persistent

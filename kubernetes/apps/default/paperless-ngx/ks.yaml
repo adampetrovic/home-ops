@@ -12,10 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   dependsOn:
-    - name: volsync
-      namespace: volsync-system
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: external-secrets-stores
       namespace: external-secrets
     - name: rook-ceph-cluster
@@ -35,6 +35,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 20Gi
-      VOLSYNC_KOPIA_SCHEDULE: "2 * * * *"
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"
+      KOPIUR_CAPACITY: 20Gi

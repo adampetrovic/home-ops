@@ -12,13 +12,10 @@ spec:
       app.kubernetes.io/name: *app
   components:
     - ../../../../components/persistence
-    - ../../../../components/volsync
     - ../../../../components/kopiur/backup
   dependsOn:
     - name: kopiur-repositories
       namespace: kopiur-system
-    - name: volsync
-      namespace: volsync-system
     - name: external-secrets-stores
       namespace: external-secrets
     - name: rook-ceph-cluster
@@ -36,12 +33,8 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_SUSPEND: "true"
       KOPIUR_CACHE_CAPACITY: 2Gi
+      KOPIUR_CAPACITY: 2Gi
+      KOPIUR_ACCESSMODES: ReadWriteMany
+      KOPIUR_STORAGECLASS: ceph-filesystem
       KOPIUR_SNAPSHOTCLASS: csi-ceph-filesystem
-      VOLSYNC_CAPACITY: 2Gi
-      VOLSYNC_KOPIA_SCHEDULE: "38 * * * *"
-      VOLSYNC_R2_SCHEDULE: "55 3 * * *"
-      VOLSYNC_ACCESSMODES: ReadWriteMany
-      VOLSYNC_STORAGECLASS: ceph-filesystem
-      VOLSYNC_SNAPSHOTCLASS: csi-ceph-filesystem

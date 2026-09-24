@@ -11,15 +11,23 @@ spec:
   sources:
     - pvc:
         name: maintainerr
+      readOnly: true
+  copyMethod: Snapshot
   volumeSnapshotClassName: csi-ceph-blockpool
   compression:
     compressor: zstd
+  errorHandling:
+    ignoreDirErrors: false
+    ignoreFileErrors: false
+    ignoreUnknownTypes: false
   retention:
     keepLatest: 3
     keepHourly: 24
     keepDaily: 7
     keepWeekly: 4
     keepMonthly: 1
+  deletion:
+    onPolicyDelete: Retain
   mover:
     cache:
       mode: Persistent

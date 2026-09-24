@@ -4,15 +4,13 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: "${APP}"
+  labels:
+    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  accessModes: ["${VOLSYNC_ACCESSMODES:-ReadWriteOnce}"]
-  dataSourceRef:
-    kind: ReplicationDestination
-    apiGroup: volsync.backube
-    name: "${APP}-dst"
+  accessModes: ["${KOPIUR_ACCESSMODES:-ReadWriteOnce}"]
   resources:
     requests:
-      storage: "${VOLSYNC_CAPACITY}"
-  storageClassName: "${VOLSYNC_STORAGECLASS:-ceph-block}"
+      storage: "${KOPIUR_CAPACITY}"
+  storageClassName: "${KOPIUR_STORAGECLASS:-ceph-block}"
