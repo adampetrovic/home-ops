@@ -9,7 +9,6 @@ components:
 resources:
   - ./bazarr/ks.yaml
   - ./cleanrr/ks.yaml
-  - ./dispatcharr/ks.yaml
   - ./grimmory/ks.yaml
   - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
@@ -27,14 +26,3 @@ resources:
   - ./tautulli/ks.yaml
   - ./tracearr/ks.yaml
   - ./unpackerr/ks.yaml
-patches:
-  - patch: |-
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: not-used
-        annotations:
-          kopiur.home-operations.com/privileged-movers: "true"
-    target:
-      kind: Namespace
-      name: not-used
