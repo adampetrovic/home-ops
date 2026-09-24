@@ -1,0 +1,26 @@
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotSchedule
+metadata:
+  name: ${APP}-r2
+spec:
+  policyRef:
+    name: ${APP}-r2
+  schedule:
+    cron: "H H * * 0"
+    concurrencyPolicy: Forbid
+    runOnCreate: false
+    suspend: ${KOPIUR_SUSPEND:-false}
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotSchedule
+metadata:
+  name: ${APP}-nfs
+spec:
+  policyRef:
+    name: ${APP}-nfs
+  schedule:
+    cron: "H * * * *"
+    concurrencyPolicy: Forbid
+    runOnCreate: false
+    suspend: ${KOPIUR_NFS_SUSPEND:-false}
