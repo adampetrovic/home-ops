@@ -20,6 +20,8 @@ spec:
     name: flux-system
     namespace: flux-system
   dependsOn:
+    - name: volsync
+      namespace: volsync-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   wait: false # no flux ks dependents

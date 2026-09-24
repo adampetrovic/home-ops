@@ -40,7 +40,7 @@ spec:
       namespace: rook-ceph
     - name: rook-ceph
       namespace: rook-ceph
-    - name: volsync
+    - name: snapshot-controller
       namespace: volsync-system
   path: ./kubernetes/apps/rook-ceph/rook-ceph/cluster
   prune: false # never should be deleted

@@ -14,6 +14,8 @@ spec:
     - ../../../../components/persistence
     - ../../../../components/volsync
   dependsOn:
+    - name: volsync
+      namespace: volsync-system
     - name: external-secrets-stores
       namespace: external-secrets
     - name: rook-ceph-cluster

@@ -14,6 +14,8 @@ spec:
     - ../../../../components/persistence
     - ../../../../components/volsync
   dependsOn:
+    - name: volsync
+      namespace: volsync-system
     - name: kube-prometheus-stack
       namespace: observability
     - name: envoy-gateway

@@ -14,6 +14,8 @@ spec:
     - ../../../../components/persistence
     - ../../../../components/volsync
   dependsOn:
+    - name: volsync
+      namespace: volsync-system
     - name: rook-ceph-cluster
       namespace: rook-ceph
   path: ./kubernetes/apps/media/profilarr/app
