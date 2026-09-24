@@ -11,7 +11,8 @@ spec:
     - pvc:
         name: ${KOPIUR_SOURCE_PVC}
       readOnly: true
-  copyMethod: Direct
+  copyMethod: Snapshot
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
   errorHandling:
@@ -45,7 +46,8 @@ spec:
     - pvc:
         name: ${KOPIUR_SOURCE_PVC}
       readOnly: true
-  copyMethod: Direct
+  copyMethod: Snapshot
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
   errorHandling:
