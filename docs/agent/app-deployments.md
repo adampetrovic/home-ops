@@ -43,12 +43,11 @@ spec:
   timeout: 5m
 ```
 
-For apps with persistent storage, add the persistence and Kopiur backup components and substitutions:
+For apps with persistent storage, add the Kopiur backup component and substitutions:
 
 ```yaml
 spec:
   components:
-    - ../../../../components/persistence
     - ../../../../components/kopiur/backup
   dependsOn:
     - name: kopiur-repositories
@@ -60,7 +59,7 @@ spec:
       KOPIUR_CAPACITY: 10Gi
 ```
 
-R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly. The backup component also creates a passive Kopiur `Restore` named `${APP}` from `${APP}-nfs`; the persistence component wires new PVCs to that restore with `dataSourceRef` and `onMissingSnapshot: Continue`, so first installs and disaster-recovery restores use the same manifests.
+R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly. The backup component also creates the PVC and a passive Kopiur `Restore` named `${APP}` from `${APP}-nfs`; the PVC is wired to that restore with `dataSourceRef` and `onMissingSnapshot: Continue`, so first installs and disaster-recovery restores use the same manifests.
 
 If the PVC name differs from the app name, set `KOPIUR_SOURCE_PVC` for backups. If the restore-populated PVC name also differs, set `KOPIUR_RESTORE_NAME` and/or `KOPIUR_RESTORE_POLICY` explicitly.
 
@@ -109,7 +108,7 @@ resources:
 5. If the app has a web UI, add a Gateway API `route:` block in the HelmRelease.
 6. If the app needs Authelia auth, add the `authelia-proxy` component to app-level `kustomization.yaml` and check ReferenceGrant needs.
 7. If secrets are needed, create `app/externalsecret.yaml` referencing 1Password.
-8. If persistent storage is needed, add the persistence and Kopiur backup components to `ks.yaml`.
+8. If persistent storage is needed, add the Kopiur backup component to `ks.yaml`.
 9. Add the app `ks.yaml` to the namespace `kustomization.yaml`.
 
 ## Modifying an Existing Application

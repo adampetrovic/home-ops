@@ -1,20 +1,20 @@
+#file: noinspection KubernetesUnknownValues
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: maintainerr
+  name: "${KOPIUR_PVC_NAME:=${APP}}"
   labels:
     kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  accessModes:
-    - ReadWriteOnce
+  accessModes: ["${KOPIUR_ACCESSMODES:-ReadWriteOnce}"]
   dataSourceRef:
     apiGroup: kopiur.home-operations.com
     kind: Restore
-    name: maintainerr
+    name: "${KOPIUR_RESTORE_NAME:=${APP}}"
   resources:
     requests:
-      storage: 5Gi
-  storageClassName: ceph-block
+      storage: "${KOPIUR_CAPACITY}"
+  storageClassName: "${KOPIUR_STORAGECLASS:-ceph-block}"

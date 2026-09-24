@@ -204,7 +204,7 @@ This additionally checks:
 
 ### Kopiur PVCs
 
-Persistent apps using `kubernetes/components/kopiur/backup` create Kopiur `SnapshotPolicy`, `SnapshotSchedule`, and passive `Restore` resources. PVCs created by `kubernetes/components/persistence` have a `dataSourceRef` to that `Restore`, so a destructive rebuild provisions the PVC from the latest **NFS** Kopia snapshot automatically. New apps still work because the restore uses `onMissingSnapshot: Continue`.
+Persistent apps using `kubernetes/components/kopiur/backup` create Kopiur `SnapshotPolicy`, `SnapshotSchedule`, and passive `Restore` resources. PVCs created by `kubernetes/components/kopiur/backup` have a `dataSourceRef` to that `Restore`, so a destructive rebuild provisions the PVC from the latest **NFS** Kopia snapshot automatically. New apps still work because the restore uses `onMissingSnapshot: Continue`.
 
 Important details:
 
