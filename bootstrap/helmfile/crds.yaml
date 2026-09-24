@@ -24,7 +24,7 @@ releases:
     namespace: observability
 
   - name: snapshot-controller
-    namespace: volsync-system
+    namespace: kube-system
 
   - name: kopiur
     namespace: kopiur-system

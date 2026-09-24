@@ -12,19 +12,23 @@ spec:
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Snapshot
       expr: |-
-        !has(status.phase) || status.phase != "Running"
+        !has(status.phase) || !(status.phase in ["Pending", "Running", "Deleting"])
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Restore
       expr: |-
-        !has(status.phase) || !(status.phase in ["Resolving", "Restoring"])
+        !has(status.phase) || !(status.phase in ["Pending", "Resolving", "Restoring"])
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: SnapshotReplication
       expr: |-
-        !has(status.phase) || status.phase != "Running"
+        !has(status.phase) || !(status.phase in ["Pending", "Replicating"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: RepositoryReplication
+      expr: |-
+        !has(status.phase) || !(status.phase in ["Pending", "Replicating"])
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Maintenance
       expr: |-
-        !has(status.phase) || status.phase != "Running"
+        !has(status.manualRun) || !has(status.manualRun.phase) || status.manualRun.phase != "Running"
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-

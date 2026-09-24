@@ -21,7 +21,7 @@ spec:
     keepHistory: false
   dependsOn:
     - name: snapshot-controller
-      namespace: volsync-system
+      namespace: kube-system
   values:
     csi:
       serviceMonitor:
