@@ -35,7 +35,7 @@ spec:
     timezone: Australia/Sydney
     jitter: 10m
   create:
-    enabled: true
+    enabled: false
   deletionProtection:
     threshold: 10
   catalog:
@@ -83,7 +83,7 @@ spec:
     timezone: Australia/Sydney
     jitter: 10m
   create:
-    enabled: true
+    enabled: false
   deletionProtection:
     threshold: 10
   catalog:
