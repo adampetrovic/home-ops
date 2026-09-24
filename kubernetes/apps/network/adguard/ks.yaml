@@ -18,6 +18,7 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   components:
+    - ../../../../components/persistence
     - ../../../../components/volsync
   path: ./kubernetes/apps/network/adguard/app
   prune: true
