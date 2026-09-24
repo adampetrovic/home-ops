@@ -13,7 +13,7 @@ resources:
 configMapGenerator:
   - name: alertmanager-config-tpl
     files:
-      - alertmanager.yaml=./resources/alertmanager.yaml
+      - alertmanager.yaml=./resources/alertmanager.yaml.gotmpl
   - name: grafana-dashboard-unas-smart
     files:
       - unas-smart.json=./resources/unas-smart.json
