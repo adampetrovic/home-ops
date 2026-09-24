@@ -86,9 +86,9 @@ spec:
                   "path": "/repository"
                 }
               },
-              "hostname": "volsync.{{ .Release.Namespace }}.svc.cluster.local",
-              "username": "volsync",
-              "description": "volsync",
+              "hostname": "kopia-ui.{{ .Release.Namespace }}.svc.cluster.local",
+              "username": "kopiur-nfs",
+              "description": "kopiur-nfs",
               "enableActions": false
             }
     persistence:
@@ -101,7 +101,7 @@ spec:
       repository:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
-        path: /var/nfs/shared/kopia
+        path: /var/nfs/shared/kopiur
         globalMounts:
           - path: /repository
       tmpfs:

@@ -29,8 +29,6 @@ releases:
   - name: kopiur
     namespace: kopiur-system
 
-  - name: volsync
-    namespace: volsync-system
 
   - name: cnpg
     namespace: database
