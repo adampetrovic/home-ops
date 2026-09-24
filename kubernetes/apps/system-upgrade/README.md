@@ -11,7 +11,7 @@ tuppr is a Kubernetes controller that watches two custom resources — `TalosUpg
 1. **Renovate** detects a new Talos or Kubernetes version and opens a PR bumping the version in `talosupgrade.yaml` or `kubernetesupgrade.yaml`
 2. **PR is merged** → GitHub webhook fires → Flux reconciles the new version into the cluster
 3. **tuppr detects version drift** between the CR and the running cluster
-4. **Health checks run** — VolSync must not be mid-sync, Ceph must be `HEALTH_OK`
+4. **Health checks run** — Kopiur must not have in-progress backup/restore/maintenance work, Ceph must be `HEALTH_OK`
 5. **Talos upgrades** proceed node-by-node: drain → upgrade → reboot → verify → uncordon → health check → next node
 6. **Kubernetes upgrades** run as a single operation against a control plane node via the Talos API
 
@@ -23,7 +23,7 @@ Before each node upgrade (Talos) or before starting (Kubernetes), tuppr evaluate
 
 | Check | Expression | Purpose |
 |-------|-----------|---------|
-| VolSync | `ReplicationSource` status `Synchronizing == False` | Don't upgrade while backups are running |
+| Kopiur | `Snapshot`, replication, active `Restore`, and manual `Maintenance` phases are not in-progress | Don't upgrade while backup/restore work is running; passive restore populators may remain `Pending` while awaiting a new PVC |
 | Rook-Ceph | `CephCluster` health `in ['HEALTH_OK']` | Don't upgrade while Ceph is degraded |
 
 After a Talos node reboots, Ceph OSDs restart and health temporarily goes to `HEALTH_WARN`. tuppr waits for recovery before proceeding to the next node.
@@ -102,8 +102,13 @@ If an upgrade is stuck in `Pending` between nodes:
 # Is Ceph healthy?
 kubectl get cephcluster -n rook-ceph -o jsonpath='{.items[0].status.ceph.health}'
 
-# Is VolSync syncing?
-kubectl get replicationsource -A -o custom-columns=NAME:.metadata.name,SYNCING:.status.conditions[0].status
+# Is Kopiur running backup/restore work?
+kubectl get snapshots,snapshotreplications,repositoryreplications -A \
+  -o custom-columns=KIND:.kind,NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase \
+  | awk 'NR == 1 || $4 ~ /^(Pending|Running|Replicating|Deleting)$/'; \
+kubectl get restores -A \
+  -o custom-columns=KIND:.kind,NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase \
+  | awk 'NR == 1 || $4 ~ /^(Resolving|Restoring)$/'
 ```
 
 ### Watch upgrade jobs

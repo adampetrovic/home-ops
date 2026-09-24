@@ -52,8 +52,8 @@ spec:
               accessMode: ReadWriteOnce
               size: 5Gi
               # Clone the seed PVC into each StatefulSet ordinal on first creation.
-              # `backups.yaml` protects both active ordinal PVCs independently;
-              # keep the old `adguard` PVC as bootstrap/rollback state.
+              # Kopiur protects data-adguard-0; adguardhome-sync repopulates
+              # data-adguard-1 from the primary replica.
               dataSource:
                 kind: PersistentVolumeClaim
                 name: adguard

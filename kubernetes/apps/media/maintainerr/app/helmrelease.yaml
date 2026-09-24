@@ -23,10 +23,10 @@ spec:
   values:
     defaultPodOptions:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 568
+        runAsGroup: 568
         runAsNonRoot: true
-        fsGroup: 1000
+        fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
@@ -84,7 +84,8 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities:
+                drop: ["ALL"]
 
     service:
       app:

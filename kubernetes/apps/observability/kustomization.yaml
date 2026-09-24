@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: observability
 components:
   - ../../components/common
+  - ../../components/kopiur/secret
 resources:
   - ./abb-cvc/ks.yaml
   - ./blackbox-exporter/ks.yaml

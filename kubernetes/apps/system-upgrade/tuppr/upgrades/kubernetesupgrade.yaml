@@ -9,10 +9,26 @@ spec:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
     version: v1.37.0
   healthChecks:
-    - apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationSource
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Snapshot
       expr: |-
-        status.conditions.filter(c, c.type == "Synchronizing").all(c, c.status == "False")
+        !has(status.phase) || !(status.phase in ["Pending", "Running", "Deleting"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Restore
+      expr: |-
+        !has(status.phase) || !(status.phase in ["Resolving", "Restoring"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: SnapshotReplication
+      expr: |-
+        !has(status.phase) || !(status.phase in ["Pending", "Replicating"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: RepositoryReplication
+      expr: |-
+        !has(status.phase) || !(status.phase in ["Pending", "Replicating"])
+    - apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Maintenance
+      expr: |-
+        !has(status.manualRun) || !has(status.manualRun.phase) || status.manualRun.phase != "Running"
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-

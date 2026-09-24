@@ -85,15 +85,14 @@ Observed pod-deletion failover test:
 
 ## Backup and restore
 
-The generic VolSync component continues to protect the `adguard` seed PVC. It does
-not cover live writes after the StatefulSet creates `data-adguard-0` and
-`data-adguard-1`, so `app/backups.yaml` defines independent hourly Kopia and daily
-R2/Restic `ReplicationSource` resources for both active PVCs.
+Kopiur protects the primary StatefulSet claim, `data-adguard-0`, with
+`adguard-0-r2` and `adguard-0-nfs` policies rendered from the shared Kopiur
+backup component. The second ordinal, `data-adguard-1`, is intentionally not
+backed up separately because `adguardhome-sync` repopulates synchronized settings
+from `adguard-0`.
 
-The ordinal Kopia sources share `adguard-volsync-secret` but have distinct source
-identities (`adguard-0` and `adguard-1`). R2 uses separate repository secrets and
-paths. The standard single-PVC VolSync restore flow is therefore not suitable
-for these PVCs.
+The legacy `adguard` seed PVC remains as bootstrap/rollback state, but it is not
+the active application data source.
 
 To restore an ordinal, first suspend reconciliation and stop both AdGuard
 controllers so no process writes either PVC:
@@ -104,64 +103,9 @@ flux -n network suspend helmrelease adguard
 kubectl -n network scale statefulset/adguard deployment/adguard-sync --replicas=0
 ```
 
-For Kopia, apply a temporary direct destination, replacing `N` with `0` or `1`:
-
-```yaml
-apiVersion: volsync.backube/v1alpha1
-kind: ReplicationDestination
-metadata:
-  name: adguard-N-restore
-  namespace: network
-spec:
-  trigger:
-    manual: restore-once
-  kopia:
-    repository: adguard-volsync-secret
-    destinationPVC: data-adguard-N
-    copyMethod: Direct
-    sourceIdentity:
-      sourceName: adguard-N
-    moverSecurityContext:
-      runAsUser: 1001
-      runAsGroup: 568
-      fsGroup: 1001
-      fsGroupChangePolicy: OnRootMismatch
-```
-
-For R2, use the same destination name and PVC with a `restic` block instead:
-
-```yaml
-  restic:
-    repository: adguard-N-volsync-r2-secret
-    destinationPVC: data-adguard-N
-    copyMethod: Direct
-    cacheCapacity: 4Gi
-    cacheStorageClassName: openebs-hostpath
-    cacheAccessModes: [ReadWriteOnce]
-    enableFileDeletion: true
-    moverSecurityContext:
-      runAsUser: 1001
-      runAsGroup: 1001
-      fsGroup: 1001
-      fsGroupChangePolicy: OnRootMismatch
-```
-
-Save the selected resource as `/tmp/adguard-restore.yaml`, replace every `N`, then
-run:
-
-```bash
-kubectl apply -f /tmp/adguard-restore.yaml
-bash kubernetes/components/volsync/scripts/wait-for-replicationdestination.sh \
-  adguard-N-restore network 7200
-kubectl -n network delete replicationdestination adguard-N-restore
-flux -n network resume helmrelease adguard
-flux -n network resume kustomization adguard
-kubectl -n network rollout status statefulset/adguard --timeout=10m
-dig @10.0.88.53 example.com
-```
-
-Restore both ordinals only when both active copies are known bad; otherwise restore
-one and let `adguardhome-sync` repopulate synchronized settings.
+Restore through Kopiur into `data-adguard-0` first, then resume AdGuard and let
+`adguardhome-sync` repopulate `data-adguard-1`. Prefer side-by-side scratch
+restore validation before destructive replacement.
 
 ## Useful checks
 
@@ -188,8 +132,8 @@ doggo example.com A @tls://10.0.88.53 --tls-hostname=dns.petrovic.network --shor
 
 ## Files
 
-- `ks.yaml` — Flux Kustomization for AdGuard.
+- `ks.yaml` — Flux Kustomizations for AdGuard and the `adguard-0` Kopiur backup.
 - `app/helmrelease.yaml` — StatefulSet, Services, sync controller, probes, and resource settings.
-- `app/backups.yaml` — per-ordinal Kopia and R2 protection for both active PVCs.
+- `backups/adguard-0/kustomization.yaml` — shared Kopiur backup component for `data-adguard-0`.
 - `app/externalsecret.yaml` — native AdGuard credentials for `adguardhome-sync` from 1Password.
 - `app/certificate.yaml` — TLS certificate used by DNS-over-HTTPS / DNS-over-TLS.
