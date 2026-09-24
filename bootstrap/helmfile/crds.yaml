@@ -24,10 +24,11 @@ releases:
     namespace: observability
 
   - name: snapshot-controller
-    namespace: volsync-system
+    namespace: kube-system
 
-  - name: volsync
-    namespace: volsync-system
+  - name: kopiur
+    namespace: kopiur-system
+
 
   - name: cnpg
     namespace: database

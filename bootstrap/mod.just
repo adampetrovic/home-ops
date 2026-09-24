@@ -20,7 +20,7 @@ preflight:
 verify:
     bash "{{ source_directory() }}/../scripts/bootstrap-verify.sh" --core
 
-[doc('Verify full post-bootstrap GitOps convergence, storage, gateways, VolSync, and CNPG')]
+[doc('Verify full post-bootstrap GitOps convergence, storage, gateways, Kopiur, and CNPG')]
 verify-full:
     bash "{{ source_directory() }}/../scripts/bootstrap-verify.sh" --full
 

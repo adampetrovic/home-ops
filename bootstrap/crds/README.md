@@ -20,11 +20,10 @@ owned by the Envoy Gateway chart, matching the upstream bootstrap pattern.
 | Envoy Gateway | `bootstrap/helmfile/crds.yaml` | `network/envoy-gateway` HelmRelease |
 | Prometheus Operator | `bootstrap/helmfile/crds.yaml` | `observability/kube-prometheus-stack` HelmRelease |
 | Grafana Operator | `bootstrap/helmfile/crds.yaml` | `observability/grafana` HelmRelease |
-| snapshot-controller | `bootstrap/helmfile/crds.yaml` | `volsync-system/snapshot-controller` HelmRelease |
+| snapshot-controller | `bootstrap/helmfile/crds.yaml` | `kube-system/snapshot-controller` HelmRelease |
 | External DNS `DNSEndpoint` | `standalone.yaml` | Manual/Renovate update of the standalone External DNS version |
 | Multus `NetworkAttachmentDefinition` | `standalone.yaml` | Manual/Renovate update of the standalone Multus version |
 | CNPG Barman `ObjectStore` | `standalone.yaml` | Manual/Renovate update of the standalone Barman plugin version |
-| VolSync | `bootstrap/helmfile/crds.yaml` | `volsync-system/volsync` HelmRelease |
 | CloudNativePG | `bootstrap/helmfile/crds.yaml` | `database/cloudnative-pg` HelmRelease |
 
 Bootstrap applies CRDs with server-side apply and `--force-conflicts`, but it

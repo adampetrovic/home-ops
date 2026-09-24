@@ -1,0 +1,86 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kopiur
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: kopiur
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: -1
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  uninstall:
+    keepHistory: false
+  values:
+    fullnameOverride: kopiur
+    installScope: cluster
+    replicaCount: 2
+    image:
+      repository: ghcr.io/home-operations/kopiur-controller
+      tag: 0.10.9
+      digest: sha256:8048ef02bf1154d896f91c49fa7d241fc062fbfa64becb2df456bd4f78966a37
+    mover:
+      image:
+        repository: ghcr.io/home-operations/kopiur-mover
+        tag: 0.10.9
+        digest: sha256:f909a37cb9f6de6dba4a3190e75b0b505c4d61f28005b729bd8e0976fff1c8fd
+    leaderElection:
+      enabled: true
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: kopiur
+            app.kubernetes.io/instance: kopiur
+            app.kubernetes.io/component: controller
+    monitoring:
+      serviceMonitor:
+        enabled: true
+      prometheusRule:
+        enabled: true
+      dashboards:
+        enabled: true
+        folderAnnotation: grafana_folder
+        folder: Backups
+    webhook:
+      enabled: true
+      replicaCount: 2
+      failurePolicy: Fail
+      image:
+        repository: ghcr.io/home-operations/kopiur-webhook
+        tag: 0.10.9
+        digest: sha256:b3bc914480d9e9c9e3c0c9e10208d4155f02216c709cdb782046a2d722ff0a36
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: kopiur
+              app.kubernetes.io/instance: kopiur
+              app.kubernetes.io/component: webhook
+      serviceMonitor:
+        enabled: true
+    features:
+      credentialProjection:
+        enabled: false
+      kopiaUi:
+        enabled: false

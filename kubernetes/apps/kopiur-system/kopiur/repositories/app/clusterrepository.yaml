@@ -1,0 +1,109 @@
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: kopiur-r2
+spec:
+  backend:
+    s3:
+      bucket: kopiur
+      endpoint: ${SECRET_CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+      region: auto
+      auth:
+        secretRef:
+          name: kopiur-r2-repository
+          namespace: kopiur-system
+  encryption:
+    passwordSecretRef:
+      name: kopiur-r2-repository
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  allowedNamespaces:
+    list:
+      - automation
+      - database
+      - default
+      - kopiur-system
+      - media
+      - network
+      - observability
+  identityDefaults:
+    cluster: home-kubernetes
+    hostnameExpr: 'namespace + "." + cluster'
+    usernameExpr: 'namespace + "-" + policyName'
+  scheduleDefaults:
+    timezone: Australia/Sydney
+    jitter: 10m
+  create:
+    enabled: false
+  deletionProtection:
+    threshold: 10
+  catalog:
+    adoption: Ignore
+    foreignSnapshots: Ignore
+  health:
+    probe:
+      enabled: true
+      onFailure: Degrade
+  maintenance:
+    enabled: true
+    namespace: kopiur-system
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: ClusterRepository
+metadata:
+  name: kopiur-nfs
+spec:
+  backend:
+    filesystem:
+      path: /repo
+      volume:
+        nfs:
+          server: ${SECRET_NFS_DOMAIN}
+          path: /var/nfs/shared/kopiur
+  encryption:
+    passwordSecretRef:
+      name: kopiur-nfs-repository
+      namespace: kopiur-system
+      key: KOPIA_PASSWORD
+  allowedNamespaces:
+    list:
+      - automation
+      - database
+      - default
+      - kopiur-system
+      - media
+      - network
+      - observability
+  identityDefaults:
+    cluster: home-kubernetes
+    hostnameExpr: 'namespace + "." + cluster'
+    usernameExpr: 'namespace + "-" + policyName'
+  scheduleDefaults:
+    timezone: Australia/Sydney
+    jitter: 10m
+  parameters:
+    epoch:
+      minDuration: 1h
+  create:
+    enabled: false
+  deletionProtection:
+    threshold: 10
+  catalog:
+    adoption: Ignore
+    foreignSnapshots: Ignore
+  health:
+    probe:
+      enabled: true
+      onFailure: Degrade
+  maintenance:
+    enabled: true
+    namespace: kopiur-system
+  moverDefaults:
+    cache:
+      contentCacheSizeMb: 512
+      metadataCacheSizeMb: 1024
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65532
+      runAsGroup: 65532

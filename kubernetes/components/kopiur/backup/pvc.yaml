@@ -1,0 +1,16 @@
+#file: noinspection KubernetesUnknownValues
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${KOPIUR_PVC_NAME:=${APP}}"
+spec:
+  accessModes: ["${KOPIUR_ACCESSMODES:-ReadWriteOnce}"]
+  dataSourceRef:
+    apiGroup: kopiur.home-operations.com
+    kind: Restore
+    name: "${KOPIUR_RESTORE_NAME:=${APP}}"
+  resources:
+    requests:
+      storage: "${KOPIUR_CAPACITY}"
+  storageClassName: "${KOPIUR_STORAGECLASS:-ceph-block}"
