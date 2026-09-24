@@ -37,22 +37,23 @@ groups:
             Normal is ~0. Check Loki for the status codes; sustained 408s correlate
             with stale-asleep / missed drives, a 403 burst means an auth problem.
 
-      # Genuine error-level logs, excluding the HTTP-coded "Error / :unknown"
-      # noise that pairs with the API errors above. This is the alert that floods
-      # during a WAN outage (connection/DNS failures log as [error]), so it is
-      # WAN-gated via Alertmanager inhibition (WANDownBuffer); the 10m window
-      # matches the buffer's 10m post-recovery coverage. Baseline ~0.7/h.
+      # Tesla API/car connectivity errors. TeslaMate also emits [error] logs for
+      # transient internal issues such as PostgreSQL admin shutdowns during CNPG
+      # rollouts; those are intentionally ignored here. API timeouts show up as
+      # TeslaApi.Error warning lines paired with "Error / :unknown", so match the
+      # API-specific line directly instead of generic error severity.
       - alert: TeslaMateErrorLogs
         expr: |
-          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `\[error\]` != `:unknown` [10m])) > 5
+          sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `TeslaApi\.Error` [10m])) > 5
         for: 5m
         labels:
           severity: warning
           category: logs
         annotations:
           app: "{{ $labels.app }}"
-          summary: "TeslaMate is logging errors above normal"
+          summary: "TeslaMate is seeing Tesla API/car connectivity errors"
           description: >-
-            More than 5 non-API [error] lines from the teslamate container in 10m,
-            sustained 5m; baseline ~0.7/h. If WAN is up, check `kubectl -n
-            automation logs deploy/teslamate -c app` for the cause (DB, crash, auth).
+            More than 5 TeslaApi.Error lines from the teslamate container in 10m,
+            sustained 5m. This intentionally ignores transient internal errors
+            such as database reconnects during CNPG rollouts; check `kubectl -n
+            automation logs deploy/teslamate -c app` for Tesla API timeout/auth details.
