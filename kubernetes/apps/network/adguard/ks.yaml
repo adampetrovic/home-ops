@@ -67,4 +67,4 @@ spec:
       KOPIUR_SOURCE_PVC: data-adguard-0
       KOPIUR_CAPACITY: 5Gi
       KOPIUR_PUID: "1001"
-      KOPIUR_PGID: "1001"
+      KOPIUR_PGID: "568"

@@ -37,3 +37,4 @@ spec:
       APP: *app
       KOPIUR_SOURCE_PVC: *app
       KOPIUR_CAPACITY: 20Gi
+      KOPIUR_PGID: "100"
