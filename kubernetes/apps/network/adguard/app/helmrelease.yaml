@@ -73,26 +73,6 @@ spec:
                   subPath: conf
                 - path: /opt/adguardhome/work
                   subPath: work
-        initContainers:
-          01-permissions:
-            image:
-              repository: ghcr.io/home-operations/busybox
-              tag: 1.37.0@sha256:026ed7273270ec08f6902b4ae8334c23b473e5394bec3bbbdbfe580c710d50bc
-            command:
-              - /bin/sh
-              - -ec
-              - |
-                chown -R 568:568 /opt/adguardhome/conf /opt/adguardhome/work
-                chmod -R u+rwX,g+rwX /opt/adguardhome/conf /opt/adguardhome/work
-            securityContext:
-              runAsNonRoot: false
-              runAsUser: 0
-              runAsGroup: 0
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop: ["ALL"]
-                add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
         containers:
           app:
             image:
