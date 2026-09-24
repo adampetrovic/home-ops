@@ -33,7 +33,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_CAPACITY: 5Gi
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
@@ -65,6 +64,5 @@ spec:
   postBuild:
     substitute:
       APP: data-adguard-0
-      KOPIUR_CAPACITY: 5Gi
       KOPIUR_PUID: "1001"
       KOPIUR_PGID: "568"
