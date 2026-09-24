@@ -43,21 +43,25 @@ spec:
   timeout: 5m
 ```
 
-For apps with persistent storage, add the VolSync component and substitutions:
+For apps with persistent storage, add the Kopiur backup component and substitutions:
 
 ```yaml
 spec:
   components:
-    - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
+  dependsOn:
+    - name: kopiur-repositories
+      namespace: kopiur-system
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 10Gi
-      VOLSYNC_KOPIA_SCHEDULE: "12 * * * *"
-      VOLSYNC_R2_SCHEDULE: "30 3 * * *"
+      KOPIUR_SOURCE_PVC: *app
+      KOPIUR_CAPACITY: 10Gi
 ```
 
-`VOLSYNC_KOPIA_SCHEDULE` and `VOLSYNC_R2_SCHEDULE` can be overridden per app. Most apps set a custom Kopia minute offset to spread load. A MutatingAdmissionPolicy injects additional jitter.
+R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly. The backup component also creates the PVC and a passive Kopiur `Restore` named `${APP}` from `${APP}-nfs`; the PVC is wired to that restore with `dataSourceRef` and `onMissingSnapshot: Continue`, so first installs and disaster-recovery restores use the same manifests.
+
+If the PVC name differs from the app name, set `KOPIUR_SOURCE_PVC` for backups. If the restore-populated PVC name also differs, set `KOPIUR_RESTORE_NAME` and/or `KOPIUR_RESTORE_POLICY` explicitly.
 
 ## HelmRelease Conventions
 
@@ -104,12 +108,12 @@ resources:
 5. If the app has a web UI, add a Gateway API `route:` block in the HelmRelease.
 6. If the app needs Authelia auth, add the `authelia-proxy` component to app-level `kustomization.yaml` and check ReferenceGrant needs.
 7. If secrets are needed, create `app/externalsecret.yaml` referencing 1Password.
-8. If persistent storage is needed, add the VolSync component to `ks.yaml`.
+8. If persistent storage is needed, add the Kopiur backup component to `ks.yaml`.
 9. Add the app `ks.yaml` to the namespace `kustomization.yaml`.
 
 ## Modifying an Existing Application
 
 - Edit `helmrelease.yaml` for app configuration changes.
-- Edit `ks.yaml` for dependencies, wait behavior, pruning, or VolSync substitutions.
+- Edit `ks.yaml` for dependencies, wait behavior, pruning, or Kopiur substitutions.
 - Preserve app name consistency across directory, Flux Kustomization, HelmRelease, labels, service names, and route names.
 - Flux applies committed changes automatically after the branch is merged or pushed to `main`.
