@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: default
 components:
   - ../../components/common
+  - ../../components/kopiur/secret
 resources:
   - ./actual-budget/ks.yaml
   - ./atuin/ks.yaml
