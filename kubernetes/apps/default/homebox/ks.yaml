@@ -30,6 +30,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_CAPACITY: 5Gi
       KOPIUR_PUID: "65532"
       KOPIUR_PGID: "65532"
