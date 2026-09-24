@@ -2,9 +2,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: kopiur-system
-components:
-  - ../../components/common
 resources:
-  - ./kopiur/ks.yaml
-  - ./kopiur/repositories/ks.yaml
+  - ./externalsecret.yaml
+  - ./clusterrepository.yaml
