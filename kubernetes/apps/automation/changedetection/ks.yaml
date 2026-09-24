@@ -13,6 +13,7 @@ spec:
   components:
     - ../../../../components/persistence
     - ../../../../components/volsync
+    - ../../../../components/kopiur/backup
   path: ./kubernetes/apps/automation/changedetection/app
   prune: true
   sourceRef:
@@ -20,6 +21,8 @@ spec:
     name: flux-system
     namespace: flux-system
   dependsOn:
+    - name: kopiur-repositories
+      namespace: kopiur-system
     - name: volsync
       namespace: volsync-system
     - name: rook-ceph-cluster
@@ -31,6 +34,10 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      KOPIUR_SUSPEND: "true"
+      KOPIUR_CACHE_CAPACITY: 1Gi
+      KOPIUR_SNAPSHOTCLASS: csi-ceph-blockpool
+      KOPIUR_SOURCE_PVC: *app
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_KOPIA_SCHEDULE: "56 * * * *"
       VOLSYNC_R2_SCHEDULE: "0 0 * * *"
