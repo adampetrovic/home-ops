@@ -14,7 +14,6 @@ spec:
     - name: kopiur
       namespace: kopiur-system
   path: ./kubernetes/apps/kopiur-system/kopiur/repositories/app
-  suspend: true # Unsuspend only after 1Password repository credentials exist.
   prune: true
   sourceRef:
     kind: GitRepository
