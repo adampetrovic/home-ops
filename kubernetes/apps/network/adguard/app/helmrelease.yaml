@@ -36,9 +36,9 @@ spec:
         pod:
           securityContext:
             runAsNonRoot: true
-            runAsUser: 1001
-            runAsGroup: 1001
-            fsGroup: 1001
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile:
               type: RuntimeDefault
@@ -82,7 +82,7 @@ spec:
               - /bin/sh
               - -ec
               - |
-                chown -R 1001:1001 /opt/adguardhome/conf /opt/adguardhome/work
+                chown -R 568:568 /opt/adguardhome/conf /opt/adguardhome/work
                 chmod -R u+rwX,g+rwX /opt/adguardhome/conf /opt/adguardhome/work
             securityContext:
               runAsNonRoot: false
@@ -97,7 +97,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/adguardhome
-              tag: v0.107.79@sha256:9b81408a497c3a9b821023c7357ec60aebbd7cc58bf0545dfeeb6ca868f812e8
+              tag: v0.107.79@sha256:e320f8a5ac46fc69eaa3b80c887bb73ae62207b4662ba0cd1e535e4907ff3309
             env:
               TZ: "${TZ}"
             securityContext:

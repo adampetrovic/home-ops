@@ -64,5 +64,3 @@ spec:
   postBuild:
     substitute:
       APP: data-adguard-0
-      KOPIUR_PUID: "1001"
-      KOPIUR_PGID: "1001"
