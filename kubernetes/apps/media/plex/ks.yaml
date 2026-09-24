@@ -35,7 +35,6 @@ spec:
     substitute:
       APP: *app
       KOPIUR_CAPACITY: 60Gi
-      KOPIUR_CACHE_CAPACITY: 15Gi
 
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
