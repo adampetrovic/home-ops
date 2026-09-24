@@ -3,11 +3,17 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: maintainerr
+  labels:
+    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   accessModes:
     - ReadWriteOnce
+  dataSourceRef:
+    apiGroup: kopiur.home-operations.com
+    kind: Restore
+    name: maintainerr
   resources:
     requests:
       storage: 5Gi

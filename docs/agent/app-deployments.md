@@ -60,7 +60,9 @@ spec:
       KOPIUR_CAPACITY: 10Gi
 ```
 
-R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly.
+R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly. The backup component also creates a passive Kopiur `Restore` named `${APP}` from `${APP}-nfs`; the persistence component wires new PVCs to that restore with `dataSourceRef` and `onMissingSnapshot: Continue`, so first installs and disaster-recovery restores use the same manifests.
+
+If the PVC name differs from the app name, set `KOPIUR_SOURCE_PVC` for backups. If the restore-populated PVC name also differs, set `KOPIUR_RESTORE_NAME` and/or `KOPIUR_RESTORE_POLICY` explicitly.
 
 ## HelmRelease Conventions
 

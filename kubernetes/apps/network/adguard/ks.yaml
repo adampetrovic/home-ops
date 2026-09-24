@@ -65,6 +65,7 @@ spec:
     substitute:
       APP: adguard-0
       KOPIUR_SOURCE_PVC: data-adguard-0
+      KOPIUR_RESTORE_NAME: adguard
       KOPIUR_CAPACITY: 5Gi
       KOPIUR_PUID: "1001"
       KOPIUR_PGID: "568"

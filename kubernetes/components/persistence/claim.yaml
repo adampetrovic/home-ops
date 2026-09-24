@@ -10,6 +10,10 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   accessModes: ["${KOPIUR_ACCESSMODES:-ReadWriteOnce}"]
+  dataSourceRef:
+    apiGroup: kopiur.home-operations.com
+    kind: Restore
+    name: "${KOPIUR_RESTORE_NAME:=${APP}}"
   resources:
     requests:
       storage: "${KOPIUR_CAPACITY}"

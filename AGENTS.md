@@ -48,7 +48,7 @@ Read the relevant doc before making non-trivial changes:
 ## Quick App Rules
 
 - App directories use `ks.yaml` plus `app/kustomization.yaml` and `app/helmrelease.yaml`.
-- Persistent apps use the persistence and Kopiur backup components and set `APP`, `KOPIUR_SOURCE_PVC`, and `KOPIUR_CAPACITY` substitutions.
+- Persistent apps use the persistence and Kopiur backup components and set `APP`, `KOPIUR_SOURCE_PVC`, and `KOPIUR_CAPACITY` substitutions; new PVCs restore from `${APP}-nfs` by default via Kopiur `dataSourceRef`.
 - Secrets come from the `onepassword-connect` ClusterSecretStore via ExternalSecret.
 - PostgreSQL app connection strings use `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`.
 - App names are lowercase hyphenated and match Flux Kustomization and HelmRelease names.

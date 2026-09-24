@@ -204,18 +204,19 @@ This additionally checks:
 
 ### Kopiur PVCs
 
-Persistent apps using `kubernetes/components/kopiur/backup` create Kopiur `SnapshotPolicy` and `SnapshotSchedule` resources for NFS and R2 repositories. On a destructive rebuild, restore target PVCs from the latest Kopia snapshot in the UNAS-backed Kopiur repository before starting data-dependent workloads.
+Persistent apps using `kubernetes/components/kopiur/backup` create Kopiur `SnapshotPolicy`, `SnapshotSchedule`, and passive `Restore` resources. PVCs created by `kubernetes/components/persistence` have a `dataSourceRef` to that `Restore`, so a destructive rebuild provisions the PVC from the latest **NFS** Kopia snapshot automatically. New apps still work because the restore uses `onMissingSnapshot: Continue`.
 
 Important details:
 
-- The default GitOps-created PVC restore uses **Kopia/NFS**. Use the manual R2 procedure if the Kopia repository is unavailable or missing the desired snapshot.
+- The default GitOps-created PVC restore uses `${APP}-nfs` from the Kopiur NFS repository. Use the manual R2 procedure if the NFS repository is unavailable or missing the desired snapshot.
 - The UNAS and `/var/nfs/shared/kopiur` must be available before Kopiur mover jobs can restore from the primary repository.
 - Cloudflare R2 Kopia backups are retained as a secondary disaster copy. Use `kubectl kopiur restore` against the `*-r2` policy snapshots if the NFS repository is unavailable.
+- App-specific exceptions must keep `KOPIUR_RESTORE_NAME` and `KOPIUR_RESTORE_POLICY` aligned with the PVC that should be populated. For example, AdGuard restores the seed PVC `adguard` from policy `adguard-0-nfs`; StatefulSet ordinal `data-adguard-1` is then repopulated by sync.
 - After bootstrap, inspect Kopiur objects and PVCs:
 
   ```bash
   kubectl kopiur status -A
-  kubectl get snapshotpolicies,snapshotschedules,snapshots.kopiur.home-operations.com -A
+  kubectl get restores,snapshotpolicies,snapshotschedules,snapshots.kopiur.home-operations.com -A
   kubectl get pvc -A
   ```
 
