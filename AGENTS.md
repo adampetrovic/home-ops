@@ -23,6 +23,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 - Use Gateway API routes only. Do not add legacy `Ingress` resources.
 - Validate changed YAML/JSON files that declare schemas before reporting completion.
 - Preserve `dependsOn` chains and be cautious with `prune: true`; removing resources from Git deletes them from the cluster.
+- When deleting a persistent app, explicitly ask whether to delete its Kopiur backups too. If yes, delete both `${APP}-nfs` and `${APP}-r2` Snapshot CRs before removing policies/schedules from Git so normal `deletionPolicy: Delete` removes underlying Kopia data; policy/schedule deletion itself defaults to retaining backups. Discovered snapshots are forced to `Retain` and require adoption or direct Kopia deletion before repository data is removed.
 - Ask for confirmation before destructive or live-impacting operations such as cluster mutations, secret changes, production database work, node rollouts, or service restarts.
 
 ## Required Read Gates
