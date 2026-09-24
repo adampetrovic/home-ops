@@ -34,7 +34,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_SOURCE_PVC: *app
       KOPIUR_CAPACITY: 1Gi
       KOPIUR_ACCESSMODES: ReadWriteMany
       KOPIUR_STORAGECLASS: ceph-filesystem

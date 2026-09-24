@@ -86,13 +86,10 @@ Observed pod-deletion failover test:
 ## Backup and restore
 
 Kopiur protects the primary StatefulSet claim, `data-adguard-0`, with
-`adguard-0-r2` and `adguard-0-nfs` policies rendered from the shared Kopiur
-backup component. The second ordinal, `data-adguard-1`, is intentionally not
-backed up separately because `adguardhome-sync` repopulates synchronized settings
-from `adguard-0`.
-
-The legacy `adguard` seed PVC remains as bootstrap/rollback state, but it is not
-the active application data source.
+`data-adguard-0-r2` and `data-adguard-0-nfs` policies rendered from the shared
+Kopiur backup component. The second ordinal, `data-adguard-1`, is intentionally
+not backed up separately because `adguardhome-sync` repopulates synchronized
+settings from `adguard-0`.
 
 To restore an ordinal, first suspend reconciliation and stop both AdGuard
 controllers so no process writes either PVC:
@@ -132,8 +129,8 @@ doggo example.com A @tls://10.0.88.53 --tls-hostname=dns.petrovic.network --shor
 
 ## Files
 
-- `ks.yaml` — Flux Kustomizations for AdGuard and the `adguard-0` Kopiur backup.
+- `ks.yaml` — Flux Kustomizations for AdGuard and the `data-adguard-0` Kopiur backup.
 - `app/helmrelease.yaml` — StatefulSet, Services, sync controller, probes, and resource settings.
-- `backups/adguard-0/kustomization.yaml` — shared Kopiur backup component for `data-adguard-0`.
+- `backups/data-adguard-0/kustomization.yaml` — shared Kopiur backup component for `data-adguard-0`.
 - `app/externalsecret.yaml` — native AdGuard credentials for `adguardhome-sync` from 1Password.
 - `app/certificate.yaml` — TLS certificate used by DNS-over-HTTPS / DNS-over-TLS.

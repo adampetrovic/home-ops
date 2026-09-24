@@ -3,13 +3,13 @@
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: Restore
 metadata:
-  name: ${KOPIUR_RESTORE_NAME:=${APP}}
+  name: ${APP}
 spec:
   policy:
     onMissingSnapshot: Continue
   source:
     fromPolicy:
-      name: ${KOPIUR_RESTORE_POLICY:=${APP}-nfs}
+      name: ${APP}-nfs
       offset: 0
   target:
     populator: {}

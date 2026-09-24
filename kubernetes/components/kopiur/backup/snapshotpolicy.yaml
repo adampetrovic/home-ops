@@ -9,26 +9,21 @@ spec:
     name: kopiur-r2
   sources:
     - pvc:
-        name: ${KOPIUR_SOURCE_PVC}
+        name: ${APP}
       readOnly: true
   copyMethod: Snapshot
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
-  errorHandling:
-    ignoreDirErrors: false
-    ignoreFileErrors: false
-    ignoreUnknownTypes: false
   retention:
-    keepLatest: 1
-    keepWeekly: 1
-    keepMonthly: 4
-  deletion:
-    onPolicyDelete: Retain
+    keepLatest: 3
+    keepHourly: 24
+    keepDaily: 7
+    keepWeekly: 4
   mover:
     cache:
       mode: Persistent
-      capacity: ${KOPIUR_CACHE_CAPACITY:-2Gi}
+      capacity: ${KOPIUR_CAPACITY:=5Gi}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
       runAsUser: ${KOPIUR_PUID:-568}
@@ -44,28 +39,21 @@ spec:
     name: kopiur-nfs
   sources:
     - pvc:
-        name: ${KOPIUR_SOURCE_PVC}
+        name: ${APP}
       readOnly: true
   copyMethod: Snapshot
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
-  errorHandling:
-    ignoreDirErrors: false
-    ignoreFileErrors: false
-    ignoreUnknownTypes: false
   retention:
     keepLatest: 3
     keepHourly: 24
     keepDaily: 7
     keepWeekly: 4
-    keepMonthly: 1
-  deletion:
-    onPolicyDelete: Retain
   mover:
     cache:
       mode: Persistent
-      capacity: ${KOPIUR_CACHE_CAPACITY:-2Gi}
+      capacity: ${KOPIUR_CAPACITY:=5Gi}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
       runAsUser: ${KOPIUR_PUID:-568}

@@ -211,7 +211,7 @@ Important details:
 - The default GitOps-created PVC restore uses `${APP}-nfs` from the Kopiur NFS repository. Use the manual R2 procedure if the NFS repository is unavailable or missing the desired snapshot.
 - The UNAS and `/var/nfs/shared/kopiur` must be available before Kopiur mover jobs can restore from the primary repository.
 - Cloudflare R2 Kopia backups are retained as a secondary disaster copy. Use `kubectl kopiur restore` against the `*-r2` policy snapshots if the NFS repository is unavailable.
-- App-specific exceptions must keep `KOPIUR_RESTORE_NAME` and `KOPIUR_RESTORE_POLICY` aligned with the PVC that should be populated. For example, AdGuard restores the seed PVC `adguard` from policy `adguard-0-nfs`; StatefulSet ordinal `data-adguard-1` is then repopulated by sync.
+- App-specific exceptions should use a separate Flux Kustomization with `APP` set to the exact PVC being populated. For example, AdGuard restores the primary StatefulSet PVC `data-adguard-0` from policy `data-adguard-0-nfs`; StatefulSet ordinal `data-adguard-1` is then repopulated by sync.
 - After bootstrap, inspect Kopiur objects and PVCs:
 
   ```bash
