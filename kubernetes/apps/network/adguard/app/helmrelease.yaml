@@ -51,12 +51,12 @@ spec:
               storageClass: ceph-block
               accessMode: ReadWriteOnce
               size: 5Gi
-              # Clone the seed PVC into each StatefulSet ordinal on first creation.
+              # Clone the primary restored PVC into additional StatefulSet ordinals on first creation.
               # Kopiur protects data-adguard-0; adguardhome-sync repopulates
               # data-adguard-1 from the primary replica.
               dataSource:
                 kind: PersistentVolumeClaim
-                name: adguard
+                name: data-adguard-0
               globalMounts:
                 - path: /opt/adguardhome/conf
                   subPath: conf

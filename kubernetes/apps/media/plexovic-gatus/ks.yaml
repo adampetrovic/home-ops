@@ -32,5 +32,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      KOPIUR_SOURCE_PVC: *app
       KOPIUR_CAPACITY: 2Gi
