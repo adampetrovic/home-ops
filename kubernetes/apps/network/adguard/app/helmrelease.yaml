@@ -21,6 +21,9 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
     controllers:
       adguard:
         type: statefulset
@@ -31,6 +34,14 @@ spec:
         podDisruptionBudget:
           minAvailable: 1
         pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: kubernetes.io/hostname
@@ -62,13 +73,39 @@ spec:
                   subPath: conf
                 - path: /opt/adguardhome/work
                   subPath: work
+        initContainers:
+          01-permissions:
+            image:
+              repository: ghcr.io/home-operations/busybox
+              tag: 1.37.0@sha256:026ed7273270ec08f6902b4ae8334c23b473e5394bec3bbbdbfe580c710d50bc
+            command:
+              - /bin/sh
+              - -ec
+              - |
+                chown -R 1001:1001 /opt/adguardhome/conf /opt/adguardhome/work
+                chmod -R u+rwX,g+rwX /opt/adguardhome/conf /opt/adguardhome/work
+            securityContext:
+              runAsNonRoot: false
+              runAsUser: 0
+              runAsGroup: 0
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN", "DAC_OVERRIDE", "FOWNER"]
         containers:
           app:
             image:
-              repository: mirror.gcr.io/adguard/adguardhome
-              tag: v0.107.79@sha256:aba9e3bf0613be3ba3755e1fc311b126e2c24bec25e18b6483894a88283074f0
+              repository: ghcr.io/adampetrovic/adguardhome
+              tag: v0.107.79@sha256:9b81408a497c3a9b821023c7357ec60aebbd7cc58bf0545dfeeb6ca868f812e8
             env:
               TZ: "${TZ}"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["NET_BIND_SERVICE"]
             probes:
               liveness:
                 enabled: false
