@@ -46,7 +46,7 @@ spec:
   policyRef:
     name: adguard-0-r2
   schedule:
-    cron: "H * * * *"
+    cron: "H H * * 0"
     concurrencyPolicy: Forbid
     runOnCreate: false
     suspend: false
@@ -98,7 +98,7 @@ spec:
   policyRef:
     name: adguard-1-r2
   schedule:
-    cron: "H * * * *"
+    cron: "H H * * 0"
     concurrencyPolicy: Forbid
     runOnCreate: false
     suspend: false

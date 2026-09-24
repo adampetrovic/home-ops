@@ -7,7 +7,7 @@ spec:
   policyRef:
     name: ${APP}-r2
   schedule:
-    cron: "H * * * *"
+    cron: "H H * * 0"
     concurrencyPolicy: Forbid
     runOnCreate: false
     suspend: ${KOPIUR_SUSPEND:-false}
