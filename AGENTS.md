@@ -34,6 +34,7 @@ Read the relevant doc before making non-trivial changes:
 - SOPS, 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
 - Talos, node upgrades, storage, networking, load balancers, Talos logs, observability platform: `docs/agent/platform.md`
+- Kopiur CLI operations, scheduled backup checks, manual snapshots, backup browsing, or restore diagnostics: `.pi/skills/kopiur/SKILL.md`
 - Unsure where to start: `docs/agent/README.md`
 
 ## Common Repository Layout
@@ -70,6 +71,7 @@ Read the relevant doc before making non-trivial changes:
 ## Quick Operational Notes
 
 - Flux reconciles from `main`; a GitHub webhook triggers reconciliation shortly after pushes.
+- Use `kubectl kopiur` for Kopiur backup status, snapshot, log, browse, maintenance, suspend/resume, and restore operations; read `.pi/skills/kopiur/SKILL.md` before using it.
 - CI checks are useful but not a default merge gate unless the user explicitly asks to wait.
 - GitHub PRs in this repo only allow rebase merges; use `gh pr merge --rebase --delete-branch` and do not try squash or merge commits.
 - After Talos or Kubernetes rollouts, verify LoadBalancer/BGP/L2 endpoint sanity for services using `externalTrafficPolicy: Local`.
