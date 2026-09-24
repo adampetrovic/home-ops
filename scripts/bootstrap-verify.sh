@@ -16,7 +16,7 @@ function usage() {
 Usage: scripts/bootstrap-verify.sh [--core|--full]
 
   --core  Verify the bootstrap substrate: nodes, CNI, DNS, External Secrets, and Flux.
-  --full  Also verify Flux convergence, storage, gateways, VolSync objects, and CNPG.
+  --full  Also verify Flux convergence, storage, gateways, Kopiur objects, and CNPG.
 EOF
 }
 
@@ -88,7 +88,8 @@ function check_full_convergence() {
     run_check "csi-ceph-blockpool VolumeSnapshotClass exists" kubectl get volumesnapshotclass csi-ceph-blockpool
 
     run_check "Rook Ceph cluster Kustomization ready" wait_for_flux_object rook-ceph kustomization rook-ceph-cluster "${ROOK_TIMEOUT:-30m}"
-    run_check "VolSync Kustomization ready" wait_for_flux_object volsync-system kustomization volsync "${VOLSYNC_TIMEOUT:-15m}"
+    run_check "Kopiur Kustomization ready" wait_for_flux_object kopiur-system kustomization kopiur "${KOPIUR_TIMEOUT:-15m}"
+    run_check "Kopiur repositories ready" wait_for_flux_object kopiur-system kustomization kopiur-repositories "${KOPIUR_TIMEOUT:-15m}"
     run_check "Envoy internal Gateway programmed" kubectl -n network wait gateway/envoy-internal --for=condition=Programmed=True --timeout="${GATEWAY_TIMEOUT:-10m}"
     run_check "Envoy external Gateway programmed" kubectl -n network wait gateway/envoy-external --for=condition=Programmed=True --timeout="${GATEWAY_TIMEOUT:-10m}"
 
@@ -98,8 +99,8 @@ function check_full_convergence() {
         fail_check "CNPG postgres cluster is missing" "namespace=database" "name=postgres"
     fi
 
-    run_check "VolSync ReplicationDestinations listable" kubectl get replicationdestinations.volsync.backube --all-namespaces
-    run_check "VolSync ReplicationSources listable" kubectl get replicationsources.volsync.backube --all-namespaces
+    run_check "Kopiur SnapshotPolicies listable" kubectl get snapshotpolicies.kopiur.home-operations.com --all-namespaces
+    run_check "Kopiur SnapshotSchedules listable" kubectl get snapshotschedules.kopiur.home-operations.com --all-namespaces
 }
 
 function main() {

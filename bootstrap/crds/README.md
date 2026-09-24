@@ -24,7 +24,6 @@ owned by the Envoy Gateway chart, matching the upstream bootstrap pattern.
 | External DNS `DNSEndpoint` | `standalone.yaml` | Manual/Renovate update of the standalone External DNS version |
 | Multus `NetworkAttachmentDefinition` | `standalone.yaml` | Manual/Renovate update of the standalone Multus version |
 | CNPG Barman `ObjectStore` | `standalone.yaml` | Manual/Renovate update of the standalone Barman plugin version |
-| VolSync | `bootstrap/helmfile/crds.yaml` | `volsync-system/volsync` HelmRelease |
 | CloudNativePG | `bootstrap/helmfile/crds.yaml` | `database/cloudnative-pg` HelmRelease |
 
 Bootstrap applies CRDs with server-side apply and `--force-conflicts`, but it

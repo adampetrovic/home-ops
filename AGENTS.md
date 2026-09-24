@@ -8,7 +8,7 @@ Pi concatenates this file into the startup prompt. Keep it high-signal: critical
 
 ## Repository Snapshot
 
-This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kubernetes cluster. Flux CD reconciles everything from Git. Key technologies: Talos Linux, Kubernetes, Flux CD, Helm, Kustomize, SOPS, 1Password External Secrets, Rook-Ceph, VolSync, Renovate, Cilium, Envoy Gateway.
+This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kubernetes cluster. Flux CD reconciles everything from Git. Key technologies: Talos Linux, Kubernetes, Flux CD, Helm, Kustomize, SOPS, 1Password External Secrets, Rook-Ceph, Kopiur, Renovate, Cilium, Envoy Gateway.
 
 ## Operating Contract
 
@@ -29,7 +29,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 
 Read the relevant doc before making non-trivial changes:
 
-- Application deployment, HelmRelease, PVC, VolSync, ExternalSecret, or app add/remove: `docs/agent/app-deployments.md`
+- Application deployment, HelmRelease, PVC, Kopiur, ExternalSecret, or app add/remove: `docs/agent/app-deployments.md`
 - HTTPRoute, Envoy Gateway, Authelia, Cloudflare Tunnel, app exposure: `docs/agent/routing.md`
 - SOPS, 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
@@ -39,7 +39,7 @@ Read the relevant doc before making non-trivial changes:
 ## Common Repository Layout
 
 - `kubernetes/apps/<namespace>/<app>/` — Flux-managed applications
-- `kubernetes/components/` — reusable Kustomize components, including VolSync and common vars
+- `kubernetes/components/` — reusable Kustomize components, including Kopiur, persistence, and common vars
 - `kubernetes/flux/cluster/` — top-level Flux Kustomization
 - `talos/*.yaml.j2` and `talos/nodes/**` — native Talos machine config templates
 - `talos/inventory.yaml` — node-to-management-IP mapping for Talos tasks
@@ -48,7 +48,7 @@ Read the relevant doc before making non-trivial changes:
 ## Quick App Rules
 
 - App directories use `ks.yaml` plus `app/kustomization.yaml` and `app/helmrelease.yaml`.
-- Persistent apps use the VolSync component and set `APP` plus `VOLSYNC_CAPACITY` substitutions.
+- Persistent apps use the persistence and Kopiur backup components and set `APP`, `KOPIUR_SOURCE_PVC`, and `KOPIUR_CAPACITY` substitutions.
 - Secrets come from the `onepassword-connect` ClusterSecretStore via ExternalSecret.
 - PostgreSQL app connection strings use `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`.
 - App names are lowercase hyphenated and match Flux Kustomization and HelmRelease names.
