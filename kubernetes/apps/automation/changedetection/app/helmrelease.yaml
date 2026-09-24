@@ -34,6 +34,13 @@ spec:
               USE_X_SETTINGS: 1
               BASE_URL: &host changedetection.petrovic.network
               PLAYWRIGHT_DRIVER_URL: ws://localhost:3000/chromium?stealth=1&--disable-web-security=true
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 568
+              runAsGroup: 568
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
           browser:
             image:
               repository: ghcr.io/browserless/chromium

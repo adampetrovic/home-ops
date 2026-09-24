@@ -35,12 +35,7 @@ spec:
     substitute:
       APP: *app
       KOPIUR_SUSPEND: "true"
-      KOPIUR_RUN_AS_NON_ROOT: "false"
-      KOPIUR_PUID: "0"
-      KOPIUR_PGID: "568"
       KOPIUR_CACHE_CAPACITY: 1Gi
-      KOPIUR_SNAPSHOTCLASS: csi-ceph-blockpool
-      KOPIUR_SOURCE_PVC: *app
       VOLSYNC_CAPACITY: 1Gi
       VOLSYNC_KOPIA_SCHEDULE: "56 * * * *"
       VOLSYNC_R2_SCHEDULE: "0 0 * * *"

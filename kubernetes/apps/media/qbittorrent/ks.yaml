@@ -39,7 +39,6 @@ spec:
       KOPIUR_SUSPEND: "true"
       KOPIUR_CACHE_CAPACITY: 2Gi
       KOPIUR_SNAPSHOTCLASS: csi-ceph-filesystem
-      KOPIUR_SOURCE_PVC: *app
       VOLSYNC_CAPACITY: 2Gi
       VOLSYNC_KOPIA_SCHEDULE: "38 * * * *"
       VOLSYNC_R2_SCHEDULE: "55 3 * * *"

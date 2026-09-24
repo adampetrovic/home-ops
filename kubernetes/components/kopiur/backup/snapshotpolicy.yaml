@@ -9,18 +9,10 @@ spec:
     name: ${KOPIUR_REPOSITORY:-kopiur-r2}
   sources:
     - pvc:
-        name: ${KOPIUR_SOURCE_PVC}
-      readOnly: true
-  copyMethod: Snapshot
-  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS}
+        name: ${APP}
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
   compression:
     compressor: zstd
-  errorHandling:
-    failFast: true
-    ignoreFileErrors: false
-    ignoreDirErrors: false
-    ignoreUnknownTypes: false
-  defaultDeletionPolicy: Retain
   retention:
     keepLatest: 3
     keepHourly: 24
@@ -33,12 +25,5 @@ spec:
       capacity: ${KOPIUR_CACHE_CAPACITY:-2Gi}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
-      runAsNonRoot: ${KOPIUR_RUN_AS_NON_ROOT:-true}
       runAsUser: ${KOPIUR_PUID:-568}
       runAsGroup: ${KOPIUR_PGID:-568}
-    podSecurityContext:
-      runAsNonRoot: ${KOPIUR_RUN_AS_NON_ROOT:-true}
-      runAsUser: ${KOPIUR_PUID:-568}
-      runAsGroup: ${KOPIUR_PGID:-568}
-      fsGroup: ${KOPIUR_PGID:-568}
-      fsGroupChangePolicy: OnRootMismatch
