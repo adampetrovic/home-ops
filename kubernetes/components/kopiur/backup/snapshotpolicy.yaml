@@ -9,7 +9,42 @@ spec:
     name: kopiur-r2
   sources:
     - pvc:
-        name: ${APP}
+        name: ${KOPIUR_SOURCE_PVC}
+      readOnly: true
+  copyMethod: Snapshot
+  volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
+  compression:
+    compressor: zstd
+  errorHandling:
+    ignoreDirErrors: false
+    ignoreFileErrors: false
+    ignoreUnknownTypes: false
+  retention:
+    keepLatest: 1
+    keepWeekly: 1
+    keepMonthly: 4
+  deletion:
+    onPolicyDelete: Retain
+  mover:
+    cache:
+      mode: Persistent
+      capacity: ${KOPIUR_CACHE_CAPACITY:-2Gi}
+      storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
+    securityContext:
+      runAsUser: ${KOPIUR_PUID:-568}
+      runAsGroup: ${KOPIUR_PGID:-568}
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: SnapshotPolicy
+metadata:
+  name: ${APP}-nfs
+spec:
+  repository:
+    kind: ClusterRepository
+    name: kopiur-nfs
+  sources:
+    - pvc:
+        name: ${KOPIUR_SOURCE_PVC}
       readOnly: true
   copyMethod: Snapshot
   volumeSnapshotClassName: ${KOPIUR_SNAPSHOTCLASS:=csi-ceph-blockpool}
