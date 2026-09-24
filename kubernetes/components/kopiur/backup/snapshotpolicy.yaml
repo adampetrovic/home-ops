@@ -33,11 +33,11 @@ spec:
       capacity: ${KOPIUR_CACHE_CAPACITY:-2Gi}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
-      runAsNonRoot: true
+      runAsNonRoot: ${KOPIUR_RUN_AS_NON_ROOT:-true}
       runAsUser: ${KOPIUR_PUID:-568}
       runAsGroup: ${KOPIUR_PGID:-568}
     podSecurityContext:
-      runAsNonRoot: true
+      runAsNonRoot: ${KOPIUR_RUN_AS_NON_ROOT:-true}
       runAsUser: ${KOPIUR_PUID:-568}
       runAsGroup: ${KOPIUR_PGID:-568}
       fsGroup: ${KOPIUR_PGID:-568}
