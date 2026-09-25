@@ -2,9 +2,9 @@
 
 Read this before adding, removing, or modifying applications under `kubernetes/apps/`.
 
-## Application Structure Pattern
+## Application Structure Patterns
 
-Every application follows this structure:
+Most application directories follow this default shape:
 
 ```text
 app-name/
@@ -14,6 +14,15 @@ app-name/
     ├── helmrelease.yaml     # HelmRelease
     └── externalsecret.yaml  # ExternalSecret pulling from 1Password, if needed
 ```
+
+Intentional exceptions exist for apps that need multiple Flux stages or supporting resources:
+
+- Multi-stage apps may have one `ks.yaml` containing multiple Flux `Kustomization` documents, each pointing at a subdirectory, for example database-before-app flows such as Immich.
+- Split controllers may have separate subdirectories under one app directory, for example `external-dns/external` and `external-dns/unifi`.
+- Apps with several related HelmReleases may keep those releases under a nested `app/` layout, for example Vector's agent and aggregator.
+- Certificate bundles, proxy routes, backup support resources, and operator-owned custom resources may omit the default `app/helmrelease.yaml` when no single app workload exists.
+
+When adding a new exception, document why the default structure is not sufficient in the app's `ks.yaml` or a local README.
 
 ## Flux Kustomization (`ks.yaml`)
 
@@ -64,12 +73,13 @@ The backup component snapshots and restores a PVC named `${APP}`. Keep persisten
 
 ## HelmRelease Conventions
 
-- All workloads must use HelmRelease, normally with the bjw-s `app-template` chart via the `app-template` OCIRepository.
+- All workloads must use HelmRelease. Application workloads normally use the bjw-s-labs `app-template` chart via the shared `app-template` OCIRepository.
+- Platform components, operators, and upstream charts may use their own OCIRepository or HelmRepository, but should still keep Helm release settings, dependencies, and supporting resources explicit.
 - Never add raw Deployments, StatefulSets, DaemonSets, or CronJobs. For CronJobs, use `controllers.<name>.type: cronjob` in app-template.
 - Never check application source code into this repository. Application code belongs in its own source repo and must be deployed here as a pre-built container image.
 - Do not mount application source from ConfigMaps, build apps at container startup, or use generic language/runtime images as in-cluster build mechanisms.
-- Use schema comment: `https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json`.
-- Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback`.
+- For app-template HelmReleases, use schema comment: `https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json`.
+- Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback` unless the upstream chart has a documented reason not to.
 - Use YAML anchors (`&app`, `&port`, `*envFrom`) to reduce duplication.
 - Container images must include both tag and digest: `tag: v1.0.0@sha256:abc123...`.
 - Never use `docker.io` directly. Use `mirror.gcr.io` as a pull-through mirror. Docker Official Images use `mirror.gcr.io/library/<image>`.
@@ -104,7 +114,7 @@ resources:
 2. Create `ks.yaml` with appropriate `dependsOn`.
 3. Create `app/helmrelease.yaml` using app-template or an upstream chart.
 4. Create `app/kustomization.yaml` listing all resources.
-5. If the app has a web UI, add a Gateway API `route:` block in the HelmRelease.
+5. If the app has a simple app-owned web UI, add a Gateway API `route:` block in the HelmRelease. Use a standalone `HTTPRoute` for shared, cross-namespace, proxy, or non-app-template routing.
 6. If the app needs Authelia auth, add the `authelia-proxy` component to app-level `kustomization.yaml` and check ReferenceGrant needs.
 7. If secrets are needed, create `app/externalsecret.yaml` referencing 1Password.
 8. If persistent storage is needed, add the Kopiur backup component to `ks.yaml`.

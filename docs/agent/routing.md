@@ -13,9 +13,15 @@ Two Gateway resources live in the `network` namespace:
 
 Both terminate TLS on port 443 with a wildcard certificate and redirect HTTP to HTTPS.
 
+## Route Placement
+
+Use inline app-template `route:` definitions for simple routes owned by a single app-template HelmRelease. Use standalone `HTTPRoute` manifests when the route is shared, targets a proxy or external backend, spans unusual namespaces, needs complex rules, or belongs to a workload that is not rendered by app-template.
+
+Current intentional standalone route locations include Flux webhooks, Envoy proxy routes, observability endpoints with custom resources, Rook-Ceph dashboard routes, and Gateway self-check routes.
+
 ## App-Template Routes
 
-Most apps use the bjw-s app-template `route:` key, which renders HTTPRoute resources.
+Most application workloads use the bjw-s-labs app-template `route:` key, which renders HTTPRoute resources.
 
 Internal-only app:
 
@@ -77,7 +83,7 @@ route:
 
 ## Authelia Authentication
 
-Apps that need Authelia SSO/ext-auth include the `authelia-proxy` Kustomize component in their app-level `kustomization.yaml`, not in `ks.yaml`:
+Apps that need Authelia SSO/ext-auth include the `authelia-proxy` Kustomize component in their app-level `kustomization.yaml`, not in `ks.yaml`. The protected HTTPRoute name must match the component's `${APP}` substitution; for normal app-template routes this is usually the app name.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
