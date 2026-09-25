@@ -233,3 +233,12 @@ spec:
             app:
               - path: /music
                 readOnly: true
+      family:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/media/family
+        advancedMounts:
+          plex:
+            app:
+              - path: /family
+                readOnly: true
