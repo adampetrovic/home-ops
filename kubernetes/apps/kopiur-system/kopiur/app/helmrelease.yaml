@@ -29,6 +29,10 @@ spec:
         folder: Backups
       prometheusRule:
         enabled: true
+        # R2 backups run weekly, so the built-in global stale alert must not use
+        # the 48h threshold intended for hourly NFS backups. A separate custom
+        # PrometheusRule keeps NFS alerting at 48h.
+        backupStaleAfterSeconds: 691200 # 8d
       serviceMonitor:
         enabled: true
     podSecurityContext:

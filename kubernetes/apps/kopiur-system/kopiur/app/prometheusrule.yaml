@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kopiur-nfs-backup-rules
+spec:
+  groups:
+    - name: kopiur-nfs.rules
+      rules:
+        - alert: KopiurNfsBackupStale
+          annotations:
+            summary: No recent NFS backup for {{ $labels.namespace }}/{{ $labels.policy }}
+            description: >-
+              Either the last successful NFS backup was over 48h ago, or
+              SnapshotPolicy {{ $labels.namespace }}/{{ $labels.policy }} has
+              never succeeded and is currently failing.
+          expr: |-
+            (
+              time() - kopiur_policy_last_backup_success_timestamp_seconds{repository="kopiur-nfs"} > 172800
+            ) or (
+              label_replace(kopiur_snapshot_consecutive_failures{repository="kopiur-nfs"}, "policy", "$1", "name", "(.*)") > 0
+              unless on (namespace, policy, repository) kopiur_policy_last_backup_success_timestamp_seconds{repository="kopiur-nfs"}
+            )
+          for: 30m
+          labels:
+            severity: warning
