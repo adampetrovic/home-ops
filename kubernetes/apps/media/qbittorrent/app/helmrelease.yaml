@@ -73,7 +73,8 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+              capabilities:
+                drop: ["ALL"]
     service:
       app:
         controller: qbittorrent
@@ -105,9 +106,12 @@ spec:
         enabled: true
         existingClaim: qbittorrent
       incomplete:
-        type: emptyDir
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/media
         globalMounts:
           - path: /incomplete
+            subPath: downloads/incomplete/qbittorrent
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}

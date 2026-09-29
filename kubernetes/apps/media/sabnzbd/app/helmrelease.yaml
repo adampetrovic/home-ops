@@ -50,8 +50,8 @@ spec:
             env:
               TZ: "${TZ}"
               SABNZBD__PORT: &port 80
-              # Keep high-churn article writes off the NFS media share.
-              SABNZBD__DOWNLOAD_DIR: /incomplete/sabnzbd
+              # Keep incomplete articles isolated from completed media paths.
+              SABNZBD__DOWNLOAD_DIR: /incomplete
               SABNZBD__COMPLETE_DIR: /downloads/complete/sabnzbd
               SABNZBD__CACHE_LIMIT: 2G
               SABNZBD__HOST_WHITELIST_ENTRIES: >-
@@ -101,10 +101,12 @@ spec:
       config:
         existingClaim: sabnzbd
       incomplete:
-        type: emptyDir
-        sizeLimit: 150Gi
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/media
         globalMounts:
           - path: /incomplete
+            subPath: downloads/incomplete/sabnzbd
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
