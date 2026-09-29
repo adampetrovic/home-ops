@@ -12,6 +12,7 @@ resources:
   - ./babybuddy/ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
+  - ./logseq-sync/ks.yaml
   - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./paperless-ngx/ks.yaml
