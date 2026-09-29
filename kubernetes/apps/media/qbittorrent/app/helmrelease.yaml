@@ -106,12 +106,9 @@ spec:
         enabled: true
         existingClaim: qbittorrent
       incomplete:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /var/nfs/shared/media
+        type: emptyDir
         globalMounts:
           - path: /incomplete
-            subPath: downloads/incomplete/qbittorrent
       downloads:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
