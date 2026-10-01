@@ -6,12 +6,12 @@ SOPS_AGE_KEY = "op://k8s/sops/SOPS_PRIVATE_KEY"
 # Kubernetes
 kubectl = "1.37.1"
 helm = "4.3.0"
-helmfile = "1.8.0"
-kustomize = "5.8.1"
-flux2 = "2.9.5"
+helmfile = "1.8.1"
+kustomize = "5.8.2"
+flux2 = "2.9.6"
 
 # Talos
-talosctl = "1.14.1"
+talosctl = "1.14.2"
 "github:mitsuhiko/minijinja" = "2.24.0"
 
 # Secrets
@@ -21,7 +21,7 @@ age = "1.3.2"
 
 # Utilities
 jq = "1.8.2"
-yq = "4.53.6"
+yq = "4.54.1"
 just = "1.58.0"
 fzf = "0.74.4"
-gh = "2.101.0"
+gh = "2.102.0"
