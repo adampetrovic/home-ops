@@ -1,0 +1,28 @@
+---
+# yaml-language-server: $schema=https://schemas.hydaz.com/barmancloud.cnpg.io/objectstore_v1.json
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: gdb-garage
+spec:
+  retentionPolicy: 7d
+  configuration:
+    destinationPath: s3://postgres/
+    endpointURL: https://s3.petrovic.network
+    s3Credentials:
+      accessKeyId:
+        name: gdb-backup-secret
+        key: aws-access-key-id
+      secretAccessKey:
+        name: gdb-backup-secret
+        key: aws-secret-access-key
+    wal:
+      compression: lz4
+      maxParallel: 2
+    data:
+      compression: lz4
+      jobs: 2
+      additionalCommandArgs:
+        - --max-archive-size=10GB
+        - --min-chunk-size=100MB
+        - --read-timeout=300
