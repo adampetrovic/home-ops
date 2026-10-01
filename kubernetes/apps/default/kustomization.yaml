@@ -11,7 +11,6 @@ resources:
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
   - ./gdb/ks.yaml
-  - ./gdb/app-ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
   - ./logseq-sync/ks.yaml
