@@ -47,7 +47,6 @@ spec:
         storage:
           volumeClaimTemplate:
             metadata:
-              # Use new claims rather than reusing the existing node-local PVC.
               name: alertmanager-ceph
             spec:
               storageClassName: ceph-block
