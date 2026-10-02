@@ -1,9 +1,9 @@
 ---
-# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/barmancloud.cnpg.io/objectstore_v1.json
+# yaml-language-server: $schema=https://schemas.hydaz.com/barmancloud.cnpg.io/objectstore_v1.json
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
-  name: gdb-web-garage
+  name: garage
 spec:
   configuration:
     destinationPath: s3://postgres/
@@ -16,7 +16,13 @@ spec:
         name: gdb-backup-secret
         key: aws-secret-access-key
     wal:
-      compression: gzip
+      compression: lz4
+      maxParallel: 2
     data:
-      compression: gzip
-  retentionPolicy: 14d
+      compression: lz4
+      jobs: 2
+      additionalCommandArgs:
+        - --max-archive-size=10GB
+        - --min-chunk-size=100MB
+        - --read-timeout=300
+  retentionPolicy: 7d
