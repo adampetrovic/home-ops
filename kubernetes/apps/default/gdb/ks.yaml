@@ -35,6 +35,14 @@ spec:
   targetNamespace: default
   components:
     - ../../../../components/kopiur/backup
+  patches:
+    - target:
+        group: kopiur.home-operations.com
+        kind: SnapshotPolicy
+      patch: |-
+        - op: add
+          path: /spec/suspend
+          value: true
   dependsOn:
     - name: gdb-postgres
       namespace: default
