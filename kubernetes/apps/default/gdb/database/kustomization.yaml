@@ -6,5 +6,3 @@ resources:
   - ./externalsecret.yaml
   - ./backup-secret.yaml
   - ./objectstore.yaml
-  - ./cluster.yaml
-  - ./scheduledbackup.yaml
