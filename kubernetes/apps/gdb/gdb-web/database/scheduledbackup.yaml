@@ -3,13 +3,13 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
 metadata:
-  name: gdb-postgres
+  name: gdb-web-postgres
 spec:
   schedule: "0 0 0 * * *"
   immediate: true
   backupOwnerReference: self
   cluster:
-    name: gdb-postgres
+    name: gdb-web-postgres
   method: plugin
   pluginConfiguration:
     name: barman-cloud.cloudnative-pg.io

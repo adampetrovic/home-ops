@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: gdb
+  name: gdb-web
 spec:
   interval: 30m
   chartRef:
@@ -34,24 +34,40 @@ spec:
             # PostgreSQL, runs the bundled migrations/static-city seed, and only
             # then starts the HTTP server.
             env:
-              DB_HOST: gdb-postgres-rw.gdb.svc.cluster.local
-              DB_PORT: "5432"
-              DB_NAME: gdb
+              DB_HOST:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: DB_HOST
+              DB_PORT:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: DB_PORT
+              DB_NAME:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: DB_NAME
               DB_USER:
                 valueFrom:
                   secretKeyRef:
                     name: gdb-db-secret
-                    key: username
+                    key: DB_USER
               DB_PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: gdb-db-secret
-                    key: password
-              DB_SSL_MODE: disable
+                    key: DB_PASSWORD
+              DB_SSL_MODE:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: DB_SSL_MODE
               APP_ENV: production
               APP_VERSION: 1.10.67
               SERVER_HOST: 0.0.0.0
-              SERVER_PORT: &port "8080"
+              SERVER_PORT: "8080"
               CORS_ORIGINS: https://gdb.petrovic.network
               MEDIA_DIR: /tmp
             probes:
@@ -61,7 +77,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: 8080
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 6
@@ -72,7 +88,7 @@ spec:
                 spec:
                   httpGet:
                     path: /health
-                    port: *port
+                    port: 8080
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 120
