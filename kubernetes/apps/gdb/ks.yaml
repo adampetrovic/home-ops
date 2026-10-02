@@ -60,6 +60,8 @@ spec:
   dependsOn:
     - name: gdb-postgres
       namespace: gdb
+    - name: gdb-web
+      namespace: gdb
   path: ./kubernetes/apps/gdb/scrapers
   prune: true
   sourceRef:
