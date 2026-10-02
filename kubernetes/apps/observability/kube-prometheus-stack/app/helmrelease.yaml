@@ -36,6 +36,9 @@ spec:
       ingress:
         enabled: false
       alertmanagerSpec:
+        replicas: 2
+        podAntiAffinity: hard
+        podAntiAffinityTopologyKey: kubernetes.io/hostname
         useExistingSecret: true
         configSecret: alertmanager-secret
         podMetadata:
@@ -43,8 +46,11 @@ spec:
             secret.reloader.stakater.com/reload: alertmanager-secret
         storage:
           volumeClaimTemplate:
+            metadata:
+              # Use new claims rather than reusing the existing node-local PVC.
+              name: alertmanager-ceph
             spec:
-              storageClassName: openebs-hostpath
+              storageClassName: ceph-block
               resources:
                 requests:
                   storage: 1Gi
