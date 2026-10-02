@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: gdb-web-postgres
+  name: gdb-postgres
   namespace: gdb
 spec:
   targetNamespace: gdb
@@ -14,7 +14,7 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/gdb/gdb-web/database
+  path: ./kubernetes/apps/gdb/database
   prune: true
   sourceRef:
     kind: GitRepository
@@ -34,11 +34,11 @@ metadata:
 spec:
   targetNamespace: gdb
   dependsOn:
-    - name: gdb-web-postgres
+    - name: gdb-postgres
       namespace: gdb
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/gdb/gdb-web/app
+  path: ./kubernetes/apps/gdb/web
   prune: true
   sourceRef:
     kind: GitRepository
