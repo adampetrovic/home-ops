@@ -10,9 +10,12 @@ spec:
     name: app-template
   interval: 30m
   install:
+    disableWaitForJobs: true
     remediation:
       retries: -1
   upgrade:
+    # Historical bootstrap can run well beyond Helm's reconciliation timeout.
+    disableWaitForJobs: true
     cleanupOnFail: true
     remediation:
       retries: 3
