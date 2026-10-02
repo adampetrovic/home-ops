@@ -21,7 +21,6 @@ spec:
       postInitApplicationSQL:
         - CREATE EXTENSION IF NOT EXISTS postgis
         - CREATE EXTENSION IF NOT EXISTS pg_trgm
-        - CREATE EXTENSION IF NOT EXISTS pgcrypto
   resources:
     requests:
       cpu: 100m
@@ -35,7 +34,7 @@ spec:
       isWALArchiver: true
       parameters: &backup
         barmanObjectName: gdb-garage
-        serverName: gdb-postgres
+        serverName: gdb-postgres-gdb
   externalClusters:
     - name: source
       plugin:
