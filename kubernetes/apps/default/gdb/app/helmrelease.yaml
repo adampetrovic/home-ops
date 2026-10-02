@@ -1,0 +1,117 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gdb
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+    controllers:
+      app:
+        replicas: 1
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/gdb-web
+              tag: 1.10.67@sha256:c88c8e9887a7a937a2935bf78f915e34edca2a5e132f4ddcb22823c3f04566d7
+            # gdb-web's image entrypoint runs /app/startup.sh, which waits for
+            # PostgreSQL, runs the bundled migrations/static-city seed, and only
+            # then starts the HTTP server.
+            env:
+              DB_HOST: gdb-postgres-rw.default.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: gdb
+              DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: username
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: password
+              DB_SSL_MODE: disable
+              APP_ENV: production
+              APP_VERSION: 1.10.67
+              SERVER_HOST: 0.0.0.0
+              SERVER_PORT: &port "8080"
+              CORS_ORIGINS: https://gdb.petrovic.network
+              MEDIA_DIR: /tmp
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 120
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        pod:
+          securityContext:
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+            runAsNonRoot: true
+    service:
+      app:
+        controller: app
+        ports:
+          http:
+            port: 8080
+    route:
+      main:
+        hostnames:
+          - gdb.petrovic.network
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
