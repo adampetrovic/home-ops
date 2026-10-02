@@ -28,11 +28,17 @@ spec:
         runAsNonRoot: true
         fsGroupChangePolicy: OnRootMismatch
     controllers:
-      usag-bootstrap:
-        type: job
-        job:
-          backoffLimit: 1
+      usag:
+        type: cronjob
+        cronjob:
+          schedule: "0 12 * * 0"
+          timeZone: Australia/Sydney
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 3
+          failedJobsHistory: 3
           ttlSecondsAfterFinished: 604800
+          backoffLimit: 1
+          suspend: true
         containers:
           app: &scraper-container
             image:
@@ -45,7 +51,7 @@ spec:
                   secretKeyRef:
                     name: gdb-db-secret
                     key: DATABASE_URL
-              MODE: full
+              MODE: incremental
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
               CONCURRENCY: "50"
@@ -67,30 +73,6 @@ spec:
               readOnlyRootFilesystem: false
               capabilities:
                 drop: [ALL]
-      usag:
-        type: cronjob
-        cronjob:
-          schedule: "0 12 * * 0"
-          timeZone: Australia/Sydney
-          concurrencyPolicy: Forbid
-          successfulJobsHistory: 3
-          failedJobsHistory: 3
-          ttlSecondsAfterFinished: 604800
-          backoffLimit: 1
-          suspend: true
-        containers:
-          app:
-            <<: *scraper-container
-            env:
-              DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: DATABASE_URL
-              MODE: incremental
-              OUTPUT_DIR: /app/output
-              LOG_LEVEL: INFO
-              CONCURRENCY: "50"
       mso-fetch-bootstrap:
         type: job
         job:
