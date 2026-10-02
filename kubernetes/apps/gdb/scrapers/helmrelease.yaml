@@ -87,6 +87,17 @@ spec:
               OUTPUT_DIR: /app/output
               MSO_CACHE_DIR: /app/output/mso-cache
               MSO_CACHE_MODE: fetch-cache
+              HTTP_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: EXTERNAL_PROXY_URL
+              HTTPS_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: EXTERNAL_PROXY_URL
+              NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
               LOG_LEVEL: INFO
       mso:
         type: cronjob
