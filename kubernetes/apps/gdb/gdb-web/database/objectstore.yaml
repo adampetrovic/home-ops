@@ -3,7 +3,7 @@
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore
 metadata:
-  name: gdb-garage
+  name: gdb-web-garage
 spec:
   configuration:
     destinationPath: s3://postgres/
