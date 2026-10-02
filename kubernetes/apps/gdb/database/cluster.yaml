@@ -33,7 +33,7 @@ spec:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters: &backup
-        barmanObjectName: gdb-web-garage
+        barmanObjectName: garage
         serverName: gdb-postgres
   externalClusters:
     - name: source
