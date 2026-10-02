@@ -34,7 +34,7 @@ spec:
             # PostgreSQL, runs the bundled migrations/static-city seed, and only
             # then starts the HTTP server.
             env:
-              DB_HOST: gdb-postgres-rw.default.svc.cluster.local
+              DB_HOST: gdb-postgres-rw.gdb.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: gdb
               DB_USER:

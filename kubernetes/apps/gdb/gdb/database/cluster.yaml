@@ -35,7 +35,7 @@ spec:
       isWALArchiver: true
       parameters: &backup
         barmanObjectName: gdb-garage
-        serverName: gdb-postgres
+        serverName: gdb-postgres-gdb
   externalClusters:
     - name: source
       plugin:
