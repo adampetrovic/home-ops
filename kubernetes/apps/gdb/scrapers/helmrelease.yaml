@@ -74,6 +74,8 @@ spec:
               capabilities:
                 drop: [ALL]
       mso-fetch-bootstrap:
+        # Remove the completed Job before recreating its immutable pod template.
+        enabled: false
         type: job
         job:
           backoffLimit: 1
