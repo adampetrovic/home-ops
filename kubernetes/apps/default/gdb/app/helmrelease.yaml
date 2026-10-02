@@ -21,52 +21,60 @@ spec:
     defaultPodOptions:
       imagePullSecrets:
         - name: ghcr-private
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        runAsNonRoot: true
     controllers:
-      api:
+      app:
         replicas: 1
         strategy: Recreate
-        initContainers:
-          migrate:
-            image:
-              repository: ghcr.io/adampetrovic/gdb-api
-              tag: release-b187464b3217b2a30717257d06f2bbb554f25581@sha256:66faa0ecb44b7d7efd906308945f0582d55852376cb32f429e210f4eaf6d2180
-            command: ["alembic", "upgrade", "head"]
-            env:
-              GDB_DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: GDB_DATABASE_URL
         containers:
           app:
             image:
-              repository: ghcr.io/adampetrovic/gdb-api
-              tag: release-b187464b3217b2a30717257d06f2bbb554f25581@sha256:66faa0ecb44b7d7efd906308945f0582d55852376cb32f429e210f4eaf6d2180
+              repository: ghcr.io/adampetrovic/gdb-web
+              tag: 1.10.67@sha256:c88c8e9887a7a937a2935bf78f915e34edca2a5e132f4ddcb22823c3f04566d7
+            # The image startup script applies migrations and seeds static cities
+            # before starting the HTTP server. Do not override its command.
             env:
-              GDB_DATABASE_URL:
+              DB_HOST: gdb-postgres-rw.default.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: gdb
+              DB_USER:
                 valueFrom:
                   secretKeyRef:
                     name: gdb-db-secret
-                    key: GDB_DATABASE_URL
-              GDB_APP_ORIGIN: https://gdb.petrovic.network
-              GDB_ENVIRONMENT: production
-              GDB_LISTEN_HOST: 0.0.0.0
+                    key: username
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: password
+              DB_SSL_MODE: disable
+              APP_ENV: production
+              APP_VERSION: 1.10.67
+              SERVER_HOST: 0.0.0.0
+              SERVER_PORT: "8080"
+              CORS_ORIGINS: https://gdb.petrovic.network
+              MEDIA_DIR: /tmp
             probes:
+              startup:
+                enabled: true
+                type: HTTP
+                path: /health
+                spec:
+                  periodSeconds: 10
+                  failureThreshold: 120
+                  timeoutSeconds: 3
               liveness:
                 enabled: true
-                type: TCP
+                type: HTTP
+                path: /health
               readiness:
                 enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /api/v1/health
-                    port: 8000
-                    httpHeaders:
-                      - name: Host
-                        value: gdb.petrovic.network
-                  periodSeconds: 10
-                  timeoutSeconds: 3
+                type: HTTP
+                path: /health
             resources:
               requests:
                 cpu: 100m
@@ -78,49 +86,12 @@ spec:
               readOnlyRootFilesystem: true
               capabilities:
                 drop: [ALL]
-        pod:
-          securityContext:
-            runAsUser: 10001
-            runAsGroup: 10001
-            fsGroup: 10001
-            runAsNonRoot: true
-      worker:
-        replicas: 1
-        containers:
-          app:
-            image:
-              repository: ghcr.io/adampetrovic/gdb-worker
-              tag: release-b187464b3217b2a30717257d06f2bbb554f25581@sha256:d640deaf862e0fed5c1c425d355e01145773bbe11fd043155b2766ad2667570d
-            env:
-              GDB_DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: GDB_DATABASE_URL
-              GDB_ARTIFACT_ROOT: /var/lib/gdb/artifacts
-            resources:
-              requests:
-                cpu: 50m
-                memory: 256Mi
-              limits:
-                memory: 1Gi
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop: [ALL]
-        pod:
-          securityContext:
-            runAsUser: 10001
-            runAsGroup: 10001
-            fsGroup: 10001
-            runAsNonRoot: true
     service:
-      api:
-        controller: api
+      app:
+        controller: app
         ports:
           http:
-            port: 8000
+            port: 8080
     route:
       main:
         hostnames:
@@ -130,12 +101,10 @@ spec:
             namespace: network
         rules:
           - backendRefs:
-              - identifier: api
+              - identifier: app
                 port: http
     persistence:
-      artifacts:
-        existingClaim: gdb-artifacts
-        advancedMounts:
-          worker:
-            app:
-              - path: /var/lib/gdb/artifacts
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
