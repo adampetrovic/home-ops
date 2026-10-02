@@ -4,9 +4,9 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: gdb-postgres
-  namespace: default
+  namespace: gdb
 spec:
-  targetNamespace: default
+  targetNamespace: gdb
   dependsOn:
     - name: cloudnative-pg
       namespace: database
@@ -14,7 +14,7 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/default/gdb/database
+  path: ./kubernetes/apps/gdb/gdb/database
   prune: true
   sourceRef:
     kind: GitRepository
@@ -30,15 +30,15 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: gdb
-  namespace: default
+  namespace: gdb
 spec:
-  targetNamespace: default
+  targetNamespace: gdb
   dependsOn:
     - name: gdb-postgres
-      namespace: default
+      namespace: gdb
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/default/gdb/app
+  path: ./kubernetes/apps/gdb/gdb/app
   prune: true
   sourceRef:
     kind: GitRepository
