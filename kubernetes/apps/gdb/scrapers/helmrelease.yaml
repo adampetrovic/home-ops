@@ -91,6 +91,21 @@ spec:
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
               CONCURRENCY: "50"
+      mso-fetch-bootstrap:
+        type: job
+        job:
+          backoffLimit: 1
+          ttlSecondsAfterFinished: 604800
+        containers:
+          app:
+            <<: *scraper-container
+            args: [mso]
+            env:
+              MODE: full
+              OUTPUT_DIR: /app/output
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_CACHE_MODE: fetch-cache
+              LOG_LEVEL: INFO
       mso:
         type: cronjob
         cronjob:
@@ -141,7 +156,10 @@ spec:
               LOG_LEVEL: INFO
     persistence:
       output:
-        type: emptyDir
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+        size: 100Gi
+        storageClass: ceph-block
         globalMounts:
           - path: /app/output
       tmp:
