@@ -34,7 +34,9 @@ spec:
       isWALArchiver: true
       parameters: &backup
         barmanObjectName: gdb-web-garage
-        serverName: gdb-postgres
+        # This replacement cluster has a different PostgreSQL system identifier.
+        # Keep the previous gdb-postgres archive intact; never mix generations.
+        serverName: gdb-postgres-v2
   externalClusters:
     - name: source
       plugin:
