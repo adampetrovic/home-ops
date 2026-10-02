@@ -6,4 +6,4 @@ namespace: gdb
 components:
   - ../../components/common
 resources:
-  - ./gdb/ks.yaml
+  - ./gdb-web/ks.yaml
