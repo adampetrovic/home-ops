@@ -10,10 +10,10 @@ spec:
     endpointURL: https://s3.petrovic.network
     s3Credentials:
       accessKeyId:
-        name: gdb-backup-secret
+        name: gdb-db-secret
         key: aws-access-key-id
       secretAccessKey:
-        name: gdb-backup-secret
+        name: gdb-db-secret
         key: aws-secret-access-key
     wal:
       compression: lz4
