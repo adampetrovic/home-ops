@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://homelab-schemas-epg.pages.dev/barmancloud.cnpg.io/objectstore_v1.json
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: gdb-garage
+spec:
+  configuration:
+    destinationPath: s3://postgres/
+    endpointURL: https://s3.petrovic.network
+    s3Credentials:
+      accessKeyId:
+        name: gdb-backup-secret
+        key: aws-access-key-id
+      secretAccessKey:
+        name: gdb-backup-secret
+        key: aws-secret-access-key
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: 14d
