@@ -43,7 +43,7 @@ spec:
           app: &scraper-container
             image:
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.96@sha256:5fe93c78fd33166221499ca4e9d375eeca892d0af304697d7a0791965acc1d38
+              tag: 0.1.97@sha256:5bb3b00d034dce369e7cdc04cab98f13f4005a154eb98c14099fea43a0f4dce2
             args: [usag]
             env:
               DATABASE_URL:
@@ -74,8 +74,6 @@ spec:
               capabilities:
                 drop: [ALL]
       mso-fetch-bootstrap:
-        # Remove the completed Job before recreating its immutable pod template.
-        enabled: false
         type: job
         job:
           backoffLimit: 1
@@ -85,6 +83,7 @@ spec:
             <<: *scraper-container
             args: [mso]
             env:
+              # Omitted SEASONS discovers historical seasons and MSO's active season.
               MODE: full
               OUTPUT_DIR: /app/output
               MSO_CACHE_DIR: /app/output/mso-cache
