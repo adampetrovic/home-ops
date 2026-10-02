@@ -87,6 +87,8 @@ spec:
               OUTPUT_DIR: /app/output
               MSO_CACHE_DIR: /app/output/mso-cache
               MSO_CACHE_MODE: fetch-cache
+              CONCURRENT_REQUESTS: "10"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "10"
               HTTP_PROXY:
                 valueFrom:
                   secretKeyRef:
