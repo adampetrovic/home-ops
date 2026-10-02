@@ -17,7 +17,7 @@ spec:
       database: gdb
       owner: gdb
       secret:
-        name: gdb-db-secret
+        name: gdb-database-secret
       postInitApplicationSQL:
         - CREATE EXTENSION IF NOT EXISTS postgis
         - CREATE EXTENSION IF NOT EXISTS pg_trgm

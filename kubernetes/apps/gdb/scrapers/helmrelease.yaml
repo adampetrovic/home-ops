@@ -31,6 +31,64 @@ spec:
         runAsNonRoot: true
         fsGroupChangePolicy: OnRootMismatch
     controllers:
+      worker:
+        enabled: false
+        type: deployment
+        replicas: 1
+        strategy: Recreate
+        pod:
+          automountServiceAccountToken: false
+          terminationGracePeriodSeconds: 90
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/gdb-scraper
+              tag: 0.1.98@sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+            command: [python, -m, scraper.jobs.worker]
+            envFrom:
+              - secretRef:
+                  name: gdb-secret
+            env:
+              OUTPUT_DIR: /app/output
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MMS_CACHE_DIR: /app/output/mms-cache
+              PYTHONDONTWRITEBYTECODE: "1"
+              LOG_LEVEL: INFO
+              JOB_WORKER_ID:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              JOB_IMAGE: ghcr.io/adampetrovic/gdb-scraper:0.1.98
+              JOB_IMAGE_DIGEST: sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+              HTTP_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              HTTPS_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
       usag:
         type: cronjob
         cronjob:
@@ -49,15 +107,13 @@ spec:
               tag: 0.1.97@sha256:5bb3b00d034dce369e7cdc04cab98f13f4005a154eb98c14099fea43a0f4dce2
             args: [usag]
             env:
-              DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: DATABASE_URL
               MODE: incremental
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
               CONCURRENCY: "50"
+            envFrom: &envFrom
+              - secretRef:
+                  name: gdb-secret
             probes:
               liveness:
                 enabled: false
@@ -119,12 +175,12 @@ spec:
               HTTP_PROXY:
                 valueFrom:
                   secretKeyRef:
-                    name: gdb-db-secret
+                    name: gdb-secret
                     key: EXTERNAL_PROXY_URL
               HTTPS_PROXY:
                 valueFrom:
                   secretKeyRef:
-                    name: gdb-db-secret
+                    name: gdb-secret
                     key: EXTERNAL_PROXY_URL
               NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
               LOG_LEVEL: INFO
@@ -143,12 +199,8 @@ spec:
           app:
             <<: *scraper-container
             args: [mso]
+            envFrom: *envFrom
             env:
-              DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: DATABASE_URL
               MODE: incremental
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
@@ -198,12 +250,8 @@ spec:
           app:
             <<: *scraper-container
             args: [mms]
+            envFrom: *envFrom
             env:
-              DATABASE_URL:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-db-secret
-                    key: DATABASE_URL
               MODE: incremental
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
