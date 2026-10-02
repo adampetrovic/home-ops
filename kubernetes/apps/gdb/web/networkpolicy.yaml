@@ -8,7 +8,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: gdb-web
-      app.kubernetes.io/instance: gdb
+      app.kubernetes.io/instance: gdb-web
   policyTypes:
     - Ingress
   ingress:
