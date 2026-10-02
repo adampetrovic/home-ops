@@ -8,3 +8,4 @@ resources:
   - ./objectstore.yaml
   - ./cluster.yaml
   - ./scheduledbackup.yaml
+  - ./backup-pre-jobs.yaml
