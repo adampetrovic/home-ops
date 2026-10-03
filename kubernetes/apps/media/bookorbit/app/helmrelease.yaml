@@ -1,0 +1,140 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: bookorbit
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 2
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    controllers:
+      bookorbit:
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/bookorbit/bookorbit
+              tag: 3.2.0@sha256:1020eef9f004be972ac60e79dd5f416129f0d3d91491b803aa8fa656acb2b6a6
+            env:
+              TZ: "${TZ}"
+              NODE_ENV: production
+              PORT: &port 3000
+              APP_URL: https://bookorbit.petrovic.network
+              PUID: "568"
+              PGID: "568"
+              HOME: /tmp
+              BOOKORBIT_FIX_PERMISSIONS: "false"
+              BOOK_DOCK_PATH: /books/bookdrop
+              LIBRARY_BROWSE_ROOT: /books/library
+              CHOKIDAR_USEPOLLING: "true"
+              CHOKIDAR_INTERVAL: "5000"
+              NODE_MAX_OLD_SPACE_SIZE: auto
+              OIDC_ALLOW_LOCAL_ISSUERS: "true"
+              DISABLE_LOCAL_AUTH: "false"
+            envFrom:
+              - secretRef:
+                  name: bookorbit-secret
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v1/health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: *port
+                  periodSeconds: 20
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+        pod:
+          terminationGracePeriodSeconds: 60
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups: [100]
+            seccompProfile:
+              type: RuntimeDefault
+    service:
+      app:
+        controller: bookorbit
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames:
+          - bookorbit.petrovic.network
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+            timeouts:
+              request: 0s
+              backendRequest: 0s
+    persistence:
+      data:
+        existingClaim: bookorbit
+        globalMounts:
+          - path: /data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      books:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/media/books
+        globalMounts:
+          - path: /books
