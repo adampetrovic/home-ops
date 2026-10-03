@@ -88,6 +88,11 @@ spec:
             <<: *scraper-container
             args: [usag]
             env:
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-db-secret
+                    key: DATABASE_URL
               MODE: incremental
               # Omit START_ID/MAX_ID: start at MAX(people.id) + 1 and stop at
               # the incremental miss threshold, rather than rescanning from zero.
@@ -169,12 +174,12 @@ spec:
               HTTP_PROXY:
                 valueFrom:
                   secretKeyRef:
-                    name: gdb-secret
+                    name: gdb-db-secret
                     key: EXTERNAL_PROXY_URL
               HTTPS_PROXY:
                 valueFrom:
                   secretKeyRef:
-                    name: gdb-secret
+                    name: gdb-db-secret
                     key: EXTERNAL_PROXY_URL
               NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
               LOG_LEVEL: INFO
