@@ -295,7 +295,7 @@ spec:
               readOnlyRootFilesystem: true
               capabilities:
                 drop: [ALL]
-      mso-import-bootstrap-v3:
+      mso-import-bootstrap-v4:
         <<: *mso-import-job
         initContainers:
           validate-cache:
@@ -356,12 +356,12 @@ spec:
               - |
                 historical="$(cat /tmp/historical-seasons.txt)"
                 current="$(cat /tmp/current-seasons.txt)"
-                MSO_CACHE_RUN_ID=mso-import-bootstrap-v3-historical python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$historical"
+                MSO_CACHE_RUN_ID=mso-import-bootstrap-v4-historical python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$historical"
                 python - <<'PY'
                 import json
                 from pathlib import Path
                 plan = json.loads(Path('/tmp/mso-import-plan.json').read_text(encoding='utf-8'))
-                report = json.loads(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v3-historical-replay.json').read_text(encoding='utf-8'))
+                report = json.loads(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v4-historical-replay.json').read_text(encoding='utf-8'))
                 stats = report['stats']
                 if report.get('source') != 'meetscoresonline' or report.get('cache_mode') != 'replay-cache':
                     raise SystemExit('invalid historical replay report identity')
@@ -371,11 +371,11 @@ spec:
                     raise SystemExit('historical replay queued %s meets, expected %s' % (stats.get('replay_meets_queued'), plan['historical_specs']))
                 print('Historical replay report validated: seasons=%s queued=%s' % (len(plan['historical_seasons']), stats.get('replay_meets_queued')))
                 PY
-                MSO_REPLAY_MANIFEST=/tmp/mso-current-fetch.json MSO_CACHE_RUN_ID=mso-import-bootstrap-v3-current python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$current"
+                MSO_REPLAY_MANIFEST=/tmp/mso-current-fetch.json MSO_CACHE_RUN_ID=mso-import-bootstrap-v4-current python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$current"
                 python - <<'PY'
                 from pathlib import Path
                 from scraper.jobs.artifacts import validate_replay, validated
-                validate_replay(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v3-current-replay.json'), validated(Path('/tmp/mso-current-fetch.json')))
+                validate_replay(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v4-current-replay.json'), validated(Path('/tmp/mso-current-fetch.json')))
                 print('Current-season replay report validated')
                 PY
             envFrom: *envFrom
