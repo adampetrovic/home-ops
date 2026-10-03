@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.10.77@sha256:0e6b0ff19d24303ce062bbc583c957c1e56542c6c11b1cce2f0d250e07b9212c
+              tag: 1.10.78@sha256:ff1fb57317adbf930ffad5c9c84f1b8d9836b35c5f10c622f381f661fb9f2429
             # gdb-web's image entrypoint runs /app/startup.sh, which waits for
             # PostgreSQL, runs the bundled migrations/static-city seed, and only
             # then starts the HTTP server.
@@ -38,7 +38,7 @@ spec:
                   name: gdb-secret
             env:
               APP_ENV: production
-              APP_VERSION: 1.10.77
+              APP_VERSION: 1.10.78
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               CORS_ORIGINS: https://gdb.petrovic.network
