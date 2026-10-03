@@ -35,6 +35,10 @@ spec:
               FLASK_PORT: &port 8084
               PUID: 568
               PGID: 568
+              BOOKS_OUTPUT_MODE: "folder"
+              INGEST_DIR: /books/bookdrop
+              DESTINATION_AUDIOBOOK: /books/bookdrop
+              AA_CONTENT_TYPE_ROUTING: "false"
             resources:
               requests:
                 cpu: 10m
