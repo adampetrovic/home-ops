@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: gdb-mso-cache-inspect
+  name: gdb-mso-cache-inspect-v2
 spec:
   chartRef:
     kind: OCIRepository
@@ -83,6 +83,7 @@ spec:
         existingClaim: gdb-scrapers
         globalMounts:
           - path: /cache
+            subPath: mso-cache
             readOnly: true
       tmp:
         type: emptyDir
