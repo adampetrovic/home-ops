@@ -14,12 +14,13 @@ spec:
     remediation:
       retries: -1
   upgrade:
-    # Historical bootstrap can run well beyond Helm's reconciliation timeout.
+    # Observe batch Job health directly; retained failed Jobs stall Helm's waiter.
+    disableWait: true
     disableWaitForJobs: true
-    cleanupOnFail: true
+    cleanupOnFail: false
     remediation:
-      retries: 3
-      strategy: rollback
+      retries: 0
+      remediateLastFailure: false
   values:
     defaultPodOptions:
       imagePullSecrets:
