@@ -7,16 +7,12 @@ metadata:
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  instances: 3
+  instances: 1
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.8-1.1.0@sha256:1bb77658b6ee347554e36a5d34f064e155f0bc39c16c3fd8a50fc3041c319e2f
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
     storageClass: ceph-block
-  affinity:
-    enablePodAntiAffinity: true
-    podAntiAffinityType: required
-    topologyKey: kubernetes.io/hostname
   enableSuperuserAccess: true
   superuserSecret:
     name: bookorbit-db-superuser-secret
