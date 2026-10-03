@@ -33,7 +33,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
     controllers:
       worker:
-        enabled: false
+        enabled: true
         type: deployment
         replicas: 1
         strategy: Recreate
