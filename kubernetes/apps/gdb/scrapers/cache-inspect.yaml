@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gdb-mso-cache-inspect
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  interval: 30m
+  install:
+    disableWait: true
+    remediation:
+      retries: 0
+  upgrade:
+    disableWait: true
+    remediation:
+      retries: 0
+      remediateLastFailure: false
+  values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        runAsNonRoot: true
+    controllers:
+      main:
+        type: job
+        job:
+          backoffLimit: 0
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/gdb-scraper
+              tag: 0.1.98@sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+            command: [python, -c]
+            args:
+              - |
+                import json
+                from pathlib import Path
+                from scraper.spiders.meetscoresonline import MeetScoresOnlineSpider
+                spider = MeetScoresOnlineSpider(mode="full", cache_mode="replay-cache", output_dir="/tmp")
+                catalog = spider._load_season_catalog()
+                seasons = set(catalog["seasons"])
+                print(json.dumps({"catalog_seasons": sorted(seasons)}), flush=True)
+                paths = sorted(Path("/cache/manifests").glob("*-fetch.json"), reverse=True)
+                print(json.dumps({"fetch_manifest_count": len(paths)}), flush=True)
+                for path in paths[:60]:
+                    data = json.loads(path.read_text())
+                    records = data.get("season_records") or []
+                    available = {r.get("season") for r in records}
+                    stats = data.get("stats") or {}
+                    try:
+                        spider._load_replay_manifest(path)
+                        usable = True
+                    except Exception:
+                        usable = False
+                    print(json.dumps({"file": path.name, "mode": data.get("mode"), "complete": data.get("complete"), "seasons": sorted(available), "covers_catalog": seasons.issubset(available), "replay_usable": usable, "missing_seasons": data.get("missing_season_count"), "missing_responses": data.get("missing_response_count"), "terminal_failures": stats.get("terminal_failures"), "discovery_failures": stats.get("fetch_discovery_failures"), "selected_meets": sum(len(r.get("selected_meet_ids") or []) for r in records)}), flush=True)
+                print(json.dumps({"season_listing_present": {s: spider._raw_season_cache_path(s).is_file() for s in sorted(seasons)}}), flush=True)
+            env:
+              MSO_CACHE_DIR: /cache
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    persistence:
+      cache:
+        type: persistentVolumeClaim
+        existingClaim: gdb-scrapers
+        globalMounts:
+          - path: /cache
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
