@@ -189,6 +189,52 @@ spec:
                     key: EXTERNAL_PROXY_URL
               NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
               LOG_LEVEL: INFO
+      mso-import-bootstrap:
+        type: job
+        job:
+          backoffLimit: 0
+        pod:
+          automountServiceAccountToken: false
+        initContainers:
+          validate-cache:
+            image: &mso-import-image
+              repository: ghcr.io/adampetrovic/gdb-scraper
+              tag: 0.1.98@sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+            command: [sh, -ec]
+            args:
+              - |
+                manifest="$(ls -1t /app/output/mso-cache/manifests/*-fetch.json | head -n 1)"
+                test -n "$manifest"
+                cp "$manifest" /tmp/mso-import-fetch.json
+                python -m scraper.validate_mso_cache --manifest /tmp/mso-import-fetch.json
+            env:
+              PYTHONDONTWRITEBYTECODE: "1"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        containers:
+          app:
+            <<: *scraper-container
+            image: *mso-import-image
+            command: [python, -m, scraper.replay_mso_cache_fast]
+            args: [--cache-dir, /app/output/mso-cache, --mode, full]
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /app/output
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_REPLAY_MANIFEST: /tmp/mso-import-fetch.json
+              MSO_CACHE_RUN_ID: mso-import-bootstrap
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+              LOG_LEVEL: INFO
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
       mso:
         type: cronjob
         cronjob:
