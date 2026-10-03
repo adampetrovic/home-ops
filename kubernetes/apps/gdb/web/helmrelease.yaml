@@ -42,7 +42,7 @@ spec:
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               CORS_ORIGINS: https://gdb.petrovic.network
-              JOBS_ENABLED: "false"
+              JOBS_ENABLED: "true"
               JOBS_PUBLIC_ORIGIN: https://gdb.petrovic.network
               MEDIA_DIR: /tmp
             probes:
