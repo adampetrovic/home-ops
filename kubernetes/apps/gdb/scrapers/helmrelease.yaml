@@ -129,6 +129,37 @@ spec:
               MODE: incremental
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
+      mms-fetch-bootstrap:
+        type: job
+        job:
+          # Keep dormant until the historical fetch is explicitly approved.
+          suspend: true
+          backoffLimit: 1
+          ttlSecondsAfterFinished: 604800
+        containers:
+          app:
+            <<: *scraper-container
+            args: [mms]
+            env:
+              MODE: full
+              YEARS: "2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026"
+              OUTPUT_DIR: /app/output
+              MMS_CACHE_DIR: /app/output/mms-cache
+              MMS_CACHE_MODE: fetch-cache
+              CONCURRENT_REQUESTS: "10"
+              CONCURRENT_REQUESTS_PER_DOMAIN: "10"
+              HTTP_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              HTTPS_PROXY:
+                valueFrom:
+                  secretKeyRef:
+                    name: gdb-secret
+                    key: EXTERNAL_PROXY_URL
+              NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
+              LOG_LEVEL: INFO
       mms:
         type: cronjob
         cronjob:
