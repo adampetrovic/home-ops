@@ -76,6 +76,24 @@ spec:
               readOnlyRootFilesystem: false
               capabilities:
                 drop: [ALL]
+      usag-incremental:
+        type: job
+        job:
+          suspend: true
+          # Do not repeat the scan automatically if post-run validation fails.
+          backoffLimit: 0
+          ttlSecondsAfterFinished: 604800
+        containers:
+          app:
+            <<: *scraper-container
+            args: [usag]
+            env:
+              MODE: incremental
+              # Omit START_ID/MAX_ID: start at MAX(people.id) + 1 and stop at
+              # the incremental miss threshold, rather than rescanning from zero.
+              OUTPUT_DIR: /app/output
+              LOG_LEVEL: INFO
+              CONCURRENCY: "50"
       mso-fetch-bootstrap:
         type: job
         job:
