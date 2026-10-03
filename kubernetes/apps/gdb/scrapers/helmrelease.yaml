@@ -40,11 +40,29 @@ spec:
         pod:
           automountServiceAccountToken: false
           terminationGracePeriodSeconds: 90
+        initContainers:
+          age-estimator:
+            image:
+              repository: ghcr.io/adampetrovic/gdb-web
+              tag: 1.10.76@sha256:079845b70391c819046132d45b3a019c6ce7718ba2c9d38844f275d0d0338eb9
+            command: [/bin/sh, -c]
+            args: ["cp /app/main /tools/gdb-web && chmod 0555 /tools/gdb-web"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
         containers:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.98@sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+              tag: 0.1.99@sha256:826437cf746b6e7be7484bc1b8550e317da5d8aeb36c0008a6c667e8e9e72043
             command: [python, -m, scraper.jobs.worker]
             envFrom:
               - secretRef:
@@ -59,8 +77,11 @@ spec:
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.name
-              JOB_IMAGE: ghcr.io/adampetrovic/gdb-scraper:0.1.98
-              JOB_IMAGE_DIGEST: sha256:f5041cc5db503a9a78c3983f35ccd8dea92a62c4e45e1bc2ea96d7b2a4cb5169
+              JOB_IMAGE: ghcr.io/adampetrovic/gdb-scraper:0.1.99
+              JOB_IMAGE_DIGEST: sha256:826437cf746b6e7be7484bc1b8550e317da5d8aeb36c0008a6c667e8e9e72043
+              AGE_ESTIMATOR_BINARY: /tools/gdb-web
+              AGE_ESTIMATOR_IMAGE: ghcr.io/adampetrovic/gdb-web:1.10.76
+              AGE_ESTIMATOR_IMAGE_DIGEST: sha256:079845b70391c819046132d45b3a019c6ce7718ba2c9d38844f275d0d0338eb9
               HTTP_PROXY:
                 valueFrom:
                   secretKeyRef:
@@ -467,6 +488,15 @@ spec:
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
     persistence:
+      age-estimator:
+        type: emptyDir
+        advancedMounts:
+          worker:
+            age-estimator:
+              - path: /tools
+            app:
+              - path: /tools
+                readOnly: true
       output:
         type: persistentVolumeClaim
         accessMode: ReadWriteOnce
