@@ -189,7 +189,7 @@ spec:
                     key: EXTERNAL_PROXY_URL
               NO_PROXY: .svc,.cluster.local,10.0.0.0/8,127.0.0.1,localhost
               LOG_LEVEL: INFO
-      mso-import-bootstrap:
+      mso-import-bootstrap: &mso-import-job
         type: job
         job:
           backoffLimit: 0
@@ -226,6 +226,65 @@ spec:
               MSO_CACHE_DIR: /app/output/mso-cache
               MSO_REPLAY_MANIFEST: /tmp/mso-import-fetch.json
               MSO_CACHE_RUN_ID: mso-import-bootstrap
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+              LOG_LEVEL: INFO
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+      mso-import-bootstrap-v2:
+        <<: *mso-import-job
+        initContainers:
+          validate-cache:
+            image: *mso-import-image
+            command: [python, -c]
+            args:
+              - |
+                from pathlib import Path
+                from shutil import copyfile
+                from scraper.jobs.artifacts import contained, response_paths, validate_response, validated
+                from scraper.spiders.meetscoresonline import MeetScoresOnlineSpider
+                spider = MeetScoresOnlineSpider(mode="full", cache_mode="replay-cache", output_dir="/app/output")
+                catalog = spider._load_season_catalog()
+                path = spider._latest_fetch_manifest_path(catalog["seasons"])
+                if path is None:
+                    raise RuntimeError("No complete fetch manifest covers the full cached season catalog")
+                manifest = validated(path)
+                if manifest["mode"] != "full":
+                    raise RuntimeError("Full bootstrap import requires a full fetch manifest")
+                responses = response_paths(manifest)
+                for relative in responses:
+                    validate_response(contained(Path("/app/output/mso-cache"), relative))
+                copyfile(path, "/tmp/mso-import-fetch.json")
+                print("Cache preflight passed: seasons=%s responses=%s" % (len(manifest["seasons"]), len(responses)))
+            env:
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        containers:
+          app:
+            <<: *scraper-container
+            image: *mso-import-image
+            command: [sh, -ec]
+            args:
+              - |
+                python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full
+                python -c 'from pathlib import Path; from scraper.jobs.artifacts import validate_replay, validated; validate_replay(Path("/app/output/mso-cache/manifests/mso-import-bootstrap-v2-replay.json"), validated(Path("/tmp/mso-import-fetch.json")))'
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /app/output
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_REPLAY_MANIFEST: /tmp/mso-import-fetch.json
+              MSO_CACHE_RUN_ID: mso-import-bootstrap-v2
               MSO_OFFLINE_REPLAY: "true"
               GDB_DISABLE_NETWORK_FETCHES: "true"
               PYTHONDONTWRITEBYTECODE: "1"
