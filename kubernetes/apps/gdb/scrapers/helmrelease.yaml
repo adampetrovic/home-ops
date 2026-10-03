@@ -133,12 +133,16 @@ spec:
               capabilities:
                 drop: [ALL]
       usag-incremental:
-        type: job
-        job:
-          suspend: true
-          # Do not repeat the scan automatically if post-run validation fails.
-          backoffLimit: 0
+        type: cronjob
+        cronjob:
+          schedule: "0 0 31 2 *"
+          timeZone: Australia/Sydney
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
           ttlSecondsAfterFinished: 604800
+          backoffLimit: 0
+          suspend: true
         containers:
           app:
             <<: *scraper-container
@@ -151,10 +155,16 @@ spec:
               LOG_LEVEL: INFO
               CONCURRENCY: "50"
       mso-fetch-bootstrap:
-        type: job
-        job:
-          backoffLimit: 1
+        type: cronjob
+        cronjob:
+          schedule: "0 0 31 2 *"
+          timeZone: Australia/Sydney
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
           ttlSecondsAfterFinished: 604800
+          backoffLimit: 1
+          suspend: true
         containers:
           app:
             <<: *scraper-container
@@ -200,12 +210,16 @@ spec:
               OUTPUT_DIR: /app/output
               LOG_LEVEL: INFO
       mms-fetch-bootstrap:
-        type: job
-        job:
-          # Keep dormant until the historical fetch is explicitly approved.
-          suspend: true
-          backoffLimit: 1
+        type: cronjob
+        cronjob:
+          schedule: "0 0 31 2 *"
+          timeZone: Australia/Sydney
+          concurrencyPolicy: Forbid
+          successfulJobsHistory: 1
+          failedJobsHistory: 1
           ttlSecondsAfterFinished: 604800
+          backoffLimit: 1
+          suspend: true
         containers:
           app:
             <<: *scraper-container
