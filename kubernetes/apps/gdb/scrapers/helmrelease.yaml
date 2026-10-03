@@ -295,6 +295,102 @@ spec:
               readOnlyRootFilesystem: true
               capabilities:
                 drop: [ALL]
+      mso-import-bootstrap-v3:
+        <<: *mso-import-job
+        initContainers:
+          validate-cache:
+            image: *mso-import-image
+            command: [python, -c]
+            args:
+              - |
+                import json, os
+                from pathlib import Path
+                from shutil import copyfile
+                from scraper.jobs.artifacts import contained, response_paths, validate_response, validated
+                from scraper.spiders.meetscoresonline import MeetScoresOnlineSpider
+                root = Path("/app/output/mso-cache")
+                spider = MeetScoresOnlineSpider(mode="full", cache_mode="replay-cache", output_dir="/app/output")
+                catalog = spider._load_season_catalog()
+                chronological = list(reversed(catalog["seasons"]))
+                historical = [season for season in chronological if (root / "seasons" / f"{season}.json").is_file()]
+                current = [season for season in chronological if season not in historical]
+                if not historical:
+                    raise RuntimeError("No historical MSO season listing caches found")
+                if not current:
+                    raise RuntimeError("Expected at least one current season requiring a fetch manifest")
+                historical_spider = MeetScoresOnlineSpider(mode="full", cache_mode="replay-cache", seasons=",".join(historical), output_dir="/app/output")
+                historical_specs = historical_spider._replay_meet_specs()
+                path = spider._latest_fetch_manifest_path(current)
+                if path is None:
+                    raise RuntimeError("No complete fetch manifest covers current MSO seasons: %s" % ",".join(current))
+                manifest = validated(path)
+                if manifest["mode"] != "full":
+                    raise RuntimeError("Full bootstrap import requires a full current-season fetch manifest")
+                responses = response_paths(manifest)
+                for relative in responses:
+                    validate_response(contained(root, relative))
+                os.environ["MSO_REPLAY_MANIFEST"] = str(path)
+                current_spider = MeetScoresOnlineSpider(mode="full", cache_mode="replay-cache", seasons=",".join(current), output_dir="/app/output")
+                current_specs = current_spider._replay_meet_specs()
+                Path("/tmp/historical-seasons.txt").write_text(",".join(historical), encoding="utf-8")
+                Path("/tmp/current-seasons.txt").write_text(",".join(current), encoding="utf-8")
+                copyfile(path, "/tmp/mso-current-fetch.json")
+                Path("/tmp/mso-import-plan.json").write_text(json.dumps({"historical_seasons": historical, "current_seasons": current, "historical_specs": len(historical_specs), "current_specs": len(current_specs), "current_manifest": path.name}, sort_keys=True), encoding="utf-8")
+                print("Cache preflight passed: historical_seasons=%s historical_specs=%s current_seasons=%s current_specs=%s current_manifest=%s" % (len(historical), len(historical_specs), len(current), len(current_specs), path.name))
+            env:
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        containers:
+          app:
+            <<: *scraper-container
+            image: *mso-import-image
+            command: [sh, -ec]
+            args:
+              - |
+                historical="$(cat /tmp/historical-seasons.txt)"
+                current="$(cat /tmp/current-seasons.txt)"
+                MSO_CACHE_RUN_ID=mso-import-bootstrap-v3-historical python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$historical"
+                python - <<'PY'
+                import json
+                from pathlib import Path
+                plan = json.loads(Path('/tmp/mso-import-plan.json').read_text(encoding='utf-8'))
+                report = json.loads(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v3-historical-replay.json').read_text(encoding='utf-8'))
+                stats = report['stats']
+                if report.get('source') != 'meetscoresonline' or report.get('cache_mode') != 'replay-cache':
+                    raise SystemExit('invalid historical replay report identity')
+                if stats.get('terminal_failures', 0) or stats.get('replay_meets_skipped_missing_cache', 0):
+                    raise SystemExit('historical replay had terminal failures or missing cache skips')
+                if stats.get('replay_meets_queued') != plan['historical_specs']:
+                    raise SystemExit('historical replay queued %s meets, expected %s' % (stats.get('replay_meets_queued'), plan['historical_specs']))
+                print('Historical replay report validated: seasons=%s queued=%s' % (len(plan['historical_seasons']), stats.get('replay_meets_queued')))
+                PY
+                MSO_REPLAY_MANIFEST=/tmp/mso-current-fetch.json MSO_CACHE_RUN_ID=mso-import-bootstrap-v3-current python -m scraper.replay_mso_cache_fast --cache-dir /app/output/mso-cache --mode full --seasons "$current"
+                python - <<'PY'
+                from pathlib import Path
+                from scraper.jobs.artifacts import validate_replay, validated
+                validate_replay(Path('/app/output/mso-cache/manifests/mso-import-bootstrap-v3-current-replay.json'), validated(Path('/tmp/mso-current-fetch.json')))
+                print('Current-season replay report validated')
+                PY
+            envFrom: *envFrom
+            env:
+              OUTPUT_DIR: /app/output
+              MSO_CACHE_DIR: /app/output/mso-cache
+              MSO_OFFLINE_REPLAY: "true"
+              GDB_DISABLE_NETWORK_FETCHES: "true"
+              PYTHONDONTWRITEBYTECODE: "1"
+              LOG_LEVEL: INFO
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
       mso:
         type: cronjob
         cronjob:
