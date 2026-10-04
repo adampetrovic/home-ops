@@ -1,0 +1,37 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app browser-sync
+  namespace: &namespace default
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/kopiur/backup
+  dependsOn:
+    - name: kopiur-repositories
+      namespace: kopiur-system
+    - name: external-secrets-stores
+      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  path: ./kubernetes/apps/default/browser-sync/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app
+      KOPIUR_CAPACITY: "1Gi"
+      KOPIUR_PUID: "568"
+      KOPIUR_PGID: "568"
