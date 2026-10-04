@@ -6,6 +6,8 @@ metadata:
   name: gdb-postgres
 spec:
   instances: 1
+  # Temporary for approved Talos maintenance; restore after node 5 recovers.
+  enablePDB: false
   imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm@sha256:0b107a47d516d63e52257810a01befc7fc8d72e17a08ede6e72a277461e11ef0
   primaryUpdateStrategy: unsupervised
   storage:
