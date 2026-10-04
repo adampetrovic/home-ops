@@ -10,6 +10,7 @@ resources:
   - ./actual-budget/ks.yaml
   - ./atuin/ks.yaml
   - ./babybuddy/ks.yaml
+  - ./browser-sync/ks.yaml
   - ./hister/ks.yaml
   - ./homebox/ks.yaml
   - ./logseq-sync/ks.yaml
