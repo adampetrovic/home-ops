@@ -36,7 +36,7 @@ spec:
           app:
             image:
               repository: ghcr.io/connorgallopo/tracearr
-              tag: 2.5.1@sha256:2af90bdc9aa5a6fbc4adddcb2482a4ca7a18247e876ea7a020e1264a0e172757
+              tag: 2.6.2@sha256:933af2d7835b82fe8d1cf3d9fc7694500c598b8f5f724558828dbd0b068acbb9
             env:
               NODE_ENV: production
               PORT: &port 3000
