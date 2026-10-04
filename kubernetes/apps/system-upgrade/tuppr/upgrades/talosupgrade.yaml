@@ -4,16 +4,21 @@ apiVersion: tuppr.home-operations.com/v1alpha1
 kind: TalosUpgrade
 metadata:
   name: talos
-  annotations:
-    tuppr.home-operations.com/suspend: "true"
 spec:
   talos:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
     version: v1.14.2
   parallelism: 1
+  # Supervised maintenance: advance only after each selected node is healthy.
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: k8s-node-4
   policy:
     rebootMode: powercycle
-    waitForVolumeDetach: true
+    nodrain: false
+    waitForVolumeDetach: false
+    drainTimeout: 35m
+    timeout: 45m
   healthChecks:
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Snapshot
