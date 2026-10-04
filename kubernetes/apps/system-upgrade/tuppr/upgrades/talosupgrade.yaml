@@ -4,6 +4,8 @@ apiVersion: tuppr.home-operations.com/v1alpha1
 kind: TalosUpgrade
 metadata:
   name: talos
+  annotations:
+    tuppr.home-operations.com/suspend: "true"
 spec:
   talos:
     # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
