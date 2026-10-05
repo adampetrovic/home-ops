@@ -8,6 +8,22 @@
       enabled: false,
     },
     {
+      description: "Keep native Talos Kubernetes images aligned for controlled upgrades",
+      groupName: "Kubernetes",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "ghcr.io/siderolabs/kubelet",
+        "registry.k8s.io/kube-apiserver",
+        "registry.k8s.io/kube-controller-manager",
+        "registry.k8s.io/kube-scheduler",
+        "registry.k8s.io/kube-proxy",
+      ],
+      automerge: false,
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "mise-managed tool versions",
       groupName: "mise tools",
       matchManagers: ["mise"],
