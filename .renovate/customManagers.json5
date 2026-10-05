@@ -35,6 +35,15 @@
     },
     {
       customType: "regex",
+      description: "Process Kubernetes image tags in native Talos templates",
+      managerFilePatterns: ["/(^|/)talos/[^/]+\\.ya?ml\\.j2$/"],
+      matchStrings: [
+        "image: +(?<depName>ghcr\\.io/siderolabs/kubelet|registry\\.k8s\\.io/kube-(?:apiserver|controller-manager|scheduler|proxy)):(?<currentValue>v\\d+\\.\\d+\\.\\d+)",
+      ],
+      datasourceTemplate: "docker",
+    },
+    {
+      customType: "regex",
       description: "Process Talos Image Factory installer tags in native node templates",
       managerFilePatterns: ["/(^|/)talos/nodes/.+\\.ya?ml\\.j2$/"],
       matchStrings: [
