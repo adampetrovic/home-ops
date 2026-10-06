@@ -86,42 +86,69 @@ receivers:
         chat_id: {{ .TELEGRAM_CHAT_ID }}
         bot_token: {{ .TELEGRAM_BOT_TOKEN }}
         parse_mode: "HTML"
-        message: >-
-          {{ "{{" }} define "__alert_severity_prefix_title" {{ "-}}" }}
-            {{ "{{-" }} if eq .Status "firing" {{ "-}}" }}
-              {{ "{{" }} if eq .CommonLabels.severity "info" {{ "-}}" }}
-                ℹ️
-              {{ "{{" }} else if eq .CommonLabels.severity "warning" {{ "-}}" }}
-                ⚠️
-              {{ "{{" }} else if eq .CommonLabels.severity "critical" {{ "-}}" }}
-                🔴
-              {{ "{{" }} else {{ "-}}" }}
-                🔴
-              {{ "{{-" }} end {{ "-}}" }}
-            {{ "{{" }} else {{ "-}}" }}
+        # Explicit newlines survive both ExternalSecret and Alertmanager rendering.
+        # Bound annotation text and show at most five resources per notification.
+        message: |-
+          {{ "{{-" }} define "__telegram_resource" {{ "-}}" }}
+            {{ "{{-" }} if .Labels.namespace {{ "-}}" }}
+              {{ "{{-" }} printf "%s / " (.Labels.namespace | printf "%.100s" | html) {{ "-}}" }}
+            {{ "{{-" }} end {{ "-}}" }}
+            {{ "{{-" }} if .Labels.pod {{ "-}}" }}
+              {{ "{{-" }} .Labels.pod | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} else if .Labels.deployment {{ "-}}" }}
+              {{ "{{-" }} .Labels.deployment | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} else if .Labels.node {{ "-}}" }}
+              {{ "{{-" }} .Labels.node | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} else if .Labels.instance {{ "-}}" }}
+              {{ "{{-" }} .Labels.instance | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} else if .Labels.job {{ "-}}" }}
+              {{ "{{-" }} .Labels.job | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} else {{ "-}}" }}
+              {{ "{{-" }} .Labels.alertname | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} end {{ "-}}" }}
+            {{ "{{-" }} if .Labels.container {{ "}}" }} — {{ "{{" }} .Labels.container | printf "%.100s" | html {{ "-}}" }}
+            {{ "{{-" }} end {{ "-}}" }}
+          {{ "{{-" }} end {{ "-}}" }}
+          {{ "{{-" }} if eq .Status "resolved" {{ "-}}" }}
             ✅
-            {{ "{{-" }} end {{ "}}" }}
-          {{ "{{-" }} end {{ "}}" }}
-
-          {{ "{{" }} define "__alert_severity_title" {{ "-}}" }}
-            <b>{{ "{{-" }} .Status | toUpper {{ "-}}" }}
-            {{ "{{" }} if eq .Status "firing" {{ "}}" }}:{{ "{{" }} .Alerts.Firing | len {{ "}}" }}{{ "{{-" }} end {{ "}}" }}
-            {{ "{{" }} template "__alert_severity_prefix_title" . {{ "}}" }} {{ "{{" }} .CommonLabels.alertname {{ "}}" }}</b>
-          {{ "{{-" }} end {{ "}}" }}
-          {{ "{{" }} define "__alert_severity_text" {{ "-}}" }}
-            {{ "{{-" }} $alertsLen := (len .Alerts) {{ "-}}" }}
-            {{ "{{" }} range .Alerts {{ "}}" }}
-              {{ "{{-" }} if .Annotations.summary {{ "}}" }}
-                <i>{{ "{{" }} .Annotations.summary {{ "}}" }}</i>
-              {{ "{{-" }} end {{ "}}" }}
-              {{ "{{-" }} if .Annotations.description {{ "}}" }}
-                <i>{{ "{{" }} .Annotations.description {{ "}}" }}</i>
-              {{ "{{-" }} end {{ "}}" }}
-              {{ "{{-" }} if le $alertsLen 5 {{ "}}" }}
-                <a href="{{ "{{" }} .GeneratorURL {{ "}}" }}">Prometheus Link</a>
-              {{ "{{-" }} end {{ "}}" }}
-            {{ "{{" }} end {{ "}}" }}
-          {{ "{{-" }} end {{ "}}" }}
-
-          {{ "{{" }} template "__alert_severity_title" . {{ "}}" }}
-          {{ "{{" }} template "__alert_severity_text" . {{ "}}" }}
+          {{ "{{-" }} else if eq .CommonLabels.severity "info" {{ "-}}" }}
+            ℹ️
+          {{ "{{-" }} else if eq .CommonLabels.severity "warning" {{ "-}}" }}
+            ⚠️
+          {{ "{{-" }} else {{ "-}}" }}
+            🔴
+          {{ "{{-" }} end {{ "}}" }} <b>{{ "{{" }} .Status | toUpper | html {{ "}}" }} · {{ "{{" }} .CommonLabels.alertname | html {{ "}}" }}</b>
+          {{ "{{-" }} $firing := len .Alerts.Firing {{ "-}}" }}
+          {{ "{{-" }} $resolved := len .Alerts.Resolved {{ "-}}" }}
+          {{ "{{-" }} printf "\n" {{ "-}}" }}
+          {{ "{{-" }} if $firing {{ "}}{{" }} $firing {{ "}}" }} firing{{ "{{" }} end {{ "-}}" }}
+          {{ "{{-" }} if and $firing $resolved {{ "}}" }} · {{ "{{" }} end {{ "-}}" }}
+          {{ "{{-" }} if $resolved {{ "}}{{" }} $resolved {{ "}}" }} recovered{{ "{{" }} end {{ "-}}" }}
+          {{ "{{-" }} range $index, $alert := .Alerts {{ "-}}" }}
+            {{ "{{-" }} if lt $index 5 {{ "-}}" }}
+              {{ "{{-" }} printf "\n\n• " {{ "-}}" }}
+              {{ "{{-" }} if and $firing (eq .Status "resolved") {{ "}}" }}✅ {{ "{{" }} end {{ "-}}" }}
+              <b>{{ "{{" }} template "__telegram_resource" . {{ "}}" }}</b>
+              {{ "{{-" }} if eq .Status "firing" {{ "-}}" }}
+                {{ "{{-" }} if .Annotations.summary {{ "-}}" }}
+                  {{ "{{-" }} printf "\n  " {{ "}}{{" }} .Annotations.summary | printf "%.160s" | html {{ "-}}" }}
+                {{ "{{-" }} end {{ "-}}" }}
+                {{ "{{-" }} if and .Annotations.description (ne .Annotations.description .Annotations.summary) {{ "-}}" }}
+                  {{ "{{-" }} printf "\n  " {{ "}}{{" }} .Annotations.description | printf "%.300s" | html {{ "-}}" }}
+                {{ "{{-" }} end {{ "-}}" }}
+                {{ "{{-" }} if or .GeneratorURL .Annotations.runbook_url {{ "-}}" }}
+                  {{ "{{-" }} printf "\n  " {{ "-}}" }}
+                  {{ "{{-" }} if .GeneratorURL {{ "-}}" }}
+                    <a href="{{ "{{" }} .GeneratorURL | html {{ "}}" }}">↗ Prometheus</a>
+                  {{ "{{-" }} end {{ "-}}" }}
+                  {{ "{{-" }} if and .GeneratorURL .Annotations.runbook_url {{ "}}" }} · {{ "{{" }} end {{ "-}}" }}
+                  {{ "{{-" }} if .Annotations.runbook_url {{ "-}}" }}
+                    <a href="{{ "{{" }} .Annotations.runbook_url | html {{ "}}" }}">Runbook</a>
+                  {{ "{{-" }} end {{ "-}}" }}
+                {{ "{{-" }} end {{ "-}}" }}
+              {{ "{{-" }} end {{ "-}}" }}
+            {{ "{{-" }} else if eq $index 5 {{ "-}}" }}
+              {{ "{{-" }} printf "\n\n+ " {{ "-}}" }}
+              {{ "{{-" }} len (slice $.Alerts 5) {{ "}}" }} more
+            {{ "{{-" }} end {{ "-}}" }}
+          {{ "{{-" }} end {{ "-}}" }}
