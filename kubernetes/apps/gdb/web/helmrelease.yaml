@@ -46,7 +46,7 @@ spec:
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
-              STASH_UPLOADER_URL: http://stash-uploader.gdb.svc.cluster.local:8080
+              STASH_UPLOADER_URL: http://stash-uploader.gdb.svc.cluster.local:8080/upload
               STASH_API_KEY:
                 valueFrom:
                   secretKeyRef:
