@@ -19,3 +19,11 @@ spec:
       ports:
         - protocol: TCP
           port: 9999
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gdb-web
+              app.kubernetes.io/instance: gdb-web
+      ports:
+        - protocol: TCP
+          port: 9999
