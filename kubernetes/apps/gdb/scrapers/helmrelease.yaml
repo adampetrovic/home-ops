@@ -44,7 +44,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.101@sha256:b576ebe81679739dc745f0f6355dfb265f4419ca65610728f10c6c3bbdc764bb
+              tag: 0.1.102@sha256:c3f07f3fc814f80cff91573064cfed6c88a3e2696a2e16e99d2c6c2eece6546c
             command: [python, -m, scraper.jobs.worker]
             envFrom:
               - secretRef:
@@ -59,8 +59,8 @@ spec:
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.name
-              JOB_IMAGE: ghcr.io/adampetrovic/gdb-scraper:0.1.101
-              JOB_IMAGE_DIGEST: sha256:b576ebe81679739dc745f0f6355dfb265f4419ca65610728f10c6c3bbdc764bb
+              JOB_IMAGE: ghcr.io/adampetrovic/gdb-scraper:0.1.102
+              JOB_IMAGE_DIGEST: sha256:c3f07f3fc814f80cff91573064cfed6c88a3e2696a2e16e99d2c6c2eece6546c
               HTTP_PROXY:
                 valueFrom:
                   secretKeyRef:
@@ -105,7 +105,7 @@ spec:
           app: &scraper-container
             image:
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.101@sha256:b576ebe81679739dc745f0f6355dfb265f4419ca65610728f10c6c3bbdc764bb
+              tag: 0.1.102@sha256:c3f07f3fc814f80cff91573064cfed6c88a3e2696a2e16e99d2c6c2eece6546c
             args: [usag]
             env:
               MODE: incremental
