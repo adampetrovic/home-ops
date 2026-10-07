@@ -5,5 +5,8 @@ kind: Kustomization
 namespace: gdb
 components:
   - ../../components/common
+  - ../../components/kopiur/secret
 resources:
   - ./ks.yaml
+  - ./stash/ks.yaml
+  - ./stash-uploader/ks.yaml
