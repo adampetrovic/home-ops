@@ -164,7 +164,7 @@ spec:
           stash:
             app:
               - path: /data
-                readOnly: true
+                readOnly: false
       cache:
         type: emptyDir
         globalMounts:
