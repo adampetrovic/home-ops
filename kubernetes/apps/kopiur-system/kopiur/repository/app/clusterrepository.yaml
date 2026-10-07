@@ -23,6 +23,7 @@ spec:
       - automation
       - database
       - default
+      - gdb
       - kopiur-system
       - media
       - network
@@ -71,6 +72,7 @@ spec:
       - automation
       - database
       - default
+      - gdb
       - kopiur-system
       - media
       - network

@@ -1,0 +1,175 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app stash
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 2
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k8s-node-4, k8s-node-5]
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [k8s-node-5]
+      securityContext:
+        supplementalGroups: [44]
+        runAsUser: 568
+        runAsGroup: 568
+        runAsNonRoot: true
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    controllers:
+      stash:
+        type: deployment
+        strategy: Recreate
+        containers:
+          app:
+            image: &image
+              repository: ghcr.io/adampetrovic/stash
+              tag: v0.31.1@sha256:5b1d155062e32c7583cc40765c42af545788863f99df9ed7c248456db87378ac
+            env:
+              TZ: "${TZ}"
+              HOME: /config
+              USER: stash # required by Go's user lookup for an arbitrary non-root UID
+              STASH_CONFIG_FILE: /config/config.yml
+              STASH_HOST: 0.0.0.0
+              STASH_PORT: &port 9999
+              STASH_STASH: /data
+              STASH_METADATA: /config/metadata
+              STASH_BLOBS: /config/blobs
+              STASH_GENERATED: /config/generated
+              STASH_CACHE: /cache
+              LIBVA_DRIVER_NAME: iHD
+              STASH_HW_DRI_DEVICE: /dev/dri/renderD128
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                gpu.intel.com/i915: 1
+                memory: 4Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+        initContainers:
+          init-storage:
+            image: *image
+            command: ["sh", "-ec"]
+            args:
+              - mkdir -p /config/metadata /config/generated /config/blobs
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    route:
+      app:
+        hostnames:
+          - stash.petrovic.network
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+            timeouts:
+              request: 0s
+              backendRequest: 0s
+
+    persistence:
+      config:
+        existingClaim: *app
+        globalMounts:
+          - path: /config
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/stash
+        advancedMounts:
+          stash:
+            app:
+              - path: /data
+                readOnly: true
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
