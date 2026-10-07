@@ -1,0 +1,125 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app stash-uploader
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 2
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsUser: 568
+        runAsGroup: 568
+        runAsNonRoot: true
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    controllers:
+      stash-uploader:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/stash-uploader
+              tag: latest@sha256:22bb0ddda61ee9b2ba8c215a4794ba76f575ae367039ec1c53d6f6a16be64ced
+            env:
+              TZ: "${TZ}"
+              PORT: &port 8080
+              UPLOAD_DIR: /data
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    route:
+      app:
+        hostnames:
+          - stash-uploader.petrovic.network
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+            timeouts:
+              request: 0s
+              backendRequest: 0s
+
+    persistence:
+      media:
+        type: nfs
+        server: ${SECRET_NFS_DOMAIN}
+        path: /var/nfs/shared/stash
+        advancedMounts:
+          stash-uploader:
+            app:
+              - path: /data
+                readOnly: false
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
