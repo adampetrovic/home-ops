@@ -60,14 +60,14 @@ transforms:
 sinks:
   kubernetes:
     type: vector
-    compression: true
+    compression: gzip
     version: "2"
     address: vector-aggregator-kubernetes.observability.svc.cluster.local:6010
     inputs: ["kubernetes_source"]
 
   talos:
     type: vector
-    compression: true
+    compression: gzip
     version: "2"
     address: vector-aggregator-talos.observability.svc.cluster.local:6030
     inputs: ["talos_rate_limit"]
