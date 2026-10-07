@@ -38,9 +38,14 @@ spec:
         # stale 2d-range series without that label until Prometheus retention
         # ages them out. Deduplicate the growth prediction before joining pool
         # metadata so PrometheusRuleFailures does not fire during mgr rollouts.
+        # ceph_pool_percent_used is a 0-1 ratio; 0.95 represents 95% full.
         CephPoolGrowthWarning:
           expr: >-
-            (max by (cluster, pool_id, instance) (predict_linear(ceph_pool_percent_used[2d], 3600 * 24 * 5)) * on(cluster,pool_id, instance) group_right() ceph_pool_metadata) >= 95
+            (
+              max by (cluster, pool_id, instance)
+                (predict_linear(ceph_pool_percent_used[2d], 3600 * 24 * 5))
+              * on(cluster,pool_id, instance) group_right() ceph_pool_metadata
+            ) >= 0.95
         # Rook's upstream rule assumes Prometheus only scrapes cluster nodes.
         # Scope it to the Talos node-exporter job so external node exporters such
         # as UNAS cannot trigger a Ceph alert, and ignore transient microbursts.
