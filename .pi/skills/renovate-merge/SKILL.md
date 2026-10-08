@@ -1,46 +1,33 @@
 ---
 name: renovate-merge
-description: Bulk-merge open Renovate PRs safely. Analyses breaking changes, fetches upstream release notes, classifies risk, builds a dependency-ordered merge plan with user approval gates, executes the rollout, and monitors cluster health between waves. Use when asked to merge Renovate PRs, review dependency updates, or roll out pending updates.
+description: Efficient, codemode-first review and rollout of Renovate PRs. Batch read-only discovery, cache release evidence, build dependency-ordered waves with approval gates, merge sequentially, and verify Flux and cluster health between waves. Use when asked to merge Renovate PRs, review dependency updates, or roll out pending updates.
 ---
 
 # Renovate Merge
 
-Bulk-merge open Renovate dependency-update PRs with breaking-change analysis, a dependency-ordered rollout plan, and post-merge cluster health monitoring.
+Use **codemode as the default orchestration layer**, not a series of individual tool calls. Optimize tool latency and model context without weakening safety checks.
 
-Read [AGENTS.md](AGENTS.md) first for mandatory home-ops Renovate rollout rules, then read the [merge playbook](references/playbook.md) for the full procedure. The sections below are a quick reference.
+## Read gates
 
-## Quick Reference
+Read [AGENTS.md](AGENTS.md) first, then the [playbook](references/playbook.md) and [codemode recipes](references/codemode.md). Also follow repository `AGENTS.md` and `docs/agent/operations.md`. Read component-specific skills/docs only when needed (especially Talos, Kopiur, and secrets).
 
-### 1. Analyse
+## Workflow
 
-```bash
-# List all open Renovate PRs
-gh pr list --label renovate/container --json number,title,labels \
-  --jq '.[] | "\(.number)|\(.title)|\([.labels[].name] | join(","))"'
-```
+1. **Discover:** one PR inventory including chart, image, digest, and platform updates; filter Renovate ownership in JavaScript. Batch independent file/diff lookups with bounded concurrency.
+2. **Analyse:** deduplicate release-note requests by upstream/version range; inspect changed configuration only where relevant. Store compact evidence and PR head SHAs, not raw logs/diffs.
+3. **Plan:** classify every PR; group paired chart/image updates; order dependency waves. Present one table and request rollout approval. Talos is always isolated maintenance.
+4. **Baseline:** batch read-only cluster checks; save issue identities and failures. Failed/unavailable checks are **unknown**, never healthy.
+5. **Merge:** only the approved wave, **one PR at a time**, pinned to its reviewed head SHA. Stop on failure or changed heads; record each success immediately.
+6. **Verify:** batch checks after each wave; verify Flux has consumed the new revision and affected workloads are ready. Stop for new issues; do not equate a fixed sleep with successful reconciliation.
+7. **Finish:** final checks, remaining Renovate inventory, safe local jj sync, concise result summary.
 
-Classify every PR into a **risk tier** and **merge wave** using the rules in the playbook.
+## Efficiency contract
 
-### 2. Plan
+- Use `Promise.allSettled()` for independent reads, with concurrency normally **4**. Never parallelize merges, node operations, or dependent steps.
+- Filter JSON inside codemode before calling `text()`. Print evidence summaries, new issues, and errors—not full successful responses.
+- Use `store()` / `load()` for small JSON state: inventory, classifications, approvals, baseline, release cache, merge ledger. Revalidate mutable evidence before acting.
+- Check rejected promises, bash `exit_code`, `truncated`, and JSON parse errors. Do not hide failures behind `grep`, `head`, `|| true`, or empty output.
+- All calls must be awaited. Codemode has no filesystem, network, Node APIs, or timers: use tools for those capabilities. Set realistic per-tool and whole-script deadlines.
+- Use direct tools if codemode is unavailable, retaining all safety gates. Do not change Pi settings just to run this skill.
 
-Present the merge plan as a table grouped by wave. Flag any PRs that require **user approval** before proceeding (see approval gates in the playbook).
-
-### 3. Roll out
-
-Merge wave-by-wave using `gh pr merge <number> --rebase`. Monitor cluster health between waves.
-
-### 4. Monitor
-
-```bash
-# Firing alerts
-kubectl exec -n observability svc/kube-prometheus-stack-alertmanager -- \
-  wget -qO- 'http://localhost:9093/api/v2/alerts?silenced=false&inhibited=false&active=true' | \
-  jq -r '.[] | select(.labels.alertname != "Watchdog") | "\(.labels.alertname) | \(.labels.namespace // "cluster") | \(.annotations.summary // "")"'
-
-# Broken HelmReleases / Kustomizations
-kubectl get hr -A --no-headers | grep -v "True"
-kubectl get ks -A --no-headers | grep -v "True"
-
-# Pods not running
-kubectl get pods -A --field-selector 'status.phase!=Running,status.phase!=Succeeded' --no-headers
-```
+**Never initiate a rollout merely because this skill was invoked.** Analysis is read-only; merging requires approval of the presented plan and explicit approval of gated updates.
