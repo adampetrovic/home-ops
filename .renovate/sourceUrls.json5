@@ -2,6 +2,12 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
     {
+      description: "Use upstream release notes for BookOrbit",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/bookorbit/bookorbit"],
+      sourceUrl: "https://github.com/bookorbit/bookorbit",
+    },
+    {
       description: "Use upstream release notes for code-server",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/coder/code-server"],
