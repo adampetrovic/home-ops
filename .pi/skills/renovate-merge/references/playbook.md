@@ -1,300 +1,103 @@
 # Renovate Merge Playbook
 
-Complete procedure for safely bulk-merging Renovate PRs in this home-ops repository.
+Use the executable patterns in [codemode.md](codemode.md). Mandatory Talos rules remain in [../AGENTS.md](../AGENTS.md).
 
-## Overview
+## 1. Discover and analyse (read-only)
 
-This is a three-phase workflow:
+- Fetch open PRs once with a generous limit and JSON metadata including author, labels, body, files, and `headRefOid`. Include all Renovate categories, not just `renovate/container`. If the limit is reached, paginate before claiming completeness.
+- Identify Renovate by verified bot account and repository label conventions. Flag uncertain ownership instead of including unrelated human PRs.
+- Batch PR diff reads, bounded to four concurrent calls. Inspect actual version/tag/digest changes, not just titles; some tags are dates or non-semver. Treat ambiguous bumps as unresolved, not automatically low-risk.
+- Produce compact records: PR number, reviewed SHA, component, paths, old/new versions, bump, risk, approval gate, wave, pairing, and evidence URLs. Review every PR; summaries must not omit unknowns.
+- For minor/major bumps and **all infrastructure updates**, fetch upstream releases across the entire skipped version range. Deduplicate by upstream and range. A single target release is insufficient for jumps over intermediate versions.
+- Use `gh api` for GitHub releases; enable web tools for non-GitHub sources or missing release evidence. Do not silently replace missing release notes with “no breaking changes.”
+- Read release notes for removals, deprecated keys, defaults, UID/security contexts, ports, metrics, CRDs, and storage/migration changes. Cross-reference only relevant app manifests, rules, and dashboards. Use `bulk_read` for large/multi-file questions and targeted reads for exact evidence.
+- Cache compact findings with source URLs and versions. Never cache secrets or use classifier output as a substitute for technical review/approval.
+- Detect split registry references and paired chart/image PRs. VolSync chart/image must be grouped; apply the same rule to other coupled components. Inspect actual repository resources rather than assuming historical components still exist (e.g. Kopiur versus VolSync).
+- Do not wait on CI unless asked; report relevant known failures. Resolve merge conflicts or unknown compatibility before rollout.
 
-1. **Analyse** — Investigate every open Renovate PR for breaking changes and risk
-2. **Plan** — Build a dependency-ordered merge plan with user approval gates
-3. **Roll out** — Execute the plan wave-by-wave with cluster health checks
+## 2. Classify and plan
 
-Critical platform rule: Talos Linux PRs are **not** bulk-wave items. Treat them as isolated maintenance rollouts; merge no other Renovate PRs until every node, Ceph, Flux, and LoadBalancer sanity check is clean.
+| Risk | Criteria |
+|---|---|
+| HIGH | Any major bump; infrastructure minor bump (Talos, Kubernetes, Cilium, cert-manager, Rook-Ceph, Flux); known breaking changes |
+| MEDIUM | Observability/network/storage minor bump (Loki, Vector, Envoy, CNPG); chart jumps skipping versions |
+| LOW | Patch/digest updates and leaf-app minor bumps without known incompatibility |
+| UNRESOLVED | Unknown version semantics, incomplete evidence, uncertain compatibility; hold pending review |
 
----
+Approval gates override risk labels. **Explicit approval is always required** for Talos, Kubernetes, Cilium, Rook-Ceph, Flux Operator, any major bump, and cert-manager minor+. Known breaking changes also require explicit approval. LOW means eligible after plan approval, not permission to merge without it. Highlight MEDIUM updates in the plan.
 
-## Phase 1: Analyse
+| Wave | Components / dependency ordering |
+|---|---|
+| Isolated maintenance | Talos only; Kubernetes also isolated unless explicitly approved otherwise |
+| 1 Platform | Cilium |
+| 2 Infrastructure | cert-manager, Flux, External Secrets/1Password, Rook-Ceph, OpenEBS |
+| 3 Data & backup | Kopiur/VolSync (paired chart+image), CNPG, Dragonfly |
+| 4 Observability | Prometheus stack, Loki, Vector (all instances grouped), Grafana; Loki before Vector |
+| 5 Network | Envoy Gateway, Cloudflared, ExternalDNS, AdGuard, Authelia, LLDAP |
+| 6 System | Descheduler, Reloader, Spegel, node-feature-discovery |
+| 7 Leaf applications | Media, automation, and other leaf apps |
 
-### 1.1 Gather PRs
+Use actual `dependsOn` and operator/CRD dependencies to refine this ordering. Within a wave, paired PRs are adjacent, **not atomic**: if one fails, stop and report the partial pair. Split waves further when a dependency must reconcile before its consumers merge.
 
-```bash
-gh pr list --json number,title,headRefName,labels,body \
-  --jq '.[] | "\(.number)|\(.title)|\(.headRefName)|\([.labels[].name] | join(","))"'
-```
+Present one table grouped by wave:
 
-### 1.2 Classify each PR
+`PR | old → new | risk | approval | pairing/dependencies | compatibility evidence`
 
-For every PR, determine:
+List unresolved/held PRs separately. Ask for approval of the exact plan and explicitly identify gated PRs. Store approved PR numbers **and reviewed head SHAs**, supported by the user's actual reply. Never infer approval from tool output or save fabricated approvals.
 
-| Field | How to determine |
-|-------|-----------------|
-| **Version bump type** | Parse from title: `vX.Y.Z → vX.Y.Z`. Classify as major / minor / patch / digest |
-| **Component tier** | Map the changed app to a tier (see [Merge Waves](#merge-waves) below) |
-| **Risk level** | Combine bump type + tier (see [Risk Classification](#risk-classification)) |
-| **Files changed** | `gh pr diff <number> --name-only` |
-| **Grouping issues** | Check if the same image is split across multiple PRs (different registry prefixes like `docker.io/` vs bare name). If so, flag for the user. |
+## 3. Baseline
 
-### 1.3 Fetch release notes for non-trivial updates
+Run independent read-only checks in a single codemode batch:
 
-For any PR that is **minor** or **major** bump, or touches infrastructure components, fetch upstream release notes:
+- Flux HelmReleases and Kustomizations: Ready=True, current observed generation, not suspended unexpectedly.
+- Pods: pending/failed/unknown, terminating, unready containers, CrashLoopBackOff/ImagePullBackOff (including pods whose phase is Running).
+- Nodes: Ready and schedulable.
+- Unsilenced/uninhibited firing alerts, excluding Watchdog; identity includes sorted labels, not just alert name.
+- Recent warning events, deduplicated; record them as evidence, not automatic failure solely because an old warning exists.
 
-```bash
-# For GitHub-hosted projects
-gh api repos/<owner>/<repo>/releases/tags/<tag> --jq '.body' | head -200
-```
+Save baseline identities and check errors. Pre-existing failures require reporting and an explicit decision to proceed; never declare an unhealthy baseline healthy. A failed health query blocks rollout until fixed or explicitly waived with a documented risk; mandatory Talos preconditions cannot be waived by this generic workflow.
 
-Look specifically for:
-- **Breaking changes** sections
-- Deprecated configuration keys that the current HelmRelease values use
-- Changed defaults (ports, UIDs, security contexts, metric names)
-- Removed features or APIs
+For Talos, also verify Ceph `HEALTH_OK`, no active VolSync synchronization if those resources exist, actual backup-system safety, and `TalosUpgrade/talos` not Failed. Follow the Talos skill for target-version/kernel/containerd and network checks. Missing required resources/checks are not success.
 
-### 1.4 Cross-reference with current config
+## 4. Merge and verify
 
-For each flagged breaking change, check whether it affects this repo:
+### Sequential execution
 
-```bash
-# Example: check if a deprecated Helm value is used
-rg "<deprecated_key>" kubernetes/apps/<namespace>/<app>/ --type yaml
+Use `gh pr merge <number> --rebase --delete-branch --match-head-commit <reviewed-sha>` **sequentially**. Immediately before each merge, verify the PR is still open and its SHA matches the approved review. Stop on draft/conflicting/unknown mergeability or command failure. Do not auto-retry an ambiguous merge result: query PR state first.
 
-# Example: check if a changed metric is referenced in dashboards or rules
-rg "<metric_name>" kubernetes/ --type yaml
-```
+Record each confirmed merge (number, reviewed SHA, merge commit, time) in its own successful codemode call. Tools are real mutations and are not rolled back on script failure; `store()` writes persist only when the script succeeds. Do not put a whole rollout into one long script. Avoid `--auto` (would bypass wave monitoring) and `--admin` (would bypass repository protections).
 
-### 1.5 Check for paired PRs
+### Reconciliation barrier
 
-Some components have both a **chart** and an **image** PR that must be merged together:
-- VolSync: chart (`charts-mirror/volsync-perfectra1n`) + image (`perfectra1n/volsync`)
-- Any app where Renovate creates separate PRs for the Helm chart OCI tag and the container image tag
+- Allow the webhook roughly 30–60 seconds to start reconciliation, using a bounded `tools.bash` sleep only when needed. Codemode itself has no timers.
+- Query PR merge commits and Flux source/Kustomization revisions. Verify the source revision includes the wave's merges (exact SHA or verified descendant), affected Kustomizations consumed it, and affected HelmReleases observed current generation/are Ready. A stale Ready=True from before the merge is not sufficient.
+- Verify actual target image/chart versions and workload readiness. For image digest-only updates, verify the new image reference rather than relying on unchanged tag strings.
+- Run the compact health batch; compare to baseline and previous wave. Query targeted events/logs only for affected or newly failing resources.
+- No new issues, no unknown checks, successful revision/version verification: advance. Do not merely wait a fixed interval and presume success.
 
-Flag these as **must merge together** in the plan.
+### Stop conditions
 
-### 1.6 Present analysis
+New alerts, unready workloads, Flux failures, or unavailable checks: **stop**, report the just-merged PRs and evidence, and do not start the next wave. If clearly transient, recheck after 2–3 minutes with bounded waits. Typical rollout alerts include replica mismatch, pod-not-ready, Flux contention, and CNPG failover; do not assume these are benign without workload evidence. If still present 15 minutes after the wave's last merge, treat as persistent. Long platform rollouts have component-specific deadlines.
 
-Output a summary table:
+Persistent failures require the user to choose fix-forward or revert via GitOps. No live restart, reconcile, suspend, secret change, rollout, or other mutation without confirmation. Read-only `kubectl exec` for monitoring is permitted; do not use it to mutate workloads.
 
-```
-| PR | Update | Bump | Risk | Notes |
-|----|--------|------|------|-------|
-| #1234 | cert-manager v1.19→v1.20 | minor | 🔴 HIGH | UID changed to 65532, key rotation policy now GA |
-| #1235 | adguard v0.107.72→73 | patch | 🟢 LOW | Bug fix only |
-```
+### Talos isolation and recovery
 
----
+No other Renovate PR may merge while Talos maintenance is underway. Follow [../AGENTS.md](../AGENTS.md): target Talos/kernel/containerd on every node, Ready/schedulable nodes, Ceph healthy, no broken pods or stale Tuppr taints, Flux ready, and BGP/LoadBalancer checks for `externalTrafficPolicy: Local`.
 
-## Phase 2: Plan
+Check Tuppr CRD replacement (`install.crds` and `upgrade.crds: CreateReplace`) before depending on newer policy fields. Prefer `waitForVolumeDetach: true`; Tuppr's drain timeout is 10 minutes, while CNPG termination can be 30 minutes. Manual upgrades with a 35-minute drain timeout or `nodrain` require operator approval and the Talos procedure.
 
-### Risk Classification
+On partial failure, stop all Renovate activity and recover full Tuppr logs from Loki. Installation success without reboot may indicate post-install drain failure. Confirm evidence before proposing approved powercycle recovery; reset annotations/taint removals are mutations requiring confirmation. Do not touch another node until Kubernetes/Ceph and backup safety checks pass.
 
-| Risk | Criteria | Action |
-|------|----------|--------|
-| 🔴 **HIGH** | Major version bump of any component; minor bump of infrastructure (Talos, Kubernetes, Cilium, cert-manager, Rook-Ceph, Flux); any PR with known breaking changes | Requires explicit user approval |
-| 🟡 **MEDIUM** | Minor version bump of observability/network/storage components (Loki, Vector, Envoy, CloudNativePG); chart version jumps that skip versions | Highlight to user, merge unless user objects |
-| 🟢 **LOW** | Patch bumps, digest-only updates, minor bumps of leaf applications | Auto-merge |
+## 5. Finish
 
-### Approval Gates
+- Final health/revision checks, then one fresh Renovate-filtered inventory. Report remaining/skipped/held PRs; don't count unrelated open PRs as Renovate.
+- Fetch with jj. Move to `main@origin` only if the working copy is empty and doing so won't strand unrelated local work; otherwise leave it intact and report fetched state. Never discard or rewrite existing work, or push local changes without permission.
+- Summarize merged totals, skipped/failed PRs, unresolved alerts, intervention, and verified cluster health. Distinguish “merged” from “fully reconciled.”
 
-**Always require explicit user approval before merging:**
+## Configuration gotchas
 
-1. **Talos Linux** updates (node OS — requires isolated maintenance rollout and rolling reboot of all nodes)
-2. **Kubernetes** version bumps (control plane + kubelet upgrade; usually isolate like Talos)
-3. **Cilium** updates (CNI — brief network disruption possible)
-4. **Rook-Ceph** updates (storage — data plane risk)
-5. **Flux Operator** updates (GitOps engine — reconciliation disruption)
-6. **Any major version bump** (any component)
-7. **cert-manager minor+** (TLS infrastructure — can break all ingress if misconfigured)
-
-Present these to the user with the breaking change analysis and wait for confirmation before including them in the rollout.
-
-### Talos-specific rollout rule
-
-Do not merge Talos PRs as part of a bulk update wave. Talos changes reboot nodes and can disturb Ceph, CNPG/Postgres, Cilium, Envoy, LoadBalancer routing, and Tuppr state. A Talos PR must be planned as a single-purpose rollout:
-
-1. Precheck: all nodes Ready/schedulable, Ceph `HEALTH_OK`, no active VolSync syncs, no non-running pods, and `TalosUpgrade/talos` not already `Failed`.
-2. Merge only the Talos PR after explicit user approval.
-3. Monitor Tuppr/manual rollout to completion.
-4. Verify every node is on the target Talos/kernel/containerd, Ceph is `HEALTH_OK`, Flux is Ready, no stale `tuppr.home-operations.com/outdated` taints remain, and LoadBalancer/BGP sanity is clean.
-5. Only then resume other Renovate PRs.
-
-Before relying on newer Tuppr policy fields, confirm the Tuppr HelmRelease upgrades CRDs with `install.crds: CreateReplace` and `upgrade.crds: CreateReplace`; otherwise the controller may be newer than the CRD schema. Prefer `spec.policy.waitForVolumeDetach: true` for Tuppr Talos rollouts, but remember Tuppr currently hardcodes its own drain timeout to 10 minutes. CNPG/Postgres pods can have `terminationGracePeriodSeconds: 1800`; for CNPG-heavy/control-plane nodes, prefer manual `talosctl upgrade --drain-timeout=35m --reboot-mode=powercycle`, or ask the user before using `policy.nodrain: true`.
-
-### Merge Waves
-
-Order merges by dependency depth — infrastructure first, leaf apps last. Allow 30-60 seconds between waves for Flux to reconcile via webhook. Talos is excluded from ordinary waves; Kubernetes version bumps should also be isolated unless the user explicitly approves otherwise.
-
-| Wave | Tier | Components | Why first |
-|------|------|-----------|-----------|
-| **1** | Platform | Cilium | Cluster networking; everything depends on it |
-| **2** | Infrastructure | cert-manager, Flux, External Secrets (1Password), Rook-Ceph, OpenEBS | Cluster services that apps depend on |
-| **3** | Storage & Backup | VolSync (chart + image together), CloudNativePG, Dragonfly | Data layer |
-| **4** | Observability | Prometheus stack, Loki, Vector (all instances grouped), Grafana | Log/metric pipeline — merge Loki before Vector |
-| **5** | Network | Envoy Gateway, Cloudflared, ExternalDNS, AdGuard, Authelia, LLDAP | Routing and DNS |
-| **6** | System | Descheduler, Reloader, Spegel, node-feature-discovery | Cluster utilities |
-| **7** | Applications | All leaf apps (media, automation, default namespace) | No downstream dependents |
-
-### Present the plan
-
-Output the merge plan as a table grouped by wave:
-
-```
-## Merge Plan
-
-### Wave 1: Platform [REQUIRES APPROVAL]
-| PR | Update | Risk |
-|----|--------|------|
-| #1234 | Talos v1.12.4 → v1.12.5 | 🔴 HIGH |
-
-### Wave 2: Infrastructure
-| PR | Update | Risk |
-|----|--------|------|
-| #1235 | cert-manager v1.19.4 → v1.20.0 | 🟡 MEDIUM |
-
-... (remaining waves)
-
-Proceed with rollout? (Waves requiring approval are gated separately)
-```
-
-Wait for the user to confirm before starting the rollout.
-
----
-
-## Phase 3: Roll Out
-
-### 3.1 Pre-flight checks
-
-Before starting any merges, verify the cluster is healthy:
-
-```bash
-# All HelmReleases reconciled
-kubectl get hr -A --no-headers | grep -v "True"
-
-# All Kustomizations reconciled
-kubectl get ks -A --no-headers | grep -v "True"
-
-# No crashing pods
-kubectl get pods -A --field-selector 'status.phase!=Running,status.phase!=Succeeded' --no-headers
-
-# Check current firing alerts (baseline — note any pre-existing alerts)
-kubectl exec -n observability svc/kube-prometheus-stack-alertmanager -- \
-  wget -qO- 'http://localhost:9093/api/v2/alerts?silenced=false&inhibited=false&active=true' | \
-  jq -r '.[] | select(.labels.alertname != "Watchdog") | .labels.alertname' | sort -u
-```
-
-Record any pre-existing issues so they aren't confused with merge-induced problems.
-
-### 3.2 Merge method
-
-This repository only allows **rebase merges**:
-
-```bash
-gh pr merge <number> --rebase
-```
-
-### 3.3 Execute wave by wave
-
-For each wave:
-
-1. **Check approval** — If the wave contains approval-gated PRs and the user hasn't approved, skip and ask.
-2. **Merge all PRs in the wave** sequentially (one `gh pr merge` at a time to avoid rebase conflicts).
-3. **Wait 30-60 seconds** for Flux webhook reconciliation to kick in.
-4. **Health check** — Run the monitoring commands below. If any **new** alerts fire or HelmReleases/Kustomizations fail, **stop and report** before continuing to the next wave.
-
-### 3.4 Health monitoring between waves
-
-```bash
-# New firing alerts (compare against pre-flight baseline)
-kubectl exec -n observability svc/kube-prometheus-stack-alertmanager -- \
-  wget -qO- 'http://localhost:9093/api/v2/alerts?silenced=false&inhibited=false&active=true' | \
-  jq -r '.[] | select(.labels.alertname != "Watchdog") | "\(.labels.alertname) | \(.labels.namespace // "cluster")"'
-
-# Failed HelmReleases
-kubectl get hr -A --no-headers | grep -v "True"
-
-# Failed Kustomizations
-kubectl get ks -A --no-headers | grep -v "True"
-
-# Pods not running
-kubectl get pods -A --field-selector 'status.phase!=Running,status.phase!=Succeeded' --no-headers | head -20
-
-# Recent warning events (last 5 minutes)
-kubectl get events -A --sort-by='.lastTimestamp' --field-selector 'type=Warning' --no-headers | tail -10
-```
-
-### 3.5 Handling failures
-
-If a health check shows problems after a wave:
-
-1. **Do NOT proceed** to the next wave.
-2. Report the issue to the user with:
-   - Which PR(s) were just merged
-   - The specific error (HelmRelease status, pod logs, alert details)
-   - Suggested remediation
-3. Check if it's **transient** (e.g. `KubeDeploymentReplicasMismatch` during a rolling update — these resolve within ~5 minutes) vs **persistent** (e.g. CrashLoopBackOff, failed Helm upgrade).
-4. For transient issues: wait 2-3 minutes and re-check before escalating.
-5. For persistent issues: the user needs to decide whether to fix-forward or revert.
-
-#### Talos/Tuppr partial failure handling
-
-If Tuppr fails a Talos rollout, stop all remaining Renovate activity. Recover full Tuppr job logs first. If logs show `installation of <target> complete` / `Exit code: 0` but the node did not reboot and still reports the old Talos version, the likely failure point is post-install drain. In that case:
-
-1. Verify cluster/Ceph health and whether the node is cordoned or tainted.
-2. If the target was installed but not booted, manually reboot that node with Talos `powercycle` and monitor it back to Ready.
-3. Wait for Ceph `HEALTH_OK`, no non-running pods, and no active VolSync syncs before touching another node.
-4. Reset Tuppr with the documented reset annotation only after all nodes are upgraded/healthy or the rollout is intentionally halted.
-5. Verify stale `tuppr.home-operations.com/outdated` taints are gone before resuming Renovate merges.
-
-### 3.6 Transient alerts to expect
-
-These alerts commonly fire during bulk merges and **self-resolve** within 5-15 minutes:
-
-| Alert | Cause | Self-resolves? |
-|-------|-------|---------------|
-| `KubeDeploymentReplicasMismatch` | Rolling updates during HelmRelease upgrades | ✅ Yes (once rollout completes) |
-| `KustomizationReconciliationFailure` | Flux contention from rapid successive reconciliations | ✅ Yes (once queue drains) |
-| `KubePodNotReady` | Pods restarting during upgrades | ✅ Yes (once new pods pass readiness) |
-| `CPGClusterNotHealthy` | Brief CloudNativePG failover during operator updates | ✅ Yes (within 30s usually) |
-
-If these alerts persist for **more than 15 minutes** after the last merge in a wave, treat them as persistent failures.
-
-### 3.7 Post-rollout
-
-After all waves are complete:
-
-1. Run a final health check (same commands as 3.4).
-2. Sync local jj state:
-   ```bash
-   jj git fetch
-   jj new main
-   ```
-3. Verify no open Renovate PRs remain:
-   ```bash
-   gh pr list --json number,title --jq 'length'
-   ```
-4. Report summary to the user:
-   - Total PRs merged
-   - Any alerts that fired and resolved
-   - Any issues that required intervention
-   - Current cluster health status
-
----
-
-## Appendix: Common Gotchas
-
-### Split image PRs
-Renovate may create separate PRs for the same image if referenced with different registry prefixes (e.g. `docker.io/org/image` vs `org/image`). The fix is to normalize the `repository:` field in the HelmRelease to always include the full registry prefix, and add a Renovate grouping rule in `.renovate/groups.json5`.
-
-### Missing digest pins
-Container images should always include a digest: `tag: v1.0.0@sha256:abc123...`. If a PR updates an image that lacks a digest, note it in the analysis. The current digest can be obtained:
-```bash
-skopeo inspect --raw docker://<repository>:<tag> | sha256sum | awk '{print "sha256:" $1}'
-```
-
-### cert-manager CRD updates
-cert-manager uses `installCRDs: true` in its Helm values. Minor version bumps may update CRDs which can briefly disrupt certificate issuance. This is transient.
-
-### Descheduler side effects
-Descheduler updates can trigger pod evictions across the cluster as the new version rebalances workloads. This causes cascading `KubeDeploymentReplicasMismatch` alerts. Merge descheduler in a later wave (Wave 6) to avoid compounding with other rollouts.
-
-### Talos upgrades via Tuppr
-Talos version bumps (in `talconfig.yaml` and `talosupgrade.yaml`) don't immediately upgrade nodes — Tuppr orchestrates the rolling upgrade. However, the Taskfile `TALOS_VERSION` variable is also updated, so manual `task talos:upgrade` would use the new version. The actual rollout is controlled and safe, but the user should be aware nodes will reboot.
+- Normalize image references to a full registry prefix; Docker Hub images must use `mirror.gcr.io` and include tag+digest. Flag missing pins; do not silently change unrelated manifests during merging.
+- Inspect actual cert-manager CRD values/policies; do not assume historical `installCRDs` settings.
+- Descheduler can cause cluster-wide evictions; keep it late and verify readiness before leaf apps.
+- Talos templates/inventory and Tuppr resources in this repo are authoritative; don't use obsolete `talconfig.yaml`/Taskfile commands.
