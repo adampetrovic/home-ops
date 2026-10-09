@@ -33,7 +33,7 @@ spec:
                 protocol: TCP
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.10.79@sha256:e6cc39db9aefeec0e358507ace4559d28ed3e10c217e47f20fea2a2350ae4a03
+              tag: 1.10.84@sha256:1e0849214384c099b5cef5131b2fdfe0e7e6dab5283ecef78ffb97c06a065320
             # gdb-web's image entrypoint runs /app/startup.sh, which waits for
             # PostgreSQL, runs the bundled migrations/static-city seed, and only
             # then starts the HTTP server.
@@ -42,7 +42,7 @@ spec:
                   name: gdb-secret
             env:
               APP_ENV: production
-              APP_VERSION: 1.10.79
+              APP_VERSION: 1.10.84
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
