@@ -1,0 +1,77 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage-copy-diagnostic
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: 0
+  upgrade:
+    remediation:
+      strategy: rollback
+      retries: 0
+  values:
+    controllers:
+      inspect:
+        type: job
+        job:
+          backoffLimit: 0
+          activeDeadlineSeconds: 180
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/library/debian
+              tag: bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
+            command: ["/bin/bash", "-euc"]
+            args:
+              - |
+                point=/recovery/offline-20261011
+                echo 'Recorded source inventory (path/type/mode/mtime/link):'
+                tr '\0' '\n' < "$point/meta.source.inventory"
+                echo 'Recorded recovery inventory:'
+                tr '\0' '\n' < "$point/meta.recovery.inventory"
+                echo 'Rechecking all offline metadata source and recovery checksums:'
+                (cd /source-meta; sha256sum -c "$point/meta.source.sha256")
+                (cd "$point/meta"; sha256sum -c "$point/meta.source.sha256")
+                echo 'Both source and recovery metadata checksum checks passed'
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: [ALL] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        supplementalGroups: [100]
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      source-meta:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: ${SECRET_NFS_DOMAIN}
+            path: /var/nfs/shared/garage/meta
+            readOnly: true
+        globalMounts:
+          - path: /source-meta
+            readOnly: true
+      recovery:
+        existingClaim: garage-migration-recovery
+        globalMounts:
+          - path: /recovery
+            readOnly: true
