@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.34.0-standalone-strict/networkpolicy-networking-v1.json
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: garage-migration-fence
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: garage
+  policyTypes: [Ingress]
+  ingress:
+    # Only the Git-managed validation job may access S3 during cutover.
+    # External/manual callers receive failures; no queue or automatic retry is promised.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: database
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: garage-cutover-verify
+      ports:
+        - protocol: TCP
+          port: 3900
