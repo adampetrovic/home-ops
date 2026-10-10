@@ -28,6 +28,7 @@ spec:
       - media
       - network
       - observability
+      - storage
   identityDefaults:
     cluster: home-kubernetes
     hostnameExpr: 'namespace + "." + cluster'
@@ -77,6 +78,7 @@ spec:
       - media
       - network
       - observability
+      - storage
   identityDefaults:
     cluster: home-kubernetes
     hostnameExpr: 'namespace + "." + cluster'

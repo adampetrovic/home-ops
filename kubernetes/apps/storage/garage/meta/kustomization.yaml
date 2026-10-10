@@ -1,0 +1,41 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../../../components/kopiur/backup
+patches:
+  # Stage an empty migration target; never populate it from an older backup.
+  - target:
+      kind: PersistentVolumeClaim
+    patch: |-
+      - op: remove
+        path: /spec/dataSourceRef
+      - op: add
+        path: /metadata/annotations
+        value:
+          kustomize.toolkit.fluxcd.io/prune: disabled
+  - target:
+      group: kopiur.home-operations.com
+      kind: Restore
+    patch: |-
+      apiVersion: kopiur.home-operations.com/v1alpha1
+      kind: Restore
+      metadata:
+        name: ${APP}
+      $patch: delete
+  # Do not back up an empty PVC before the offline metadata copy is verified.
+  - target:
+      group: kopiur.home-operations.com
+      kind: SnapshotPolicy
+    patch: |-
+      - op: add
+        path: /spec/suspend
+        value: true
+  - target:
+      group: kopiur.home-operations.com
+      kind: SnapshotSchedule
+    patch: |-
+      - op: add
+        path: /spec/schedule/suspend
+        value: true
