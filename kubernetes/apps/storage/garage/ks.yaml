@@ -46,7 +46,8 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: true
+  # Suspended policies deliberately report Ready=False during staging.
+  wait: false
   interval: 30m
   retryInterval: 1m
   timeout: 5m
