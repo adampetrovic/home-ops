@@ -5,6 +5,7 @@ kind: ScheduledBackup
 metadata:
   name: bookorbit-postgres
 spec:
+  suspend: true
   schedule: "0 30 2 * * *"
   immediate: true
   backupOwnerReference: self

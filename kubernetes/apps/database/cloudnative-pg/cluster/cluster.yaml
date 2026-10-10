@@ -5,6 +5,7 @@ kind: Cluster
 metadata:
   name: postgres
   annotations:
+    cnpg.io/hibernation: "on"
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 3
