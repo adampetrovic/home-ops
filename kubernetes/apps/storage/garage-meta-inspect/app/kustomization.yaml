@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./data-helmrelease.yaml
+  - ./copy-preflight-helmrelease.yaml
