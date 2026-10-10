@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: garage-copy-preflight
+  name: garage-copy-preflight-v2
 spec:
   interval: 1h
   chartRef:
@@ -11,7 +11,8 @@ spec:
     name: app-template
   install:
     remediation:
-      retries: -1
+      # One-shot checks must retain failures, not retry indefinitely.
+      retries: 0
   upgrade:
     remediation:
       strategy: rollback
@@ -30,10 +31,10 @@ spec:
             command: ["/bin/bash", "-euc"]
             args:
               - |
-                set -o pipefail
+                set -euxo pipefail
                 id
                 for path in /source-meta /source-data; do
-                  awk -v p="$path" '$2==p {n=split($4,a,","); for(i=1;i<=n;i++) if(a[i]=="ro") ro=1; found=1} END {if(!found || !ro) exit 1}' /proc/mounts
+                  awk -v p="$path" '$2==p {n=split($4,a,","); for(i=1;i<=n;i++) if(a[i]=="ro") ro=1; found=1; print "mountpoint=" $2, "type=" $3, "options=" $4} END {if(!found || !ro) exit 1}' /proc/mounts
                 done
                 test -r /source-meta/node_key
                 test -r /source-meta/node_key.pub
