@@ -1,0 +1,105 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage-copy-preflight
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      strategy: rollback
+  values:
+    controllers:
+      inspect:
+        type: job
+        job:
+          backoffLimit: 0
+          activeDeadlineSeconds: 300
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/library/debian
+              tag: bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
+            command: ["/bin/bash", "-euc"]
+            args:
+              - |
+                set -o pipefail
+                id
+                for path in /source-meta /source-data; do
+                  awk -v p="$path" '$2==p {n=split($4,a,","); for(i=1;i<=n;i++) if(a[i]=="ro") ro=1; found=1} END {if(!found || !ro) exit 1}' /proc/mounts
+                done
+                test -r /source-meta/node_key
+                test -r /source-meta/node_key.pub
+                test -r /source-meta/data.mdb
+                cp --version | head -n 1
+                cp -a --sparse=always --no-preserve=ownership /source-meta/node_key.pub /tmp/key-copy
+                cmp /source-meta/node_key.pub /tmp/key-copy
+                for path in /target /recovery; do
+                  test -z "$(find "$path" -mindepth 1 -maxdepth 1 ! -name lost+found -print -quit)"
+                  touch "$path/.write-probe"
+                  rm "$path/.write-probe"
+                  stat -c '%a %u:%g %n' "$path"
+                  df -B1 "$path"
+                done
+                echo 'preflight_verified=true; no LMDB opened or live metadata backed up'
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: [ALL] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [100]
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      source-meta:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: ${SECRET_NFS_DOMAIN}
+            path: /var/nfs/shared/garage/meta
+            readOnly: true
+        globalMounts:
+          - path: /source-meta
+            readOnly: true
+      source-data:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: ${SECRET_NFS_DOMAIN}
+            path: /var/nfs/shared/garage/data
+            readOnly: true
+        globalMounts:
+          - path: /source-data
+            readOnly: true
+      target:
+        existingClaim: garage-meta
+        globalMounts:
+          - path: /target
+      recovery:
+        existingClaim: garage-migration-recovery
+        globalMounts:
+          - path: /recovery
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
