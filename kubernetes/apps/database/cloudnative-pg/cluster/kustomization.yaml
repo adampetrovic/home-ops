@@ -8,3 +8,4 @@ resources:
   - ./objectstore.yaml
   - ./scheduledbackup.yaml
   - ./service.yaml
+  - ./garage-baseline-helmrelease.yaml
