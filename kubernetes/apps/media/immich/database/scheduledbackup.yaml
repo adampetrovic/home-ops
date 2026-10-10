@@ -5,6 +5,7 @@ kind: ScheduledBackup
 metadata:
   name: immich-postgres
 spec:
+  suspend: true
   schedule: "0 0 1 * * *"
   immediate: true
   backupOwnerReference: self
