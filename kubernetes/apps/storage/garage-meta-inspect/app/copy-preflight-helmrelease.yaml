@@ -38,7 +38,7 @@ spec:
                 done
                 test -r /source-meta/node_key
                 test -r /source-meta/node_key.pub
-                test -r /source-meta/data.mdb
+                test -r /source-meta/db.lmdb/data.mdb
                 cp --version | head -n 1
                 cp -a --sparse=always --no-preserve=ownership /source-meta/node_key.pub /tmp/key-copy
                 cmp /source-meta/node_key.pub /tmp/key-copy
