@@ -5,6 +5,7 @@ kind: ScheduledBackup
 metadata:
   name: tracearr-postgres
 spec:
+  suspend: true
   schedule: "0 0 0 * * *"
   immediate: true
   backupOwnerReference: self
