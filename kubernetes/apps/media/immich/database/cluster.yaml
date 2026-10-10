@@ -5,6 +5,7 @@ kind: Cluster
 metadata:
   name: immich-postgres
   annotations:
+    cnpg.io/hibernation: "on"
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 1
