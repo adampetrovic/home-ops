@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: garage-migration
+  namespace: storage
+spec:
+  targetNamespace: storage
+  dependsOn:
+    - name: garage-meta
+      namespace: storage
+  path: ./kubernetes/apps/storage/garage-migration/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  # The bounded Helm Job does its own integrity checks; observe its actual completion.
+  wait: false
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
