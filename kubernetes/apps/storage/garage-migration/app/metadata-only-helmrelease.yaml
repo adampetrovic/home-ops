@@ -1,0 +1,107 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage-metadata-only-copy
+spec:
+  interval: 1h
+  timeout: 10m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: 0
+  upgrade:
+    remediation:
+      strategy: rollback
+      retries: 0
+  values:
+    controllers:
+      copy:
+        type: job
+        job:
+          backoffLimit: 0
+          activeDeadlineSeconds: 300
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/library/debian
+              tag: bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
+            command: ["/bin/bash", "-euc"]
+            args:
+              - |
+                set -o pipefail
+                export LC_ALL=C
+                point=/recovery/offline-20261011-v2
+                awk '$2=="/source-meta" {n=split($4,a,","); for(i=1;i<=n;i++) if(a[i]=="ro") ro=1; found=1} END {if(!found || !ro) exit 1}' /proc/mounts
+                test -z "$(find /target -mindepth 1 -maxdepth 1 ! -name lost+found -print -quit)"
+                test "$(stat -c %u:%g /target)" = 568:568
+                (cd /source-meta; sha256sum -c "$point/meta.source.sha256")
+                (cd "$point/meta"; sha256sum -c "$point/meta.source.sha256")
+                (cd "$point/meta"; find . -xdev -printf '%P %y %m %T@ %l\0' | sort -z) > /tmp/recovery.inventory
+                cmp "$point/meta.source.inventory" /tmp/recovery.inventory
+                cp -a --sparse=always --no-preserve=ownership "$point/meta/." /target/
+                while IFS= read -r -d '' relative; do
+                  chmod --reference="$point/meta/$relative" "/target/$relative"
+                done < <(cd "$point/meta"; find . -xdev ! -type l -print0)
+                sync
+                (cd /target; sha256sum -c "$point/meta.source.sha256")
+                (cd /target; find . -xdev -path ./lost+found -prune -o -printf '%P %y %m %T@ %l\0' | sort -z) > /tmp/target.inventory
+                cmp "$point/meta.source.inventory" /tmp/target.inventory
+                cmp /source-meta/node_key /target/node_key
+                cmp /source-meta/node_key.pub /target/node_key.pub
+                cmp /source-meta/cluster_layout /target/cluster_layout
+                cmp /source-meta/data_layout /target/data_layout
+                test -w /target/db.lmdb/data.mdb
+                test "$(stat -c %u:%g /target/node_key)" = 568:568
+                test "$(stat -c %a /target/node_key)" = 660
+                stat -c 'target_lmdb_bytes=%s blocks_512=%b owner=%u:%g mode=%a' /target/db.lmdb/data.mdb
+                date -u '+whole_metadata_identity_modes_and_target_verified=%Y-%m-%dT%H:%M:%SZ'
+                echo 'Complete independent offline metadata backup and target verified; data recovery is not a cutover prerequisite'
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities: { drop: [ALL] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [100]
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      source-meta:
+        type: custom
+        volumeSpec:
+          nfs:
+            server: ${SECRET_NFS_DOMAIN}
+            path: /var/nfs/shared/garage/meta
+            readOnly: true
+        globalMounts:
+          - path: /source-meta
+            readOnly: true
+      recovery:
+        existingClaim: garage-migration-recovery
+        globalMounts:
+          - path: /recovery
+            readOnly: true
+      target:
+        existingClaim: garage-meta
+        globalMounts:
+          - path: /target
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
