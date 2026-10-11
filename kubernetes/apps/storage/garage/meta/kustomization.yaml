@@ -6,8 +6,9 @@ components:
   - ../../../../components/kopiur/backup
 resources:
   - ./recovery-pvc.yaml
+  - ./initial-snapshot.yaml
 patches:
-  # Stage an empty migration target; never populate it from an older backup.
+  # Existing Bound claim: never add immutable dataSourceRef in place.
   - target:
       kind: PersistentVolumeClaim
       name: "\\$\\{APP\\}"
@@ -27,18 +28,32 @@ patches:
       metadata:
         name: ${APP}
       $patch: delete
-  # Do not back up an empty PVC before the offline metadata copy is verified.
   - target:
       group: kopiur.home-operations.com
       kind: SnapshotPolicy
     patch: |-
       - op: add
-        path: /spec/suspend
-        value: true
-  - target:
-      group: kopiur.home-operations.com
-      kind: SnapshotSchedule
-    patch: |-
+        path: /spec/hooks
+        value:
+          beforeSnapshot:
+            - workloadExec:
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: garage
+                    app.kubernetes.io/controller: garage
+                container: app
+                command: [/garage, meta, snapshot]
+                timeout: 2m
+                continueOnFailure: false
       - op: add
-        path: /spec/schedule/suspend
-        value: true
+        path: /spec/files
+        value:
+          ignoreRules: ["/db.lmdb", "/db.lmdb/**", "/lost+found"]
+      - op: add
+        path: /spec/verification
+        value:
+          verifyFilesPercent: 100
+          quick:
+            schedule:
+              cron: "H 5 * * *"
+              timezone: Australia/Sydney
