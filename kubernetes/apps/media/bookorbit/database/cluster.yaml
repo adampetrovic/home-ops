@@ -5,7 +5,6 @@ kind: Cluster
 metadata:
   name: bookorbit-postgres
   annotations:
-    cnpg.io/hibernation: "on"
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   instances: 1

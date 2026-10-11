@@ -5,7 +5,6 @@ kind: Kustomization
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ./migration-networkpolicy.yaml
 configMapGenerator:
   - name: garage-configmap
     files:
