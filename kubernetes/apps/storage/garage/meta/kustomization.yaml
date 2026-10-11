@@ -7,8 +7,8 @@ components:
 resources:
   - ./recovery-pvc.yaml
   - ./initial-snapshot.yaml
-  - ./restore-check.yaml
-  - ./restore-proof-helmrelease.yaml
+  - ./cleanup-rbac.yaml
+  - ./cleanup-helmrelease.yaml
 patches:
   # Existing Bound claim: never add immutable dataSourceRef in place.
   - target:
@@ -35,6 +35,9 @@ patches:
       group: kopiur.home-operations.com
       kind: SnapshotPolicy
     patch: |-
+      - op: add
+        path: /spec/mover/ttlSecondsAfterFinished
+        value: 300
       - op: add
         path: /spec/credentialProjection
         value:
