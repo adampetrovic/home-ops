@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: garage-migration-recovery
   annotations:
-    kustomize.toolkit.fluxcd.io/prune: disabled
+    kustomize.toolkit.fluxcd.io/prune: enabled
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ceph-block
