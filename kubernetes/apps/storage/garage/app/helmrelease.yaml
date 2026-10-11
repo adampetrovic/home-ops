@@ -20,7 +20,7 @@ spec:
   values:
     controllers:
       garage:
-        replicas: 0
+        replicas: 1
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -63,6 +63,7 @@ spec:
             port: 3903
     route:
       s3:
+        enabled: false
         hostnames:
           - s3.petrovic.network
         parentRefs:
@@ -87,8 +88,6 @@ spec:
         globalMounts:
           - path: /data
       meta:
-        type: nfs
-        server: ${SECRET_NFS_DOMAIN}
-        path: /var/nfs/shared/garage/meta
+        existingClaim: garage-meta
         globalMounts:
           - path: /meta

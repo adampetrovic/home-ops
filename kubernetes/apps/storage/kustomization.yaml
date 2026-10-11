@@ -8,4 +8,3 @@ components:
 resources:
   - ./garage/ks.yaml
   - ./garage-meta-inspect/ks.yaml
-  - ./garage-migration/ks.yaml
