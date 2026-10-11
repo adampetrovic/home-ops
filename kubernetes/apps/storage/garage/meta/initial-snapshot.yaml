@@ -9,3 +9,14 @@ spec:
   deletionPolicy: Retain
   pin: true
   description: Initial post-migration online-consistent Garage metadata; native LMDB snapshot plus node identity/layout, not object data.
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: Snapshot
+metadata:
+  name: garage-meta-initial-nfs-20261011
+spec:
+  policyRef:
+    name: garage-meta-nfs
+  deletionPolicy: Retain
+  pin: true
+  description: Initial NAS metadata backup; native awaited LMDB snapshot plus node identity/layout, not object data.
