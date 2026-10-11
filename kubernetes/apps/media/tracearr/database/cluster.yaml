@@ -4,8 +4,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: tracearr-postgres
-  annotations:
-    cnpg.io/hibernation: "on"
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie

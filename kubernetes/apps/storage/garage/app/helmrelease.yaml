@@ -63,7 +63,7 @@ spec:
             port: 3903
     route:
       s3:
-        enabled: false
+        enabled: true
         hostnames:
           - s3.petrovic.network
         parentRefs:
