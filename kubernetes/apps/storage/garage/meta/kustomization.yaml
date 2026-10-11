@@ -33,6 +33,10 @@ patches:
       kind: SnapshotPolicy
     patch: |-
       - op: add
+        path: /spec/credentialProjection
+        value:
+          enabled: true
+      - op: add
         path: /spec/hooks
         value:
           beforeSnapshot:
