@@ -1,0 +1,10 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+# Intentionally not registered: enable via a dedicated Flux Kustomization in Git
+# only for recovery. Never patch dataSourceRef onto the existing Bound PVC.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: storage
+resources:
+  - ./restore.yaml
+  - ./helmrelease.yaml
