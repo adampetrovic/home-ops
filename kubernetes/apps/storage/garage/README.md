@@ -23,9 +23,20 @@ Hourly NAS runs refresh these; Garage also auto-snapshots every six hours. RPO
 therefore includes native snapshot age and schedule delays. Failures must be
 investigated rather than assumed to have produced a current backup.
 
-Pinned post-migration metadata recovery records are retained in Git. Kopiur R2
-is independent of the local NFS/Ceph failure domains; the NAS repository is a
-separate export, but shares the NAS failure domain with object data.
+Pinned backup records are retained in Git. The first R2 capture contains older
+native snapshots and is historical, **not** the preferred migration recovery
+point. Use `garage-meta-verified-r2-20261011`, Kopia ID
+`397fe6fec529945c25847c7df5553b6d`: its independently restored native point is
+2026-10-11 12:31:25 AEDT (01:31:25 UTC), SHA-256
+`e6192f90a650c683b5f3ab7236e2dafaa6c03373344d7ee5447d2d7168542f6a`.
+The archive contains 9 files / 108,760,257 bytes. Isolated restore verified the
+original identity/layout, raw running-LMDB exclusion, normalized writable
+568:568 ownership and successful full Garage v2.4.1 LMDB-to-SQLite validation.
+NAS and R2 100%-file verification both succeeded. This does not start another
+Garage node or imply full object-data recovery.
+
+Kopiur R2 is independent of the local NFS/Ceph failure domains; the NAS repository
+is a separate export, but shares the NAS failure domain with object data.
 
 Metadata backups **do not back up `/data`**. Recovery requires the appropriate
 surviving/matching object data. Older metadata can reference blocks subsequently
