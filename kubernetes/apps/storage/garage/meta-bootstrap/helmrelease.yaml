@@ -1,0 +1,81 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: garage-meta-bootstrap
+spec:
+  interval: 1h
+  timeout: 10m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: 0
+  values:
+    controllers:
+      normalize:
+        type: job
+        job:
+          backoffLimit: 0
+          activeDeadlineSeconds: 600
+        initContainers:
+          prepare:
+            image:
+              repository: mirror.gcr.io/library/debian
+              tag: bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587
+            command: [/bin/bash, -euc]
+            args:
+              - |
+                set -o pipefail
+                for name in node_key node_key.pub cluster_layout data_layout; do
+                  test -s "/meta/$name"
+                done
+                test ! -e /meta/db.lmdb/data.mdb
+                point=$(find /meta/snapshots -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)
+                test -n "$point"
+                test -s "$point/db.lmdb"
+                echo "native_metadata_recovery_point=$(basename "$point")"
+                mkdir -p /meta/db.lmdb
+                cp -p "$point/db.lmdb" /meta/db.lmdb/data.mdb
+                chmod 770 /meta/db.lmdb
+                chmod 660 /meta/db.lmdb/data.mdb
+                cmp "$point/db.lmdb" /meta/db.lmdb/data.mdb
+                test -w /meta/db.lmdb/data.mdb
+                test "$(stat -c %u:%g /meta/db.lmdb/data.mdb)" = 568:568
+        containers:
+          app:
+            image:
+              repository: mirror.gcr.io/dxflrs/garage
+              tag: v2.4.1@sha256:9c96caa2612d3411acc5b0e6701fb238dbfba33e533a6d7d3d811a4b12d0d020
+            command: [/garage, convert-db, -a, lmdb, -i, /meta/db.lmdb, -b, sqlite, -o, /scratch/validated.sqlite, --lmdb-map-size, 1GiB]
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 384Mi
+    defaultPodOptions:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 568
+        runAsGroup: 568
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      meta:
+        existingClaim: garage-meta-recovered
+        globalMounts:
+          - path: /meta
+      scratch:
+        type: emptyDir
+        globalMounts:
+          - path: /scratch
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
