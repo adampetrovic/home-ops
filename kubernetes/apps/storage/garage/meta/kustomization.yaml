@@ -24,6 +24,7 @@ patches:
   - target:
       group: kopiur.home-operations.com
       kind: Restore
+      name: "\\$\\{APP\\}"
     patch: |-
       apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Restore
