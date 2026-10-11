@@ -35,6 +35,9 @@ spec:
 
     controllers:
       stash-uploader:
+        replicas: 1
+        # Exclusive process-lifetime queue flock forbids overlapping pods.
+        strategy: Recreate
         containers:
           app:
             image:
