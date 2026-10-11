@@ -56,8 +56,8 @@ spec:
                 trap 'aws --endpoint-url "$endpoint" s3api delete-object --bucket postgres --key "$testkey" >/tmp/cleanup-response 2>/tmp/cleanup-error || true' EXIT
                 aws --endpoint-url "$endpoint" s3api put-object --bucket postgres --key "$testkey" --body /tmp/payload >/tmp/put-response
                 aws --endpoint-url "$endpoint" s3api get-object --bucket postgres --key "$testkey" /tmp/readback >/tmp/get-response
-                expected=$(sha256sum /tmp/payload)
-                printf '%s  %s\n' "${expected%% *}" /tmp/readback | sha256sum -c -
+                expected=$(sha256sum /tmp/payload | cut -d ' ' -f 1)
+                printf '%s  %s\n' "$expected" /tmp/readback | sha256sum -c -
                 aws --endpoint-url "$endpoint" s3api delete-object --bucket postgres --key "$testkey" >/tmp/delete-response
                 if aws --endpoint-url "$endpoint" s3api head-object --bucket postgres --key "$testkey" >/tmp/head-response 2>/tmp/head-error; then
                   echo 'ERROR: deleted test object still exists'
