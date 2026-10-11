@@ -20,3 +20,14 @@ spec:
   deletionPolicy: Retain
   pin: true
   description: Initial NAS metadata backup; native awaited LMDB snapshot plus node identity/layout, not object data.
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: Snapshot
+metadata:
+  name: garage-meta-verified-r2-20261011
+spec:
+  policyRef:
+    name: garage-meta-r2
+  deletionPolicy: Retain
+  pin: true
+  description: Post-cutover native LMDB metadata recovery point; independent R2 backup, not object data.
