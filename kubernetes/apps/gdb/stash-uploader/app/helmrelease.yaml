@@ -44,6 +44,15 @@ spec:
               TZ: "${TZ}"
               PORT: &port 8080
               UPLOAD_DIR: /data
+              STASH_GRAPHQL_URL: http://stash.gdb.svc.cluster.local:9999/graphql
+              STASH_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: stash-uploader-secret
+                    key: STASH_API_KEY
+              STASH_PATH: /data
+              # Durable queue on the existing shared NFS mount, not /tmp.
+              METADATA_QUEUE_DIR: /data/.stash-uploader-metadata
             probes:
               liveness:
                 enabled: true
