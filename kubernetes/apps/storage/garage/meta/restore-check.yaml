@@ -2,11 +2,11 @@
 apiVersion: kopiur.home-operations.com/v1alpha1
 kind: Restore
 metadata:
-  name: garage-meta-restore-check
+  name: garage-meta-restore-check-v2
 spec:
   source:
     snapshotRef:
-      name: garage-meta-initial-r2-20261011
+      name: garage-meta-verified-r2-20261011
   target:
     populator: {}
   credentialProjection:
@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: garage-meta-restore-check
+  name: garage-meta-restore-check-v2
 spec:
   accessModes: [ReadWriteOnce]
   storageClassName: ceph-block
@@ -32,4 +32,4 @@ spec:
   dataSourceRef:
     apiGroup: kopiur.home-operations.com
     kind: Restore
-    name: garage-meta-restore-check
+    name: garage-meta-restore-check-v2
