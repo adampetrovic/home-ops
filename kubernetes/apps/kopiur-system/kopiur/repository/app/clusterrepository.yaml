@@ -18,6 +18,9 @@ spec:
       name: kopiur-r2-repository
       namespace: kopiur-system
       key: KOPIA_PASSWORD
+  # Consumers must also opt in; allowedNamespaces still gates access.
+  credentialProjection:
+    allowed: true
   allowedNamespaces:
     list:
       - automation
@@ -68,6 +71,9 @@ spec:
       name: kopiur-nfs-repository
       namespace: kopiur-system
       key: KOPIA_PASSWORD
+  # Consumers must also opt in; allowedNamespaces still gates access.
+  credentialProjection:
+    allowed: true
   allowedNamespaces:
     list:
       - automation
