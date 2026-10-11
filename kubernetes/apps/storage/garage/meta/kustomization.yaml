@@ -6,6 +6,7 @@ components:
   - ../../../../components/kopiur/backup
 resources:
   - ./initial-snapshot.yaml
+  - ./orphan-serviceaccount.yaml
 patches:
   # Existing Bound claim: never add immutable dataSourceRef in place.
   - target:
