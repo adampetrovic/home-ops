@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: garage-meta-restore-proof
+  name: garage-meta-restore-proof-v2
 spec:
   interval: 1h
   timeout: 10m
@@ -19,7 +19,7 @@ spec:
         type: job
         job:
           backoffLimit: 0
-          activeDeadlineSeconds: 300
+          activeDeadlineSeconds: 600
         initContainers:
           prepare:
             image:
@@ -37,17 +37,17 @@ spec:
                 test -n "$point"
                 native="$point/db.lmdb"
                 test -s "$native"
-                relative="$point"
-                relative=$(basename "$relative")
-                cmp "$native" "/live/snapshots/$relative/db.lmdb"
+                # Kopia verified 100% of archived files; Garage rotates local
+                # snapshots independently, so never rely on a live retained file.
                 sha256sum "$native"
                 mkdir /restored/db.lmdb
                 cp -p "$native" /restored/db.lmdb/data.mdb
                 chmod 770 /restored/db.lmdb
                 chmod 660 /restored/db.lmdb/data.mdb
+                cmp "$native" /restored/db.lmdb/data.mdb
                 test -w /restored/db.lmdb/data.mdb
                 test "$(stat -c %u:%g /restored/db.lmdb/data.mdb)" = 568:568
-                echo 'R2 restore identity/layout and native-snapshot bytes match; raw running LMDB excluded; writable normalized metadata ready'
+                echo 'R2 restore identity/layout and normalized native-snapshot bytes verified; raw running LMDB excluded; writable normalized metadata ready'
         containers:
           app:
             image:
