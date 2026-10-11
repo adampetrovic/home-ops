@@ -22,6 +22,10 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    # Repository owner + consumer opt-ins and namespace allowlists still apply.
+    features:
+      credentialProjection:
+        enabled: true
     monitoring:
       dashboards:
         enabled: true
