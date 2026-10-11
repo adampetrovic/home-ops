@@ -5,7 +5,6 @@ kind: ScheduledBackup
 metadata:
   name: gdb-postgres
 spec:
-  suspend: true
   schedule: "0 0 0 * * *"
   immediate: true
   backupOwnerReference: self
