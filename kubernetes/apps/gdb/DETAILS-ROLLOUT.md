@@ -20,6 +20,16 @@ persistent directory on the existing writable shared NFS mount, not an emptyDir.
 Verify UID/GID 568 can create/write it and the Stash scan does not ingest queue files.
 Do not delete queued work during rollout or rollback.
 
+The uploader holds an exclusive process-lifetime `flock` on the durable queue;
+a second process refuses startup. Keep `replicas: 1` and `strategy: Recreate`
+for cold replacement: the old pod must terminate and release its lock before the
+replacement starts. Expect a brief upload outage; RollingUpdate can deadlock
+waiting for a replacement that cannot acquire the old process's lock.
+Before rollout, verify the NFS server and client mounts enforce `flock` across
+hosts (not merely local locks), including lock release and reacquisition after
+termination. Replica count alone cannot protect against a stale process on
+another node; treat missing cross-host lock enforcement as a rollout blocker.
+
 `stash-uploader-secret` extracts the existing 1Password item mapping `stash` through
 `onepassword-connect`, templating only the established `STASH_API_KEY` field (same
 mapping as `web/externalsecret.yaml`). No resolved secrets are stored here.
