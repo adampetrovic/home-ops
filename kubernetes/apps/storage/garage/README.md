@@ -82,5 +82,9 @@ ordinary rollback as soon as Garage restarted on Ceph: housekeeping and client
 writes can mutate metadata. An approved rollback requires a fresh offline reverse
 copy or an appropriate restore; simply switching back to old NFS metadata is not
 safe. The 200Gi migration recovery PVC is temporary, contained verified offline
-metadata but incomplete object-data recovery, and is removed only after an
-independent post-cutover metadata backup and isolated restore validation succeed.
+metadata but incomplete object-data recovery, and was removed through GitOps after an
+independent post-cutover metadata backup and isolated restore validation succeeded.
+Its PVC/PV and active RBD image are gone; Ceph asynchronously reclaims the trashed
+image. Temporary migration/inspection/copy/diagnostic/stop/S3/restore/test workloads,
+RBAC, projected test credentials and cleanup helpers have been removed. The two
+persistent Kopiur cache claims are intentionally retained for ongoing backups.
