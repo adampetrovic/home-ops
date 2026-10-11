@@ -20,6 +20,7 @@ spec:
   values:
     controllers:
       verify:
+        forceRename: garage-cutover-verify-v2
         type: job
         job:
           backoffLimit: 0
@@ -55,13 +56,18 @@ spec:
                 trap 'aws --endpoint-url "$endpoint" s3api delete-object --bucket postgres --key "$testkey" >/tmp/cleanup-response 2>/tmp/cleanup-error || true' EXIT
                 aws --endpoint-url "$endpoint" s3api put-object --bucket postgres --key "$testkey" --body /tmp/payload >/tmp/put-response
                 aws --endpoint-url "$endpoint" s3api get-object --bucket postgres --key "$testkey" /tmp/readback >/tmp/get-response
-                cmp /tmp/payload /tmp/readback
+                expected=$(sha256sum /tmp/payload)
+                printf '%s  %s\n' "${expected%% *}" /tmp/readback | sha256sum -c -
                 aws --endpoint-url "$endpoint" s3api delete-object --bucket postgres --key "$testkey" >/tmp/delete-response
                 if aws --endpoint-url "$endpoint" s3api head-object --bucket postgres --key "$testkey" >/tmp/head-response 2>/tmp/head-error; then
                   echo 'ERROR: deleted test object still exists'
                   exit 1
                 fi
-                grep -Eq '404|Not Found|NotFound' /tmp/head-error
+                error=$(cat /tmp/head-error)
+                case "$error" in
+                  *404*|*'Not Found'*|*NotFound*) ;;
+                  *) echo 'ERROR: unexpected delete verification response'; exit 1 ;;
+                esac
                 trap - EXIT
                 date -u '+old_object_and_authorized_put_get_delete_verified=%Y-%m-%dT%H:%M:%SZ'
             env:
