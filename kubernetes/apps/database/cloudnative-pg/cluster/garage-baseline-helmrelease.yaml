@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/amazon/aws-cli
-              tag: 2.31.0@sha256:3b018ce74732c98acf6f1de59b3a89587cb7f9eb6ea0d1447d1779091b2bf057
+              tag: 2.37.12@sha256:ce44b800602264c12298bbf3399055a4cefdb9ed4a098abe564afe26e7071bce
             command: ["/bin/sh", "-ec"]
             args:
               - |
