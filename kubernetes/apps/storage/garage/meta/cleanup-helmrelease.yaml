@@ -3,51 +3,53 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: garage-stop-obsolete-copy
+  name: garage-migration-cleanup
 spec:
   interval: 1h
+  timeout: 5m
   chartRef:
     kind: OCIRepository
     name: app-template
   install:
     remediation:
       retries: 0
-  upgrade:
-    remediation:
-      strategy: rollback
-      retries: 0
   values:
     controllers:
-      stop:
+      cleanup:
         type: job
         serviceAccount:
-          name: garage-stop-obsolete-copy
+          name: garage-migration-cleanup
         job:
           backoffLimit: 0
           activeDeadlineSeconds: 120
+        initContainers:
+          remove-obsolete-jobs:
+            image:
+              repository: registry.k8s.io/kubectl
+              tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
+            args: [delete, jobs, garage-metadata-copy-v2, garage-meta-nfs-vfy-q-1760208440, garage-meta-r2-vfy-q-1760209065, --namespace=storage, --ignore-not-found=true, --wait=true, --timeout=60s]
+          purge-orphan-helm-history:
+            image:
+              repository: registry.k8s.io/kubectl
+              tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
+            args: [delete, secret, sh.helm.release.v1.garage-metadata-copy-v2.v1, --namespace=storage, --ignore-not-found=true]
         containers:
           app:
             image:
               repository: registry.k8s.io/kubectl
               tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
             args:
-              - delete
-              - job
+              - patch
+              - helmrelease
               - garage-metadata-copy-v2
               - --namespace=storage
-              - --ignore-not-found=true
-              - --wait=true
-              - --timeout=60s
+              - --type=json
+              - -p
+              - '[{"op":"test","path":"/metadata/deletionTimestamp","value":"2026-10-11T00:44:41Z"},{"op":"replace","path":"/metadata/finalizers","value":[]}]'
             securityContext:
               readOnlyRootFilesystem: true
               allowPrivilegeEscalation: false
               capabilities: { drop: [ALL] }
-            resources:
-              requests:
-                cpu: 10m
-                memory: 32Mi
-              limits:
-                memory: 128Mi
     defaultPodOptions:
       restartPolicy: Never
       automountServiceAccountToken: true
@@ -57,5 +59,5 @@ spec:
         runAsGroup: 65532
         seccompProfile: { type: RuntimeDefault }
     serviceAccount:
-      stop:
-        forceRename: garage-stop-obsolete-copy
+      cleanup:
+        forceRename: garage-migration-cleanup
