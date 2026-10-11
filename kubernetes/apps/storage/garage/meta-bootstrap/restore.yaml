@@ -1,0 +1,38 @@
+---
+apiVersion: kopiur.home-operations.com/v1alpha1
+kind: Restore
+metadata:
+  name: garage-meta-bootstrap
+spec:
+  source:
+    fromPolicy:
+      name: garage-meta-r2
+      sourcePath: /pvc/garage-meta
+  target:
+    populator: {}
+  credentialProjection:
+    enabled: true
+  policy:
+    onMissingSnapshot: Fail
+  mover:
+    inheritSecurityContextFrom:
+      snapshot: {}
+    podSecurityContext:
+      fsGroup: 568
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: garage-meta-recovered
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: ceph-block
+  resources:
+    requests:
+      storage: 10Gi
+  dataSourceRef:
+    apiGroup: kopiur.home-operations.com
+    kind: Restore
+    name: garage-meta-bootstrap
