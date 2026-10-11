@@ -2,33 +2,36 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: garage-migration-cleanup
+  name: garage-backup-artifact-cleanup
 rules:
-  - apiGroups: [helm.toolkit.fluxcd.io]
-    resources: [helmreleases]
-    resourceNames: [garage-metadata-copy-v2]
-    verbs: [get, patch]
   - apiGroups: [batch]
     resources: [jobs]
     resourceNames:
-      - garage-metadata-copy-v2
-      - garage-meta-nfs-vfy-q-1760208440
-      - garage-meta-r2-vfy-q-1760209065
+      - garage-meta-initial-nfs-20261011
+      - garage-meta-initial-r2-20261011
+      - garage-meta-verified-r2-20261011
+      - garage-meta-nfs-20261011003114
+      - garage-meta-nfs-20261011013124
     verbs: [get, delete]
   - apiGroups: [""]
     resources: [secrets]
-    resourceNames: [sh.helm.release.v1.garage-metadata-copy-v2.v1]
+    resourceNames:
+      - garage-meta-initial-nfs-20261011-pin-creds-0
+      - garage-meta-initial-r2-20261011-pin-creds-0
+      - garage-meta-verified-r2-20261011-pin-creds-0
+      - garage-meta-nfs-vfy-creds-0
+      - garage-meta-r2-vfy-creds-0
     verbs: [get, delete]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: garage-migration-cleanup
+  name: garage-backup-artifact-cleanup
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: garage-migration-cleanup
+  name: garage-backup-artifact-cleanup
 subjects:
   - kind: ServiceAccount
-    name: garage-migration-cleanup
+    name: garage-backup-artifact-cleanup
     namespace: storage
