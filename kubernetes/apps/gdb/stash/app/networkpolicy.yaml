@@ -24,6 +24,10 @@ spec:
             matchLabels:
               app.kubernetes.io/name: gdb-web
               app.kubernetes.io/instance: gdb-web
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: stash-uploader
+              app.kubernetes.io/instance: stash-uploader
       ports:
         - protocol: TCP
           port: 9999
