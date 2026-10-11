@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: garage-migration-cleanup
+  name: garage-backup-artifact-cleanup
 spec:
   interval: 1h
   timeout: 5m
@@ -18,34 +18,22 @@ spec:
       cleanup:
         type: job
         serviceAccount:
-          name: garage-migration-cleanup
+          name: garage-backup-artifact-cleanup
         job:
           backoffLimit: 0
           activeDeadlineSeconds: 120
         initContainers:
-          remove-obsolete-jobs:
+          remove-completed-backup-jobs:
             image:
               repository: registry.k8s.io/kubectl
               tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
-            args: [delete, jobs, garage-metadata-copy-v2, garage-meta-nfs-vfy-q-1760208440, garage-meta-r2-vfy-q-1760209065, --namespace=storage, --ignore-not-found=true, --wait=true, --timeout=60s]
-          purge-orphan-helm-history:
-            image:
-              repository: registry.k8s.io/kubectl
-              tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
-            args: [delete, secret, sh.helm.release.v1.garage-metadata-copy-v2.v1, --namespace=storage, --ignore-not-found=true]
+            args: [delete, jobs, garage-meta-initial-nfs-20261011, garage-meta-initial-r2-20261011, garage-meta-verified-r2-20261011, garage-meta-nfs-20261011003114, garage-meta-nfs-20261011013124, --namespace=storage, --ignore-not-found=true, --wait=true, --timeout=60s]
         containers:
           app:
             image:
               repository: registry.k8s.io/kubectl
               tag: v1.34.0@sha256:497d298f891edb7608dfce9dae4bb08dffc4ddcd7f5d24a0512d4bbf33e04f26
-            args:
-              - patch
-              - helmrelease
-              - garage-metadata-copy-v2
-              - --namespace=storage
-              - --type=json
-              - -p
-              - '[{"op":"test","path":"/metadata/deletionTimestamp","value":"2026-10-11T00:44:41Z"},{"op":"replace","path":"/metadata/finalizers","value":[]}]'
+            args: [delete, secrets, garage-meta-initial-nfs-20261011-pin-creds-0, garage-meta-initial-r2-20261011-pin-creds-0, garage-meta-verified-r2-20261011-pin-creds-0, garage-meta-nfs-vfy-creds-0, garage-meta-r2-vfy-creds-0, --namespace=storage, --ignore-not-found=true]
             securityContext:
               readOnlyRootFilesystem: true
               allowPrivilegeEscalation: false
@@ -60,4 +48,4 @@ spec:
         seccompProfile: { type: RuntimeDefault }
     serviceAccount:
       cleanup:
-        forceRename: garage-migration-cleanup
+        forceRename: garage-backup-artifact-cleanup
