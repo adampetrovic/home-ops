@@ -4,8 +4,6 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: gdb-postgres
-  annotations:
-    cnpg.io/hibernation: "on"
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm@sha256:0b107a47d516d63e52257810a01befc7fc8d72e17a08ede6e72a277461e11ef0
