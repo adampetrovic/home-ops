@@ -23,7 +23,7 @@ spec:
   retryInterval: 1m
   timeout: 5m
 ---
-# Empty migration target: no restore source; backups suspended until verified copy.
+# Protected Ceph metadata and consistent native-LMDB snapshot backups.
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -46,7 +46,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  # Suspended policies deliberately report Ready=False during staging.
+  # Backup movers are asynchronous; do not gate persistence on their lifecycle.
   wait: false
   interval: 30m
   retryInterval: 1m
