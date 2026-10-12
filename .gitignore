@@ -4,7 +4,6 @@ Thumbs.db
 # k8s
 kubeconfig
 talosconfig
-talos/clusterconfig/talosconfig
 .decrypted~*.yaml
 .config.env
 *.agekey
@@ -13,10 +12,6 @@ talos/clusterconfig/talosconfig
 # Private
 .private
 .bin
-# Ansible
-.venv*
-# Brew
-Brewfile.lock.json
 # intellij
 .idea
 # claude

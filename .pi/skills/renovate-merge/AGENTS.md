@@ -14,7 +14,7 @@ For Talos PRs:
    - all nodes are `Ready` and schedulable
    - Ceph is `HEALTH_OK`
    - no pods are non-running/non-succeeded
-   - no VolSync `ReplicationSource` is actively `Synchronizing=True`
+   - no Kopiur snapshot or restore is actively running (`kubectl kopiur status -A`)
    - `TalosUpgrade/talos` is not already `Failed`
 4. After rollout, verify:
    - every node reports the target Talos version, kernel, and containerd version

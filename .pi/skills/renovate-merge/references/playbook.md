@@ -12,7 +12,7 @@ Use the executable patterns in [codemode.md](codemode.md). Mandatory Talos rules
 - Use `gh api` for GitHub releases; enable web tools for non-GitHub sources or missing release evidence. Do not silently replace missing release notes with “no breaking changes.”
 - Read release notes for removals, deprecated keys, defaults, UID/security contexts, ports, metrics, CRDs, and storage/migration changes. Cross-reference only relevant app manifests, rules, and dashboards. Use `bulk_read` for large/multi-file questions and targeted reads for exact evidence.
 - Cache compact findings with source URLs and versions. Never cache secrets or use classifier output as a substitute for technical review/approval.
-- Detect split registry references and paired chart/image PRs. VolSync chart/image must be grouped; apply the same rule to other coupled components. Inspect actual repository resources rather than assuming historical components still exist (e.g. Kopiur versus VolSync).
+- Detect split registry references and paired chart/image PRs. Kopiur chart/image must be grouped; apply the same rule to other coupled components. Inspect actual repository resources rather than assuming historical components still exist.
 - Do not wait on CI unless asked; report relevant known failures. Resolve merge conflicts or unknown compatibility before rollout.
 
 ## 2. Classify and plan
@@ -31,7 +31,7 @@ Approval gates override risk labels. **Explicit approval is always required** fo
 | Isolated maintenance | Talos only; Kubernetes also isolated unless explicitly approved otherwise |
 | 1 Platform | Cilium |
 | 2 Infrastructure | cert-manager, Flux, External Secrets/1Password, Rook-Ceph, OpenEBS |
-| 3 Data & backup | Kopiur/VolSync (paired chart+image), CNPG, Dragonfly |
+| 3 Data & backup | Kopiur (paired chart+image), CNPG, Dragonfly |
 | 4 Observability | Prometheus stack, Loki, Vector (all instances grouped), Grafana; Loki before Vector |
 | 5 Network | Envoy Gateway, Cloudflared, ExternalDNS, AdGuard, Authelia, LLDAP |
 | 6 System | Descheduler, Reloader, Spegel, node-feature-discovery |
@@ -57,7 +57,7 @@ Run independent read-only checks in a single codemode batch:
 
 Save baseline identities and check errors. Pre-existing failures require reporting and an explicit decision to proceed; never declare an unhealthy baseline healthy. A failed health query blocks rollout until fixed or explicitly waived with a documented risk; mandatory Talos preconditions cannot be waived by this generic workflow.
 
-For Talos, also verify Ceph `HEALTH_OK`, no active VolSync synchronization if those resources exist, actual backup-system safety, and `TalosUpgrade/talos` not Failed. Follow the Talos skill for target-version/kernel/containerd and network checks. Missing required resources/checks are not success.
+For Talos, also verify Ceph `HEALTH_OK`, no active Kopiur snapshot or restore, actual backup-system safety, and `TalosUpgrade/talos` not Failed. Follow the Talos skill for target-version/kernel/containerd and network checks. Missing required resources/checks are not success.
 
 ## 4. Merge and verify
 

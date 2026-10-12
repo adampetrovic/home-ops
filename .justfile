@@ -20,7 +20,3 @@ mod kube "kubernetes"
 # Talos Recipes
 [group('Talos')]
 mod talos "talos"
-
-# VolSync Recipes
-[group('VolSync')]
-mod volsync "kubernetes/components/volsync"
