@@ -1,8 +1,9 @@
 # Optional upload details rollout
 
-The rollout is staged: stash-uploader 0.1.5 is pinned first, while
-`STASH_UPLOADER_DETAILS_ENABLED` stays `"false"` until production smoke tests pass.
-GDB 1.10.85 and its capability flag follow in a separate deployment change.
+The rollout is staged: stash-uploader 0.1.5 was deployed first and production
+image/video smoke tests passed on 2026-10-12 (Australia/Sydney), including legacy
+uploads, automatic scans, Details updates and synthetic-item cleanup. GDB 1.10.85
+is pinned in the follow-up deployment with `STASH_UPLOADER_DETAILS_ENABLED: "true"`.
 Do not enable details-sending clients against a legacy uploader image.
 
 1. Build/publish the details-capable stash-uploader in its source repository, then
@@ -49,8 +50,7 @@ mapping as `web/externalsecret.yaml`). No resolved secrets are stored here.
 The uploader NetworkPolicy isolates ingress only, so outbound TCP and DNS are not
 restricted by it. The repository contains no namespace-wide or Cilium egress deny
 for these pods. Stash ingress now permits same-namespace uploader pods on TCP 9999;
-no external exposure or broad new egress allowance is needed. This is a manifest
-review, not a live connectivity test.
+no external exposure or broad new egress allowance is needed. Production image/video Details smoke tests verified uploader-to-Stash connectivity.
 
 To stop GDB sending details, set its flag back to `"false"`. Revert userscript
 clients before reverting the uploader to a legacy image; disabling the GDB flag
