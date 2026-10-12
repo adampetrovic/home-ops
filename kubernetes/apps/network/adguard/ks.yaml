@@ -19,7 +19,6 @@ spec:
       namespace: rook-ceph
     - name: data-adguard-0-backup
       namespace: network
-  components:
   path: ./kubernetes/apps/network/adguard/app
   prune: true
   sourceRef:
