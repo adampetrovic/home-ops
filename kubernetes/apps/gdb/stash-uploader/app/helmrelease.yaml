@@ -42,7 +42,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/stash-uploader
-              tag: latest@sha256:22bb0ddda61ee9b2ba8c215a4794ba76f575ae367039ec1c53d6f6a16be64ced
+              tag: 0.1.5@sha256:ae9574ee370d393d9cff6b2154c718c2dc57a7472198c028b533778fa818773c
             env:
               TZ: "${TZ}"
               PORT: &port 8080
