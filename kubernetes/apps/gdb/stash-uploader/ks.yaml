@@ -10,9 +10,13 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  components:
+    - ../../../../components/kopiur/backup
   dependsOn:
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: kopiur-repositories
+      namespace: kopiur-system
   path: ./kubernetes/apps/gdb/stash-uploader/app
   prune: true
   sourceRef:
@@ -23,3 +27,7 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app
+      KOPIUR_CAPACITY: 1Gi
