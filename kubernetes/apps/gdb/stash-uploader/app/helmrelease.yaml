@@ -54,8 +54,8 @@ spec:
                     name: stash-uploader-secret
                     key: STASH_API_KEY
               STASH_PATH: /data
-              # Durable queue on the existing shared NFS mount, not /tmp.
-              METADATA_QUEUE_DIR: /data/.stash-uploader-metadata
+              # Durable queue on a dedicated Ceph RWO PVC, separate from NFS media.
+              METADATA_QUEUE_DIR: /metadata
             probes:
               liveness:
                 enabled: true
@@ -122,6 +122,10 @@ spec:
               backendRequest: 0s
 
     persistence:
+      metadata:
+        existingClaim: stash-uploader
+        globalMounts:
+          - path: /metadata
       media:
         type: nfs
         server: ${SECRET_NFS_DOMAIN}
