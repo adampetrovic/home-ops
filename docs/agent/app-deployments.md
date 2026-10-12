@@ -24,6 +24,18 @@ Intentional exceptions exist for apps that need multiple Flux stages or supporti
 
 When adding a new exception, document why the default structure is not sufficient in the app's `ks.yaml` or a local README.
 
+### Accepted Deviations
+
+These are known and intentional. Do not "fix" them: renaming a Flux Kustomization or HelmRelease makes Flux prune and recreate everything the old name owned.
+
+- HelmRelease names that differ from their directory: `grafana-operator` (`observability/grafana`), `rook-ceph-operator` (`rook-ceph/rook-ceph/app`), `unifi-poller` (`observability/unpoller`), `unifi-internal-dns` and `external-dns` (`network/external-dns`), `onepassword-connect` (`external-secrets/external-secrets/stores`), `barman-cloud` (`database/cloudnative-pg/barman-cloud`).
+- Multi-stage Flux Kustomizations are named `<app>-<stage>`, for example `immich-db`, `rook-ceph-cluster`, and `grafana-instance`.
+- `prune: false` on `cilium`, `coredns`, `ceph-csi-drivers`, `rook-ceph`, and `rook-ceph-cluster` protects core infrastructure.
+- `network/envoy-gateway` pulls its chart from `oci://docker.io/envoyproxy/gateway-helm`. The `mirror.gcr.io` rule applies to container images, not chart sources.
+- Immich, Bookorbit, Tracearr, and GDB run dedicated CloudNativePG clusters, so their connection strings use `<app>-postgres-rw.<namespace>.svc.cluster.local` instead of the shared `postgres-rw.database` cluster.
+- Jellyseerr and Plexovic Gatus are published on `${SECRET_PLEX_DOMAIN}` rather than `${SECRET_PUBLIC_DOMAIN}`.
+- `storage/garage/meta-bootstrap` is deliberately not registered with Flux; it is a recovery-only overlay, explained in its `kustomization.yaml` header.
+
 ## Flux Kustomization (`ks.yaml`)
 
 Use this shape for app entrypoints:
@@ -39,18 +51,25 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn: []
+  dependsOn:
+    - name: external-secrets-stores
+      namespace: external-secrets
   path: ./kubernetes/apps/<namespace>/<app-name>/app
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: true
+  wait: false # no flux ks dependents
   interval: 30m
   retryInterval: 1m
   timeout: 5m
 ```
+
+- `dependsOn` lists only what the app really needs, always with an explicit `namespace`. Omit it when there are no dependencies.
+- `wait: false` is the default. Use `wait: true` only when another Flux Kustomization lists this one in `dependsOn`, so dependents start after its resources are ready.
+- Flux Kustomizations live in the app's own namespace, not `flux-system`.
+- Set `postBuild.substitute.APP` only when something in the path uses `${APP}`, such as the Kopiur backup or `authelia-proxy` components.
 
 For apps with persistent storage, add the Kopiur backup component and substitutions:
 
@@ -70,6 +89,31 @@ spec:
 R2 policies are suffixed `-r2` and run weekly; NFS policies are suffixed `-nfs` and run hourly. The backup component also creates the PVC and a passive Kopiur `Restore` named `${APP}` from `${APP}-nfs`; the PVC is wired to that restore with `dataSourceRef` and `onMissingSnapshot: Continue`, so first installs and disaster-recovery restores use the same manifests.
 
 The backup component snapshots and restores a PVC named `${APP}`. Keep persistent app PVC names aligned with `APP`; for unusual workloads, create a separate Flux Kustomization whose `APP` value is the exact PVC name being protected.
+
+Optional substitutions and their defaults:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `KOPIUR_CAPACITY` | `5Gi` | PVC size, also used as the mover cache capacity |
+| `KOPIUR_ACCESSMODES` | `ReadWriteOnce` | PVC access mode |
+| `KOPIUR_STORAGECLASS` | `ceph-block` | PVC storage class |
+| `KOPIUR_SNAPSHOTCLASS` | `csi-ceph-blockpool` | VolumeSnapshotClass for snapshots and restores |
+| `KOPIUR_CACHE_STORAGECLASS` | `ceph-block` | Mover cache storage class |
+| `KOPIUR_PUID` / `KOPIUR_PGID` | `568` | UID/GID the mover runs as; match the app's data ownership |
+
+The first backed-up app in a namespace also needs:
+
+- `../../components/kopiur/secret` in the namespace `kustomization.yaml`.
+- The namespace in `allowedNamespaces` of both ClusterRepositories in `kubernetes/apps/kopiur-system/kopiur/repository/app/clusterrepository.yaml`.
+
+The component PVC is not prune-protected: removing a persistent app from Git deletes its PVC and data, leaving only the Kopiur snapshots.
+
+PVCs that are deliberately outside Kopiur:
+
+- CloudNativePG clusters, which back up with barman-cloud (`objectstore.yaml` and `scheduledbackup.yaml` beside each `cluster.yaml`).
+- Cache volumes such as `plex-cache` and `jellyseerr-cache`.
+- Chart-managed observability storage for Prometheus, Alertmanager, Loki, and Grafana.
+- `data-adguard-1`, the AdGuard replica that syncs from the backed-up `data-adguard-0`.
 
 ## HelmRelease Conventions
 

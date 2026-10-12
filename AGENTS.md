@@ -41,7 +41,7 @@ Read the relevant doc before making non-trivial changes:
 ## Common Repository Layout
 
 - `kubernetes/apps/<namespace>/<app>/` — Flux-managed applications
-- `kubernetes/components/` — reusable Kustomize components, including Kopiur, persistence, and common vars
+- `kubernetes/components/` — reusable Kustomize components, including Kopiur, Authelia proxy, and common vars
 - `kubernetes/flux/cluster/` — top-level Flux Kustomization
 - `talos/*.yaml.j2` and `talos/nodes/**` — native Talos machine config templates
 - `talos/inventory.yaml` — node-to-management-IP mapping for Talos tasks
