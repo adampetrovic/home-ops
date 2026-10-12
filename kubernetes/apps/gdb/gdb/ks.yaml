@@ -3,10 +3,13 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: gdb-postgres
-  namespace: gdb
+  name: &app gdb-postgres
+  namespace: &namespace gdb
 spec:
-  targetNamespace: gdb
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   dependsOn:
     - name: cloudnative-pg
       namespace: database
@@ -14,7 +17,7 @@ spec:
       namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/gdb/database
+  path: ./kubernetes/apps/gdb/gdb/database
   prune: true
   sourceRef:
     kind: GitRepository
@@ -29,16 +32,19 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: gdb-web
-  namespace: gdb
+  name: &app gdb-web
+  namespace: &namespace gdb
 spec:
-  targetNamespace: gdb
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   dependsOn:
     - name: gdb-postgres
       namespace: gdb
     - name: external-secrets-stores
       namespace: external-secrets
-  path: ./kubernetes/apps/gdb/web
+  path: ./kubernetes/apps/gdb/gdb/web
   prune: true
   sourceRef:
     kind: GitRepository
@@ -53,16 +59,19 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: gdb-scrapers
-  namespace: gdb
+  name: &app gdb-scrapers
+  namespace: &namespace gdb
 spec:
-  targetNamespace: gdb
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
   dependsOn:
     - name: gdb-postgres
       namespace: gdb
     - name: gdb-web
       namespace: gdb
-  path: ./kubernetes/apps/gdb/scrapers
+  path: ./kubernetes/apps/gdb/gdb/scrapers
   prune: true
   sourceRef:
     kind: GitRepository
