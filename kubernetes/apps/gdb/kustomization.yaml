@@ -7,6 +7,6 @@ components:
   - ../../components/common
   - ../../components/kopiur/secret
 resources:
-  - ./ks.yaml
+  - ./gdb/ks.yaml
   - ./stash/ks.yaml
   - ./stash-uploader/ks.yaml
