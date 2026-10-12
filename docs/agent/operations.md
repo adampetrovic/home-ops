@@ -56,8 +56,10 @@ Flux reconciles cluster state from Git. A GitHub webhook notifies Flux on every 
 Manual reconciliation when needed:
 
 ```bash
-flux reconcile ks <app-name> -n flux-system --with-source
+flux reconcile ks <app-name> -n <namespace> --with-source
 ```
+
+Flux Kustomizations live in the app's own namespace (for example `radarr` in `media`), not `flux-system`. Only `cluster-apps` and the Flux apps themselves are in `flux-system`.
 
 ## Pull Request CI Checks
 
@@ -97,14 +99,14 @@ kubectl logs -n <namespace> <pod>
 Force reconciliation:
 
 ```bash
-flux reconcile ks <name> --with-source
+flux reconcile ks <name> -n <namespace> --with-source
 ```
 
 ## Suspending and Resuming Flux
 
 ```bash
-flux suspend ks <name> -n flux-system
-flux resume ks <name> -n flux-system
+flux suspend ks <name> -n <namespace>
+flux resume ks <name> -n <namespace>
 flux suspend hr <name> -n <namespace>
 flux resume hr <name> -n <namespace>
 ```

@@ -8,9 +8,9 @@ Read this before changing Talos, storage, networking, load balancers, observabil
 kubernetes/
 ├── apps/                    # Application deployments organized by namespace
 ├── components/              # Reusable Kustomize components
+│   ├── authelia-proxy/      # Authelia ext-auth SecurityPolicy
 │   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
-│   ├── kopiur/              # Kopiur backup/credential components
-│   └── persistence/         # Prune-protected PVC component
+│   └── kopiur/              # Kopiur backup/credential components
 └── flux/cluster/            # Top-level Flux Kustomization
 
 talos/
@@ -36,7 +36,6 @@ scripts/                     # Helper scripts
 - Kopiur protects application PVCs with a dual-repository strategy:
   - NFS Kopia backups use `*-nfs` policies on an hourly hashed schedule.
   - Cloudflare R2 Kopia backups use `*-r2` policies on a weekly hashed schedule.
-  - The Kopia web UI is available at `kopia.<domain>` and points at the Kopiur NFS repository.
 
 ## Network
 
