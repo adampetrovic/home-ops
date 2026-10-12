@@ -1,8 +1,9 @@
 # Optional upload details rollout
 
-These manifests prepare configuration only. Both existing image digests are unchanged;
-`STASH_UPLOADER_DETAILS_ENABLED` stays `"false"`. Do not enable new clients against
-the old pinned uploader image. Application builds and rollout require separate approval.
+The rollout is staged: stash-uploader 0.1.5 is pinned first, while
+`STASH_UPLOADER_DETAILS_ENABLED` stays `"false"` until production smoke tests pass.
+GDB 1.10.85 and its capability flag follow in a separate deployment change.
+Do not enable details-sending clients against a legacy uploader image.
 
 1. Build/publish the details-capable stash-uploader in its source repository, then
    update `stash-uploader/app/helmrelease.yaml` to its real immutable tag+digest first.
