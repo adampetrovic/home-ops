@@ -10,17 +10,13 @@ spec:
     name: app-template
   interval: 30m
   install:
-    disableWaitForJobs: true
     remediation:
       retries: -1
   upgrade:
-    # Observe batch Job health directly; retained failed Jobs stall Helm's waiter.
-    disableWait: true
-    disableWaitForJobs: true
-    cleanupOnFail: false
+    cleanupOnFail: true
     remediation:
-      retries: 0
-      remediateLastFailure: false
+      retries: 3
+      strategy: rollback
   values:
     defaultPodOptions:
       imagePullSecrets:
