@@ -35,6 +35,8 @@ spec:
 
     controllers:
       stash-uploader:
+        annotations:
+          reloader.stakater.com/auto: 'true'
         replicas: 1
         # Exclusive process-lifetime queue flock forbids overlapping pods.
         strategy: Recreate

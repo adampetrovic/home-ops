@@ -23,6 +23,8 @@ spec:
         - name: ghcr-private
     controllers:
       app:
+        annotations:
+          reloader.stakater.com/auto: 'true'
         replicas: 1
         strategy: Recreate
         containers:

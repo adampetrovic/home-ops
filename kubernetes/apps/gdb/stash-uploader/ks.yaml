@@ -17,6 +17,8 @@ spec:
       namespace: external-secrets
     - name: kopiur-repositories
       namespace: kopiur-system
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   path: ./kubernetes/apps/gdb/stash-uploader/app
   prune: true
   sourceRef:
