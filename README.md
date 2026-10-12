@@ -10,8 +10,8 @@ _A comprehensive Kubernetes-native home infrastructure platform_
 
 ![License](https://img.shields.io/github/license/adampetrovic/home-ops?color=blue&style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/adampetrovic/home-ops?style=flat-square)
-![Kubernetes](https://img.shields.io/badge/k8s-v1.35.1-blue?style=flat-square)
-![Talos](https://img.shields.io/badge/talos-v1.12.4-orange?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/k8s-v1.37.1-blue?style=flat-square)
+![Talos](https://img.shields.io/badge/talos-v1.14.2-orange?style=flat-square)
 
 </div>
 
@@ -47,8 +47,8 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 | Component | Details |
 |-----------|---------|
-| **OS** | [Talos Linux](https://talos.dev) v1.12.3 - Immutable, API-driven Linux |
-| **Kubernetes** | v1.35.1 - Latest stable Kubernetes |
+| **OS** | [Talos Linux](https://talos.dev) v1.14.2 - Immutable, API-driven Linux |
+| **Kubernetes** | v1.37.1 - Latest stable Kubernetes |
 | **CNI** | [Cilium](https://cilium.io) - eBPF-based networking and security |
 | **Ingress** | [Envoy Gateway](https://gateway.envoyproxy.io) - Gateway API-based ingress |
 | **Nodes** | 3x Control Plane + 2x Workers |
@@ -91,25 +91,30 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Mosquitto](https://mosquitto.org)** - MQTT message broker
 - **[Frigate](https://frigate.video)** - AI-powered network video recorder
 - **[go2rtc](https://github.com/AlexxIT/go2rtc)** - Real-time streaming server
-- **[EVCC](https://evcc.io)** - EV charging management
 - **[TeslaMate](https://github.com/teslamate-org/teslamate)** - Tesla vehicle data logging and analytics
+- **[sigenergy2mqtt](https://github.com/seud0nym/sigenergy2mqtt)** - Sigenergy solar and battery data bridged to MQTT
 - **[Fernwood Booker](https://github.com/adampetrovic/fernwood-booker)** - Custom multi-tenant appointment booking system
 - **[Change Detection](https://changedetection.io)** - Website monitoring
 
 ### 📺 Media Management
 - **[Plex](https://plex.tv)** - Media server and streaming platform
+- **[Immich](https://immich.app)** - Photo and video library
 - **[Sonarr](https://sonarr.tv)** - TV series management
 - **[Radarr](https://radarr.video)** - Movie management
+- **[Lidarr](https://lidarr.audio)** - Music management
 - **[Prowlarr](https://prowlarr.com)** - Indexer aggregator
 - **[Bazarr](https://bazarr.media)** - Subtitle management
 - **[SABnzbd](https://sabnzbd.org)** - Usenet downloader
 - **[qBittorrent](https://qbittorrent.org)** - BitTorrent client
 - **[Jellyseerr](https://jellyseerr.dev)** - Media request management
 - **[Tautulli](https://tautulli.com)** - Plex analytics and monitoring
+- **[Tracearr](https://github.com/connorgallopo/tracearr)** - Plex stream tracking and account-sharing detection
+- **[Maintainerr](https://github.com/maintainerr/maintainerr)** - Rule-based cleanup of unwatched Plex media
+- **[Cleanrr](https://github.com/zariel/cleanrr)** - Radarr and Sonarr library cleanup
+- **[Profilarr](https://github.com/Dictionarry-Hub/profilarr)** - Quality profile and custom format sync for Radarr and Sonarr
 - **[Unpackerr](https://unpackerr.zip)** - Archive extraction automation
-- **[xTeVe](https://xteve.de)** - IPTV proxy server
-- **[Booklore](https://github.com/booklore-app/booklore)** - Book library management
 - **[Shelfmark](https://github.com/calibrain/shelfmark)** - Calibre-based book management
+- **[BookOrbit](https://github.com/bookorbit/bookorbit)** - Self-hosted book library
 - **[Qui](https://github.com/autobrr/qui)** - Autobrr web UI
 - **[Plexovic Gatus](https://github.com/TwiN/gatus)** - Media service monitoring and status page
 
@@ -119,6 +124,11 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Miniflux](https://miniflux.app)** - Minimalist RSS reader
 - **[Paperless-NGX](https://paperless-ngx.readthedocs.io)** - Document management system
 - **[Baby Buddy](https://github.com/babybuddy/babybuddy)** - Baby care tracking
+- **[Actual Budget](https://actualbudget.org)** - Local-first personal budgeting
+- **[Homebox](https://github.com/sysadminsmedia/homebox)** - Home inventory management
+- **[Readeck](https://readeck.org)** - Read-it-later and bookmark archive
+- **[Hister](https://github.com/asciimoo/hister)** - Searchable index of browsing history
+- **[Logseq Sync](https://github.com/yshalsager/logseq-selfhost-sync)** - Self-hosted sync server for Logseq
 
 ### 🗄️ Database & Storage
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
@@ -143,6 +153,7 @@ The platform hosts **70+ applications** across multiple categories:
 - **NTPd** - Network time protocol server
 - **SMTP Relay** - Outbound email service
 - **Echo Server** - HTTP echo/debug server
+- **[UniFi OS Backup](https://github.com/mafredri/unifi-os-backup)** - Scheduled backups of UniFi OS consoles
 
 ### 📊 Observability & Monitoring
 - **[Prometheus](https://prometheus.io)** - Metrics collection and alerting
@@ -151,6 +162,10 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Vector](https://vector.dev)** - Log collection and routing
 - **[InfluxDB](https://influxdata.com)** - Time-series database
 - **[UnPoller](https://github.com/unpoller/unpoller)** - UniFi metrics collection
+- **[Gatus](https://github.com/TwiN/gatus)** - Service health checks and status page
+- **[Kubetail](https://github.com/kubetail-org/kubetail)** - Real-time Kubernetes log viewer
+- **[Blackbox Exporter](https://github.com/prometheus/blackbox_exporter)** - Endpoint probing over HTTP, TCP and ICMP
+- **[smartctl Exporter](https://github.com/prometheus-community/smartctl_exporter)** - Disk SMART health metrics
 - **[Silence Operator](https://github.com/giantswarm/silence-operator)** - Alertmanager silence management
 
 ### 💾 Storage Management
@@ -158,7 +173,6 @@ The platform hosts **70+ applications** across multiple categories:
 - **[OpenEBS](https://openebs.io)** - Local persistent volumes
 - **[Kopiur](https://github.com/home-operations/kopiur)** - PVC backup and restore
 - **Snapshot Controller** - Volume snapshot management
-- **[Kopia](https://kopia.io)** - Backup repository web UI
 
 ### ⚙️ System Services
 - **[Reloader](https://github.com/stakater/Reloader)** - Automatic pod restarts on config changes
@@ -192,7 +206,7 @@ graph TD
 1. **Source Controller** - Monitors Git repositories and Helm charts
 2. **Kustomize Controller** - Applies Kustomize configurations
 3. **Helm Controller** - Manages Helm releases
-4. **Image Automation** - Automatically updates container images
+4. **Notification Controller** - Receives the GitHub webhook and dispatches events
 
 ### Security Architecture
 
@@ -338,8 +352,7 @@ Complete destructive cluster rebuild capability:
 ├── 📁 components/        # Reusable Kustomize components
 │   ├── 📁 authelia-proxy/ # Authelia ext-auth security policy
 │   ├── 📁 common/        # Common configurations
-│   ├── 📁 kopiur/        # Kopiur backup/secret components
-│   └── 📁 persistence/   # Prune-protected PVC component
+│   └── 📁 kopiur/        # Kopiur backup/secret components
 └── 📁 flux/              # Flux system configuration
     └── 📁 cluster/       # Cluster-wide configurations
 
@@ -422,7 +435,6 @@ app-name/
 
 Key files to customize for your environment:
 - `talos/cluster.yaml.j2`, `talos/nodes/**`, and `talos/inventory.yaml` - Talos hardware and network configuration
-- `kubernetes/components/common/vars/cluster-settings.yaml` - Cluster-wide configuration
 - `kubernetes/components/common/vars/cluster-secrets.sops.yaml` - Encrypted secrets
 
 ---
