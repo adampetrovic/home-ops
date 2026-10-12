@@ -9,8 +9,6 @@ resources:
   - ./manifests/helmrelease-nicole.yaml
   - ./secrets/externalsecret-erika.yaml
   - ./manifests/helmrelease-erika.yaml
-#  - ./secrets/externalsecret-odette.yaml
-#  - ./manifests/helmrelease-odette.yaml
 configMapGenerator:
   - name: fernwood-configmap-sue
     files:
@@ -21,9 +19,6 @@ configMapGenerator:
   - name: fernwood-configmap-erika
     files:
       - ./config/config-erika.yaml
-  - name: fernwood-configmap-odette
-    files:
-      - ./config/config-odette.yaml
   - name: fernwood-booker-loki-rules
     files:
       - fernwood-booker.yaml=./lokirule.yaml
