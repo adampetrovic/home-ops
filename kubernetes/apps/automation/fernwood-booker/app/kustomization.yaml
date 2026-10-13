@@ -5,17 +5,12 @@ kind: Kustomization
 resources:
   - ./secrets/externalsecret-sue.yaml
   - ./manifests/helmrelease-sue.yaml
-  - ./secrets/externalsecret-nicole.yaml
-  - ./manifests/helmrelease-nicole.yaml
   - ./secrets/externalsecret-erika.yaml
   - ./manifests/helmrelease-erika.yaml
 configMapGenerator:
   - name: fernwood-configmap-sue
     files:
       - ./config/config-sue.yaml
-  - name: fernwood-configmap-nicole
-    files:
-      - ./config/config-nicole.yaml
   - name: fernwood-configmap-erika
     files:
       - ./config/config-erika.yaml
