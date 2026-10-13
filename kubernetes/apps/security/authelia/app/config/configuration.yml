@@ -25,9 +25,6 @@ access_control:
         - "radarr.petrovic.network"
       policy: bypass
       resources: ["^/api([?/].*)?$"]
-    - domain: "grimmory.petrovic.network"
-      policy: bypass
-      resources: ["^/api/(koreader|v1/opds)([?/].*)?$"]  # KOReader sync & OPDS use their own basic auth
     - domain:
         - "paperless.petrovic.network"
         - "memos.petrovic.network"
@@ -36,7 +33,6 @@ access_control:
       subject:
         - 'group:users'
     - domain:
-        - "grimmory.petrovic.network"
         - "echo-server.petrovic.network"
         - "shelfmark.petrovic.network"
       policy: one_factor
