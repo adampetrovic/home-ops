@@ -48,6 +48,16 @@ spec:
             envFrom: *envFrom
     service:
       app:
+        # Probed directly: the route sits behind Authelia, which answers
+        # before the request reaches the app.
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            group: internal
+            url: http://babybuddy.default.svc.cluster.local:8000/login/
+            conditions:
+              - "[STATUS] == 200"
+              - "[RESPONSE_TIME] < 5000"
         controller: babybuddy
         ports:
           http:
@@ -55,8 +65,6 @@ spec:
             port: 8000
     route:
       external:
-        annotations:
-          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "baby.${SECRET_PUBLIC_DOMAIN}"
         parentRefs:
