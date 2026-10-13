@@ -165,6 +165,16 @@ spec:
 
     service:
       app:
+        # Probed directly: the route sits behind Authelia, which answers
+        # before the request reaches the app.
+        annotations:
+          gatus.home-operations.com/enabled: "true"
+          gatus.home-operations.com/endpoint: |-
+            group: internal
+            url: http://adguard.network.svc.cluster.local/login.html
+            conditions:
+              - "[STATUS] == 200"
+              - "[RESPONSE_TIME] < 5000"
         forceRename: *app
         controller: adguard
         extraSelectorLabels:
@@ -219,8 +229,6 @@ spec:
 
     route:
       main:
-        annotations:
-          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "adguard.petrovic.network"
         parentRefs:
