@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/fernwood
-              tag: 1.1.0@sha256:9ef2964c10afd94ffa86ac302a414eed14ed7284494ae3f5ccfbb02a92d43c7d
+              tag: 1.1.1@sha256:9b48e8b77f737dd3b445eac25596a5dfcd5a338c9f9621ce5b35a231714b388a
             envFrom:
               - secretRef:
                   name: fernwood-secret
