@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: garage-meta
+      namespace: storage
   path: ./kubernetes/apps/storage/garage/app
   prune: true
   sourceRef:
