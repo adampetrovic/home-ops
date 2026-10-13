@@ -48,7 +48,6 @@ spec:
               startup:
                 enabled: false
             securityContext:
-              # smartctl requires privileged NVMe admin ioctls; host access is limited to devices only.
               privileged: true
               readOnlyRootFilesystem: true
               runAsUser: 0
@@ -66,7 +65,6 @@ spec:
         - operator: Exists
     persistence:
       host-devices:
-        # Deliberately excludes host root, PID, IPC, and network namespaces.
         type: hostPath
         hostPath: /dev
         hostPathType: Directory
