@@ -43,13 +43,15 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/fernwood
-              tag: 1.0.0@sha256:b7371631f8d718fd51b4b7e51f93463bb594b5c8b2ff48d022c8d28206cc2946
+              tag: 1.1.0@sha256:9ef2964c10afd94ffa86ac302a414eed14ed7284494ae3f5ccfbb02a92d43c7d
             envFrom:
               - secretRef:
                   name: fernwood-secret
             env:
               TZ: "${TZ}"
               LISTEN_ADDR: ":8080"
+              ADMIN_LISTEN_ADDR: ":8081"
+              ADMIN_GROUP: admin
               DATABASE_PATH: /data/fernwood.db
               VAPID_SUBJECT: https://fernwood.${SECRET_PUBLIC_DOMAIN}
             probes:
@@ -82,13 +84,35 @@ spec:
         ports:
           http:
             port: *port
+          admin:
+            port: 8081
     route:
       app:
         hostnames:
-          - fernwood.${SECRET_PUBLIC_DOMAIN}
+          - &host fernwood.${SECRET_PUBLIC_DOMAIN}
         parentRefs:
           - name: envoy-external
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+      # Guarded by the SecurityPolicy in securitypolicy.yaml, which targets
+      # this route by name (fernwood-admin).
+      admin:
+        hostnames:
+          - *host
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /admin
+            backendRefs:
+              - identifier: app
+                port: admin
     persistence:
       data:
         existingClaim: fernwood
