@@ -51,8 +51,6 @@ spec:
               AVAHI_ENABLE: "0"
               WSDD2_ENABLE: "0"
             securityContext:
-              # Upstream /init creates Unix accounts, /etc/samba and /etc/services.d,
-              # and rewrites /var/{lib,cache}/samba. smbd drops to scanner for I/O.
               runAsUser: 0
               runAsGroup: 0
               runAsNonRoot: false
@@ -134,7 +132,6 @@ spec:
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
               PAPERLESS_OCR_LANGUAGE: eng
-              # Post-consume LLM classifier (ANTHROPIC_API_KEY + PAPERLESS_API_TOKEN come from paperless-secret)
               PAPERLESS_POST_CONSUME_SCRIPT: /custom/post_consume.py
               PAPERLESS_LLM_API_URL: http://localhost:80
               PAPERLESS_LLM_MODEL: claude-sonnet-4-6
@@ -158,7 +155,6 @@ spec:
           smb:
             port: 445
       app:
-        # Keep the existing service name when adding a second Service.
         forceRename: *app
         controller: paperless-ngx
         ports:
