@@ -68,8 +68,7 @@ spec:
         ports:
           http:
             port: *port
-    # A single route, so it is named after the release: the authelia-proxy
-    # SecurityPolicy targets it as ${APP}. Access is admin-only with two
+    # Guarded by the authelia-proxy component. Access is admin-only with two
     # factors under Authelia's *.${SECRET_PUBLIC_DOMAIN} rule.
     route:
       app:
