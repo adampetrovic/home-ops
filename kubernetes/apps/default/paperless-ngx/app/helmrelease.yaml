@@ -126,7 +126,7 @@ spec:
               PAPERLESS_EXPORT_DIR: /data/export
               PAPERLESS_CONSUMER_POLLING_INTERVAL: 10
               # Paperless 3.x: unchanged size + mtime for 120s before consumption.
-              # This is a heuristic, not an SMB close/commit guarantee; see README.
+              # This is a heuristic, not an SMB close/commit guarantee.
               PAPERLESS_CONSUMER_STABILITY_DELAY: 120
               PAPERLESS_CONSUMER_IGNORE_PATTERNS: '["^\\.DS_Store$", "^\\._.*"]'
               PAPERLESS_CONSUMER_IGNORE_DIRS: '["^\\.stfolder$", "^@eaDir$"]'
