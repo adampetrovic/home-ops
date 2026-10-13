@@ -43,7 +43,7 @@ spec:
   deletionProtection:
     threshold: 10
   catalog:
-    adoption: Adopt
+    adoption: Ignore
     foreignSnapshots: Ignore
   health:
     probe:
@@ -98,7 +98,7 @@ spec:
   deletionProtection:
     threshold: 10
   catalog:
-    adoption: Adopt
+    adoption: Ignore
     foreignSnapshots: Ignore
   health:
     probe:
