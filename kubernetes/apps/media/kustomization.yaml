@@ -10,7 +10,6 @@ resources:
   - ./bazarr/ks.yaml
   - ./bookorbit/ks.yaml
   - ./cleanrr/ks.yaml
-  - ./grimmory/ks.yaml
   - ./immich/ks.yaml
   - ./jellyseerr/ks.yaml
   - ./lidarr/ks.yaml
