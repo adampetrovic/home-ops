@@ -344,6 +344,7 @@ Complete destructive cluster rebuild capability:
 │   ├── 📁 network/       # Networking and DNS services
 │   ├── 📁 observability/ # Monitoring and logging
 │   ├── 📁 openebs-system/ # OpenEBS storage
+│   ├── 📁 projects/      # Personal project deployments (private images)
 │   ├── 📁 rook-ceph/     # Rook-Ceph distributed storage
 │   ├── 📁 security/      # Authentication and security
 │   ├── 📁 storage/       # Garage object storage
