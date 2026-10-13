@@ -83,6 +83,10 @@ spec:
             runAsGroup: 472
             fsGroup: 472
             fsGroupChangePolicy: OnRootMismatch
+          volumes:
+            - name: grafana-data
+              persistentVolumeClaim:
+                claimName: grafana-pvc
   httpRoute:
     spec:
       hostnames:
