@@ -1,0 +1,108 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fernwood
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 3
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      fernwood:
+        # SQLite and the in-process scheduler need exactly one pod.
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/fernwood
+              tag: 1.0.0@sha256:b7371631f8d718fd51b4b7e51f93463bb594b5c8b2ff48d022c8d28206cc2946
+            envFrom:
+              - secretRef:
+                  name: fernwood-secret
+            env:
+              TZ: "${TZ}"
+              LISTEN_ADDR: ":8080"
+              DATABASE_PATH: /data/fernwood.db
+              BOOTSTRAP_FILE: /config/bootstrap.yaml
+              VAPID_SUBJECT: https://fernwood.${SECRET_PUBLIC_DOMAIN}
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: fernwood
+        ports:
+          http:
+            port: *port
+    route:
+      app:
+        hostnames:
+          - fernwood.${SECRET_PUBLIC_DOMAIN}
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+    persistence:
+      data:
+        existingClaim: fernwood
+        globalMounts:
+          - path: /data
+      bootstrap:
+        type: secret
+        name: fernwood-secret
+        globalMounts:
+          - path: /config/bootstrap.yaml
+            subPath: bootstrap.yaml
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
