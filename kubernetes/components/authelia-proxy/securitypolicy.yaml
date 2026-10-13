@@ -23,7 +23,13 @@ spec:
         - Remote-Name
         - Remote-Groups
         - Remote-Email
-  targetRefs:
+  # Selects every HTTPRoute of the app, so a route added later is protected by
+  # default. Label a route authelia.petrovic.network/bypass to leave it open.
+  targetSelectors:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: ${APP}
+      matchLabels:
+        app.kubernetes.io/name: ${APP}
+      matchExpressions:
+        - key: authelia.petrovic.network/bypass
+          operator: DoesNotExist

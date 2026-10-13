@@ -87,7 +87,11 @@ spec:
           admin:
             port: 8081
     route:
+      # Public: opted out of the authelia-proxy component, which otherwise
+      # guards every route of the app.
       app:
+        labels:
+          authelia.petrovic.network/bypass: "true"
         hostnames:
           - &host fernwood.${SECRET_PUBLIC_DOMAIN}
         parentRefs:
@@ -97,8 +101,7 @@ spec:
           - backendRefs:
               - identifier: app
                 port: http
-      # Guarded by the SecurityPolicy in securitypolicy.yaml, which targets
-      # this route by name (fernwood-admin).
+      # Guarded by the authelia-proxy component.
       admin:
         hostnames:
           - *host
