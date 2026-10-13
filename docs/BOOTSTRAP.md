@@ -94,7 +94,7 @@ from 1Password references in:
 
    - `/var/nfs/shared/kopiur` — primary Kopiur restore repository
    - `/var/nfs/shared/media` and `/var/nfs/shared/photos` — application data
-   - `/var/nfs/shared/garage/{data,meta}` — Garage object storage state
+   - `/var/nfs/shared/garage/data` — Garage object data (metadata lives on the `garage-meta` Ceph PVC)
 
 ## Preflight
 
