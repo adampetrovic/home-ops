@@ -36,9 +36,6 @@ spec:
             image:
               repository: ghcr.io/adampetrovic/gdb-web
               tag: 1.10.85@sha256:ba49cf1e6157134ed56457fe93dd6382142bec6d42190ec47882308beb40e82a
-            # gdb-web's image entrypoint runs /app/startup.sh, which waits for
-            # PostgreSQL, runs the bundled migrations/static-city seed, and only
-            # then starts the HTTP server.
             envFrom:
               - secretRef:
                   name: gdb-secret
@@ -49,7 +46,6 @@ spec:
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
               STASH_UPLOADER_URL: http://stash-uploader.gdb.svc.cluster.local:8080/upload
-              # Uploader 0.1.5 is deployed first.
               STASH_UPLOADER_DETAILS_ENABLED: "true"
               STASH_API_KEY:
                 valueFrom:

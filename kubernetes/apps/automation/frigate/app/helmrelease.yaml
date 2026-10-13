@@ -51,7 +51,6 @@ spec:
               startup:
                 enabled: false
             securityContext:
-              # Required for access to Coral USB and Intel GPU devices used for detection/transcoding.
               privileged: true
             resources:
               requests:
@@ -133,7 +132,6 @@ spec:
           - path: /tmp/cache
       usb:
         enabled: true
-        # Required to expose the Coral USB accelerator to Frigate.
         type: hostPath
         hostPath: /dev/bus/usb
         hostPathType: Directory
