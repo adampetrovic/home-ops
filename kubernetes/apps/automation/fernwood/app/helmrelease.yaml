@@ -51,7 +51,6 @@ spec:
               TZ: "${TZ}"
               LISTEN_ADDR: ":8080"
               DATABASE_PATH: /data/fernwood.db
-              BOOTSTRAP_FILE: /config/bootstrap.yaml
               VAPID_SUBJECT: https://fernwood.${SECRET_PUBLIC_DOMAIN}
             probes:
               liveness: &probes
@@ -95,13 +94,6 @@ spec:
         existingClaim: fernwood
         globalMounts:
           - path: /data
-      bootstrap:
-        type: secret
-        name: fernwood-secret
-        globalMounts:
-          - path: /config/bootstrap.yaml
-            subPath: bootstrap.yaml
-            readOnly: true
       tmp:
         type: emptyDir
         globalMounts:
