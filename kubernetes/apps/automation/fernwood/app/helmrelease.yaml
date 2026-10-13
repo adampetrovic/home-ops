@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/fernwood
-              tag: 1.1.1@sha256:9b48e8b77f737dd3b445eac25596a5dfcd5a338c9f9621ce5b35a231714b388a
+              tag: 1.2.0@sha256:b743d96ab5c28a8943394c9f27f5057f8b25ce8a223e1b679d67ae19c75bd527
             envFrom:
               - secretRef:
                   name: fernwood-secret
@@ -53,6 +53,7 @@ spec:
               ADMIN_LISTEN_ADDR: ":8081"
               ADMIN_GROUP: admin
               DATABASE_PATH: /data/fernwood.db
+              PUBLIC_URL: https://fernwood.${SECRET_PUBLIC_DOMAIN}
               VAPID_SUBJECT: https://fernwood.${SECRET_PUBLIC_DOMAIN}
             probes:
               liveness: &probes
