@@ -93,7 +93,7 @@ spec:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
   # renovate: depName="Kubernetes / Views / Pods"
-  url: https://grafana.com/api/dashboards/15760/revisions/21/download
+  url: https://grafana.com/api/dashboards/15760/revisions/41/download
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
