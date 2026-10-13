@@ -83,7 +83,7 @@ route:
 
 ## Authelia Authentication
 
-Apps that need Authelia SSO/ext-auth include the `authelia-proxy` Kustomize component in their app-level `kustomization.yaml`, not in `ks.yaml`. The protected HTTPRoute name must match the component's `${APP}` substitution; for normal app-template routes this is usually the app name.
+Apps that need Authelia SSO/ext-auth include the `authelia-proxy` Kustomize component in their app-level `kustomization.yaml`, not in `ks.yaml`. The component protects every HTTPRoute in the app's namespace labelled `app.kubernetes.io/name: ${APP}`, which app-template sets on all of a release's routes; standalone routes need that label added.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -95,7 +95,18 @@ components:
   - ../../../../components/authelia-proxy
 ```
 
-The component creates an Envoy `SecurityPolicy` targeting the app HTTPRoute by name (`${APP}`), forwarding auth checks to `authelia.security.svc.cluster.local`.
+The component creates an Envoy `SecurityPolicy` named `${APP}` that selects those routes by label and forwards auth checks to `authelia.security.svc.cluster.local`.
+
+To leave one route of a protected app open, such as a public route beside an admin route, label it `authelia.petrovic.network/bypass`:
+
+```yaml
+route:
+  app:
+    labels:
+      authelia.petrovic.network/bypass: "true"
+```
+
+A selector that matches no route is not an error, so after adding the component confirm the policy attached: `kubectl get securitypolicy <app> -n <namespace> -o jsonpath='{.status}'` should list an ancestor.
 
 A `ReferenceGrant` in the `security` namespace authorises cross-namespace access. If adding Authelia to an app in a new namespace, add that namespace to `kubernetes/apps/security/authelia/app/referencegrant.yaml`.
 
