@@ -43,6 +43,7 @@ spec:
               tag: 0.5.3@sha256:b52ae9161639c7453308096aa8f5095d540196d097f5e3c681465737f22e8e76
             args:
               - --enable-httproute
+              - --enable-service
               - --output=/config/gatus-sidecar.yaml
               - --default-interval=1m
             restartPolicy: Always
@@ -129,6 +130,9 @@ spec:
         gatus:
           type: ClusterRole
           rules:
+            - apiGroups: [""]
+              resources: ["services"]
+              verbs: ["get", "list", "watch"]
             - apiGroups: ["gateway.networking.k8s.io"]
               resources: ["gateways", "httproutes"]
               verbs: ["get", "list", "watch"]
