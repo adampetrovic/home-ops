@@ -43,7 +43,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/health-ng
-              tag: 0.1.0@sha256:96ac4d42caa5456c181c1866a48d044d757640aeb34db553c5c6da55410eb008
+              tag: 0.1.1@sha256:63933481f73b93640195aca4e14085a91c89a76502255f18889004d4a0563fb7
             envFrom:
               - secretRef:
                   name: healthng-secret
