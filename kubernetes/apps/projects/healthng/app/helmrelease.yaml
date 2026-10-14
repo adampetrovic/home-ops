@@ -42,7 +42,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/adampetrovic/healthng
+              repository: ghcr.io/adampetrovic/health-ng
               tag: 0.1.0@sha256:96ac4d42caa5456c181c1866a48d044d757640aeb34db553c5c6da55410eb008
             envFrom:
               - secretRef:
