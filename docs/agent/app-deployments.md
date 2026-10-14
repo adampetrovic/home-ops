@@ -270,7 +270,12 @@ The app's own ExternalSecret only templates its connection string, for example `
 
 ### Removing an App's Database
 
-Removing `db/` (or the app) from Git deletes the CRs, but `retain` leaves the role and database in Postgres. When deleting a Postgres-backed app, ask whether its role and database should also be dropped. If yes, first change both CRs to `ensure: absent` and push. Once CNPG reports them applied, remove the files from Git.
+Removing `db/` (or the app) from Git deletes the CRs, but `retain` leaves the role and database in Postgres. When deleting a Postgres-backed app, ask whether its role and database should also be dropped. If yes, do it in two pushes:
+
+1. Set `ensure: absent` on each `Database` and `databaseRoleReclaimPolicy: delete` on the `DatabaseRole`. CNPG rejects `ensure: absent` on a `DatabaseRole`. Wait until the `Database` CRs report `APPLIED true`, meaning the databases are dropped.
+2. Remove the files from Git. Deleting the `DatabaseRole` CR with the `delete` policy drops the role. This only succeeds once the role owns nothing, which is why the databases go first.
+
+Always run `kubectl apply --dry-run=server` on new CNPG CRs. The datreeio schemas don't catch CNPG's validation rules.
 
 ## Namespace Kustomization
 
