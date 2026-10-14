@@ -42,6 +42,13 @@ kubectl kopiur logs restore -n <namespace> <restore-name> --context=admin@home-k
 
 Use `snapshots list` for origin, policy, phase, size, file count, and age. Use logs when a snapshot or restore is failed, stuck, or unexpectedly slow.
 
+A restore that never starts has no mover logs; read its conditions instead (`kubectl get restore -n <namespace> <name> -o yaml`). Two causes are specific to a namespace's first backed-up app:
+
+- **`MissingCredentialsSecret`:** the namespace `kustomization.yaml` lacks `../../components/kopiur/secret`, so `kopiur-nfs-repository` and `kopiur-r2-repository` don't exist there. The PVC stays `Pending` until it is added.
+- **Webhook denial:** the app's Flux Kustomization fails with `namespace "<ns>" is not in the allowedNamespaces of ClusterRepository ...`. Add the namespace to both ClusterRepositories.
+
+The fix steps are in "First Kopiur backup in a namespace" in `docs/agent/app-deployments.md`.
+
 ## Trigger a Manual Snapshot
 
 Confirm with the user first, then run:

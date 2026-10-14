@@ -101,10 +101,28 @@ Optional substitutions and their defaults:
 | `KOPIUR_CACHE_STORAGECLASS` | `ceph-block` | Mover cache storage class |
 | `KOPIUR_PUID` / `KOPIUR_PGID` | `568` | UID/GID the mover runs as; match the app's data ownership |
 
-The first backed-up app in a namespace also needs:
+### First Kopiur backup in a namespace
 
-- `../../components/kopiur/secret` in the namespace `kustomization.yaml`.
-- The namespace in `allowedNamespaces` of both ClusterRepositories in `kubernetes/apps/kopiur-system/kopiur/repository/app/clusterrepository.yaml`.
+The backup component only works in namespaces that are already set up for Kopiur. Before adding it to an app, check the target namespace. This applies both to a brand-new namespace and to an existing namespace that has never had a backed-up app (for example `projects`, which only gained backups with `healthng`):
+
+```sh
+grep -n 'components/kopiur/secret' kubernetes/apps/<namespace>/kustomization.yaml
+grep -n -- '- <namespace>$' kubernetes/apps/kopiur-system/kopiur/repository/app/clusterrepository.yaml   # expect 2 hits
+```
+
+If either check comes up short, make both changes in the same PR as the app:
+
+1. Add `../../components/kopiur/secret` to the namespace `kubernetes/apps/<namespace>/kustomization.yaml`. Kopiur's mover Jobs run in the app's namespace and read the `kopiur-nfs-repository` and `kopiur-r2-repository` credential Secrets there. The component creates them as ExternalSecrets.
+2. Add the namespace, in alphabetical order, to `allowedNamespaces` on **both** ClusterRepositories (`kopiur-r2` and `kopiur-nfs`) in `kubernetes/apps/kopiur-system/kopiur/repository/app/clusterrepository.yaml`.
+
+Missing either one fails after merge, not in CI:
+
+| Missing | Symptom |
+| --- | --- |
+| `allowedNamespaces` entry | The app's Flux Kustomization fails to apply: `SnapshotPolicy/<ns>/<app>-nfs dry-run failed: admission webhook "mutate.kopiur.home-operations.com" denied the request: namespace "<ns>" is not in the allowedNamespaces of ClusterRepository "kopiur-nfs"`. Nothing in the app is created. |
+| `kopiur/secret` component | Everything applies, but the `Restore` stays `Pending` with condition `MissingCredentialsSecret` (`credentials Secret kopiur-nfs-repository does not exist in namespace <ns>`). The PVC never binds, the pod stays `Pending`, and the HelmRelease install times out. |
+
+Once both are fixed, the restore runs (with `onMissingSnapshot: Continue` a first install has nothing to restore and completes immediately), the PVC binds, and the HelmRelease's install retries recover on their own.
 
 The component PVC is not prune-protected: removing a persistent app from Git deletes its PVC and data, leaving only the Kopiur snapshots.
 

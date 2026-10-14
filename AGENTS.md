@@ -52,6 +52,7 @@ Read the relevant doc before making non-trivial changes:
 
 - App directories use `ks.yaml` plus `app/kustomization.yaml` and `app/helmrelease.yaml`.
 - Persistent apps use the Kopiur backup component and set `APP` to the exact PVC name being protected; new PVCs restore from `${APP}-nfs` by default via Kopiur `dataSourceRef`.
+- The first backed-up app in any namespace (new, or existing but never backed up) also needs `../../components/kopiur/secret` in the namespace `kustomization.yaml` and the namespace in `allowedNamespaces` of both ClusterRepositories. Check before adding the backup component; see "First Kopiur backup in a namespace" in `docs/agent/app-deployments.md`.
 - Secrets come from the `onepassword-connect` ClusterSecretStore via ExternalSecret.
 - PostgreSQL app connection strings use `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`.
 - Provision Postgres roles and databases with CloudNativePG `DatabaseRole` and `Database` CRs (`retain` reclaim policies) in a per-app `db/` directory deployed to the `database` namespace by an `<app>-db` Flux Kustomization. Do not use the `postgres-init` init container, and never give app namespaces the CNPG superuser password.
