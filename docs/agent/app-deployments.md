@@ -160,7 +160,117 @@ app-name/
 - Declare required extensions in `Database.spec.extensions` without a `version`, so CNPG doesn't upgrade them.
 - App namespaces must not receive the CNPG superuser password.
 
-Apps with a dedicated cluster (Immich, Bookorbit, Tracearr, GDB) put `databaserole.yaml` and `database.yaml` in their existing `database/` directory beside `cluster.yaml`.
+Apps with a dedicated cluster (Immich, Bookorbit, Tracearr, GDB) put `databaserole.yaml` and `database.yaml` in their existing `database/` directory beside `cluster.yaml`. Keep `bootstrap.initdb` on those clusters as-is: it only runs at cluster creation, and the CRs take over afterwards.
+
+### Example (`kubernetes/apps/default/miniflux/`)
+
+`ks.yaml` gains a first document:
+
+```yaml
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app miniflux-db
+  namespace: default
+spec:
+  targetNamespace: database
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: cloudnative-pg-cluster
+      namespace: database
+    - name: external-secrets-stores
+      namespace: external-secrets
+  path: ./kubernetes/apps/default/miniflux/db
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+```
+
+`db/externalsecret.yaml`:
+
+```yaml
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/external-secrets.io/externalsecret_v1.json
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: miniflux-db
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword-connect
+  target:
+    name: miniflux-db-credentials
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      type: kubernetes.io/basic-auth
+      metadata:
+        labels:
+          cnpg.io/reload: "true"
+      data:
+        username: "{{ .POSTGRES_USER }}"
+        password: "{{ .POSTGRES_PASS }}"
+  dataFrom:
+    - extract:
+        key: miniflux
+```
+
+`db/databaserole.yaml` and `db/database.yaml`:
+
+```yaml
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/databaserole_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: miniflux
+spec:
+  cluster:
+    name: postgres
+  name: miniflux
+  ensure: present
+  login: true
+  passwordSecret:
+    name: miniflux-db-credentials
+  databaseRoleReclaimPolicy: retain
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/database_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: miniflux
+spec:
+  cluster:
+    name: postgres
+  name: miniflux
+  owner: miniflux
+  ensure: present
+  databaseReclaimPolicy: retain
+```
+
+The app's own ExternalSecret only templates its connection string, for example `postgres://{{ .POSTGRES_USER }}:{{ .POSTGRES_PASS }}@postgres-rw.database.svc.cluster.local/miniflux`. It has no `INIT_POSTGRES_*` keys and no `cloudnative-pg` extract.
+
+### Operating Notes
+
+- CNPG adopts an existing role or database with the same name, so adding CRs for an app that already has a database is non-destructive.
+- A new `DatabaseRole` can briefly report `applied: false` with `secrets "<name>" is forbidden`. CNPG adds the password Secret to the cluster's RBAC Role when it sees the CR, and the next reconcile clears the error.
+- Check status with `kubectl get databaserole,database -A`; both should show `APPLIED true`.
+- Rotating a password in 1Password updates both the app Secret and `<app>-db-credentials`, and CNPG applies the new password to the role.
+
+### Removing an App's Database
+
+Removing `db/` (or the app) from Git deletes the CRs, but `retain` leaves the role and database in Postgres. When deleting a Postgres-backed app, ask whether its role and database should also be dropped. If yes, first change both CRs to `ensure: absent` and push. Once CNPG reports them applied, remove the files from Git.
 
 ## Namespace Kustomization
 
