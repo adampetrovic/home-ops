@@ -6,4 +6,5 @@ namespace: projects
 components:
   - ../../components/common
 resources:
+  - ./ccc-admin/ks.yaml
   - ./traverse/ks.yaml
