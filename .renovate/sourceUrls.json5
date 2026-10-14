@@ -1,5 +1,6 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  // Keep a hint until a later Renovate PR shows release notes resolve without it.
   packageRules: [
     {
       description: "Use upstream release notes for BookOrbit",
@@ -42,7 +43,7 @@
       description: "Use upstream release notes for Ceph CSI chart mirror",
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/home-operations/charts-mirror/ceph-csi-drivers"],
-      sourceUrl: "https://github.com/ceph/csi-charts",
+      sourceUrl: "https://github.com/ceph/ceph-csi-operator",
     },
     {
       description: "Use upstream release notes for Plex",
@@ -81,6 +82,124 @@
       matchDatasources: ["docker"],
       matchPackageNames: ["ghcr.io/home-operations/postgres-init"],
       sourceUrl: "https://github.com/home-operations/containers",
+    },
+    {
+      description: "Use upstream release notes for Actual Budget",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/actualbudget/actual-server"],
+      sourceUrl: "https://github.com/actualbudget/actual",
+    },
+    {
+      description: "Use upstream release notes for Vector",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/timberio/vector"],
+      sourceUrl: "https://github.com/vectordotdev/vector",
+    },
+    {
+      description: "Use upstream release notes for sigenergy2mqtt",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/seud0nym/sigenergy2mqtt"],
+      sourceUrl: "https://github.com/seud0nym/sigenergy2mqtt",
+    },
+    {
+      description: "Use upstream release notes for Talos installer",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/siderolabs/installer"],
+      sourceUrl: "https://github.com/siderolabs/talos",
+    },
+    {
+      description: "Use upstream release notes for smartctl-exporter",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["quay.io/prometheuscommunity/smartctl-exporter"],
+      sourceUrl: "https://github.com/prometheus-community/smartctl_exporter",
+    },
+    {
+      description: "Use upstream release notes for Dragonfly operator",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/dragonflydb/operator"],
+      sourceUrl: "https://github.com/dragonflydb/dragonfly-operator",
+    },
+    {
+      description: "Use upstream release notes for ImageMaid",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/kometateam/imagemaid"],
+      sourceUrl: "https://github.com/Kometa-Team/ImageMaid",
+    },
+    {
+      description: "Use upstream release notes for Bambuddy",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/maziggy/bambuddy"],
+      sourceUrl: "https://github.com/maziggy/bambuddy",
+    },
+    {
+      description: "Use chart CHANGELOG for ExternalDNS chart mirror (release tags are prefixed)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/home-operations/charts-mirror/external-dns"],
+      sourceUrl: "https://github.com/kubernetes-sigs/external-dns",
+      sourceDirectory: "charts/external-dns",
+    },
+    {
+      description: "Use chart CHANGELOG for Metrics Server chart mirror (release tags are prefixed)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/home-operations/charts-mirror/metrics-server"],
+      sourceUrl: "https://github.com/kubernetes-sigs/metrics-server",
+      sourceDirectory: "charts/metrics-server",
+    },
+    {
+      description: "Use chart CHANGELOG for Loki chart",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/grafana/helm-charts/loki"],
+      sourceUrl: "https://github.com/grafana/loki",
+      sourceDirectory: "production/helm/loki",
+    },
+    {
+      description: "Use chart release notes for Reloader chart",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/stakater/charts/reloader"],
+      sourceUrl: "https://github.com/stakater/Reloader",
+      changelogUrl: "https://github.com/stakater/Reloader/releases",
+    },
+    {
+      description: "Link pgAdmin release notes (no GitHub releases upstream)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/dpage/pgadmin4"],
+      changelogUrl: "https://www.pgadmin.org/docs/pgadmin4/latest/release_notes.html",
+    },
+    {
+      description: "Link 1Password Connect release notes (image source label is wrong)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/1password/connect-api", "mirror.gcr.io/1password/connect-sync"],
+      changelogUrl: "https://releases.1password.com/developers/connect/",
+    },
+    {
+      description: "Link Garage release notes (hosted on Forgejo)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/dxflrs/garage"],
+      changelogUrl: "https://git.deuxfleurs.fr/Deuxfleurs/garage/releases",
+    },
+    {
+      description: "Link Tdarr changelog (image source label points to a private repo)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/haveagitgat/tdarr", "ghcr.io/haveagitgat/tdarr_node"],
+      changelogUrl: "https://docs.tdarr.io/docs/other/changelog",
+    },
+    {
+      description: "Link Apache Tika changelog (no GitHub releases upstream)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/apache/tika"],
+      changelogUrl: "https://github.com/apache/tika/blob/main/CHANGES.txt",
+    },
+    {
+      description: "Link AWS CLI changelog (no GitHub releases upstream)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["mirror.gcr.io/amazon/aws-cli"],
+      changelogUrl: "https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst",
+    },
+    {
+      description: "Link Radarr releases (image tags drop the build number used in upstream tags)",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/home-operations/radarr"],
+      changelogUrl: "https://github.com/Radarr/Radarr/releases",
     },
   ],
 }
