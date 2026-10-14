@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/database_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: tracearr
+spec:
+  cluster:
+    name: tracearr-postgres
+  name: tracearr
+  owner: tracearr
+  ensure: present
+  databaseReclaimPolicy: retain
+  extensions:
+    - name: timescaledb
+      ensure: present
