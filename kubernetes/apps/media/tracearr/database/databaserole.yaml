@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/databaserole_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: tracearr
+spec:
+  cluster:
+    name: tracearr-postgres
+  name: tracearr
+  ensure: present
+  login: true
+  passwordSecret:
+    name: tracearr-db-credentials
+  databaseRoleReclaimPolicy: retain
