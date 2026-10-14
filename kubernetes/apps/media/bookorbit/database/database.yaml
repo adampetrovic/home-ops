@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/database_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: bookorbit
+spec:
+  cluster:
+    name: bookorbit-postgres
+  name: bookorbit
+  owner: bookorbit
+  ensure: present
+  databaseReclaimPolicy: retain
+  extensions:
+    - name: uuid-ossp
+      ensure: present
+    - name: pg_trgm
+      ensure: present
+    - name: unaccent
+      ensure: present
+    - name: vector
+      ensure: present
