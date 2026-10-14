@@ -7,4 +7,5 @@ components:
   - ../../components/common
 resources:
   - ./ccc-admin/ks.yaml
+  - ./healthng/ks.yaml
   - ./traverse/ks.yaml

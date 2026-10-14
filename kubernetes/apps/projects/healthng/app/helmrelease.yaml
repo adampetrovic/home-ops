@@ -1,0 +1,133 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: healthng
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 3
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      healthng:
+        # SQLite and the in-process scheduler need exactly one pod.
+        replicas: 1
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/healthng
+              tag: 0.1.0@sha256:96ac4d42caa5456c181c1866a48d044d757640aeb34db553c5c6da55410eb008
+            envFrom:
+              - secretRef:
+                  name: healthng-secret
+            env:
+              TZ: "${TZ}"
+              LISTEN_ADDR: ":8080"
+              ADMIN_LISTEN_ADDR: ":8081"
+              ADMIN_GROUP: admin
+              DATABASE_PATH: /data/healthng.db
+              PUBLIC_URL: https://healthng.${SECRET_PUBLIC_DOMAIN}
+              # In-cluster SMTP relay (plain, no auth).
+              SMTP_HOST: smtp-relay.network.svc.cluster.local
+              SMTP_PORT: "25"
+              SMTP_TLS: none
+              SMTP_FROM: "HealthNG <healthng@${SECRET_PUBLIC_DOMAIN}>"
+              POLL_INTERVAL: 5m
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+    service:
+      app:
+        controller: healthng
+        ports:
+          http:
+            port: *port
+          admin:
+            port: 8081
+    route:
+      # Public: opted out of the authelia-proxy component, which otherwise
+      # guards every route of the app.
+      app:
+        labels:
+          authelia.petrovic.network/bypass: "true"
+        hostnames:
+          - &host healthng.${SECRET_PUBLIC_DOMAIN}
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+      # Guarded by the authelia-proxy component.
+      admin:
+        hostnames:
+          - *host
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /admin
+            backendRefs:
+              - identifier: app
+                port: admin
+    persistence:
+      data:
+        existingClaim: healthng
+        globalMounts:
+          - path: /data
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
