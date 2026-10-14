@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/database_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: memos
+spec:
+  cluster:
+    name: postgres
+  name: memos
+  owner: memos
+  ensure: present
+  databaseReclaimPolicy: retain
