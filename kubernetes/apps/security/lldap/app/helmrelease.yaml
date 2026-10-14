@@ -27,20 +27,14 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: 'true'
-        initContainers:
-          01-init-db:
-            image:
-              repository: ghcr.io/home-operations/postgres-init
-              tag: 18.6.0@sha256:b6d3af974df781c673d37e49bdddfa14a6f5be28b18d2cb7713f0449bea4057b
-            envFrom: &envFrom
-              - secretRef:
-                  name: lldap-secret
         containers:
           app:
             image:
               repository: ghcr.io/lldap/lldap
               tag: v0.6.3@sha256:2a8454b668c1aba7157e832eab0e242e1e7eb5fb7591d7e7774ba05286511ca8
-            envFrom: *envFrom
+            envFrom: &envFrom
+              - secretRef:
+                  name: lldap-secret
             env:
               TZ: ${TZ}
               LLDAP_HTTP_PORT: &port 80
