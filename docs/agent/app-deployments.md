@@ -134,8 +134,33 @@ PVCs that are deliberately outside Kopiur:
 
 - Secrets come from 1Password via the `ClusterSecretStore` named `onepassword-connect`.
 - ExternalSecrets extract fields from 1Password items and template Kubernetes Secrets.
-- PostgreSQL apps typically use an `init-db` init container with `ghcr.io/home-operations/postgres-init`.
 - Database connection strings follow `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`.
+
+## PostgreSQL Roles and Databases
+
+Postgres roles and databases are declared with CloudNativePG `DatabaseRole` and `Database` CRs, not the `postgres-init` init container. The CRs and the role's password Secret must live in the same namespace as the CNPG `Cluster`.
+
+Apps on the shared `postgres` cluster add a `db/` directory, reconciled into the `database` namespace by a second Flux Kustomization named `<app>-db`:
+
+```text
+app-name/
+├── ks.yaml                  # <app>-db (path ./db, targetNamespace: database, wait: true) + app
+├── app/
+└── db/
+    ├── kustomization.yaml
+    ├── externalsecret.yaml  # <app>-db -> <app>-db-credentials (kubernetes.io/basic-auth, cnpg.io/reload label)
+    ├── databaserole.yaml    # login role, passwordSecret <app>-db-credentials
+    └── database.yaml        # one Database per DB, owner = role
+```
+
+- The app Kustomization `dependsOn` `<app>-db` instead of `cloudnative-pg-cluster`. home-assistant deliberately doesn't, so it can start while Postgres is down.
+- Use the same 1Password item as the app, so the app's connection string and the role password come from one source.
+- Name CRs after the app (`<app>`, or `<app>-main`/`<app>-log` for multi-DB apps); `spec.name` is the real Postgres role/DB name.
+- Always set `databaseRoleReclaimPolicy: retain` and `databaseReclaimPolicy: retain`, so removing a CR never drops the role or data.
+- Declare required extensions in `Database.spec.extensions` without a `version`, so CNPG doesn't upgrade them.
+- App namespaces must not receive the CNPG superuser password.
+
+Apps with a dedicated cluster (Immich, Bookorbit, Tracearr, GDB) put `databaserole.yaml` and `database.yaml` in their existing `database/` directory beside `cluster.yaml`.
 
 ## Namespace Kustomization
 
