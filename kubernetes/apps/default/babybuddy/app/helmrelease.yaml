@@ -22,14 +22,6 @@ spec:
       babybuddy:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/home-operations/postgres-init
-              tag: 18.6.0@sha256:b6d3af974df781c673d37e49bdddfa14a6f5be28b18d2cb7713f0449bea4057b
-            envFrom: &envFrom
-              - secretRef:
-                  name: babybuddy-secret
         containers:
           babybuddy:
             image:
@@ -45,7 +37,9 @@ spec:
               REVERSE_PROXY_AUTH: "True"
               PROXY_HEADER: HTTP_REMOTE_USER
               SECURE_PROXY_SSL_HEADER: "True"
-            envFrom: *envFrom
+            envFrom: &envFrom
+              - secretRef:
+                  name: babybuddy-secret
     service:
       app:
         # Probed directly: the route sits behind Authelia, which answers
