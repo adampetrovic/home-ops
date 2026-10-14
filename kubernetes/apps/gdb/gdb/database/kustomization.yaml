@@ -7,3 +7,5 @@ resources:
   - ./objectstore.yaml
   - ./cluster.yaml
   - ./scheduledbackup.yaml
+  - ./databaserole.yaml
+  - ./database.yaml
