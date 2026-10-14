@@ -160,7 +160,7 @@ app-name/
 - Declare required extensions in `Database.spec.extensions` without a `version`, so CNPG doesn't upgrade them.
 - App namespaces must not receive the CNPG superuser password.
 
-Apps with a dedicated cluster (Immich, Bookorbit, Tracearr, GDB) put `databaserole.yaml` and `database.yaml` in their existing `database/` directory beside `cluster.yaml`. Keep `bootstrap.initdb` on those clusters as-is: it only runs at cluster creation, and the CRs take over afterwards.
+Apps with a dedicated cluster (Immich, Bookorbit, Tracearr, GDB) put `databaserole.yaml` and `database.yaml` in their existing `database/` directory beside `cluster.yaml`. Keep `bootstrap.initdb` on those clusters as-is: it only runs at cluster creation, and the CRs take over afterwards. Immich connects as its own role, not the superuser, so its `Database` pins `vector` and `vchord` versions. Bump them in `database/database.yaml` whenever the `cloudnative-vectorchord` image changes, so CNPG runs `ALTER EXTENSION ... UPDATE` as superuser.
 
 ### Example (`kubernetes/apps/default/miniflux/`)
 

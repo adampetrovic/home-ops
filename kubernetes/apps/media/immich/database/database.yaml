@@ -11,11 +11,15 @@ spec:
   owner: immich
   ensure: present
   databaseReclaimPolicy: retain
+  # immich connects without superuser, so it can't upgrade these itself.
+  # Bump the versions alongside the imageName in cluster.yaml.
   extensions:
     - name: vector
       ensure: present
+      version: 0.8.1
     - name: vchord
       ensure: present
+      version: 1.1.0
     - name: uuid-ossp
       ensure: present
     - name: unaccent
