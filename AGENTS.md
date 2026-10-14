@@ -24,13 +24,14 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 - Validate changed YAML/JSON files that declare schemas before reporting completion.
 - Preserve `dependsOn` chains and be cautious with `prune: true`; removing resources from Git deletes them from the cluster.
 - When deleting a persistent app, explicitly ask whether to delete its Kopiur backups too. If yes, delete both `${APP}-nfs` and `${APP}-r2` Snapshot CRs before removing policies/schedules from Git so normal `deletionPolicy: Delete` removes underlying Kopia data; policy/schedule deletion itself defaults to retaining backups. Discovered snapshots are forced to `Retain` and require adoption or direct Kopia deletion before repository data is removed.
+- When deleting a Postgres-backed app, explicitly ask whether to drop its role and database too. Its `DatabaseRole`/`Database` CRs use `retain`, so removing them from Git leaves the data. To drop it, set `ensure: absent` and let CNPG apply that before removing the files.
 - Ask for confirmation before destructive or live-impacting operations such as cluster mutations, secret changes, production database work, node rollouts, or service restarts.
 
 ## Required Read Gates
 
 Read the relevant doc before making non-trivial changes:
 
-- Application deployment, HelmRelease, PVC, Kopiur, ExternalSecret, or app add/remove: `docs/agent/app-deployments.md`
+- Application deployment, HelmRelease, PVC, Kopiur, ExternalSecret, PostgreSQL role/database provisioning, or app add/remove: `docs/agent/app-deployments.md`
 - HTTPRoute, Envoy Gateway, Authelia, Cloudflare Tunnel, app exposure: `docs/agent/routing.md`
 - SOPS, 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
@@ -53,6 +54,7 @@ Read the relevant doc before making non-trivial changes:
 - Persistent apps use the Kopiur backup component and set `APP` to the exact PVC name being protected; new PVCs restore from `${APP}-nfs` by default via Kopiur `dataSourceRef`.
 - Secrets come from the `onepassword-connect` ClusterSecretStore via ExternalSecret.
 - PostgreSQL app connection strings use `postgres://<user>:<pass>@postgres-rw.database.svc.cluster.local/<db>`.
+- Provision Postgres roles and databases with CloudNativePG `DatabaseRole` and `Database` CRs (`retain` reclaim policies) in a per-app `db/` directory deployed to the `database` namespace by an `<app>-db` Flux Kustomization. Do not use the `postgres-init` init container, and never give app namespaces the CNPG superuser password.
 - App names are lowercase hyphenated and match Flux Kustomization and HelmRelease names.
 
 ## Quick Routing Rules
