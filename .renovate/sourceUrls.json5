@@ -78,12 +78,6 @@
       changelogUrl: "https://docs.ceph.com/en/latest/releases/",
     },
     {
-      description: "Use container release notes for postgres-init",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/home-operations/postgres-init"],
-      sourceUrl: "https://github.com/home-operations/containers",
-    },
-    {
       description: "Use upstream release notes for Actual Budget",
       matchDatasources: ["docker"],
       matchPackageNames: ["mirror.gcr.io/actualbudget/actual-server"],
