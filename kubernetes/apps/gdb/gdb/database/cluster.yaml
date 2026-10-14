@@ -12,6 +12,9 @@ spec:
     size: 40Gi
     storageClass: openebs-hostpath
   enableSuperuserAccess: false
+  postgresql:
+    parameters:
+      wal_compression: lz4
   bootstrap:
     initdb:
       database: gdb

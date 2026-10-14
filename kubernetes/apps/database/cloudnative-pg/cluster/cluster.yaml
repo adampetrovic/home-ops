@@ -20,6 +20,7 @@ spec:
     parameters:
       max_connections: "600"
       shared_buffers: 512MB
+      wal_compression: lz4
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
