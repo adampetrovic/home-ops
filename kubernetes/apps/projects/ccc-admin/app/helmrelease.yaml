@@ -1,0 +1,89 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ccc-admin
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  maxHistory: 3
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-private
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      ccc-admin:
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/adampetrovic/ccc-admin
+              tag: 0.1.0@sha256:da0f92b47111882103e28bd10a6f70d88897439aa8fb1bcdd917daa6cacb381a
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: &port 8080
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
+    service:
+      app:
+        controller: ccc-admin
+        ports:
+          http:
+            port: *port
+    # Guarded by the authelia-proxy component. Access is admin-only with two
+    # factors under Authelia's *.${SECRET_PUBLIC_DOMAIN} rule.
+    route:
+      app:
+        hostnames:
+          - ccc-admin.${SECRET_PUBLIC_DOMAIN}
+        parentRefs:
+          - name: envoy-external
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+    persistence:
+      # nginx writes only its pid and temp files, all under /tmp.
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
