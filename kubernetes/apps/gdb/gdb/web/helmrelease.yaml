@@ -57,6 +57,7 @@ spec:
               METRICS_ENABLED: "true"
               METRICS_LISTEN_ADDR: 0.0.0.0:9091
               DB_APPLICATION_NAME: gdb-web
+              NAME_LLM_ENABLED: "true"
               JOBS_ENABLED: "true"
               JOBS_PUBLIC_ORIGIN: https://gdb.petrovic.network
               MEDIA_DIR: /tmp
