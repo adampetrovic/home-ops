@@ -32,7 +32,7 @@ spec:
             env:
               TZ: ${TZ}
               PLEX_ADVERTISE_URL: https://plex.petrovic.network:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
-              PLEX_NO_AUTH_NETWORKS: 10.0.10.0/23
+              PLEX_NO_AUTH_NETWORKS: 10.0.10.0/24
             probes:
               liveness:
                 enabled: true
@@ -122,6 +122,8 @@ spec:
             fsGroup: 568
             runAsNonRoot: true
             fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
             supplementalGroups: [44, 100]
 
     service:
