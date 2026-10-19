@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./pvc.yaml
   - ./helmrelease.yaml
+  - ./networkpolicy.yaml
 configMapGenerator:
   - name: plex-vector-config
     files:
