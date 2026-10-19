@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/timberio/vector
-              tag: 0.59.0-alpine@sha256:0e36bc2a290039e9b6a5e92f04bd2f133223506f72d09682c1df16c015172b7a
+              tag: 0.60.0-alpine@sha256:1c6a6c4c5c9de08df357fa8adbe72e5a7abcea458b0bd82de0b14ac9b79d5b31
             env:
               PROCFS_ROOT: /host/proc
               SYSFS_ROOT: /host/sys
