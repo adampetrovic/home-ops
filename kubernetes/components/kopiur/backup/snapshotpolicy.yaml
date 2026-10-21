@@ -23,7 +23,7 @@ spec:
   mover:
     cache:
       mode: Persistent
-      capacity: ${KOPIUR_CAPACITY:=5Gi}
+      capacity: ${KOPIUR_CACHE_CAPACITY:=${KOPIUR_CAPACITY:=5Gi}}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
       runAsUser: ${KOPIUR_PUID:-568}
@@ -53,7 +53,7 @@ spec:
   mover:
     cache:
       mode: Persistent
-      capacity: ${KOPIUR_CAPACITY:=5Gi}
+      capacity: ${KOPIUR_CACHE_CAPACITY:=${KOPIUR_CAPACITY:=5Gi}}
       storageClassName: ${KOPIUR_CACHE_STORAGECLASS:-ceph-block}
     securityContext:
       runAsUser: ${KOPIUR_PUID:-568}

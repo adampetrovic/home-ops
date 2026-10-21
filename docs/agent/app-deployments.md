@@ -94,7 +94,8 @@ Optional substitutions and their defaults:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `KOPIUR_CAPACITY` | `5Gi` | PVC size, also used as the mover cache capacity |
+| `KOPIUR_CAPACITY` | `5Gi` | Application PVC size; default mover cache capacity when not overridden |
+| `KOPIUR_CACHE_CAPACITY` | `KOPIUR_CAPACITY` (or `5Gi`) | Mover cache PVC size, independently of the application PVC |
 | `KOPIUR_ACCESSMODES` | `ReadWriteOnce` | PVC access mode |
 | `KOPIUR_STORAGECLASS` | `ceph-block` | PVC storage class |
 | `KOPIUR_SNAPSHOTCLASS` | `csi-ceph-blockpool` | VolumeSnapshotClass for snapshots and restores |
