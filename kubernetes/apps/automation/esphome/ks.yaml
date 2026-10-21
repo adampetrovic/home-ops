@@ -33,3 +33,4 @@ spec:
     substitute:
       APP: *app
       KOPIUR_CAPACITY: 1Gi
+      KOPIUR_CACHE_CAPACITY: 5Gi
