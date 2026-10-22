@@ -32,7 +32,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/1password/connect-api
-              tag: 1.8.2@sha256:e915c0c843972f02b0e7e2de502bda8bd4a092288b3f1866098a857bd715a281
+              tag: 1.8.4@sha256:0f74924c55c9156b8116f59f485223b2c2d30a5148d362562aa27838159bdffa
             env:
               XDG_DATA_HOME: &configDir /config
               OP_HTTP_PORT: &apiPort 80
