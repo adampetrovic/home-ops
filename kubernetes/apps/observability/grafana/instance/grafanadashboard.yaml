@@ -10,7 +10,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-home-energy
@@ -27,7 +27,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-home-energy-pro
@@ -44,7 +44,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-home-energy-roi
@@ -61,7 +61,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-home-energy-battery
@@ -78,7 +78,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-home-power-live
@@ -95,7 +95,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: grafana
   datasources:
-    - datasourceName: InfluxDB
+    - datasourceName: influxdb
       inputName: DS_INFLUXDB
   configMapRef:
     name: grafana-dashboard-abb-cvc
