@@ -313,6 +313,11 @@ cameras:
           enabled: true
           coordinates: 0.406,0.308,0.409,0.43,0.41,0.512,0.514,0.518,0.514,0.291,0.451,0.27
     zones:
+      balcony:
+        coordinates: 0.203,0.096,0.223,0.488,0.532,0.992,0.175,0.989,0.102,0.552,0.123,0.096
+        enabled: true
+        inertia: 3
+        loitering_time: 0
       front_driveway:
         coordinates: 984,428,1280,576,1280,720,834,720,650,580
       front_door:
