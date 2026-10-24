@@ -65,6 +65,7 @@ spec:
               GITSYNC_REF: master
               GITSYNC_PERIOD: 24h
               GITSYNC_ROOT: /add-ons
+              GITSYNC_GIT_CONFIG: safe.directory:/add-ons
             resources:
               requests:
                 cpu: 10m
