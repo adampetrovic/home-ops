@@ -28,6 +28,8 @@ spec:
     monitoring:
       enabled: true
       createPrometheusRules: true
+      # Reduce scrape overhead while testing active-manager memory growth.
+      interval: 60s
       # Disable false positive alerts for /var disk space warnings on Talos nodes
       # These alerts trigger incorrectly due to heavy container image/log usage in /var
       # but don't reflect actual storage capacity issues since Ceph uses dedicated devices
@@ -85,6 +87,9 @@ spec:
           device_failure_prediction_mode: local # requires mgr module
           bluestore_slow_ops_warn_lifetime: "300"
           bluestore_slow_ops_warn_threshold: "5"
+        mgr:
+          # Bound retained log entries while testing active-manager memory growth.
+          log_max_recent: "100"
       cleanupPolicy:
         wipeDevicesFromOtherClusters: true
       healthCheck:
