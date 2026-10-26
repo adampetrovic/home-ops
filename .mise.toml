@@ -8,10 +8,10 @@ kubectl = "1.37.1"
 helm = "4.3.1"
 helmfile = "1.8.2"
 kustomize = "5.8.3"
-flux2 = "2.9.6"
+flux2 = "2.10.0"
 
 # Talos
-talosctl = "1.14.4"
+talosctl = "1.14.5"
 "github:mitsuhiko/minijinja" = "3.0.3"
 
 # Secrets
