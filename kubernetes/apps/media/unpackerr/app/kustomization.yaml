@@ -6,3 +6,6 @@ resources:
   - ./externalsecret.yaml
   - ./grafanadashboard.yaml
   - ./helmrelease.yaml
+  - ./networkpolicy.yaml
+components:
+  - ../../../../components/authelia-proxy

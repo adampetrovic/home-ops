@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.35.0-standalone-strict/networkpolicy-networking-v1.json
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: unpackerr-proxy-only
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: unpackerr
+      app.kubernetes.io/instance: unpackerr
+  policyTypes:
+    - Ingress
+  ingress:
+    # Remote-User authentication is trusted only behind Authelia/Envoy; block direct in-cluster header spoofing.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: network
+          podSelector:
+            matchLabels:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+      ports:
+        - protocol: TCP
+          port: 5656
