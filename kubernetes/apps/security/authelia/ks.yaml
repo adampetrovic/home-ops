@@ -51,8 +51,7 @@ spec:
   healthCheckExprs:
     - apiVersion: dragonflydb.io/v1alpha1
       kind: Dragonfly
-      inProgress: "!has(status) || !has(status.phase) || status.phase != 'Ready'"
-      current: "has(status) && has(status.phase) && status.phase == 'Ready'"
+      current: status.phase == 'Ready'
   interval: 30m
   retryInterval: 1m
   timeout: 5m
