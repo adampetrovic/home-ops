@@ -34,6 +34,10 @@ spec:
           type: RuntimeDefault
     controllers:
       fernwood:
+        pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
         # SQLite and the in-process scheduler need exactly one pod.
         replicas: 1
         strategy: Recreate

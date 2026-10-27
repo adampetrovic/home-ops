@@ -32,6 +32,10 @@ spec:
           type: RuntimeDefault
     controllers:
       ccc-admin:
+        pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
         strategy: RollingUpdate
         containers:
           app:

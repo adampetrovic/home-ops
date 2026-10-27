@@ -3,28 +3,15 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: plex-egress
+  name: plex
 spec:
   description: >-
-    Contain a compromised Plex pod. Plex needs the public internet (plex.tv,
-    metadata providers), DNS and Loki. NFS media mounts are made by kubelet in
-    the host network namespace, so the pod needs no route to the NAS or any
-    other private range. Ingress is left unrestricted.
+    Allow Plex's Vector sidecar to push logs to Loki, and nothing else on Loki.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: plex
       app.kubernetes.io/controller: plex
   egress:
-    - toEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: kube-system
-            k8s-app: kube-dns
-      toPorts:
-        - ports:
-            - port: "53"
-              protocol: UDP
-            - port: "53"
-              protocol: TCP
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: observability
@@ -34,11 +21,7 @@ spec:
         - ports:
             - port: "3100"
               protocol: TCP
-    - toCIDRSet:
-        - cidr: 0.0.0.0/0
-          except:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-            - 100.64.0.0/10
-            - 169.254.0.0/16
+          rules:
+            http:
+              - method: "^POST$"
+                path: "^/loki/api/v1/push$"

@@ -21,11 +21,11 @@ alerting:
 endpoints:
   - name: Plex Requests
     group: automation
-    url: https://requests.${SECRET_PLEX_DOMAIN}
+    url: http://jellyseerr.media.svc.cluster.local/
     interval: 1m
     ui:
       hide-hostname: true
-      hide-url: false
+      hide-url: true
     conditions:
       - "[STATUS] == 200"
     alerts:
@@ -131,13 +131,3 @@ endpoints:
     alerts:
       - type: telegram
         send-on-resolved: true
-
-  - name: NAS Storage (NFS)
-    group: storage
-    url: "tcp://${SECRET_NFS_DOMAIN}:111"
-    interval: 1m
-    ui:
-      hide-hostname: true
-      hide-url: true
-    conditions:
-      - "[CONNECTED] == true"

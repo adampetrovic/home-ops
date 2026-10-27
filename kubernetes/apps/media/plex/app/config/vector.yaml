@@ -51,6 +51,8 @@ sinks:
     dangerously_allow_unconfined_template_resolution: true
     inputs: ["plex_filtered"]
     endpoint: http://loki.observability.svc.cluster.local:3100
+    healthcheck:
+      enabled: false
     encoding:
       codec: json
     labels:

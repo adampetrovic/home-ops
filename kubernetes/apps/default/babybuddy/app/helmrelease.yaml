@@ -20,6 +20,10 @@ spec:
   values:
     controllers:
       babybuddy:
+        pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

@@ -30,6 +30,25 @@ spec:
       name: kube-dns
       clusterIP: 10.96.0.10
     servers:
+      # OIDC clients must reach only the public auth endpoint, not a shared
+      # internal gateway. Bypass split-horizon DNS for this hostname alone.
+      - zones:
+          - zone: auth.${SECRET_PUBLIC_DOMAIN}
+            scheme: dns://
+        port: 53
+        plugins:
+          - name: errors
+          - name: template
+            parameters: IN AAAA .
+            configBlock: |-
+              rcode NOERROR
+          - name: forward
+            parameters: . 1.1.1.1 1.0.0.1
+          - name: cache
+            parameters: 30
+          - name: log
+            configBlock: |-
+              class error
       - zones:
           - zone: petrovic.network
             scheme: dns://

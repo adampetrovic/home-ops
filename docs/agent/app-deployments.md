@@ -319,6 +319,7 @@ resources:
 4. Create `app/kustomization.yaml` listing all resources.
 5. If the app has a simple app-owned web UI, add a Gateway API `route:` block in the HelmRelease. Use a standalone `HTTPRoute` for shared, cross-namespace, proxy, or non-app-template routing.
 6. If the app needs Authelia auth, add the `authelia-proxy` component to app-level `kustomization.yaml` and check ReferenceGrant needs.
+   If the app is internet-facing, add the `policy.petrovic.network/public-app` label, disable the service-account token, and allow its private dependencies in `app/networkpolicy.yaml`. See "Public App Containment" in `routing.md`.
 7. If secrets are needed, create `app/externalsecret.yaml` referencing 1Password.
 8. If persistent storage is needed, add the Kopiur backup component to `ks.yaml`.
 9. Add the app `ks.yaml` to the namespace `kustomization.yaml`.
@@ -328,4 +329,5 @@ resources:
 - Edit `helmrelease.yaml` for app configuration changes.
 - Edit `ks.yaml` for dependencies, wait behavior, pruning, or Kopiur substitutions.
 - Preserve app name consistency across directory, Flux Kustomization, HelmRelease, labels, service names, and route names.
+- When a public app (`policy.petrovic.network/public-app` label) gains a private dependency, add it to the app's `app/networkpolicy.yaml`. When an app first gets an `envoy-external` route, apply public app containment.
 - Flux applies committed changes automatically after the branch is merged or pushed to `main`.

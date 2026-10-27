@@ -5,7 +5,7 @@ This directory holds detailed agent procedures that are intentionally kept out o
 ## Read Gates
 
 - `app-deployments.md` — adding, removing, or modifying Kubernetes applications; HelmRelease/app-template conventions; Kopiur; ExternalSecrets; CNPG `DatabaseRole`/`Database` provisioning.
-- `routing.md` — Gateway API, Envoy internal/external routes, Authelia proxy, Cloudflare Tunnel.
+- `routing.md` — Gateway API, Envoy internal/external routes, Authelia proxy, Cloudflare Tunnel, public app network containment.
 - `secrets-standards-renovate.md` — SOPS, 1Password, YAML/schema validation, Renovate conventions.
 - `operations.md` — jj workflow, just recipes, Flux reconciliation, PR checks, debugging, post-merge cleanup.
 - `platform.md` — repository map, storage, network, Hubble flow visibility, post-upgrade LoadBalancer checks, Talos logging/observability.

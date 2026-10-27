@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: jellyseerr
+spec:
+  description: >-
+    Allow Jellyseerr to reach Plex, Sonarr and Radarr.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: jellyseerr
+      app.kubernetes.io/controller: jellyseerr
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: plex
+            app.kubernetes.io/controller: plex
+      toPorts:
+        - ports:
+            - port: "32400"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sonarr
+            app.kubernetes.io/controller: sonarr
+        - matchLabels:
+            app.kubernetes.io/name: radarr
+            app.kubernetes.io/controller: radarr
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP

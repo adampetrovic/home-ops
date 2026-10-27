@@ -19,6 +19,8 @@ spec:
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: coredns
+      namespace: kube-system
   path: ./kubernetes/apps/default/readeck/app
   prune: true
   sourceRef:

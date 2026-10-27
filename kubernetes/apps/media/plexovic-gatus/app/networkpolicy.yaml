@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: plexovic-gatus
+spec:
+  description: >-
+    Allow the status page to check Plex and the media apps.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: plexovic-gatus
+      app.kubernetes.io/controller: gatus
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: plex
+            app.kubernetes.io/controller: plex
+      toPorts:
+        - ports:
+            - port: "32400"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: sonarr
+            app.kubernetes.io/controller: sonarr
+        - matchLabels:
+            app.kubernetes.io/name: radarr
+            app.kubernetes.io/controller: radarr
+        - matchLabels:
+            app.kubernetes.io/name: qbittorrent
+            app.kubernetes.io/controller: qbittorrent
+        - matchLabels:
+            app.kubernetes.io/name: sabnzbd
+            app.kubernetes.io/controller: sabnzbd
+        - matchLabels:
+            app.kubernetes.io/name: jellyseerr
+            app.kubernetes.io/controller: jellyseerr
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
