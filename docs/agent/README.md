@@ -8,7 +8,7 @@ This directory holds detailed agent procedures that are intentionally kept out o
 - `routing.md` — Gateway API, Envoy internal/external routes, Authelia proxy, Cloudflare Tunnel.
 - `secrets-standards-renovate.md` — SOPS, 1Password, YAML/schema validation, Renovate conventions.
 - `operations.md` — jj workflow, just recipes, Flux reconciliation, PR checks, debugging, post-merge cleanup.
-- `platform.md` — repository map, storage, network, post-upgrade LoadBalancer checks, Talos logging/observability.
+- `platform.md` — repository map, storage, network, Hubble flow visibility, post-upgrade LoadBalancer checks, Talos logging/observability.
 
 ## Why This Is Split
 

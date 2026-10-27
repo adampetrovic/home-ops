@@ -9,6 +9,7 @@ helm = "4.3.1"
 helmfile = "1.8.2"
 kustomize = "5.8.3"
 flux2 = "2.10.0"
+"aqua:cilium/hubble" = "1.20.2"
 
 # Talos
 talosctl = "1.14.5"
