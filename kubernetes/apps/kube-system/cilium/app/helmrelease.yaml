@@ -37,7 +37,23 @@ spec:
     cni:
       exclusive: false # Needed to allow Cilium to work with Multus
     hubble:
-      enabled: false
+      enabled: true
+      metrics:
+        # Workload-level contexts keep cardinality bounded across pod restarts.
+        enabled:
+          - drop:sourceContext=workload-name|reserved-identity;destinationContext=workload-name|reserved-identity;labelsContext=source_namespace,destination_namespace
+          - policy:sourceContext=workload-name|reserved-identity;destinationContext=workload-name|reserved-identity;labelsContext=source_namespace,destination_namespace
+        serviceMonitor:
+          enabled: true
+      relay:
+        enabled: true
+        rollOutPods: true
+        prometheus:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+      ui:
+        enabled: false
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.69.0.0/16"
