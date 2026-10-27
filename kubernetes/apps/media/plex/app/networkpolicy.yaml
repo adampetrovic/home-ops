@@ -6,7 +6,8 @@ metadata:
   name: plex
 spec:
   description: >-
-    Allow Plex's Vector sidecar to push logs to Loki, and nothing else on Loki.
+    Allow Plex's Vector sidecar to push logs to Loki, and nothing else on Loki,
+    and allow Plex Live TV to reach the HDHomeRun tuner.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: plex
@@ -25,3 +26,12 @@ spec:
             http:
               - method: "^POST$"
                 path: "^/loki/api/v1/push$"
+    # HDHomeRun tuner (HDHR-12338F2B): HTTP API on 80, video streams on 5004.
+    - toCIDR:
+        - 10.0.22.2/32
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+            - port: "5004"
+              protocol: TCP
