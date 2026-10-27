@@ -47,6 +47,19 @@ scripts/                     # Helper scripts
 - Trusted VLAN 10: `10.0.10.0/24` for secondary IoT access
 - CNI is Cilium, eBPF-based, without kube-proxy
 
+## Hubble Flow Visibility
+
+Cilium's Hubble records recent flows on each node and serves them cluster-wide through `kube-system/hubble-relay`. There is no UI. Use the `hubble` CLI from `.mise.toml` through a port-forward:
+
+```bash
+kubectl -n kube-system port-forward svc/hubble-relay 4245:80 &
+hubble observe --verdict DROPPED --last 50
+hubble observe --from-label app.kubernetes.io/name=<app> --last 200
+hubble observe --verdict DROPPED --from-label policy.petrovic.network/public-app=true --follow
+```
+
+Each node keeps only a small ring buffer of recent flows, so check soon after reproducing a problem. For long-term trends, Prometheus scrapes the `hubble_drop_total` and `hubble_policy_verdicts_total` metrics, labelled by source and destination workload and namespace.
+
 ## Post-Upgrade LoadBalancer/L2 Sanity Check
 
 After any Talos or Kubernetes rollout, especially Tuppr upgrades, explicitly check north/south LoadBalancer services using `externalTrafficPolicy: Local`.
