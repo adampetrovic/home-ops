@@ -119,3 +119,72 @@ Internet → Cloudflare → cloudflared pod → envoy-external Gateway service �
 ```
 
 Cloudflare Tunnel is configured in `kubernetes/apps/network/cloudflared/app/configs/config.yaml` and forwards all `*.${SECRET_PUBLIC_DOMAIN}` traffic to the `envoy-external` service.
+
+## Public App Containment
+
+Internet-facing apps are fenced in so a compromised one cannot reach databases, other apps, or the LAN. This only restricts what public apps can reach; it does not restrict what can reach them.
+
+An app is public if any of its routes use `envoy-external` (any public domain, including `${SECRET_PLEX_DOMAIN}`) or it is otherwise reachable from the internet, such as Plex. Apply this to every controller of the app, including helper controllers like Immich machine learning.
+
+1. Label the pods and stop mounting the service-account token:
+
+   ```yaml
+   controllers:
+     app:
+       pod:
+         labels:
+           policy.petrovic.network/public-app: "true"
+         automountServiceAccountToken: false
+   ```
+
+   Use `defaultPodOptions` instead when every controller in the release is public. The label applies the shared `public-app` CiliumClusterwideNetworkPolicy in `kubernetes/apps/kube-system/cilium/networkpolicies/public-app.yaml`: cluster DNS and the public internet are allowed, and all other egress, including RFC 1918, CGNAT, and link-local ranges, is denied.
+
+2. If the app needs anything private, allow exactly that in `app/networkpolicy.yaml` and list it in `app/kustomization.yaml`. Use a namespaced CiliumNetworkPolicy named after the app that selects its pods and only has `egress` rules:
+
+   ```yaml
+   ---
+   # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+   apiVersion: cilium.io/v2
+   kind: CiliumNetworkPolicy
+   metadata:
+     name: miniflux
+   spec:
+     description: >-
+       Allow Miniflux to reach PostgreSQL.
+     endpointSelector:
+       matchLabels:
+         app.kubernetes.io/name: miniflux
+         app.kubernetes.io/controller: miniflux
+     egress:
+       - toEndpoints:
+           - matchLabels:
+               k8s:io.kubernetes.pod.namespace: database
+               cnpg.io/cluster: postgres
+               cnpg.io/instanceRole: primary
+         toPorts:
+           - ports:
+               - port: "5432"
+                 protocol: TCP
+   ```
+
+Rules for dependency policies:
+
+- Select destinations by pod labels, not IPs. Include `k8s:io.kubernetes.pod.namespace` for another namespace; omitting it means the app's own namespace.
+- Ports are the pod's container port after Service translation, not the Service port. Check the destination's HelmRelease.
+- Reach in-cluster services by their `*.svc.cluster.local` name. LoadBalancer IPs and `petrovic.network` names resolve to private addresses that the shared policy blocks.
+- Do not allow a public app to reach `envoy-internal` or `envoy-external`; either gateway would give it a path to every app behind it.
+- Shared PostgreSQL is `cnpg.io/cluster: postgres` in `database`; shared Dragonfly is `app: dragonfly, role: master` in `database`; the SMTP relay is `app.kubernetes.io/name: smtp-relay` in `network` on port 25.
+- Public OIDC clients reach Authelia at `https://auth.${SECRET_PUBLIC_DOMAIN}`. CoreDNS resolves that one name through public DNS so the request goes out via Cloudflare instead of the internal gateway.
+- A Kustomization-level `dependsOn` is not needed for the shared policy. Add `coredns` to `dependsOn` only for apps that rely on the public `auth.` resolution.
+
+Before labelling an existing app, list the private destinations it actually uses so none are missed (see "Hubble Flow Visibility" in `platform.md`):
+
+```bash
+hubble observe --from-label app.kubernetes.io/name=<app> --last 500 -o compact
+```
+
+After deploying, verify the app's dependencies still work and watch for blocked connections:
+
+```bash
+hubble observe --verdict DROPPED --from-label policy.petrovic.network/public-app=true --follow
+```

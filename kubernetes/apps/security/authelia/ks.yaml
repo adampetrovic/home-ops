@@ -30,6 +30,37 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: &app authelia-cache
+  namespace: &namespace security
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+  # Operator-owned Dragonfly needs its own readiness stage before Authelia starts.
+  path: ./kubernetes/apps/security/authelia/cache
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  healthCheckExprs:
+    - apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      inProgress: "!has(status) || !has(status.phase) || status.phase != 'Ready'"
+      current: "has(status) && has(status.phase) && status.phase == 'Ready'"
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app authelia
   namespace: &namespace security
 spec:
@@ -44,8 +75,8 @@ spec:
       namespace: external-secrets
     - name: lldap
       namespace: security
-    - name: dragonfly-cluster
-      namespace: database
+    - name: authelia-cache
+      namespace: security
   path: ./kubernetes/apps/security/authelia/app
   prune: true
   sourceRef:

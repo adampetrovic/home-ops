@@ -29,6 +29,10 @@ spec:
           type: RuntimeDefault
     controllers:
       readeck:
+        pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
         annotations:
           reloader.stakater.com/auto: "true"
         containers:

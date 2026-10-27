@@ -21,6 +21,10 @@ spec:
   uninstall:
     keepHistory: false
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      labels:
+        policy.petrovic.network/public-app: "true"
     controllers:
       jellyseerr:
         containers:

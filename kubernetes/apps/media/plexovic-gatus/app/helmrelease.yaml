@@ -23,6 +23,10 @@ spec:
   values:
     controllers:
       gatus:
+        pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
         serviceAccount:
           identifier: gatus
         annotations:
@@ -37,7 +41,6 @@ spec:
               GATUS_CONFIG_PATH: /config
               CUSTOM_WEB_PORT: &port 8080
               SECRET_PLEX_DOMAIN: ${SECRET_PLEX_DOMAIN}
-              SECRET_NFS_DOMAIN: ${SECRET_NFS_DOMAIN}
             envFrom:
               - secretRef:
                   name: plexovic-gatus-secret

@@ -7,3 +7,4 @@ components:
 resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
+  - ./networkpolicy.yaml

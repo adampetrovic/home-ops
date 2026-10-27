@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: healthng
+spec:
+  description: >-
+    Allow HealthNG to send mail through the SMTP relay.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: healthng
+      app.kubernetes.io/controller: healthng
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            app.kubernetes.io/name: smtp-relay
+            app.kubernetes.io/controller: smtp-relay
+      toPorts:
+        - ports:
+            - port: "25"
+              protocol: TCP

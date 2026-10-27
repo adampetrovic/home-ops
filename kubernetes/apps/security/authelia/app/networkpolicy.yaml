@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: authelia
+spec:
+  description: >-
+    Allow Authelia to reach PostgreSQL, LLDAP, the SMTP relay and its session cache.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: authelia
+      app.kubernetes.io/controller: authelia
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres
+            cnpg.io/instanceRole: primary
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: lldap
+            app.kubernetes.io/controller: lldap
+      toPorts:
+        - ports:
+            - port: "389"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            app.kubernetes.io/name: smtp-relay
+            app.kubernetes.io/controller: smtp-relay
+      toPorts:
+        - ports:
+            - port: "25"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: security
+            app: authelia-dragonfly
+            role: master
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP

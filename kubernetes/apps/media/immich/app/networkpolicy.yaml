@@ -1,0 +1,40 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: immich
+spec:
+  description: >-
+    Allow the Immich server to reach its PostgreSQL, Dragonfly and machine learning.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: immich
+      app.kubernetes.io/controller: server
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: media
+            cnpg.io/cluster: immich-postgres
+            cnpg.io/instanceRole: primary
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: database
+            app: dragonfly
+            role: master
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: immich
+            app.kubernetes.io/controller: machine-learning
+      toPorts:
+        - ports:
+            - port: "3003"
+              protocol: TCP
