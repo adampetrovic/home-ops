@@ -73,6 +73,9 @@ spec:
                 gpu.intel.com/i915: 1
                 memory: 8Gi
         pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
@@ -132,6 +135,9 @@ spec:
               limits:
                 memory: 4Gi
         pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
           securityContext:
             runAsUser: 568
             runAsGroup: 568

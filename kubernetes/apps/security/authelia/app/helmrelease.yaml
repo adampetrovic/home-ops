@@ -22,6 +22,9 @@ spec:
     keepHistory: false
   values:
     defaultPodOptions:
+      automountServiceAccountToken: false
+      labels:
+        policy.petrovic.network/public-app: "true"
       securityContext:
         runAsUser: 568
         runAsGroup: 568
@@ -62,7 +65,10 @@ spec:
               AUTHELIA_LOG_LEVEL: debug
               AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: 'true'
               AUTHELIA_NOTIFIER_SMTP_DISABLE_REQUIRE_TLS: 'true'
-              AUTHELIA_NOTIFIER_SMTP_ADDRESS: smtp.petrovic.network:25
+              # Reach the relay pod directly so Authelia's network policy applies;
+              # its STARTTLS certificate is issued for smtp.petrovic.network.
+              AUTHELIA_NOTIFIER_SMTP_ADDRESS: smtp-relay.network.svc.cluster.local:25
+              AUTHELIA_NOTIFIER_SMTP_TLS_SERVER_NAME: smtp.petrovic.network
               AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <authelia@petrovic.network>
               AUTHELIA_SERVER_DISABLE_HEALTHCHECK: 'true'
               AUTHELIA_SERVER_PORT: &port 80

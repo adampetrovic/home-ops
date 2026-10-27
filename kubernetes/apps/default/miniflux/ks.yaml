@@ -42,6 +42,8 @@ spec:
       namespace: default
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: coredns
+      namespace: kube-system
   path: ./kubernetes/apps/default/miniflux/app
   prune: true
   sourceRef:

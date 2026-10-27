@@ -32,7 +32,7 @@ This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kub
 Read the relevant doc before making non-trivial changes:
 
 - Application deployment, HelmRelease, PVC, Kopiur, ExternalSecret, PostgreSQL role/database provisioning, or app add/remove: `docs/agent/app-deployments.md`
-- HTTPRoute, Envoy Gateway, Authelia, Cloudflare Tunnel, app exposure: `docs/agent/routing.md`
+- HTTPRoute, Envoy Gateway, Authelia, Cloudflare Tunnel, app exposure, public app network containment: `docs/agent/routing.md`
 - SOPS, 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
 - Talos, node upgrades, storage, networking, load balancers, Talos logs, observability platform: `docs/agent/platform.md`
@@ -65,6 +65,7 @@ Read the relevant doc before making non-trivial changes:
 - Public apps route through `network/envoy-external` and `${SECRET_PUBLIC_DOMAIN}` via Cloudflare Tunnel.
 - Authelia-protected apps add the `components/authelia-proxy` component to the app-level `kustomization.yaml`.
 - If adding Authelia in a new namespace, update `kubernetes/apps/security/authelia/app/referencegrant.yaml`.
+- Every internet-facing pod (any `envoy-external` route, or otherwise reachable from the internet) sets pod label `policy.petrovic.network/public-app: "true"` and `automountServiceAccountToken: false`. That limits it to cluster DNS and the public internet; allow each private dependency (database, cache, other apps, SMTP) explicitly in the app's own `app/networkpolicy.yaml`. When adding a dependency to a public app, update that file or the app will be blocked. See "Public App Containment" in `docs/agent/routing.md`.
 
 ## Quick Formatting and Validation
 

@@ -93,6 +93,9 @@ spec:
               limits:
                 memory: 512Mi
         pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:

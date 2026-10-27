@@ -60,6 +60,9 @@ spec:
               limits:
                 memory: 64Mi
         pod:
+          labels:
+            policy.petrovic.network/public-app: "true"
+          automountServiceAccountToken: false
           securityContext:
             runAsUser: 65534
             runAsGroup: 65534
