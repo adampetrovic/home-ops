@@ -35,13 +35,13 @@ spec:
                 protocol: TCP
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.10.102@sha256:a2d441ce982b320b878aa5ece09be00e15fd9e07428c6c763ea22fde0ab6ec79
+              tag: 1.10.103@sha256:fd04def008daf13219fa1f20bee39a837f221b60cae8c1cb93ae401b8db183b6
             envFrom:
               - secretRef:
                   name: gdb-secret
             env:
               APP_ENV: production
-              APP_VERSION: 1.10.102
+              APP_VERSION: 1.10.103
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
