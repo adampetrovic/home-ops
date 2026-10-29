@@ -80,7 +80,7 @@ spec:
           vector:
             image:
               repository: mirror.gcr.io/timberio/vector
-              tag: 0.60.0-alpine@sha256:1c6a6c4c5c9de08df357fa8adbe72e5a7abcea458b0bd82de0b14ac9b79d5b31
+              tag: 0.61.0-alpine@sha256:3bb7ed5152910ed51729e256937b1d8a4bf67ff624e9d565e8e5877bffd015c7
             env:
               VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION: "true"
             args:
