@@ -96,6 +96,24 @@
       },
     },
     {
+      description: "1Password Connect Group",
+      groupName: "1Password Connect",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["docker.io/1password/connect-api", "docker.io/1password/connect-sync"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Profilarr Group",
+      groupName: "Profilarr",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/dictionarry-hub/profilarr", "ghcr.io/dictionarry-hub/profilarr-parser"],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "Rook-Ceph Group",
       groupName: "Rook-Ceph",
       matchDatasources: ["docker"],
