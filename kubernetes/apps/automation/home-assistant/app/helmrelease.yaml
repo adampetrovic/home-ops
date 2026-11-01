@@ -35,7 +35,7 @@ spec:
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
               HASS_IP: 10.0.81.4
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: home-assistant-secret
             probes:
@@ -51,38 +51,6 @@ spec:
                 memory: 1536Mi
               limits:
                 memory: 3Gi
-          codeserver:
-            image:
-              repository: ghcr.io/coder/code-server
-              tag: 4.144.0-39@sha256:bd9a1a6dc28aab740d50b6e72dddf79454b5260d05acb1f4a63f8d0517773726
-            env:
-              TZ: "${TZ}"
-              GIT_AUTHOR_NAME: "Adam Petrovic"
-              GIT_CONFIG_COUNT: "1"
-              GIT_CONFIG_KEY_0: "safe.directory"
-              GIT_CONFIG_VALUE_0: "/config"
-            envFrom: *envFrom
-            args:
-              - --auth
-              - "none"
-              - --user-data-dir
-              - "/config/.vscode"
-              - --extensions-dir
-              - "/config/.vscode"
-              - /config
-            probes:
-              liveness:
-                enabled: false
-              readiness:
-                enabled: false
-              startup:
-                enabled: false
-            resources:
-              requests:
-                cpu: 152m
-                memory: 512Mi
-              limits:
-                memory: 768Mi
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: |
@@ -113,11 +81,6 @@ spec:
             enabled: true
             protocol: TCP
             port: 21065
-      codeserver:
-        controller: homeassistant
-        ports:
-          http:
-            port: 8080
 
     route:
       app:
@@ -144,16 +107,6 @@ spec:
           - backendRefs:
               - identifier: app
                 port: http
-      codeserver:
-        hostnames:
-          - "hass-code.petrovic.network"
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
-        rules:
-          - backendRefs:
-              - identifier: codeserver
-                port: http
 
     persistence:
       config:
@@ -175,35 +128,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /config/.cache/uv
-
-      deploy-key:
-        type: secret
-        name: home-assistant-secret
-        defaultMode: 420  # 644 (octal) in decimal
-        advancedMounts:
-          homeassistant:
-            codeserver:
-              - path: /home/coder/.ssh/id_rsa
-                subPath: GH_DEPLOY_KEY
-
-      dot-gitconfig:
-        enabled: true
-        type: secret
-        name: home-assistant-secret
-        advancedMounts:
-          homeassistant:
-            codeserver:
-              - path: /home/coder/.gitconfig
-                subPath: GIT_CONFIG
-        defaultMode: 0700
-
-      ssh-knownhosts:
-        enabled: true
-        type: secret
-        name: home-assistant-secret
-        advancedMounts:
-          homeassistant:
-            codeserver:
-              - path: /home/coder/.ssh/known_hosts
-                subPath: KNOWN_HOSTS
-        defaultMode: 0700
