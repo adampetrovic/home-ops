@@ -5,6 +5,7 @@
   automergeStrategy: "rebase",
   platformAutomerge: false,
   ignoreTests: false,
+  rebaseWhen: "conflicted",
   packageRules: [
     // Docker Hub images are listed as docker.io/... because registryAliases maps mirror.gcr.io to docker.io
     {
