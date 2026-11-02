@@ -13,7 +13,7 @@ flux2 = "2.10.0"
 
 # Talos
 talosctl = "1.14.5"
-"github:mitsuhiko/minijinja" = "3.0.4"
+"github:mitsuhiko/minijinja" = "3.0.5"
 
 # Secrets
 sops = "3.13.3"
