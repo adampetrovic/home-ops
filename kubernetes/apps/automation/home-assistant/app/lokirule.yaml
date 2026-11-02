@@ -13,6 +13,24 @@ groups:
           app: "{{ $labels.app }}"
           summary: "{{ $labels.app }} is unable to connect to postgres"
 
+      # A single timeout preceded unresponsive Alexa controls even while cloud
+      # status was connected. Window expiry means no recent errors, not recovery.
+      - alert: HomeAssistantAlexaTimeout
+        expr: |
+          sum by (app) (count_over_time({app="home-assistant"} |~ "Timeout sending report to Alexa|hass_nabucasa[.]iot.*Timeout while waiting to receive message"[5m])) > 0
+        for: 0s
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          app: "{{ $labels.app }}"
+          summary: "Home Assistant Alexa/cloud timeout; voice controls may be unresponsive"
+          description: >-
+            An Alexa state report or Nabu Casa message receive timed out.
+            Test a light through Alexa; cloud status can still show connected.
+            If controls fail, a Home Assistant restart restored service previously.
+            Alert clearance only means no matching logs for 5 minutes.
+
       - alert: HomeAssistantUnableParseConfig
         expr: |
           sum by (app) (count_over_time({app="home-assistant"} |~ "(?i)Failed to parse configuration.yaml"[1m])) > 0
