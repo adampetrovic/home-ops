@@ -6,3 +6,15 @@ resources:
   - ./helmrelease.yaml
   - ./clustersecretstore.yaml
   - ./onepassword-connect.secret.sops.yaml
+patches:
+  # Stage 1 of SOPS removal: keep the live Secret when this file leaves Git.
+  - target:
+      kind: Secret
+      name: onepassword-connect-secret
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: onepassword-connect-secret
+        annotations:
+          kustomize.toolkit.fluxcd.io/prune: disabled

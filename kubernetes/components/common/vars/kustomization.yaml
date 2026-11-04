@@ -4,3 +4,15 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./cluster-secrets.sops.yaml
+patches:
+  # Stage 1 of SOPS removal: keep the live Secret when this file leaves Git.
+  - target:
+      kind: Secret
+      name: cluster-secrets
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cluster-secrets
+        annotations:
+          kustomize.toolkit.fluxcd.io/prune: disabled

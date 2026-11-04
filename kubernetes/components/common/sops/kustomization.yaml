@@ -5,3 +5,15 @@ kind: Kustomization
 resources:
   - ./ghcr.sops.yaml
   - ./secret.sops.yaml
+patches:
+  # Stage 1 of SOPS removal: keep the live Secret when this file leaves Git.
+  - target:
+      kind: Secret
+      name: ghcr-private
+    patch: |-
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ghcr-private
+        annotations:
+          kustomize.toolkit.fluxcd.io/prune: disabled
