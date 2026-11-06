@@ -35,13 +35,13 @@ spec:
                 protocol: TCP
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.10.110@sha256:b9c04f8a7a8b12e736975acca0c2b80911ef5aad6f4f6250be5766019b4655d0
+              tag: 1.10.111@sha256:2101c2dfab2953ec50b684f119035692b460335f4aff0f28c8dc6a19074337ae
             envFrom:
               - secretRef:
                   name: gdb-secret
             env:
               APP_ENV: production
-              APP_VERSION: 1.10.110
+              APP_VERSION: 1.10.111
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
@@ -58,6 +58,7 @@ spec:
               METRICS_LISTEN_ADDR: 0.0.0.0:9091
               DB_APPLICATION_NAME: gdb-web
               NAME_LLM_ENABLED: "true"
+              GRAPH_BOOST_ENABLED: "true"
               JOBS_ENABLED: "true"
               JOBS_PUBLIC_ORIGIN: https://gdb.petrovic.network
               MEDIA_DIR: /tmp
