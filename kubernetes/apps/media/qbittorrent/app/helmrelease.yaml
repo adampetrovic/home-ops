@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: qbittorrent
+  name: &app qbittorrent
 spec:
   interval: 30m
   chartRef:
@@ -79,7 +79,7 @@ spec:
       # The web UI trusts private source IPs without a login, so it stays
       # in-cluster and LAN access goes through Envoy and Authelia.
       app:
-        forceRename: qbittorrent
+        forceRename: *app
         controller: qbittorrent
         primary: true
         ports:
