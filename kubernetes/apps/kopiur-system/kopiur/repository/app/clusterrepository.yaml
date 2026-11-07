@@ -109,6 +109,13 @@ spec:
   maintenance:
     enabled: true
     namespace: kopiur-system
+    schedule:
+      quick:
+        cron: "0 * * * *"
+        jitter: 30m
+      full:
+        cron: "0 3 * * *"
+        jitter: 1h
   moverDefaults:
     cache:
       contentCacheSizeMb: 512
