@@ -6,18 +6,24 @@ metadata:
   name: babybuddy
 spec:
   description: >-
-    Allow Baby Buddy to reach PostgreSQL.
+    Baby Buddy trusts the Remote-User header, so only the internal gateway,
+    Home Assistant and Gatus may reach it.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: babybuddy
       app.kubernetes.io/controller: babybuddy
-  egress:
-    - toEndpoints:
+  ingress:
+    - fromEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres
-            cnpg.io/instanceRole: primary
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: automation
+            app.kubernetes.io/name: home-assistant
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: gatus
       toPorts:
         - ports:
-            - port: "5432"
+            - port: "8000"
               protocol: TCP
