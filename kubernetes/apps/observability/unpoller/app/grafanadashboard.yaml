@@ -60,8 +60,10 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
+    - datasourceName: Prometheus
+      inputName: DS_UNIFI_POLLER
   # renovate: depName="UniFi-Poller: USG Insights - Prometheus"
-  url: https://raw.githubusercontent.com/adampetrovic/unifi-dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
+  url: https://raw.githubusercontent.com/unpoller/dashboards/master/v2.0.0/UniFi-Poller_%20USG%20Insights%20-%20Prometheus.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1

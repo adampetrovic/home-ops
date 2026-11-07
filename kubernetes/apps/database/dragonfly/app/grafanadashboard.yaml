@@ -12,4 +12,6 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
+    - datasourceName: __expr__
+      inputName: DS_EXPRESSION
   url: https://raw.githubusercontent.com/dragonflydb/dragonfly-operator/refs/heads/main/monitoring/grafana-dashboard.json

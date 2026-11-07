@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
 spec:
-  version: 12.3.0
+  version: mirror.gcr.io/grafana/grafana:12.3.0@sha256:70d9599b186ce287be0d2c5ba9a78acb2e86c1a68c9c41449454d0fc3eeb84e8
   config:
     analytics:
       check_for_updates: "false"
@@ -51,8 +51,6 @@ spec:
       enabled: "true"
     news:
       news_feed_enabled: "false"
-    plugins:
-      allow_loading_unsigned_plugins: natel-discrete-panel,pr0ps-trackmap-panel,panodata-map-panel
     security:
       cookie_samesite: grafana
     server:
@@ -67,7 +65,7 @@ spec:
             - name: grafana
               env:
                 - name: GF_INSTALL_PLUGINS
-                  value: grafana-clock-panel,grafana-piechart-panel,grafana-worldmap-panel,marcusolsson-hourly-heatmap-panel,natel-discrete-panel,natel-plotly-panel,pr0ps-trackmap-panel,vonage-status-panel
+                  value: grafana-clock-panel
                 - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:

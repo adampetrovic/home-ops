@@ -59,6 +59,15 @@ spec:
           component: kube-apiserver
     kubeProxy:
       enabled: false
+    kubeApiServer:
+      serviceMonitor:
+        metricRelabelings:
+          - action: drop
+            sourceLabels: ["__name__", "le"]
+            regex: (etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\.15|0\.2|0\.3|0\.35|0\.4|0\.45|0\.6|0\.7|0\.8|0\.9|1\.25|1\.5|1\.75|2|3|3\.5|4|4\.5|6|7|8|9|15|20|40|45|50)(\.0)?
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: (apiserver_watch_events_dispatch_duration_seconds|etcd_request_duration_seconds|apiserver_watch_list_duration_seconds|apiserver_request_body_size_bytes|apiserver_storage_list_duration_seconds|apiserver_watch_cache_read_wait_seconds|apiserver_watch_cache_initialization_duration_seconds|apiserver_watch_events_sizes|apiserver_response_sizes)_bucket
     prometheus:
       ingress:
         enabled: false
@@ -75,7 +84,7 @@ spec:
           registry: quay.io
           repository: prometheus/prometheus
           tag: v3.15.1@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2
-        version: v3.15.0
+        version: v3.15.1
         securityContext:
           runAsNonRoot: true
           runAsUser: 64535
@@ -91,9 +100,9 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 2Gi
+            memory: 2560Mi
           limits:
-            memory: 3Gi
+            memory: 4Gi
         storageSpec:
           volumeClaimTemplate:
             spec:

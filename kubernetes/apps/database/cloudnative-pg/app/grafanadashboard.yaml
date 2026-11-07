@@ -1,0 +1,19 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: cloudnative-pg
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  datasources:
+    - datasourceName: Prometheus
+      inputName: DS_PROMETHEUS
+    - datasourceName: __expr__
+      inputName: DS_EXPRESSION
+  configMapRef:
+    name: cnpg-grafana-dashboard
+    key: cnp.json

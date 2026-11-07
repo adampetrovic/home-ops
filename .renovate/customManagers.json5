@@ -13,6 +13,24 @@
     },
     {
       customType: "regex",
+      description: "Process grafana-operator Grafana image references",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "version: (?<depName>mirror\\.gcr\\.io/grafana/grafana):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})",
+      ],
+      datasourceTemplate: "docker",
+    },
+    {
+      customType: "regex",
+      description: "Process TeslaMate Grafana dashboard URLs",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "url: https://raw\\.githubusercontent\\.com/(?<depName>teslamate-org/teslamate)/(?<currentValue>v[^/\\s]+)/",
+      ],
+      datasourceTemplate: "github-releases",
+    },
+    {
+      customType: "regex",
       description: "Process annotated dependencies",
       managerFilePatterns: [
         "/(^|/).+\\.env$/",
