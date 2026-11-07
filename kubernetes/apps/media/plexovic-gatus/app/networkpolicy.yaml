@@ -6,12 +6,15 @@ metadata:
   name: plexovic-gatus
 spec:
   description: >-
-    Allow the status page to check Plex and the media apps.
+    Allow the status page to check Plex and the media apps, limited to the
+    read-only GETs its checks send so it cannot drive their admin APIs.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: plexovic-gatus
       app.kubernetes.io/controller: gatus
   egress:
+    # Paths are matched with an optional query string so the rules hold
+    # whether or not Cilium includes it in the matched path.
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: plex
@@ -20,6 +23,10 @@ spec:
         - ports:
             - port: "32400"
               protocol: TCP
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/(identity|library/sections/1/all)([?].*)?$"
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: sonarr
@@ -27,12 +34,42 @@ spec:
         - matchLabels:
             app.kubernetes.io/name: radarr
             app.kubernetes.io/controller: radarr
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/ping$"
+    # qBittorrent trusts private source IPs without a login, so only the
+    # version endpoint is reachable.
+    - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: qbittorrent
             app.kubernetes.io/controller: qbittorrent
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/api/v2/app/version$"
+    - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: sabnzbd
             app.kubernetes.io/controller: sabnzbd
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/api([?]mode=version)?$"
+    # Jellyseerr redirects / to /login, which the check follows.
+    - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: jellyseerr
             app.kubernetes.io/controller: jellyseerr
@@ -40,3 +77,7 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/(login)?$"

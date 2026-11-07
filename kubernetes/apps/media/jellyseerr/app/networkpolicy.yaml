@@ -6,7 +6,8 @@ metadata:
   name: jellyseerr
 spec:
   description: >-
-    Allow Jellyseerr to reach Plex, Sonarr and Radarr.
+    Allow Jellyseerr to reach Plex, and Sonarr and Radarr only on the API
+    calls that requests use, so it cannot reach their admin endpoints.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: jellyseerr
@@ -31,3 +32,13 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
+          # Reads, adding and updating series or movies, tags, and search
+          # commands. Everything else, including DELETE, is refused.
+          rules:
+            http:
+              - method: "^GET$"
+                path: "^/api/v3/.*"
+              - method: "^POST$"
+                path: "^/api/v3/(series|movie|tag|command)([?].*)?$"
+              - method: "^PUT$"
+                path: "^/api/v3/(series|movie)(/[0-9]+)?([?].*)?$"
