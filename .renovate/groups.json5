@@ -42,6 +42,25 @@
       },
     },
     {
+      description: "Keep TeslaMate dashboards on the same release as the deployed image",
+      groupName: "TeslaMate",
+      matchDatasources: ["docker", "github-releases"],
+      matchPackageNames: ["/(^|/)teslamate(-org)?/teslamate$/"],
+      // the GitHub release usually lands before the Docker image; wait so both ship in one branch
+      minimumReleaseAge: "1 day",
+      separateMinorPatch: true,
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
+      description: "Auto-merge TeslaMate dashboard patches alongside the image's patch auto-merge",
+      matchDatasources: ["github-releases"],
+      matchPackageNames: ["teslamate-org/teslamate"],
+      matchUpdateTypes: ["patch"],
+      automerge: true,
+    },
+    {
       description: "Cert-Manager Group",
       groupName: "Cert-Manager",
       matchDatasources: ["docker"],

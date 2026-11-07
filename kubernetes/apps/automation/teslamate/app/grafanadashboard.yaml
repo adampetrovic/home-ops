@@ -9,7 +9,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/battery-health.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/battery-health.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -21,7 +21,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/charge-level.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/charge-level.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -33,7 +33,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/charges.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/charges.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -45,7 +45,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/charging-stats.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/charging-stats.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -57,7 +57,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/database-info.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/database-info.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -69,7 +69,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/drive-stats.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/drive-stats.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -81,7 +81,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/drives.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/drives.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -93,7 +93,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/efficiency.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/efficiency.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -105,7 +105,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/locations.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/locations.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -117,7 +117,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/mileage.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/mileage.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -129,7 +129,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/overview.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/overview.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -141,7 +141,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/projected-range.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/projected-range.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -153,7 +153,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/states.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/states.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -165,7 +165,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/statistics.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/statistics.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -177,7 +177,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/timeline.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/timeline.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -189,7 +189,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/trip.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/trip.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -201,7 +201,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/updates.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/updates.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -213,7 +213,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/vampire-drain.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/vampire-drain.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -225,7 +225,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/visited.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/visited.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -237,7 +237,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/internal/charge-details.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/internal/charge-details.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -249,7 +249,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/internal/drive-details.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/internal/drive-details.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
@@ -261,7 +261,7 @@ spec:
   instanceSelector:
     matchLabels:
       app.kubernetes.io/name: grafana
-  url: https://raw.githubusercontent.com/teslamate-org/teslamate/master/grafana/dashboards/internal/home.json
+  url: https://raw.githubusercontent.com/teslamate-org/teslamate/v4.4.0/grafana/dashboards/internal/home.json
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
 apiVersion: grafana.integreatly.org/v1beta1
