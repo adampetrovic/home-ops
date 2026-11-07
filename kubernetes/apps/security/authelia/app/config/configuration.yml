@@ -48,6 +48,12 @@ access_control:
       subject:
         - 'group:go2rtc'
         - 'group:admin'
+    - domain:
+        - "prowlarr.petrovic.network"
+        - "sabnzbd.petrovic.network"
+        - "bazarr.petrovic.network"
+      policy: bypass
+      resources: ["^/api([?/].*)?$", "^/[0-9]+/(api|download)([?/].*)?$"]
     - domain: ["*.petrovic.network"]
       policy: one_factor
       subject:
