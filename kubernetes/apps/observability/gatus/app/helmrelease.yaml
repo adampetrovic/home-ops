@@ -65,7 +65,7 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               GATUS_WEB_PORT: &port 8080
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
             probes:
               liveness: &probes
                 enabled: true

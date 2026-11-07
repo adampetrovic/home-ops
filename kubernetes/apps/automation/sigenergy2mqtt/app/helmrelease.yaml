@@ -31,9 +31,9 @@ spec:
               repository: mirror.gcr.io/seud0nym/sigenergy2mqtt
               tag: 2026.10.10@sha256:fa85a48a99e94c548dc4c71e940f212b7a0578a49c87559fad831aac961dfb60
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
 
-              SIGENERGY2MQTT_MODBUS_HOST: "${SECRET_SIGENERGY_IP}"
+              SIGENERGY2MQTT_MODBUS_HOST: "10.0.21.71"
               SIGENERGY2MQTT_MODBUS_PORT: "502"
               SIGENERGY2MQTT_MODBUS_INVERTER_DEVICE_ID: "1"
 

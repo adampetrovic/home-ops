@@ -42,7 +42,7 @@ spec:
               repository: ghcr.io/mafredri/unifi-os-backup
               tag: main@sha256:65c3dd62a52a4afb08c7162e3861d6219a51492809992302698ee76ba85edcb4
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               LISTEN_ADDRESS: 0.0.0.0:8080
               BACKUP_DIRECTORY: /backups
               CONSOLES: cloudkey,unas

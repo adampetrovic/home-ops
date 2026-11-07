@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: sonarr-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               SONARR__INSTANCE_NAME: Sonarr
               SONARR__PORT: &port 80
               SONARR__APPLICATION_URL: https://sonarr.petrovic.network
@@ -89,19 +89,19 @@ spec:
         existingClaim: sonarr
       tv:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/tv
         globalMounts:
           - path: /tv
       tv-kids:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/kids/tv
         globalMounts:
           - path: /kids
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads

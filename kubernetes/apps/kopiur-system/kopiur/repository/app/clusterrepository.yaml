@@ -64,7 +64,7 @@ spec:
       path: /repo
       volume:
         nfs:
-          server: ${SECRET_NFS_DOMAIN}
+          server: nas.petrovic.network
           path: /var/nfs/shared/kopiur
   encryption:
     passwordSecretRef:

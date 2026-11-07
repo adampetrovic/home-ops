@@ -36,7 +36,7 @@ spec:
               - secretRef:
                   name: lldap-secret
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               LLDAP_HTTP_PORT: &port 80
               LLDAP_HTTP_URL: https://lldap.petrovic.network
               LLDAP_LDAP_PORT: &ldapPort 389

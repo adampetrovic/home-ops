@@ -48,7 +48,7 @@ spec:
               - secretRef:
                   name: sabnzbd-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               SABNZBD__PORT: &port 80
               # Keep high-churn article writes off the NFS media share.
               SABNZBD__DOWNLOAD_DIR: /incomplete
@@ -107,7 +107,7 @@ spec:
           - path: /incomplete
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media
         globalMounts:
           - path: /downloads

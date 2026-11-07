@@ -79,7 +79,7 @@ spec:
               repository: ghcr.io/adampetrovic/adguardhome
               tag: v0.107.79@sha256:e320f8a5ac46fc69eaa3b80c887bb73ae62207b4662ba0cd1e535e4907ff3309
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -126,7 +126,7 @@ spec:
               ORIGIN_URL: http://adguard-0.adguard-headless.network.svc.cluster.local
               REPLICA1_URL: http://adguard-1.adguard-headless.network.svc.cluster.local
               RUN_ON_START: "true"
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
             envFrom:
               - secretRef:
                   name: adguard-sync-secret

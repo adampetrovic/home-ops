@@ -61,7 +61,7 @@ spec:
               repository: ghcr.io/adampetrovic/stash
               tag: v0.31.1@sha256:5b1d155062e32c7583cc40765c42af545788863f99df9ed7c248456db87378ac
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               HOME: /config
               USER: stash # required by Go's user lookup for an arbitrary non-root UID
               STASH_CONFIG_FILE: /config/config.yml
@@ -158,7 +158,7 @@ spec:
           - path: /config
       media:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/stash
         advancedMounts:
           stash:

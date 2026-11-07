@@ -37,7 +37,7 @@ spec:
               repository: mirror.gcr.io/actualbudget/actual-server
               tag: 26.11.0-alpine@sha256:01ac24a51c6f585aba287c1bf1e96fcda46ab16a05952817c637415213251aa3
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB: "500"
               ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB: "500"
               ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB: "500"

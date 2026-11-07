@@ -31,7 +31,7 @@ spec:
               repository: mirror.gcr.io/teslamate/teslamate
               tag: 4.4.0@sha256:c85b3d447502683ed7bf12fb478e0dae9a985fe975ac22cccb64faeb4c4a5d31
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               DISABLE_MQTT: "false"
               MQTT_HOME_ASSISTANT_DISCOVERY: "true"
               MQTT_HOME_ASSISTANT_DISCOVERY_PREFIX: homeassistant

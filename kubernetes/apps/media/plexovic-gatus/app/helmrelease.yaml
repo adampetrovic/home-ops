@@ -37,7 +37,7 @@ spec:
               repository: ghcr.io/twin/gatus
               tag: v5.38.0@sha256:085ed63da963728965d00a3c78aa6167e3bf135218485b893201758e079e8415
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               GATUS_CONFIG_PATH: /config
               CUSTOM_WEB_PORT: &port 8080
               SECRET_PLEX_DOMAIN: ${SECRET_PLEX_DOMAIN}

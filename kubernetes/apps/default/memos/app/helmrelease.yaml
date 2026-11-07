@@ -28,7 +28,7 @@ spec:
               repository: ghcr.io/usememos/memos
               tag: 26.11.0@sha256:087e7dc6b76b31fcd1107a5767398b2a310ced209adb791efd8760c745dc8034
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               MEMOS_PORT: "5230" # https://github.com/usememos/memos/issues/1782
               MEMOS_DRIVER: postgres
               MEMOS_DSN:

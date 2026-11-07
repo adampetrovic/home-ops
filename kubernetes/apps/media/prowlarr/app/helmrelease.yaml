@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: prowlarr-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               PROWLARR__INSTANCENAME: Prowlarr
               PROWLARR__SERVER__PORT: &port 80
               PROWLARR__LOG_LEVEL: info

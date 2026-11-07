@@ -31,7 +31,7 @@ spec:
               tag: latest@sha256:7224d4e7c7833aabbcb7dd70c46c8a8dcccda365314c6db047b9b10403ace3bc
               pullPolicy: Always
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
             resources:
               requests:
                 cpu: 100m

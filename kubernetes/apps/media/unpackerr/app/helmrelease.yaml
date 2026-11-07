@@ -42,7 +42,7 @@ spec:
               - secretRef:
                   name: unpackerr-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               UN_WEBSERVER_METRICS: 'true'
               UN_WEBSERVER_LISTEN_ADDR: 0.0.0.0:5656
               UN_WEBSERVER_UI_PASSWORD: webauth:Remote-User
@@ -101,7 +101,7 @@ spec:
           - path: /tmp
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads

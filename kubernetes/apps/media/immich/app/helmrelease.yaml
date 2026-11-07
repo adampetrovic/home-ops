@@ -33,7 +33,7 @@ spec:
               - secretRef:
                   name: immich-secret
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               IMMICH_PORT: &port 2283
               IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
               REDIS_HOSTNAME: dragonfly.database.svc.cluster.local
@@ -184,7 +184,7 @@ spec:
     persistence:
       library:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/photos/immich
         advancedMounts:
           server:
@@ -192,7 +192,7 @@ spec:
               - path: /data
       shared-photos:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/photos/shared
         advancedMounts:
           server:
@@ -200,7 +200,7 @@ spec:
               - path: /mnt/shared-photos
       archives:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/photos/archives
         advancedMounts:
           server:

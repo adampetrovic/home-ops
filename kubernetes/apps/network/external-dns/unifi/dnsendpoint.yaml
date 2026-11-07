@@ -8,9 +8,9 @@ spec:
     - dnsName: "iota.petrovic.network"
       recordType: A
       targets: ["10.0.22.9"]
-    - dnsName: "nas-direct.petrovic.network"
+    - dnsName: "nas.petrovic.network"
       recordType: A
-      targets: ["10.0.10.3"]
+      targets: ["10.0.10.95"]
     - dnsName: "unas-direct.petrovic.network"
       recordType: A
       targets: ["10.0.10.95"]

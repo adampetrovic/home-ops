@@ -30,7 +30,7 @@ spec:
               repository: mirror.gcr.io/dxflrs/garage
               tag: v2.5.0@sha256:677e5b758e4425a325b811c425c026bf35a4bf42f7ddbaa773de3f4fd779a5a5
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
             envFrom:
               - secretRef:
                   name: garage-secret
@@ -83,7 +83,7 @@ spec:
             subPath: configuration.toml
       data:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/garage/data
         globalMounts:
           - path: /data

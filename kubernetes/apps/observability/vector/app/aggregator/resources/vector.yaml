@@ -1,6 +1,6 @@
 ---
 data_dir: /vector-data-dir
-timezone: "${TZ}"
+timezone: "Australia/Sydney"
 api:
   enabled: true
   address: 0.0.0.0:8686

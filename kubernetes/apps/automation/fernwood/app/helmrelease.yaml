@@ -52,7 +52,7 @@ spec:
               - secretRef:
                   name: fernwood-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               LISTEN_ADDR: ":8080"
               ADMIN_LISTEN_ADDR: ":8081"
               ADMIN_GROUP: admin

@@ -40,7 +40,7 @@ spec:
               repository: ghcr.io/zariel/cleanrr
               tag: v0.2.2@sha256:bb922f1113d62f48140c5b84b46a9f2399c5b9e64e8093f48cb4dc4caceeb4bb
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               CLEANRR_LISTEN_ADDR: 0.0.0.0:8080
               CLEANRR_POLL_INTERVAL: 1m
               CLEANRR_MINIMUM_AGE: 30m

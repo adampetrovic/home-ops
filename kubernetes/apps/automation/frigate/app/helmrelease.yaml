@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/blakeblackshear/frigate
               tag: 0.18.2@sha256:fd60f99ffd4eb6c42360ed4e14953e270586f239309ab3983e55b2e97ffac09a
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
             envFrom:
               - secretRef:
                   name: frigate-secret
@@ -139,7 +139,7 @@ spec:
           - path: /dev/bus/usb
       media:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/frigate
         globalMounts:
           - path: /media

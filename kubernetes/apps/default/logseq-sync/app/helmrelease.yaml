@@ -37,7 +37,7 @@ spec:
               repository: ghcr.io/yshalsager/logseq-selfhost-sync
               tag: 20260926-f3beb33@sha256:a869cdab21ae95a75cdc12c637729f6e8bfbcf9dc189770b7458f7bffcd2a8e6
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               DB_SYNC_PORT: "8787"
               DB_SYNC_BASE_URL: "https://logseq-sync.petrovic.network"
               DB_SYNC_DATA_DIR: /app/data

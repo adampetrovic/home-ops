@@ -41,7 +41,7 @@ spec:
               repository: ghcr.io/coder/code-server
               tag: 4.145.2-39@sha256:f1598017dc620b44b27cd2517ba8be0de9e95a2275b97163eb3484364cde5785
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               GIT_AUTHOR_NAME: "Adam Petrovic"
             args:
               - --auth

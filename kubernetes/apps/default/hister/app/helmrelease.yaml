@@ -37,7 +37,7 @@ spec:
               repository: ghcr.io/asciimoo/hister
               tag: v0.21.0@sha256:4dab1cbd7aabe8ade8e696e4085ecd3254e1170467c4502debec792a904abdbc
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               GOMEMLIMIT: 2300MiB
               HISTER__SERVER__ADDRESS: 0.0.0.0:4433
               HISTER__SERVER__BASE_URL: https://hister.petrovic.network

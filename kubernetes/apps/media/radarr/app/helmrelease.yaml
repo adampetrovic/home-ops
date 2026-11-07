@@ -34,7 +34,7 @@ spec:
               - secretRef:
                   name: radarr-secret
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               RADARR__INSTANCE_NAME: Radarr
               RADARR__PORT: &port 80
               RADARR__APPLICATION_URL: https://radarr.petrovic.network
@@ -90,20 +90,20 @@ spec:
         existingClaim: radarr
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads
       movies:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/movies
         globalMounts:
           - path: /movies
 
       movies-kids:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/kids/movies
         globalMounts:
           - path: /kids

@@ -29,7 +29,7 @@ spec:
               repository: ghcr.io/dgtlmoon/changedetection.io
               tag: "0.70.2@sha256:36ebb3586e9a6b14af6fb488c6e29b60eceb79ee414ecdb6ac2b91dd25b1c7ba"
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               PORT: &port 5000
               USE_X_SETTINGS: 1
               BASE_URL: &host changedetection.petrovic.network

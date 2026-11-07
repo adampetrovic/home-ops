@@ -33,7 +33,7 @@ spec:
               NODE_ENV: production
               PORT: &port 3000
               HOST: 0.0.0.0
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               REDIS_URL: redis://dragonfly.database.svc.cluster.local:6379
               CORS_ORIGIN: "*"
               LOG_LEVEL: info

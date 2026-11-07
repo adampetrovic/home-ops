@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/crazy-max/samba
               tag: 4.23.8@sha256:b37f7af97c773eddb593537f64da6389e5ee6695bcecf44f3ba1a8a6bcf34125
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               CONFIG_FILE: /config/config.yml
               SAMBA_WORKGROUP: WORKGROUP
               SAMBA_SERVER_STRING: Paperless scan inbox
@@ -101,7 +101,7 @@ spec:
             env:
               USERMAP_UID: 568
               USERMAP_GID: 100
-              PAPERLESS_TIME_ZONE: "${TZ}"
+              PAPERLESS_TIME_ZONE: "Australia/Sydney"
               PAPERLESS_PORT: &port 80
               PAPERLESS_REDIS: redis://dragonfly.database.svc.cluster.local:6379
               PAPERLESS_TASK_WORKERS: 2

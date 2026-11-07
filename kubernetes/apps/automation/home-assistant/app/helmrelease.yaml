@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2026.11.0@sha256:7c1ab60a4bb4cc1f34c314bc209d72d7b7336f0da38d4a69064935d01bba1ba6
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
               HASS_IP: 10.0.81.4

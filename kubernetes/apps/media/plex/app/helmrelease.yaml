@@ -30,7 +30,7 @@ spec:
               repository: ghcr.io/home-operations/plex
               tag: 1.43.5.11079@sha256:06ef0fc23e9af9bbaf284c3f27972f94e703d13d6f745edeb6818fcbebf6c673
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               PLEX_ADVERTISE_URL: https://plex.petrovic.network:443,http://10.0.88.3:32400,http://plex.media.svc.cluster.local:32400
               PLEX_NO_AUTH_NETWORKS: 10.0.10.0/24
             probes:
@@ -195,7 +195,7 @@ spec:
         type: emptyDir
       movies:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/movies
         advancedMounts:
           plex:
@@ -204,7 +204,7 @@ spec:
                 readOnly: true
       movies-kids:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/kids/movies
         advancedMounts:
           plex:
@@ -213,7 +213,7 @@ spec:
                 readOnly: true
       tv:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/tv
         advancedMounts:
           plex:
@@ -222,7 +222,7 @@ spec:
                 readOnly: true
       tv-kids:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/kids/tv
         advancedMounts:
           plex:
@@ -231,7 +231,7 @@ spec:
                 readOnly: true
       music:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/music
         advancedMounts:
           plex:
@@ -240,7 +240,7 @@ spec:
                 readOnly: true
       family:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/family
         advancedMounts:
           plex:

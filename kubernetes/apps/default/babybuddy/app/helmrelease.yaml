@@ -30,7 +30,7 @@ spec:
               repository: ghcr.io/linuxserver/babybuddy
               tag: 2.11.0@sha256:b19394db47554ab385e5513dcb4aed253f551a19ac89576a9df191ed59b683de
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               CSRF_TRUSTED_ORIGINS: https://baby.petrovic.network
               PUID: 1000
               PGID: 1000

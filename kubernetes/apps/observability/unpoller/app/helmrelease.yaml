@@ -35,7 +35,7 @@ spec:
               - secretRef:
                   name: *secret
             env:
-              TZ: ${TZ}
+              TZ: Australia/Sydney
               UP_UNIFI_DEFAULT_ROLE: home-ops
               UP_UNIFI_DEFAULT_URL: https://unifi.petrovic.network
               UP_UNIFI_DEFAULT_VERIFY_SSL: true

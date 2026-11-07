@@ -31,7 +31,7 @@ spec:
               repository: ghcr.io/calibrain/shelfmark
               tag: v1.6.1@sha256:0e5c9ff5f858a9695dc18bc355d8aa29dfee5c0d9c634919484c2bab9955ad5a
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               FLASK_PORT: &port 8084
               PUID: 568
               PGID: 568
@@ -96,13 +96,13 @@ spec:
           - path: /var/log
       books:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/books
         globalMounts:
           - path: /books
       downloads:
         type: nfs
-        server: ${SECRET_NFS_DOMAIN}
+        server: nas.petrovic.network
         path: /var/nfs/shared/media/downloads
         globalMounts:
           - path: /downloads
