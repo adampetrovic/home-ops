@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
 spec:
-  version: mirror.gcr.io/grafana/grafana:12.3.0@sha256:70d9599b186ce287be0d2c5ba9a78acb2e86c1a68c9c41449454d0fc3eeb84e8
+  version: mirror.gcr.io/grafana/grafana:12.4.14@sha256:ae509d9ae8c1021ca32ec370a9ca975d40165eda9fccd1e1102d317ff8787cd7
   config:
     analytics:
       check_for_updates: "false"
