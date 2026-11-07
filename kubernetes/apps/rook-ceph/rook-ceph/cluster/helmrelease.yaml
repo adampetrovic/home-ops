@@ -90,6 +90,9 @@ spec:
         mgr:
           # Bound retained log entries while testing active-manager memory growth.
           log_max_recent: "100"
+        mon:
+          mon_compact_on_trim: "false"
+          mon_cluster_log_level: info
       cleanupPolicy:
         wipeDevicesFromOtherClusters: true
       healthCheck:
@@ -135,7 +138,7 @@ spec:
         mon:
           requests:
             cpu: 50m
-            memory: 512Mi
+            memory: 2Gi
           limits:
             memory: 4Gi
         osd:
