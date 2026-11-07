@@ -6,10 +6,9 @@
       description: "Process CloudNative-PG imageName references",
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
-        "imageName: +(?<depName>[^:]+):(?<currentValue>[0-9\\.\\-]+)",
+        "imageName: +(?<depName>[^:\\s]+):(?<currentValue>[^@\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?",
       ],
       datasourceTemplate: "docker",
-      versioningTemplate: "redhat",
     },
     {
       customType: "regex",

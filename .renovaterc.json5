@@ -37,6 +37,32 @@
       matchCurrentValue: "/^.+$/",
       enabled: false,
     },
+    {
+      description: "Postgres major versions need pg_upgrade or a dump/restore; keep CNPG cluster images within their major",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "ghcr.io/cloudnative-pg/postgis",
+        "ghcr.io/cloudnative-pg/postgresql",
+        "ghcr.io/tensorchord/cloudnative-vectorchord",
+      ],
+      matchUpdateTypes: ["major"],
+      enabled: false,
+    },
+    {
+      description: "Parse CNPG PostGIS and VectorChord tags, whose suffix carries the extension version",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "ghcr.io/cloudnative-pg/postgis",
+        "ghcr.io/tensorchord/cloudnative-vectorchord",
+      ],
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-(?<patch>\\d+)\\.(?<build>\\d+)\\.(?<revision>\\d+)(?:-(?<compatibility>standard-bookworm))?$",
+    },
+    {
+      description: "Parse CNPG PostgreSQL build-stamped tags",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["ghcr.io/cloudnative-pg/postgresql"],
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)-(?<patch>\\d{12})-(?<compatibility>minimal-trixie)$",
+    },
   ],
   suppressNotifications: [
     "prEditedNotification",
