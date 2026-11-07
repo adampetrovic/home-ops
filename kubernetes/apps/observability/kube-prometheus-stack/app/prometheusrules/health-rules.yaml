@@ -1,0 +1,55 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: health-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: endpoint-probes
+      rules:
+        - alert: LoadBalancerProbeFailed
+          annotations:
+            description: Blackbox probe of {{ $labels.service }} at {{ $labels.instance }} ({{ $labels.probe }}) is failing.
+            summary: A LoadBalancer or gateway VIP is unreachable.
+          expr: probe_success{probe=~"bgp-loadbalancer|envoy-vip"} == 0
+          for: 3m
+          labels:
+            severity: critical
+    - name: secrets-and-certificates
+      rules:
+        - alert: ExternalSecretNotReady
+          annotations:
+            description: ExternalSecret {{ $labels.exported_namespace }}/{{ $labels.name }} has not been Ready for 1h.
+            summary: An ExternalSecret is failing to sync.
+          expr: externalsecret_status_condition{condition="Ready", status="False"} == 1
+          for: 1h
+          labels:
+            severity: warning
+        - alert: PushSecretNotReady
+          annotations:
+            description: PushSecret {{ $labels.exported_namespace }}/{{ $labels.name }} has not been Ready for 1h.
+            summary: A PushSecret is failing to write to its store.
+          expr: pushsecret_status_condition{condition="Ready", status="False"} == 1
+          for: 1h
+          labels:
+            severity: warning
+        - alert: CertificateNotReady
+          annotations:
+            description: Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} has not been Ready for 1h.
+            summary: A cert-manager Certificate is not ready.
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 1h
+          labels:
+            severity: warning
+        - alert: CertificateExpiringSoon
+          annotations:
+            description: Certificate {{ $labels.exported_namespace }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }}.
+            summary: A cert-manager Certificate is close to expiry and has not renewed.
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 14 * 86400
+          for: 1h
+          labels:
+            severity: critical

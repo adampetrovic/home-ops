@@ -86,6 +86,25 @@ spec:
           for: 30m
           labels:
             severity: critical
+        - alert: SmartctlATAWearHigh
+          annotations:
+            description: SATA SSD {{ $labels.device }} on {{ $labels.instance }} has {{ $value }}% of its rated wear left.
+            summary: A SATA SSD is approaching its wear limit.
+          expr: |-
+            smartctl_device_attribute{job=~"(talos|unas)-smart", attribute_name="Wear_Leveling_Count", attribute_value_type="value"} <= 20
+            and
+            smartctl_device_attribute{job=~"(talos|unas)-smart", attribute_name="Wear_Leveling_Count", attribute_value_type="value"} > 10
+          for: 1h
+          labels:
+            severity: warning
+        - alert: SmartctlATAWearCritical
+          annotations:
+            description: SATA SSD {{ $labels.device }} on {{ $labels.instance }} has {{ $value }}% of its rated wear left.
+            summary: A SATA SSD is close to the end of its rated life.
+          expr: smartctl_device_attribute{job=~"(talos|unas)-smart", attribute_name="Wear_Leveling_Count", attribute_value_type="value"} <= 10
+          for: 1h
+          labels:
+            severity: critical
         - alert: SmartctlDeviceTemperatureHigh
           annotations:
             description: Device {{ $labels.device }} on {{ $labels.instance }} has remained at {{ printf "%.0f" $value }}°C for 10 minutes.
