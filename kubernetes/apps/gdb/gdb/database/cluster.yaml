@@ -6,7 +6,7 @@ metadata:
   name: gdb-postgres
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm@sha256:0b107a47d516d63e52257810a01befc7fc8d72e17a08ede6e72a277461e11ef0
+  imageName: ghcr.io/cloudnative-pg/postgis:18.6-3.7.0-standard-bookworm@sha256:c5daee7ec0c2d50db9c11f5fb8fe5099be1b87a4d88a0b4cd157084fefe9fed8
   primaryUpdateStrategy: unsupervised
   storage:
     size: 40Gi
