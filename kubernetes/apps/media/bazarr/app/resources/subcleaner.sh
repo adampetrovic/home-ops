@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
+set -Eeuo pipefail
 
-printf "Cleaning subtitles for '%s' ...\n" "$1"
+printf "Cleaning subtitles for '%s' ...\n" "${1:?}"
 python3 /add-ons/subcleaner/subcleaner.py "$1" -s
 
 case $1 in
-    *movies*) section="1";;
-    *shows*) section="2";;
+    /movies/*) section="1";;
+    /tv/*) section="2";;
+    /movies-kids/*) section="13";;
+    /tv-kids/*) section="12";;
+    *) section="";;
 esac
 
 if [[ -n "$section" ]]; then
