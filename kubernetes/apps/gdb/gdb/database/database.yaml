@@ -14,5 +14,6 @@ spec:
   extensions:
     - name: postgis
       ensure: present
+      version: 3.7.0
     - name: pg_trgm
       ensure: present
