@@ -33,8 +33,6 @@ spec:
         spec:
           decryption:
             provider: sops
-            secretRef:
-              name: sops-age
           postBuild:
             substituteFrom:
               - kind: Secret
