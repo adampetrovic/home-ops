@@ -35,9 +35,6 @@ spec:
                   secretKeyRef:
                     name: garage-secret
                     key: GARAGE_ADMIN_TOKEN
-            envFrom:
-              - secretRef:
-                  name: garage-secret
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
