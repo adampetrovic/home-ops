@@ -31,9 +31,6 @@ labels:
 apiVersion: v1alpha1
 kind: KubeAPIServerConfig
 image: registry.k8s.io/kube-apiserver:v1.37.1
-extraArgs:
-  feature-gates: MutatingAdmissionPolicy=true
-  runtime-config: admissionregistration.k8s.io/v1beta1=true
 certExtraSANs:
   - 10.0.80.99
   - 127.0.0.1
