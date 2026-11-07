@@ -8,5 +8,6 @@ components:
   - ../../components/kopiur/secret
 resources:
   - ./ccc-admin/ks.yaml
+  - ./fernwood/ks.yaml
   - ./healthng/ks.yaml
   - ./traverse/ks.yaml

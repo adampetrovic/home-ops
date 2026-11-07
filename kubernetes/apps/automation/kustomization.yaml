@@ -9,7 +9,6 @@ components:
 resources:
   - ./changedetection/ks.yaml
   - ./esphome/ks.yaml
-  - ./fernwood/ks.yaml
   - ./frigate/ks.yaml
   - ./go2rtc/ks.yaml
   - ./go2rtc-split/ks.yaml
