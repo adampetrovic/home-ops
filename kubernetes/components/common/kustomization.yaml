@@ -6,5 +6,5 @@ resources:
   - ./namespace.yaml
 
   - ./repos
-  - ./sops
+  - ./ghcr
   - ./vars

@@ -8,13 +8,13 @@ Pi concatenates this file into the startup prompt. Keep it high-signal: critical
 
 ## Repository Snapshot
 
-This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kubernetes cluster. Flux CD reconciles everything from Git. Key technologies: Talos Linux, Kubernetes, Flux CD, Helm, Kustomize, SOPS, 1Password External Secrets, Rook-Ceph, Kopiur, Renovate, Cilium, Envoy Gateway.
+This is the `home-ops` GitOps repository for a 5-node bare-metal Talos Linux Kubernetes cluster. Flux CD reconciles everything from Git. Key technologies: Talos Linux, Kubernetes, Flux CD, Helm, Kustomize, 1Password External Secrets, Rook-Ceph, Kopiur, Renovate, Cilium, Envoy Gateway.
 
 ## Operating Contract
 
 - Use **Jujutsu (`jj`)** for all version-control operations. Do not use `git` directly in this repo.
 - For `fix:` and `chore:` jj commits, add a concise one-line body explaining *why* where useful, for example `Why: avoid paging on brittle cause-based Talos log patterns`.
-- Never commit plaintext secrets. Use ExternalSecrets backed by 1Password, or SOPS for files that are intentionally encrypted.
+- Never commit plaintext secrets. Use ExternalSecrets backed by 1Password. Don't add SOPS-encrypted files.
 - Make all cluster changes via Git-tracked manifests and Flux reconciliation. Never mutate live resources by hand as a fix: no `kubectl apply/edit/patch/annotate/label/scale/set`, `kubectl rollout restart`, Helm CLI, or `flux suspend`.
 - Express app-template releases only through app-template values (`controllers`, `probes`, `persistence`, `route`, and so on). Never patch their rendered output with Kustomize patches or `postRenderers`.
 - A break-glass live change needs the operator's explicit approval for that specific change. In the same session, land the equivalent in Git or revert it, and remove its residue: `kubectl.kubernetes.io/last-applied-configuration` annotations, stray `managedFields` managers, and `kubectl.kubernetes.io/restartedAt` stamps. Removing such residue is itself a live change that needs approval.
@@ -35,7 +35,7 @@ Read the relevant doc before making non-trivial changes:
 
 - Application deployment, HelmRelease, PVC, Kopiur, ExternalSecret, PostgreSQL role/database provisioning, or app add/remove: `docs/agent/app-deployments.md`
 - HTTPRoute, Envoy Gateway, Authelia, Cloudflare Tunnel, app exposure, public app network containment: `docs/agent/routing.md`
-- SOPS, 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
+- 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
 - Talos, node upgrades, storage, networking, load balancers, Talos logs, observability platform: `docs/agent/platform.md`
 - Kopiur CLI operations, scheduled backup checks, manual snapshots, backup browsing, or restore diagnostics: `.pi/skills/kopiur/SKILL.md`

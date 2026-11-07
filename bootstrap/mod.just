@@ -10,7 +10,7 @@ export TALOSCONFIG := env_var_or_default('TALOSCONFIG', repo_root + '/talosconfi
 
 [confirm('Bootstrap cluster? This does not reset or wipe nodes. [y/N]')]
 [doc('Bootstrap the Talos and Kubernetes cluster end-to-end')]
-cluster: preflight talosconfig nodes k8s kubeconfig base apps verify-core
+cluster: preflight talosconfig nodes k8s kubeconfig base secrets apps verify-core
 
 [doc('Check local tools, credentials, rendering, and Talos node reachability before bootstrap')]
 preflight:
@@ -104,6 +104,8 @@ base:
         | yq ea 'select(.kind == "CustomResourceDefinition")' - \
         | kubectl apply --server-side --force-conflicts --filename -
 
+[doc('Apply the secrets the cluster needs before External Secrets runs, resolved from 1Password')]
+secrets:
     kustomize build "{{ repo_root }}/bootstrap/kustomize/home" \
         | op inject \
         | kubectl apply --server-side --force-conflicts --filename -

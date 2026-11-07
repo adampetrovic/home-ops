@@ -9,7 +9,7 @@ kubernetes/
 ├── apps/                    # Application deployments organized by namespace
 ├── components/              # Reusable Kustomize components
 │   ├── authelia-proxy/      # Authelia ext-auth SecurityPolicy
-│   ├── common/              # Namespace, SOPS, cluster vars, Helm repos
+│   ├── common/              # Namespace, GHCR pull secret, cluster vars, Helm repos
 │   └── kopiur/              # Kopiur backup/credential components
 └── flux/cluster/            # Top-level Flux Kustomization
 

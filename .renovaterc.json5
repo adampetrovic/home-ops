@@ -78,7 +78,6 @@
     "mirror.gcr.io": "docker.io",
   },
   ignorePaths: [
-    "**/*.sops.*",
     "**/resources/**",
   ],
   flux: {

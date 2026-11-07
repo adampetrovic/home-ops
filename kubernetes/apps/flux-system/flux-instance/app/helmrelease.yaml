@@ -81,14 +81,6 @@ spec:
             target:
               kind: Deployment
               name: kustomize-controller
-          - # Decrypt SOPS with the flux-system key so it isn't copied into every namespace
-            patch: |
-              - op: add
-                path: /spec/template/spec/containers/0/args/-
-                value: --sops-age-secret=sops-age
-            target:
-              kind: Deployment
-              name: kustomize-controller
           - # Enable Helm repositories caching
             patch: |
               - op: add

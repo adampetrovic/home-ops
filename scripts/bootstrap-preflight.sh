@@ -151,7 +151,7 @@ function check_rendering() {
 
 function main() {
     check_env KUBECONFIG
-    check_cli curl flux helm helmfile jq just kubectl kustomize minijinja-cli op sops talosctl yq
+    check_cli curl flux helm helmfile jq just kubectl kustomize minijinja-cli op talosctl yq
 
     mkdir -p "$(dirname "${KUBECONFIG}")"
     if [[ ! -w "$(dirname "${KUBECONFIG}")" ]]; then

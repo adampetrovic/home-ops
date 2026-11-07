@@ -4,7 +4,6 @@
 *.json5 linguist-detectable linguist-language=JSON5
 *.md linguist-detectable linguist-language=MARKDOWN
 *.sh linguist-detectable linguist-language=SHELL
-*.sops.* diff=sopsdiffer
 *.toml linguist-detectable linguist-language=TOML
 *.yml linguist-detectable linguist-language=YAML
 *.yaml linguist-detectable linguist-language=YAML

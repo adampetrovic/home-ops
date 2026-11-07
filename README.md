@@ -224,7 +224,7 @@ graph TD
 
 - **Zero-Trust Network**: All traffic encrypted and authenticated
 - **Multi-Factor Authentication**: TOTP, WebAuthn, and Duo support
-- **Secrets Management**: Encrypted at rest with SOPS, fetched from 1Password
+- **Secrets Management**: Stored in 1Password and synced with External Secrets
 - **Certificate Management**: Automated TLS with Let's Encrypt
 - **Network Policies**: Microsegmentation with Cilium
 
@@ -411,12 +411,12 @@ app-name/
 - **Network**: VLAN-capable switch and router/firewall
 - **DNS**: Domain name with Cloudflare DNS management (external), UniFi gateway for internal DNS
 - **Secrets**: 1Password account for secrets management
-- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `minijinja-cli`, `kubectl`, `flux`, `helm`, `helmfile`, `sops`, `age`, `op`, `just`, `jq`, `yq`, etc.)
+- **Tools**: Run `mise install` for the pinned toolchain in `.mise.toml` (`talosctl`, `minijinja-cli`, `kubectl`, `flux`, `helm`, `helmfile`, `op`, `just`, `jq`, `yq`, etc.)
 
 ### Quick Start
 
 1. **Fork this repository** and customize for your environment
-2. **Configure secrets**: Set up SOPS age key and 1Password Connect
+2. **Configure secrets**: Set up the `k8s` vault in 1Password and a Connect server
 3. **Prepare hardware**: Boot Talos Linux maintenance mode on your nodes
 4. **Run bootstrap preflight**:
    ```bash
@@ -436,7 +436,7 @@ app-name/
 
 Key files to customize for your environment:
 - `talos/cluster.yaml.j2`, `talos/nodes/**`, and `talos/inventory.yaml` - Talos hardware and network configuration
-- `kubernetes/components/common/vars/cluster-secrets.sops.yaml` - Encrypted secrets
+- `kubernetes/components/common/vars/externalsecret.yaml` - Cluster-wide Flux substitution variables from 1Password
 
 ---
 

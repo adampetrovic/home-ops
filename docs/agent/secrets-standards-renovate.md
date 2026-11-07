@@ -2,16 +2,14 @@
 
 Read this before touching secrets, encrypted files, schema-backed YAML/JSON, formatting-sensitive files, or Renovate-managed dependencies.
 
-## SOPS and Secret Management
+## Secret Management
 
-- Encrypted files match `*.sops.yaml`.
-- Local SOPS commands may use the normal age key file, but bootstrap/recovery workflows resolve `SOPS_AGE_KEY` at runtime from 1Password via `op run` after the mise environment is active.
-- Kubernetes secrets encrypt only `data` and `stringData` fields via `encrypted_regex: "^(data|stringData)$"`.
-- Talos secrets encrypt the entire file.
+- All secrets live in the 1Password vault `k8s` and reach the cluster through ExternalSecrets on the `onepassword-connect` ClusterSecretStore. Don't add SOPS-encrypted files.
 - Never commit unencrypted secrets or derived secret values.
-- Prefer ExternalSecrets referencing 1Password for application secrets.
-- Cluster-wide variables live in `kubernetes/components/common/vars/cluster-secrets.sops.yaml`.
-- Public internal hostnames use the literal domain `petrovic.network`; secret/public domains such as `${SECRET_PUBLIC_DOMAIN}` are still substituted into Flux Kustomizations via `postBuild.substituteFrom`.
+- Cluster-wide Flux substitution variables come from the 1Password item `cluster-secrets` via the `cluster-vars` ExternalSecret in `kubernetes/components/common/vars/externalsecret.yaml`. `cluster-apps` substitutes them into every Kustomization via `postBuild.substituteFrom`.
+- Internal hostnames, LAN IPs and `TZ` are written literally. Keep private public domains and Cloudflare IDs in `${SECRET_*}` variables.
+- Bootstrap seeds the secrets the cluster needs before External Secrets runs (`bootstrap/kustomize/home`, rendered with `op inject`): the Connect credentials, `flux-system/cluster-vars` and the wildcard TLS certificate. `just bootstrap secrets` re-runs only that step, for example to recover from a revoked Connect token.
+- Connect's own credentials are kept in sync after bootstrap by the `onepassword-connect-credentials` ExternalSecret. When rotating them, update the `1password` item and revoke the old token only after the new one has synced.
 
 ## YAML Formatting
 

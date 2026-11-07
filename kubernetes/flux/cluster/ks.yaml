@@ -16,14 +16,10 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
   postBuild:
     substituteFrom:
       - kind: Secret
-        name: cluster-secrets
+        name: cluster-vars
   patches:
     - patch: |-
         apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -31,12 +27,10 @@ spec:
         metadata:
           name: not-used
         spec:
-          decryption:
-            provider: sops
           postBuild:
             substituteFrom:
               - kind: Secret
-                name: cluster-secrets
+                name: cluster-vars
       target:
         group: kustomize.toolkit.fluxcd.io
         kind: Kustomization

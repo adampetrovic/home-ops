@@ -7,7 +7,7 @@ Do **not** use this runbook if your goal is to preserve/adopt existing Ceph OSDs
 ## Recovery model
 
 - **Infrastructure source of truth:** this Git repository on `main`.
-- **Secrets source of truth:** 1Password vault `k8s` plus the SOPS age key.
+- **Secrets source of truth:** 1Password vault `k8s`.
 - **Talos source of truth:** native templates under `talos/` (`cluster.yaml.j2`, role templates, `nodes/**`, `inventory.yaml`, `secrets.yaml.j2`, and `schematic.yaml.j2`).
 - **Primary app PVC restore:** Kopiur Kopia restore from the UNAS NFS repository at `/var/nfs/shared/kopiur`.
 - **Secondary app backup:** Cloudflare R2 Kopia backups. R2 is a fallback/manual restore path, not the default automatic bootstrap restore.
@@ -26,7 +26,6 @@ mise trust
 
 The bootstrap scripts expect these tools in `PATH`:
 
-- `age`
 - `flux`
 - `helm`
 - `helmfile`
@@ -34,7 +33,6 @@ The bootstrap scripts expect these tools in `PATH`:
 - `kubectl`
 - `kustomize`
 - `op`
-- `sops`
 - `minijinja-cli`
 - `talosctl`
 - `just`
@@ -56,14 +54,11 @@ op signin
 op whoami
 ```
 
-The SOPS age private key is resolved at runtime from 1Password via
-`SOPS_AGE_KEY=op://k8s/sops/SOPS_PRIVATE_KEY` in `.mise.toml`. Activate or enter
-the pinned mise environment first, then run bootstrap commands through `op run`
-so SOPS can decrypt without a workstation-local age key file:
+Activate or enter the pinned mise environment first, then run:
 
 ```bash
-op run -- just bootstrap preflight
-op run -- just bootstrap cluster
+just bootstrap preflight
+just bootstrap cluster
 ```
 
 The bootstrap process also reads Talos secrets and initial Kubernetes secrets
@@ -245,7 +240,7 @@ Re-authenticate and check vault access:
 ```bash
 op signin
 op whoami
-op read op://k8s/sops/SOPS_PRIVATE_KEY >/dev/null
+op read op://k8s/1password/OP_CONNECT_TOKEN >/dev/null
 ```
 
 ### Talos node not reachable
