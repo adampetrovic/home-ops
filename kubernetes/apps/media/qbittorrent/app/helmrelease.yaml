@@ -76,17 +76,23 @@ spec:
               capabilities:
                 drop: ["ALL"]
     service:
+      # The web UI trusts private source IPs without a login, so it stays
+      # in-cluster and LAN access goes through Envoy and Authelia.
       app:
+        forceRename: qbittorrent
+        controller: qbittorrent
+        primary: true
+        ports:
+          http:
+            port: *port
+      bittorrent:
         controller: qbittorrent
         type: LoadBalancer
         externalTrafficPolicy: Cluster
         annotations:
           lbipam.cilium.io/ips: 10.0.88.7
         ports:
-          http:
-            port: *port
           bittorrent:
-            enabled: true
             port: *port-bt
             protocol: TCP
             targetPort: *port-bt
