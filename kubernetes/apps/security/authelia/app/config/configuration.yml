@@ -30,7 +30,7 @@ access_control:
     - domain:
         - "paperless.petrovic.network"
         - "memos.petrovic.network"
-        - "baby.${SECRET_PUBLIC_DOMAIN}"
+        - "baby.petrovic.network"
       policy: two_factor
       subject:
         - 'group:users'

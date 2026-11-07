@@ -33,7 +33,7 @@ spec:
               tag: 2.11.0@sha256:b19394db47554ab385e5513dcb4aed253f551a19ac89576a9df191ed59b683de
             env:
               TZ: ${TZ}
-              CSRF_TRUSTED_ORIGINS: https://baby.${SECRET_PUBLIC_DOMAIN}
+              CSRF_TRUSTED_ORIGINS: https://baby.petrovic.network
               PUID: 1000
               PGID: 1000
               DB_ENGINE: django.db.backends.postgresql
@@ -62,11 +62,11 @@ spec:
             primary: true
             port: 8000
     route:
-      external:
+      internal:
         hostnames:
-          - "baby.${SECRET_PUBLIC_DOMAIN}"
+          - "baby.petrovic.network"
         parentRefs:
-          - name: envoy-external
+          - name: envoy-internal
             namespace: network
     persistence:
       config:
