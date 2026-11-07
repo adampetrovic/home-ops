@@ -167,13 +167,6 @@ spec:
         vip: "10.0.88.7"
         port: "50413"
     - targets:
-        - "10.0.88.7:80"
-      labels:
-        probe: bgp-loadbalancer
-        service: qbittorrent
-        vip: "10.0.88.7"
-        port: "80"
-    - targets:
         - "10.0.88.14:554"
       labels:
         probe: bgp-loadbalancer

@@ -45,6 +45,9 @@ spec:
     - name: home-assistant
       namespace: automation
   path: ./kubernetes/apps/automation/teslamate/app
+  postBuild:
+    substitute:
+      APP: *app
   prune: true
   sourceRef:
     kind: GitRepository
