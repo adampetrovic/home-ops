@@ -56,7 +56,7 @@ spec:
               TeslaMate__EnergyProvider: HomeAssistant
               TeslaMate__LookbackDays: 7
               TeslaMate__Phases: 3
-              Logging__LogLevel__Default: Debug
+              Logging__LogLevel__Default: Information
               Logging__Console__FormatterName: simple
               Logging__Console__FormatterOptions__TimestampFormat: "yyyy-MM-dd HH:mm:ss.fff"
               HomeAssistant__BaseUrl: http://home-assistant.automation.svc.cluster.local:8123
@@ -64,6 +64,12 @@ spec:
             envFrom:
               - secretRef:
                   name: teslamate-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
     service:
       app:
         controller: teslamate
@@ -78,11 +84,3 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-    postgresql:
-      enabled: false
-    resources:
-      requests:
-        cpu: 18m
-        memory: 512Mi
-      limits:
-        memory: 512Mi
