@@ -48,6 +48,7 @@ spec:
               UMASK: "022"
               PARSER_HOST: profilarr-parser
               PARSER_PORT: &parserPort 5000
+              GIT_CONFIG_PARAMETERS: "'safe.directory'='*'"
             probes:
               liveness: &probes
                 enabled: true
