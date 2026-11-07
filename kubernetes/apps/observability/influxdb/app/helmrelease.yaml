@@ -32,7 +32,6 @@ spec:
               tag: 2.9.1@sha256:f75e48af0598e8aec7986e991a848d19a119101a7d563a2e5db1dfaac9c45daa
             env:
               TZ: "${TZ}"
-              INFLUXD_STORAGE_CACHE_MAX_MEMORY_SIZE: "1073741824"
               INFLUXD_STORAGE_MAX_CONCURRENT_COMPACTIONS: "1"
               GOMEMLIMIT: 5GiB
             resources:
