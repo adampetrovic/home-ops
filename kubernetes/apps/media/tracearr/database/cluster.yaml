@@ -15,9 +15,6 @@ spec:
     initdb:
       postInitTemplateSQL:
         - CREATE EXTENSION IF NOT EXISTS timescaledb
-  enableSuperuserAccess: true
-  superuserSecret:
-    name: tracearr-postgres-secret
   postgresql:
     extensions:
       - name: timescaledb
