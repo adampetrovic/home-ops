@@ -20,3 +20,4 @@ spec:
       ensure: present
     - name: vector
       ensure: present
+      version: 0.8.6
