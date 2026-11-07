@@ -1,8 +1,8 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/AlexxIT/go2rtc/master/website/schema.json
 log:
-  streams: trace
-  homekit: trace
+  streams: info
+  homekit: info
 api:
   listen: :80
 rtsp:
@@ -10,7 +10,7 @@ rtsp:
 webrtc:
   listen: :8555
   candidates:
-    - 10.0.81.14:8555
+    - 10.0.88.14:8555
     - stun:8555
   ice_servers:
     - urls:
