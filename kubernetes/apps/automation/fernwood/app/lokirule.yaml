@@ -4,7 +4,7 @@ groups:
     rules:
       - alert: FernwoodError
         expr: |
-          sum by (app) (count_over_time({app="fernwood"} |~ "(?i)errors"[1h])) > 0
+          sum by (app) (count_over_time({app="fernwood"} |= "level=ERROR"[1h])) > 0
         for: 2m
         labels:
           severity: critical
