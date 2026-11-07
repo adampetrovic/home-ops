@@ -8,8 +8,9 @@ metadata:
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm
+  imageName: ghcr.io/cloudnative-pg/postgis:18.3-3.6.2-standard-bookworm@sha256:0b107a47d516d63e52257810a01befc7fc8d72e17a08ede6e72a277461e11ef0
   primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
   storage:
     size: 40Gi
     storageClass: openebs-hostpath

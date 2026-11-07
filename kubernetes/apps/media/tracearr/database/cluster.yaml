@@ -6,7 +6,7 @@ metadata:
   name: tracearr-postgres
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:18-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-202603300834-minimal-trixie@sha256:ddcf374ba6f66bfa38465c2408b039aed19843c048b60772429713327e902682
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
