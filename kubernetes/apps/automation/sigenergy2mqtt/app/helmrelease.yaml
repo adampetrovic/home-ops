@@ -88,8 +88,6 @@ spec:
 
     persistence:
       data:
-        enabled: true
-        type: emptyDir
+        existingClaim: sigenergy2mqtt
         globalMounts:
           - path: /data
-
