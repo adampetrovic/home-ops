@@ -101,6 +101,10 @@ upgrade node rollout="false":
     talos_image="$({{ scripts_dir }}/machine-image.sh "{{ node }}")"
     bash "{{ scripts_dir }}/upgrade.sh" "${node_address}" "${talos_image}" "{{ rollout }}"
 
+[doc('Read-only cluster checks to run before and after a Talos or Kubernetes upgrade')]
+upgrade-check:
+    "{{ scripts_dir }}/upgrade-check.sh"
+
 [doc('Fetch kubeconfig from a Talos node')]
 fetch-kubeconfig node=bootstrap_controller:
     talosctl config info >/dev/null 2>&1
