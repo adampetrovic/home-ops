@@ -20,4 +20,3 @@ groups:
           service: "{{ $labels.service }}"
           summary: "Talos service failure loop on {{ $labels.node }}"
           description: "{{ $labels.service }} on {{ $labels.node }} logged repeated failure messages for at least 15 minutes."
-

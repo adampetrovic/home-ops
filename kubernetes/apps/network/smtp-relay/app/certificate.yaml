@@ -13,4 +13,3 @@ spec:
     - smtp.petrovic.network
   privateKey:
     rotationPolicy: Always
-

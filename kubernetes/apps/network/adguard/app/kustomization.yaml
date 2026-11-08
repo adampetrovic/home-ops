@@ -8,4 +8,3 @@ resources:
   - ./helmrelease.yaml
 components:
   - ../../../../components/authelia-proxy
-

@@ -143,4 +143,3 @@ spec:
         path: /var/nfs/shared/media/frigate
         globalMounts:
           - path: /media
-

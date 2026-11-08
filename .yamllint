@@ -1,12 +1,29 @@
 ---
 extends: default
 
+ignore: |
+  # Vendored upstream CRDs
+  kubernetes/apps/network/external-dns/external/dnsendpoint-crd.yaml
+  # App-native config files, validated by the application rather than Kubernetes style
+  kubernetes/apps/automation/frigate/app/config/config.yml
+  kubernetes/apps/automation/go2rtc/app/resources/go2rtc.yaml
+  kubernetes/apps/media/plex/app/config/vector.yaml
+  kubernetes/apps/observability/vector/app/aggregator/resources/vector.yaml
+
 rules:
+  braces:
+    max-spaces-inside: 1
   comments:
     min-spaces-from-content: 1
   line-length:
     max: 160
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
+    ignore: |
+      # PromQL and LogQL alert expressions read better on one line
+      prometheusrule.yaml
+      lokirule.yaml
+      # Embedded upstream config blob
+      kubernetes/apps/automation/sigenergy2mqtt/app/helmrelease.yaml
   truthy:
     allowed-values: ["true", "false", "on", "off"]
