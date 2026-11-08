@@ -8,9 +8,16 @@ route:
   receiver: telegram
   repeat_interval: 12h
   routes:
+    - receiver: heartbeat
+      matchers:
+        - alertname = "Watchdog"
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 5m
+      continue: false
     - receiver: "null"
       matchers:
-        - alertname =~ "InfoInhibitor|Watchdog"
+        - alertname = "InfoInhibitor"
       continue: false
     - receiver: telegram
       continue: true
@@ -72,6 +79,10 @@ inhibit_rules:
       - alertname =~ "TeslaMateApiErrorStorm|TeslaMateErrorLogs"
 receivers:
   - name: "null"
+  - name: heartbeat
+    webhook_configs:
+      - url: "{{ .HEALTHCHECKS_url }}"
+        send_resolved: false
   - name: homeassistant
     webhook_configs:
       - url: "http://home-assistant.automation.svc.cluster.local:8123/api/webhook/wan-status"
