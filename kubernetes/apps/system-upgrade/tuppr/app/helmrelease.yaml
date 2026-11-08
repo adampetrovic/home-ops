@@ -24,3 +24,16 @@ spec:
     monitoring:
       serviceMonitor:
         enabled: true
+      prometheusRule:
+        enabled: true
+      dashboards:
+        enabled: true
+        grafanaOperator:
+          enabled: true
+          matchLabels:
+            app.kubernetes.io/name: grafana
+    # Lets TalosUpgrade.spec.silences hold Alertmanager silences during a run
+    silences:
+      enabled: true
+      alertmanager:
+        address: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
