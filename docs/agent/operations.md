@@ -27,7 +27,8 @@ just talos render-config k8s-node-1
 just talos validate-all
 just talos dry-run-all
 just talos apply-node k8s-node-1
-just talos upgrade k8s-node-4
+just talos upgrade-check
+just talos upgrade k8s-node-4  # break-glass only, see docs/UPGRADE.md
 just talos fetch-kubeconfig
 ```
 

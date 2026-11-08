@@ -69,6 +69,7 @@ Tuppr resolves future OS upgrade images from node runtime state and the current
 install image, so keeping this document accurate is important. GitOps-managed
 Tuppr remains the preferred OS rollout path; manual `just talos upgrade` is a
 break-glass fallback and derives the installer image from the rendered config.
+See `docs/UPGRADE.md` for how a Tuppr run works and the pre/post checks.
 
 ## Deferred modernization
 
@@ -79,21 +80,15 @@ break-glass fallback and derives the installer image from the rendered config.
   register a standalone typed `EtcdConfig` document.
 - Kubernetes CA material remains in legacy `cluster.*` fields until the
   renderer can safely emit typed PEM block scalars from 1Password-backed secret
-  values without committing rendered secrets. The service-account key is already
-  migrated to `KubeServiceAccountConfig`; `render-config.sh` decodes the
+  values without committing rendered secrets. The service-account key uses
+  `KubeServiceAccountConfig`; `render-config.sh` decodes the
   1Password-backed base64 key into the environment at render time.
-## Workload isolation rollout
+
+## Workload isolation
 
 `SecurityProfileConfig.workloadIsolation: true` is enabled in every node template.
-It was rolled out in stages: worker canaries `k8s-node-4` and `k8s-node-5`,
-control-plane canary `k8s-node-2`, then `k8s-node-3` and `k8s-node-1` after the
-previous nodes recovered. The config must be applied and the node rebooted to
-activate `sandboxd`; a successful `apply-config --mode=try` does not persist.
-
-No pod security-context or runtime changes were needed for the observed workload
-classes. Validation covered Talos/Kubernetes node health, `sandboxd`, etcd/API,
-Flux, Ceph monitors and OSDs, OpenEBS hostpath PVs, NFS-mounted media and Kopiur
-movers, GPU/device plugins, privileged Cilium/Multus, and Envoy Local-policy
-endpoints. See [issue #3406](https://github.com/adampetrovic/home-ops/issues/3406)
-for the staged validation and follow-up observations. Continue monitoring
-storage, NFS, and device workloads after future Talos or runtime upgrades.
+It runs workloads under `sandboxd`, which only takes effect once the config is
+applied and the node rebooted; `apply-config --mode=try` does not persist it.
+Workloads need no pod security-context or runtime changes for it. Storage, NFS
+and device workloads (OpenEBS hostpath, Kopiur movers, GPU plugins, Multus) are
+the ones to watch after a Talos or runtime upgrade.

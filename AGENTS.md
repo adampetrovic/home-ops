@@ -39,6 +39,7 @@ Read the relevant doc before making non-trivial changes:
 - 1Password, formatting, schema validation, Renovate conventions: `docs/agent/secrets-standards-renovate.md`
 - PRs, jj workflow, Flux reconciliation, debugging commands, post-merge cleanup: `docs/agent/operations.md`
 - Talos, node upgrades, storage, networking, load balancers, Talos logs, observability platform: `docs/agent/platform.md`
+- Talos or Kubernetes upgrades through Tuppr (hooks, health checks, silences, pre/post checks): `docs/UPGRADE.md`
 - Kopiur CLI operations, scheduled backup checks, manual snapshots, backup browsing, or restore diagnostics: `.pi/skills/kopiur/SKILL.md`
 - Unsure where to start: `docs/agent/README.md`
 

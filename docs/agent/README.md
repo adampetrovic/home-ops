@@ -9,6 +9,7 @@ This directory holds detailed agent procedures that are intentionally kept out o
 - `secrets-standards-renovate.md` — 1Password, YAML/schema validation, Renovate conventions.
 - `operations.md` — jj workflow, just recipes, Flux reconciliation, PR checks, debugging, post-merge cleanup.
 - `platform.md` — repository map, storage, network, Hubble flow visibility, post-upgrade LoadBalancer checks, Talos logging/observability.
+- `../UPGRADE.md` — how Tuppr runs Talos and Kubernetes upgrades, expected disruption, and the `just talos upgrade-check` pre/post checks.
 
 ## Why This Is Split
 

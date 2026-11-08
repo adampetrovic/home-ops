@@ -62,7 +62,7 @@ Each node keeps only a small ring buffer of recent flows, so check soon after re
 
 ## Post-Upgrade LoadBalancer/L2 Sanity Check
 
-After any Talos or Kubernetes rollout, especially Tuppr upgrades, explicitly check north/south LoadBalancer services using `externalTrafficPolicy: Local`.
+After any Talos or Kubernetes rollout, especially Tuppr upgrades, explicitly check north/south LoadBalancer services using `externalTrafficPolicy: Local`. `just talos upgrade-check` covers the in-cluster side (ready endpoints and unsilenced `LoadBalancerProbeFailed` alerts); the UCG next-hop check below is still manual. The upgrade process itself is described in `docs/UPGRADE.md`.
 
 For BGP-advertised services such as `network/envoy-internal` (`10.0.88.200`) and `network/envoy-external` (`10.0.88.201`), ensure UCG BGP next-hops only include nodes with ready local endpoints. A stale next-hop can cause `connection refused` even when pods, Services, HTTPRoutes, and Envoy look healthy.
 
