@@ -66,7 +66,7 @@ spec:
         - name: alertname
           matchType: "=~"
           value: >-
-            ^(KubeNodeNotReady|KubeNodeUnreachable|KubeNodeReadinessFlapping|KubeNodeEviction|KubePodNotReady|KubeContainerWaiting|KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck|KubeStatefulSetReplicasMismatch|KubeDaemonSetRolloutStuck|KubeDaemonSetNotScheduled|KubeDaemonSetMisScheduled|TargetDown|AlertmanagerClusterFailedPeers|AlertmanagerMembersInconsistent|PrometheusNotConnectedToAlertmanagers|CephMonDown|CephMonDownQuorumAtRisk|CephOSDDown|CephOSDHostDown|CephHealthWarning|CephPGsUnclean|CephFilesystemInsufficientStandby|CephFilesystemFailureNoStandby|etcdMembersDown|etcdHighNumberOfLeaderChanges|CNPGReplicationLagHigh|CNPGCollectorDown|NodeClockNotSynchronising|NodeNetworkInterfaceFlapping)$
+            ^(KubeNodeNotReady|KubeNodeUnreachable|KubeNodeReadinessFlapping|KubeNodeEviction|KubePodNotReady|KubeContainerWaiting|KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck|KubeStatefulSetReplicasMismatch|KubeDaemonSetRolloutStuck|KubeDaemonSetNotScheduled|KubeDaemonSetMisScheduled|TargetDown|AlertmanagerClusterFailedPeers|AlertmanagerMembersInconsistent|PrometheusNotConnectedToAlertmanagers|CephMonDown|CephMonDownQuorumAtRisk|CephOSDDown|CephOSDDownHigh|CephOSDHostDown|CephSlowOps|CephDaemonSlowOps|CephHealthWarning|CephPGsUnclean|CephFilesystemInsufficientStandby|CephFilesystemFailureNoStandby|etcdMembersDown|etcdHighNumberOfLeaderChanges|CNPGReplicationLagHigh|CNPGCollectorDown|NodeClockNotSynchronising|NodeNetworkInterfaceFlapping)$
       maxDuration: 2h
   healthChecks:
     # Schedules are suspended by the pre-hook, so this only waits out runs already in flight
@@ -95,7 +95,13 @@ spec:
       kind: Cluster
       expr: |-
         has(status.readyInstances) && status.readyInstances == object.spec.instances
+    # Block on lost redundancy, not on benign warnings such as a crash report after a powercycle
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-
-        status.ceph.health in ['HEALTH_OK']
+        has(status.ceph) && status.ceph.health != 'HEALTH_ERR' &&
+        (!has(status.ceph.details) || !status.ceph.details.exists(k, k in [
+          'MON_DOWN', 'OSD_DOWN', 'OSD_HOST_DOWN',
+          'PG_AVAILABILITY', 'PG_DEGRADED', 'PG_DAMAGED', 'OBJECT_UNFOUND',
+          'FS_DEGRADED', 'MDS_ALL_DOWN', 'MDS_INSUFFICIENT_STANDBY'
+        ]))

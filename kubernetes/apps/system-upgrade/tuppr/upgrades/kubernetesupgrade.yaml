@@ -29,7 +29,13 @@ spec:
       kind: Maintenance
       expr: |-
         !has(status.manualRun) || !has(status.manualRun.phase) || status.manualRun.phase != "Running"
+    # Block on lost redundancy, not on benign warnings such as a crash report after a powercycle
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-
-        status.ceph.health in ['HEALTH_OK']
+        has(status.ceph) && status.ceph.health != 'HEALTH_ERR' &&
+        (!has(status.ceph.details) || !status.ceph.details.exists(k, k in [
+          'MON_DOWN', 'OSD_DOWN', 'OSD_HOST_DOWN',
+          'PG_AVAILABILITY', 'PG_DEGRADED', 'PG_DAMAGED', 'OBJECT_UNFOUND',
+          'FS_DEGRADED', 'MDS_ALL_DOWN', 'MDS_INSUFFICIENT_STANDBY'
+        ]))
