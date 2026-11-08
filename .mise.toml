@@ -9,7 +9,7 @@ flux2 = "2.10.0"
 
 # Talos
 talosctl = "1.14.5"
-"github:mitsuhiko/minijinja" = "3.0.5"
+"github:mitsuhiko/minijinja" = "3.1.0"
 
 # Secrets
 1password-cli = "2.32.1"
