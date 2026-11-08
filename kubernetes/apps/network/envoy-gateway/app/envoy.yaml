@@ -25,7 +25,8 @@ spec:
       envoyService:
         externalTrafficPolicy: Local
   shutdown:
-    drainTimeout: 180s
+    # Bounds how long a draining node waits on long-lived connections
+    drainTimeout: 60s
   telemetry:
     metrics:
       prometheus:
