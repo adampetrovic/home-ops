@@ -64,6 +64,8 @@ spec:
     route:
       s3:
         enabled: true
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - s3.petrovic.network
         parentRefs:

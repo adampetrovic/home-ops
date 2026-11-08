@@ -28,3 +28,12 @@ spec:
           annotations:
             summary: "Internal route {{ $labels.name }} is failing its Gatus check"
             description: "Gatus has not received a fast <500 response from {{ $labels.name }} for 3 minutes. Check internal DNS, internal Envoy, and the backend Service endpoints."
+
+        - alert: PlexovicEndpointDown
+          expr: max by (namespace, job, group, key, name) (gatus_results_endpoint_success{job=~".*plexovic.*", group=~"plex|automation"}) == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Plex service {{ $labels.name }} is failing its plexovic-gatus check"
+            description: "plexovic-gatus has reported {{ $labels.name }} ({{ $labels.group }}) as down for 5 minutes. Check the Plex or request app pods and their routes."

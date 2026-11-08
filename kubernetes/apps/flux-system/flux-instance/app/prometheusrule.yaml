@@ -41,10 +41,38 @@ spec:
 
         - alert: KustomizationReconciliationFailure
           expr: |-
-            flux_resource_info{kind="Kustomization", ready!="True", suspended!="True"} == 1
+            flux_resource_info{kind="Kustomization", ready!="True", reason!="DependencyNotReady", suspended!="True"} == 1
           for: 5m
           annotations:
             summary: >-
               Kustomization {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
           labels:
             severity: critical
+
+        - alert: KustomizationsBlockedOnDependency
+          expr: |-
+            count(flux_resource_info{kind="Kustomization", reason="DependencyNotReady", suspended!="True"} == 1) > 0
+          for: 30m
+          annotations:
+            summary: >-
+              {{ $value }} Kustomizations are waiting on a dependency that is not ready
+            description: >-
+              Kustomizations have reported DependencyNotReady for 30 minutes.
+              Find the root with flux get ks -A --status-selector ready=false;
+              it may be suspended or missing rather than failing.
+          labels:
+            severity: warning
+
+        - alert: FluxSourceReconciliationFailure
+          expr: |-
+            flux_resource_info{kind=~"OCIRepository|GitRepository|HelmRepository|HelmChart|Receiver", ready="False", suspended!="True"} == 1
+          for: 15m
+          annotations:
+            summary: >-
+              {{ $labels.kind }} {{ $labels.name }} in {{ $labels.exported_namespace }} is not ready
+            description: >-
+              Flux cannot fetch or serve this source ({{ $labels.reason }}).
+              Releases and Kustomizations built from it are stuck on their last
+              revision.
+          labels:
+            severity: warning

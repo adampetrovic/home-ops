@@ -156,6 +156,8 @@ spec:
             port: *port
     route:
       app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - paperless.petrovic.network
         parentRefs:

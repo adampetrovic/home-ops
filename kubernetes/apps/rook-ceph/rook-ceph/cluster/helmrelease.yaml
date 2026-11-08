@@ -36,18 +36,17 @@ spec:
       prometheusRuleOverrides:
         CephNodeDiskspaceWarning:
           disabled: true
-        # Rook v1.19.6 added the cluster label to Ceph metrics, which leaves
-        # stale 2d-range series without that label until Prometheus retention
-        # ages them out. Deduplicate the growth prediction before joining pool
-        # metadata so PrometheusRuleFailures does not fire during mgr rollouts.
-        # ceph_pool_percent_used is a 0-1 ratio; 0.95 represents 95% full.
+        # New mgr pods report 0 for every pool at first; ignore those and merge mgr series per pool.
         CephPoolGrowthWarning:
           expr: >-
             (
-              max by (cluster, pool_id, instance)
-                (predict_linear(ceph_pool_percent_used[2d], 3600 * 24 * 5))
-              * on(cluster,pool_id, instance) group_right() ceph_pool_metadata
+              predict_linear((max by (cluster, pool_id) (ceph_pool_percent_used > 0))[2d:5m], 3600 * 24 * 5)
+              * on (cluster, pool_id) group_right()
+                max by (namespace, cluster, pool_id, name, application) (ceph_pool_metadata)
             ) >= 0.95
+        # Upstream joins exporter and mgr metrics on job, so it can never match.
+        CephPGImbalance:
+          disabled: true
         # Rook's upstream rule assumes Prometheus only scrapes cluster nodes.
         # Scope it to the Talos node-exporter job so external node exporters such
         # as UNAS cannot trigger a Ceph alert, and ignore transient microbursts.

@@ -1,0 +1,80 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cloudnative-pg-rules
+spec:
+  groups:
+    - name: cloudnative-pg.rules
+      rules:
+        - alert: CNPGBackupStale
+          expr: |-
+            time() - max by (namespace, job) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp) > 129600
+          for: 15m
+          annotations:
+            summary: >-
+              No successful base backup of {{ $labels.job }} in over 36h
+            description: >-
+              The newest available barman-cloud backup of {{ $labels.job }} is
+              {{ $value | humanizeDuration }} old. Check the ScheduledBackup,
+              Backup CRs, and the barman-cloud plugin sidecar logs.
+          labels:
+            severity: critical
+
+        - alert: CNPGLastBackupFailed
+          expr: |-
+            max by (namespace, job) (barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp)
+              > max by (namespace, job) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp)
+          for: 5m
+          annotations:
+            summary: >-
+              The most recent base backup of {{ $labels.job }} failed
+            description: >-
+              The last failed barman-cloud backup of {{ $labels.job }} is newer
+              than the last successful one. Check the failed Backup CR and the
+              barman-cloud plugin sidecar logs.
+          labels:
+            severity: warning
+
+        - alert: CNPGWALArchivingFailing
+          expr: |-
+            max by (namespace, job) (cnpg_pg_stat_archiver_last_failed_time)
+              > max by (namespace, job) (cnpg_pg_stat_archiver_last_archived_time)
+          for: 15m
+          annotations:
+            summary: >-
+              WAL archiving is failing for {{ $labels.job }}
+            description: >-
+              The last WAL archive attempt of {{ $labels.job }} failed and none
+              has succeeded since. Point-in-time recovery is degrading and WAL
+              is accumulating on the primary. Check the ObjectStore and the
+              barman-cloud plugin sidecar logs.
+          labels:
+            severity: critical
+
+        - alert: CNPGReplicationLagHigh
+          expr: |-
+            cnpg_pg_replication_lag > 300
+          for: 5m
+          annotations:
+            summary: >-
+              Replica {{ $labels.pod }} of {{ $labels.job }} is lagging
+            description: >-
+              {{ $labels.pod }} is {{ $value | humanizeDuration }} behind its
+              primary.
+          labels:
+            severity: warning
+
+        - alert: CNPGCollectorDown
+          expr: |-
+            cnpg_collector_up == 0
+          for: 5m
+          annotations:
+            summary: >-
+              CNPG metrics collector cannot reach PostgreSQL on {{ $labels.pod }}
+            description: >-
+              The instance manager on {{ $labels.pod }} ({{ $labels.job }})
+              reports that PostgreSQL is not answering its metric queries.
+          labels:
+            severity: critical

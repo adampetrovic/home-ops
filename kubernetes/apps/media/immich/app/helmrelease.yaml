@@ -171,6 +171,8 @@ spec:
               - identifier: server
                 port: http
       internal:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - "photos.petrovic.network"
         parentRefs:

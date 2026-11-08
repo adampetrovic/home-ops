@@ -76,6 +76,8 @@ spec:
     # factors under Authelia's *.${SECRET_PUBLIC_DOMAIN} rule.
     route:
       app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         hostnames:
           - traverse.${SECRET_PUBLIC_DOMAIN}
         parentRefs:

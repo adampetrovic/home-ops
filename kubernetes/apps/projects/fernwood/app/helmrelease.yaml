@@ -95,6 +95,8 @@ spec:
       # Public: opted out of the authelia-proxy component, which otherwise
       # guards every route of the app.
       app:
+        annotations:
+          gatus.home-operations.com/enabled: "true"
         labels:
           authelia.petrovic.network/bypass: "true"
         hostnames:

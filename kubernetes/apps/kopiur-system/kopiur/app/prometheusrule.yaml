@@ -17,10 +17,10 @@ spec:
               never succeeded and is currently failing.
           expr: |-
             (
-              time() - kopiur_policy_last_backup_success_timestamp_seconds{repository="kopiur-nfs"} > 172800
+              time() - max by (namespace, policy) (kopiur_policy_last_backup_success_timestamp_seconds{policy=~".+-nfs"}) > 172800
             ) or (
-              label_replace(kopiur_snapshot_consecutive_failures{repository="kopiur-nfs"}, "policy", "$1", "name", "(.*)") > 0
-              unless on (namespace, policy, repository) kopiur_policy_last_backup_success_timestamp_seconds{repository="kopiur-nfs"}
+              max by (namespace, policy) (label_replace(kopiur_snapshot_consecutive_failures{name=~".+-nfs"}, "policy", "$1", "name", "(.*)")) > 0
+              unless on (namespace, policy) kopiur_policy_last_backup_success_timestamp_seconds{policy=~".+-nfs"}
             )
           for: 30m
           labels:
