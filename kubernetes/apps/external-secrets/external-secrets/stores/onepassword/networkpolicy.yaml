@@ -1,0 +1,22 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: onepassword-connect
+spec:
+  description: >-
+    Connect's token can read every cluster secret, so only the External
+    Secrets controller may call it.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: onepassword-connect
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: external-secrets
+            app.kubernetes.io/name: external-secrets
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
