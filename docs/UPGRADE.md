@@ -5,7 +5,7 @@ Talos and Kubernetes upgrades are GitOps-driven. Renovate opens a PR that bumps 
 - Talos: `kubernetes/apps/system-upgrade/tuppr/upgrades/talosupgrade.yaml`
 - Kubernetes: `kubernetes/apps/system-upgrade/tuppr/upgrades/kubernetesupgrade.yaml`
 
-A Talos upgrade does not upgrade Kubernetes, and the reverse is also true. Merge them as separate PRs, never in the same wave as other updates. A full Talos run takes roughly 40 to 60 minutes for the 5 nodes.
+A Talos upgrade does not upgrade Kubernetes, and the reverse is also true. Merge them as separate PRs, never in the same wave as other updates. A Talos run across the 5 nodes takes about 30 minutes.
 
 ## How a Talos upgrade runs
 
@@ -17,8 +17,8 @@ The run then moves through these phases. `kubectl get talosupgrade talos -w` sho
 2. **Initial health check.** Every `healthChecks` entry must pass, along with Tuppr's built-in gate: all nodes Ready, Talos `MachineStatus` running, one healthy etcd member per control-plane node.
 3. **Pre-hooks.** `suspend-backups` suspends every Kopiur `SnapshotSchedule`, so no backup starts on a node that is about to drain and the health checks between nodes don't wait on new snapshots.
 4. **Per node, in turn.** The node running the Tuppr leader goes first, then the rest in name order.
-   - Health checks run again. Kopiur snapshots already in flight finish, and every CNPG cluster must have all instances ready.
-   - Tuppr cordons and drains the node, respecting PDBs. Its drain has a fixed 10 minute timeout. On timeout it uncordons and retries a minute later.
+   - Health checks run again. Kopiur snapshots already in flight finish, and every CNPG cluster must have all instances ready. Ceph must have no monitor or OSD down and no degraded, unavailable or damaged PGs, and CephFS must have a standby MDS. Other Ceph warnings, such as a crash report, don't block.
+   - Tuppr cordons and drains the node, respecting PDBs. Its drain has a fixed 10 minute timeout. On timeout it uncordons and retries a minute later. Envoy pods hold the drain for up to 60 seconds while long-lived connections close.
    - If the node hosts a CNPG primary, the CNPG PDB blocks its eviction until CNPG has switched the primary over to a replica on another node.
    - Rook sees its OSDs going down and sets `noout` for that host for up to 30 minutes, so Ceph does not start rebalancing.
    - Tuppr waits up to 2 minutes for the node's CSI volumes to detach, then runs `talosctl upgrade` with powercycle.
@@ -26,7 +26,7 @@ The run then moves through these phases. `kubectl get talosupgrade talos -w` sho
 5. **Post-hooks.** `resume-backups` releases the suspend. Each schedule fires one catch-up snapshot if its slot was missed. Post-hooks run even if the upgrade failed.
 6. **Completed.** The Alertmanager silence lapses about 5 minutes later.
 
-While the run is active, Tuppr holds an Alertmanager silence for the alerts a reboot is expected to cause: node NotReady, TargetDown, Ceph mon and OSD down, etcd member down, CNPG replication lag and similar. The silence is a lease that Tuppr keeps extending, not a fixed timer. It lapses on its own if Tuppr stops, and it stops being extended once a run has been held for 2 hours, so a stuck upgrade still pages. Alerts that mean real damage stay live, for example `CephHealthError`, `etcdInsufficientMembers`, `CephPGsInactive`, `LoadBalancerProbeFailed` and Gatus endpoint alerts.
+Tuppr holds an Alertmanager silence for the alerts a reboot is expected to cause: node NotReady, TargetDown, Ceph mon and OSD down, Ceph slow ops, etcd member down, CNPG replication lag and similar. The silence is a lease that Tuppr extends on each reconcile while a node is draining, upgrading or rebooting. While the run waits in `Pending` between nodes, Tuppr lets the silence run down a 5 minute tail. It holds a new one once the next node's drain has finished, because the drain runs inside a single reconcile. A wait plus drain longer than about 5 minutes therefore lets alerts through. The lease also lapses if Tuppr stops, and stops being extended once a run has been held for 2 hours, so a stuck upgrade still pages. Alerts that mean real damage stay live, for example `CephHealthError`, `etcdInsufficientMembers`, `CephPGsInactive`, `LoadBalancerProbeFailed` and Gatus endpoint alerts. So do alerts like `KubeletDown` and `KubeAPIDown`, which only fire when every instance is gone.
 
 Tuppr's own alerts (`TalosUpgradeFailed`, `TalosUpgradeNodeFailed`, `TalosUpgradeStuck`, `TupprUpgradeBlocked`) come from the chart's PrometheusRule. The Tuppr dashboard is in Grafana.
 
@@ -37,7 +37,7 @@ A `KubernetesUpgrade` updates the control-plane static pods and the kubelets in 
 ## Expected disruption
 
 - **Prometheus** keeps its TSDB on `openebs-hostpath` on k8s-node-5, so it is down while that node reboots, and metrics have a gap of a few minutes.
-- **CNPG instances** on hostpath are pinned to their node. A replica on a rebooting node is down until the node returns, and the primary switches over before its node drains. Connections drop briefly during a switchover.
+- **CNPG instances** on hostpath are pinned to their node. A replica on a rebooting node is down until the node returns, and the primary switches over before its node drains. CNPG promotes the most up to date replica regardless of which nodes are still to be upgraded, so a primary can switch over twice in one run. Connections drop briefly during each switchover.
 - **bookorbit-postgres** has a single instance on Ceph, so it restarts on another node and is unavailable for a few minutes.
 - **Home Assistant** uses the `Recreate` strategy, so it is unavailable while it reschedules.
 - **Backups** are paused for the length of the run.
