@@ -80,26 +80,20 @@
     {
       description: "Use upstream release notes for Actual Budget",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/actualbudget/actual-server"],
+      matchPackageNames: ["docker.io/actualbudget/actual-server"],
       sourceUrl: "https://github.com/actualbudget/actual",
     },
     {
       description: "Use upstream release notes for Vector",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/timberio/vector"],
+      matchPackageNames: ["docker.io/timberio/vector"],
       sourceUrl: "https://github.com/vectordotdev/vector",
     },
     {
       description: "Use upstream release notes for sigenergy2mqtt",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/seud0nym/sigenergy2mqtt"],
+      matchPackageNames: ["docker.io/seud0nym/sigenergy2mqtt"],
       sourceUrl: "https://github.com/seud0nym/sigenergy2mqtt",
-    },
-    {
-      description: "Use upstream release notes for Talos installer",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/siderolabs/installer"],
-      sourceUrl: "https://github.com/siderolabs/talos",
     },
     {
       description: "Use upstream release notes for smartctl-exporter",
@@ -116,14 +110,8 @@
     {
       description: "Use upstream release notes for ImageMaid",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/kometateam/imagemaid"],
+      matchPackageNames: ["docker.io/kometateam/imagemaid"],
       sourceUrl: "https://github.com/Kometa-Team/ImageMaid",
-    },
-    {
-      description: "Use upstream release notes for Bambuddy",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/maziggy/bambuddy"],
-      sourceUrl: "https://github.com/maziggy/bambuddy",
     },
     {
       description: "Use chart CHANGELOG for ExternalDNS chart mirror (release tags are prefixed)",
@@ -156,38 +144,26 @@
     {
       description: "Link pgAdmin release notes (no GitHub releases upstream)",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/dpage/pgadmin4"],
+      matchPackageNames: ["docker.io/dpage/pgadmin4"],
       changelogUrl: "https://www.pgadmin.org/docs/pgadmin4/latest/release_notes.html",
     },
     {
       description: "Link 1Password Connect release notes (image source label is wrong)",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/1password/connect-api", "mirror.gcr.io/1password/connect-sync"],
+      matchPackageNames: ["docker.io/1password/connect-api", "docker.io/1password/connect-sync"],
       changelogUrl: "https://releases.1password.com/developers/connect/",
     },
     {
       description: "Link Garage release notes (hosted on Forgejo)",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/dxflrs/garage"],
+      matchPackageNames: ["docker.io/dxflrs/garage"],
       changelogUrl: "https://git.deuxfleurs.fr/Deuxfleurs/garage/releases",
-    },
-    {
-      description: "Link Tdarr changelog (image source label points to a private repo)",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/haveagitgat/tdarr", "ghcr.io/haveagitgat/tdarr_node"],
-      changelogUrl: "https://docs.tdarr.io/docs/other/changelog",
     },
     {
       description: "Link Apache Tika changelog (no GitHub releases upstream)",
       matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/apache/tika"],
+      matchPackageNames: ["docker.io/apache/tika"],
       changelogUrl: "https://github.com/apache/tika/blob/main/CHANGES.txt",
-    },
-    {
-      description: "Link AWS CLI changelog (no GitHub releases upstream)",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["mirror.gcr.io/amazon/aws-cli"],
-      changelogUrl: "https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst",
     },
     {
       description: "Link Radarr releases (image tags drop the build number used in upstream tags)",
