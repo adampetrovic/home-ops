@@ -50,6 +50,11 @@ spec:
     probe:
       enabled: true
       onFailure: Degrade
+  moverDefaults:
+    cache:
+      mode: Persistent
+      capacity: 5Gi
+      storageClassName: ceph-block
   maintenance:
     enabled: true
     namespace: kopiur-system
@@ -118,6 +123,9 @@ spec:
         jitter: 1h
   moverDefaults:
     cache:
+      mode: Persistent
+      capacity: 5Gi
+      storageClassName: ceph-block
       contentCacheSizeMb: 512
       metadataCacheSizeMb: 1024
     podSecurityContext:
