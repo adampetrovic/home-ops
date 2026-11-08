@@ -22,7 +22,8 @@ spec:
   bootstrap:
     recovery:
       source: source
-  enablePDB: false
+  # Draining the primary's node switches over to a replica first
+  enablePDB: true
   resources:
     requests:
       cpu: 100m
