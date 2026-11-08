@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fernwood
+spec:
+  description: >-
+    Fernwood's admin listener trusts Authelia's identity headers, so only the
+    external gateway may reach the app and admin ports.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: fernwood
+      app.kubernetes.io/controller: fernwood
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-external
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+            - port: "8081"
+              protocol: TCP

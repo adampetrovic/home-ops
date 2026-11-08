@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: lidarr
+spec:
+  description: >-
+    Lidarr skips its login for private addresses, so only the internal gateway
+    and Prowlarr, which syncs its indexers, may reach it.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: lidarr
+      app.kubernetes.io/controller: lidarr
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: prowlarr
+            app.kubernetes.io/controller: prowlarr
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP

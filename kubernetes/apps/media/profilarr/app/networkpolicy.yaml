@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: profilarr
+spec:
+  description: >-
+    Profilarr runs with its own auth off and holds the *arr API keys, so only
+    the internal gateway may reach it.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: profilarr
+      app.kubernetes.io/controller: profilarr
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+      toPorts:
+        - ports:
+            - port: "6868"
+              protocol: TCP

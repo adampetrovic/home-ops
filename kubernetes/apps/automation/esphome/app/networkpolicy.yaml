@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: esphome
+spec:
+  description: >-
+    The ESPHome dashboard and its code-server run without auth and rely on
+    Authelia at the gateway, so only the internal gateway may reach them.
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: esphome
+      app.kubernetes.io/controller: esphome
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: network
+            gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+      toPorts:
+        - ports:
+            - port: "6052"
+              protocol: TCP
+            - port: "8080"
+              protocol: TCP
