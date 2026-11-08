@@ -55,7 +55,15 @@ spec:
                     fieldPath: metadata.namespace
             args: ["--config", "/etc/vector/vector.yaml"]
             securityContext:
-              privileged: true
+              runAsUser: 0
+              runAsGroup: 0
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["DAC_READ_SEARCH"]
+              seccompProfile:
+                type: RuntimeDefault
     defaultPodOptions:
       automountServiceAccountToken: true
       hostNetwork: true
@@ -75,26 +83,6 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /vector-data-dir
-      procfs:
-        type: hostPath
-        hostPath: /proc
-        hostPathType: Directory
-        globalMounts:
-          - path: /host/proc
-            readOnly: true
-      sysfs:
-        type: hostPath
-        hostPath: /sys
-        hostPathType: Directory
-        globalMounts:
-          - path: /host/sys
-            readOnly: true
-      var-lib:
-        type: hostPath
-        hostPath: /var/lib
-        hostPathType: Directory
-        globalMounts:
-          - readOnly: true
       var-log:
         type: hostPath
         hostPath: /var/log

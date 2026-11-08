@@ -125,13 +125,6 @@ spec:
           http:
             port: *apiPort
 
-    route:
-      app:
-        hostnames:
-          - "{{ .Release.Name }}.petrovic.network"
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
     persistence:
       config:
         enabled: true

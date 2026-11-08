@@ -62,7 +62,7 @@ spec:
               AUTHELIA_AUTHENTICATION_BACKEND_PASSWORD_RESET_DISABLE: 'true'
               AUTHELIA_AUTHENTICATION_BACKEND_REFRESH_INTERVAL: 1m
               AUTHELIA_DUO_API_DISABLE: 'true'
-              AUTHELIA_LOG_LEVEL: debug
+              AUTHELIA_LOG_LEVEL: info
               AUTHELIA_NOTIFIER_DISABLE_STARTUP_CHECK: 'true'
               AUTHELIA_NOTIFIER_SMTP_DISABLE_REQUIRE_TLS: 'true'
               # Reach the relay pod directly so Authelia's network policy applies;

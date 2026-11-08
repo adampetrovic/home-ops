@@ -22,6 +22,11 @@ spec:
     keepHistory: false
   values:
     defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: { type: RuntimeDefault }
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -50,7 +55,6 @@ spec:
             env:
               BASE_URL: https://miniflux.${SECRET_PUBLIC_DOMAIN}
               CREATE_ADMIN: '1'
-              DEBUG: 1
               LOG_DATE_TIME: '1'
               METRICS_ALLOWED_NETWORKS: 10.69.0.0/16
               METRICS_COLLECTOR: '1'
@@ -62,6 +66,10 @@ spec:
               POLLING_SCHEDULER: round_robin
               POLLING_FREQUENCY: 60
               RUN_MIGRATIONS: 1
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 223m
