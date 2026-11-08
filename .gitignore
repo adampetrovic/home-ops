@@ -4,9 +4,7 @@ Thumbs.db
 # k8s
 kubeconfig
 talosconfig
-.decrypted~*.yaml
 .config.env
-*.agekey
 *.pub
 *.key
 # Private
@@ -19,7 +17,7 @@ talosconfig
 # pi
 .kstack
 .pi/subagent-schedules/
-.pi/todos/
+**/.pi/todos/
 plans/
 # wiki
 wiki

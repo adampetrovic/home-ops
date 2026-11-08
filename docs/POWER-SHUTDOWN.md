@@ -537,8 +537,8 @@ If UNAS isn't back online yet, Kopiur mover jobs and media pods will fail:
 
 ```bash
 # Verify UNAS is reachable
-ping <unas-ip>
-showmount -e <unas-ip>
+ping nas.petrovic.network
+showmount -e nas.petrovic.network
 ```
 
 Wait for UNAS to fully boot before expecting Kopiur and media pods to recover.

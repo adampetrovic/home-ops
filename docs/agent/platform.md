@@ -32,7 +32,7 @@ scripts/                     # Helper scripts
 - Rook-Ceph `ceph-block` is the default StorageClass for most RWO volumes.
 - Rook-CephFS is used for RWX volumes.
 - OpenEBS `openebs-hostpath` provides local high-performance volumes for workloads that need node-local scratch space.
-- NFS on the UNAS Pro is used for media storage and the Kopiur NFS repository at `/var/nfs/shared/kopiur`.
+- NFS on the UNAS Pro (`nas.petrovic.network`) is used for media storage and the Kopiur NFS repository at `/var/nfs/shared/kopiur`.
 - Kopiur protects application PVCs with a dual-repository strategy:
   - NFS Kopia backups use `*-nfs` policies on an hourly hashed schedule.
   - Cloudflare R2 Kopia backups use `*-r2` policies on a weekly hashed schedule.
@@ -65,6 +65,8 @@ Each node keeps only a small ring buffer of recent flows, so check soon after re
 After any Talos or Kubernetes rollout, especially Tuppr upgrades, explicitly check north/south LoadBalancer services using `externalTrafficPolicy: Local`.
 
 For BGP-advertised services such as `network/envoy-internal` (`10.0.88.200`) and `network/envoy-external` (`10.0.88.201`), ensure UCG BGP next-hops only include nodes with ready local endpoints. A stale next-hop can cause `connection refused` even when pods, Services, HTTPRoutes, and Envoy look healthy.
+
+The UCG side of the BGP peering (FRR config: local AS `64513`, cluster AS `64514`, one neighbor per node) is kept for reference in `docs/ucg-cilium-bgp.conf`. It is applied on the gateway by hand, not by Flux; update it when nodes are added or replaced.
 
 For Cilium L2 announcements, ensure the `cilium-l2announce-<namespace>-<service>` lease holder has at least one ready local endpoint for Services with `externalTrafficPolicy: Local`.
 

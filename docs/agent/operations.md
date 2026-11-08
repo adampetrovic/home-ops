@@ -35,6 +35,7 @@ Kubernetes:
 
 ```bash
 just kube delete-failed-pods
+just kube validate   # yamllint (kube lint) + kustomize build of every Flux Kustomization path (kube build)
 ```
 
 Kopiur:
@@ -103,6 +104,8 @@ flux reconcile ks <name> -n <namespace> --with-source
 ```
 
 ## Suspending and Resuming Flux
+
+Suspending a Flux Kustomization or HelmRelease is a temporary operational step that `AGENTS.md` allows without a Git commit, for example to stop Flux reverting live state during a migration or maintenance window. It is live-impacting, so confirm with the operator first. It must always be resumed: say what you suspended, and resume it before finishing so the live state matches Git again. Never use a suspend as a lasting fix or leave a resource suspended.
 
 ```bash
 flux suspend ks <name> -n <namespace>

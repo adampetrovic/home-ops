@@ -54,12 +54,16 @@ Renovate runs hourly and manages dependency updates.
 Key conventions:
 
 - Container images include digest pinning: `tag: v1.0.0@sha256:...`.
-- Talos/Kubernetes versions use annotated comments for Renovate detection:
+- Talos/Kubernetes upgrade versions use annotated comments for Renovate detection, as in `kubernetes/apps/system-upgrade/tuppr/upgrades/talosupgrade.yaml` (and `kubernetesupgrade.yaml` with `ghcr.io/siderolabs/kubelet`):
 
 ```yaml
-# renovate: datasource=docker depName=ghcr.io/siderolabs/talos
-TALOS_VERSION: v1.14.1
+spec:
+  talos:
+    # renovate: datasource=docker depName=ghcr.io/siderolabs/talos
+    version: v1.14.2
 ```
+
+- The Talos installer image in `talos/nodes/**` (`factory.talos.dev/metal-installer/{{ schematic }}:vX.Y.Z`) has no annotation; the "Process Talos Image Factory installer tags" custom manager in `.renovate/customManagers.json5` tracks it as `ghcr.io/siderolabs/talos`. Kubernetes component images in `talos/*.yaml.j2` are tracked by the "Process Kubernetes image tags" custom manager.
 
 - Standalone bootstrap CRD inventories use Renovate-managed `version` fields plus `urlTemplate`; bootstrap derives the consumed URL from the version.
 - Renovate config lives in `.renovaterc.json5` and `.renovate/`.

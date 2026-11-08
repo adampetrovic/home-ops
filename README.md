@@ -379,7 +379,10 @@ Complete destructive cluster rebuild capability:
 📁 docs/                  # Documentation
 ├── BOOTSTRAP.md          # Bootstrap procedures
 ├── NODE-REPLACEMENT.md   # Node replacement guide
-└── UPGRADE.md            # Upgrade procedures
+├── POWER-SHUTDOWN.md     # Planned power shutdown and recovery
+├── UPGRADE.md            # Upgrade procedures
+├── ucg-cilium-bgp.conf   # UCG-side BGP peering reference (applied by hand)
+└── 📁 agent/             # AI agent procedures (read gates from AGENTS.md)
 
 .justfile                 # Root just module definitions
 📁 talos/scripts/        # Talos helper scripts used by just recipes
