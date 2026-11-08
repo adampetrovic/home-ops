@@ -1,5 +1,5 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/tuppr.home-operations.com/talosupgrade_v1alpha1.json
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/tuppr.home-operations.com/talosupgrade_v1alpha1.json
 apiVersion: tuppr.home-operations.com/v1alpha1
 kind: TalosUpgrade
 metadata:
@@ -11,15 +11,69 @@ spec:
   parallelism: 1
   policy:
     rebootMode: powercycle
-    nodrain: false
-    waitForVolumeDetach: false
-    drainTimeout: 35m
+    placement: hard
+    # Tuppr drains the node itself (10m, retried) and waits for CSI volumes to
+    # detach before the reboot, so RBD claims don't hit Multi-Attach elsewhere
+    waitForVolumeDetach: true
     timeout: 45m
+  hooks:
+    pre:
+      # Pause Kopiur so no backup starts on a node that is about to drain
+      - name: suspend-backups
+        image: &hookImage mirror.gcr.io/alpine/k8s:1.37.2@sha256:dcb7185e112a453aa72f426754849a97357727ef8f40168fb208c8cf59952042
+        serviceAccountName: &hookServiceAccount tuppr-hooks
+        command: &hookCommand ["bash", "-c"]
+        args:
+          - |
+            set -Eeuo pipefail
+            kubectl get snapshotschedules.kopiur.home-operations.com -A -o json \
+              | jq '{apiVersion: "v1", kind: "List", items: [.items[] | {
+                  apiVersion, kind,
+                  metadata: {name: .metadata.name, namespace: .metadata.namespace},
+                  spec: {schedule: {suspend: true}}
+                }]}' \
+              | kubectl apply --server-side --field-manager=tuppr-upgrade --validate=false -f -
+        env: &hookEnv
+          - name: HOME
+            value: /tmp
+        volumeMounts: &hookVolumeMounts
+          - name: tmp
+            mountPath: /tmp
+        volumes: &hookVolumes
+          - name: tmp
+            emptyDir: {}
+    post:
+      # Releasing the field manager drops the suspend it set, leaving no residue
+      - name: resume-backups
+        image: *hookImage
+        serviceAccountName: *hookServiceAccount
+        command: *hookCommand
+        args:
+          - |
+            set -Eeuo pipefail
+            kubectl get snapshotschedules.kopiur.home-operations.com -A -o json \
+              | jq '{apiVersion: "v1", kind: "List", items: [.items[] | {
+                  apiVersion, kind,
+                  metadata: {name: .metadata.name, namespace: .metadata.namespace}
+                }]}' \
+              | kubectl apply --server-side --field-manager=tuppr-upgrade --validate=false -f -
+        env: *hookEnv
+        volumeMounts: *hookVolumeMounts
+        volumes: *hookVolumes
+        backoffLimit: 3
+  silences:
+    - matchers:
+        - name: alertname
+          matchType: "=~"
+          value: >-
+            ^(KubeNodeNotReady|KubeNodeUnreachable|KubeNodeReadinessFlapping|KubeNodeEviction|KubePodNotReady|KubeContainerWaiting|KubeDeploymentReplicasMismatch|KubeDeploymentRolloutStuck|KubeStatefulSetReplicasMismatch|KubeDaemonSetRolloutStuck|KubeDaemonSetNotScheduled|KubeDaemonSetMisScheduled|TargetDown|AlertmanagerClusterFailedPeers|AlertmanagerMembersInconsistent|PrometheusNotConnectedToAlertmanagers|CephMonDown|CephMonDownQuorumAtRisk|CephOSDDown|CephOSDHostDown|CephHealthWarning|CephPGsUnclean|CephFilesystemInsufficientStandby|CephFilesystemFailureNoStandby|etcdMembersDown|etcdHighNumberOfLeaderChanges|CNPGReplicationLagHigh|CNPGCollectorDown|NodeClockNotSynchronising|NodeNetworkInterfaceFlapping)$
+      maxDuration: 2h
   healthChecks:
+    # Schedules are suspended by the pre-hook, so this only waits out runs already in flight
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Snapshot
       expr: |-
-        !has(status.phase) || !(status.phase in ["Pending", "Running", "Deleting"])
+        !has(status.phase) || !(status.phase in ["Pending", "Running"])
     - apiVersion: kopiur.home-operations.com/v1alpha1
       kind: Restore
       expr: |-
@@ -36,6 +90,11 @@ spec:
       kind: Maintenance
       expr: |-
         !has(status.manualRun) || !has(status.manualRun.phase) || status.manualRun.phase != "Running"
+    # A replica must be streaming again before the next drain can switch over to it
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      expr: |-
+        has(status.readyInstances) && status.readyInstances == object.spec.instances
     - apiVersion: ceph.rook.io/v1
       kind: CephCluster
       expr: |-

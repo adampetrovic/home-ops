@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tuppr-hooks
+---
+# Lets the TalosUpgrade hooks suspend and resume Kopiur backups
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tuppr-hooks
+rules:
+  - apiGroups: ["kopiur.home-operations.com"]
+    resources: ["snapshotschedules"]
+    verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tuppr-hooks
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tuppr-hooks
+subjects:
+  - kind: ServiceAccount
+    name: tuppr-hooks
+    namespace: system-upgrade
