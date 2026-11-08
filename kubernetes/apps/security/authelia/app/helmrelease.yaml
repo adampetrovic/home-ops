@@ -56,7 +56,7 @@ spec:
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_START_TLS: 'false'
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_TIMEOUT: 5s
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_ADDRESS: ldap://lldap.security.svc.cluster.local:389
-              AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USER: uid=admin,ou=people,dc=home,dc=arpa
+              AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USER: uid=authelia,ou=people,dc=home,dc=arpa
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_ATTRIBUTES_USERNAME: uid
               AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USERS_FILTER: (&({username_attribute}={input})(objectClass=person))
               AUTHELIA_AUTHENTICATION_BACKEND_PASSWORD_RESET_DISABLE: 'true'
