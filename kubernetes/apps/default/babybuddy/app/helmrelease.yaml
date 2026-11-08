@@ -42,6 +42,13 @@ spec:
             envFrom: &envFrom
               - secretRef:
                   name: babybuddy-secret
+            # Sized from 30d peaks: 202Mi, CPU p95 8m.
+            resources:
+              requests:
+                cpu: 10m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
     service:
       app:
         # Probed directly: the route sits behind Authelia, which answers

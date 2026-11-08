@@ -101,6 +101,13 @@ spec:
                   failureThreshold: 3
               startup:
                 enabled: false
+            # Sized from 30d peaks: 225Mi, CPU p95 26m.
+            resources:
+              requests:
+                cpu: 30m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
 
       sync:
         annotations:

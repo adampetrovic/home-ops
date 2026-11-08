@@ -88,6 +88,19 @@
       },
     },
     {
+      description: "Envoy Gateway Group: chart, controller image, and the Envoy proxy version it ships",
+      groupName: "Envoy Gateway",
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "docker.io/envoyproxy/gateway-helm",
+        "docker.io/envoyproxy/gateway",
+        "docker.io/envoyproxy/envoy",
+      ],
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "External Secrets Operator Group",
       groupName: "External Secrets Operator",
       matchDatasources: ["docker"],
@@ -136,7 +149,8 @@
       description: "Rook-Ceph Group",
       groupName: "Rook-Ceph",
       matchDatasources: ["docker"],
-      matchPackageNames: ["/rook-ceph/", "/rook-ceph-cluster/"],
+      // docker.io/rook/ceph is the operator image pinned to the chart version (mirror.gcr.io via registryAliases)
+      matchPackageNames: ["/rook-ceph/", "/rook-ceph-cluster/", "docker.io/rook/ceph"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },

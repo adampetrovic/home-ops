@@ -23,11 +23,30 @@ spec:
     serviceMonitor:
       enabled: true
       interval: 1m
+    # Sized from 30d peaks: controller 81Mi, webhook 51Mi, cert-controller 75Mi; CPU p95 under 2m.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 192Mi
     webhook:
       serviceMonitor:
         enabled: true
         interval: 1m
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
     certController:
       serviceMonitor:
         enabled: true
         interval: 1m
+      resources:
+        requests:
+          cpu: 10m
+          memory: 96Mi
+        limits:
+          memory: 192Mi

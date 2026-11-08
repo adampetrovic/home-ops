@@ -26,3 +26,10 @@ spec:
       podMonitorEnabled: false
       grafanaDashboard:
         create: true
+    # Sized from 30d peaks: 86Mi, CPU p95 8m (max 32m during reconciles).
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi

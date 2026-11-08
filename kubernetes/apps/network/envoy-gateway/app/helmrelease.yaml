@@ -16,6 +16,13 @@ spec:
     crds: CreateReplace
   interval: 1h
   values:
+    # Also used as the shutdown-manager image in the Envoy proxy pods.
+    # Keep the tag on the chart version.
+    deployment:
+      envoyGateway:
+        image:
+          repository: mirror.gcr.io/envoyproxy/gateway
+          tag: v1.10.0@sha256:c2243d43518bed91d3ed8c2db849a4b7a14ac9b96eb019f2ab104bb1ca8572b1
     config:
       envoyGateway:
         extensionApis:

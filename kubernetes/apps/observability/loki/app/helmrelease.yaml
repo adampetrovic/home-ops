@@ -26,6 +26,10 @@ spec:
     lokiCanary:
       enabled: false
     loki:
+      image:
+        registry: mirror.gcr.io
+        repository: grafana/loki
+        tag: 3.6.11@sha256:44148ad243c07957113baea950ee5ba9b0c8eff8d7e38ff3cc1c0af705790945
       auth_enabled: false
       analytics:
         reporting_enabled: false
@@ -78,10 +82,28 @@ spec:
         enabled: true
         storageClass: ceph-block
         size: 50Gi
+      # Sized from peaks: 675Mi over 7d, 814Mi over 30d; CPU p95 27m.
+      resources:
+        requests:
+          cpu: 30m
+          memory: 768Mi
+        limits:
+          memory: 2Gi
     gateway:
       enabled: true
+      image:
+        registry: mirror.gcr.io
+        repository: nginxinc/nginx-unprivileged
+        tag: 1.29-alpine@sha256:0c79d56aee561a1d81c63f00eee5fb5fe29279560cdc55e91425133104c7fbe6
       ingress:
         enabled: false
+      # Sized from 30d peaks: 15Mi, CPU negligible.
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
     # Disable other components for SingleBinary mode
     read:
       replicas: 0
@@ -107,6 +129,13 @@ spec:
       image:
         repository: ghcr.io/home-operations/k8s-sidecar
         tag: 2.14.3@sha256:cc81b13164b15474260b8721bb6a63da2212a704fb92b5496091aabae3038487
+      # Sized from 30d peaks: 81Mi, CPU p95 under 1m.
+      resources:
+        requests:
+          cpu: 10m
+          memory: 128Mi
+        limits:
+          memory: 256Mi
       rules:
         enabled: true
         searchNamespace: ALL

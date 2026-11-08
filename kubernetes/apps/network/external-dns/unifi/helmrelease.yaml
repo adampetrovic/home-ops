@@ -49,6 +49,13 @@ spec:
             port: http-webhook
           initialDelaySeconds: 10
           timeoutSeconds: 5
+        # Sized from 30d peaks: 24Mi, CPU p95 under 1m.
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 64Mi
     extraArgs:
       - --gateway-name=envoy-internal
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
@@ -63,3 +70,10 @@ spec:
       enabled: true
     podAnnotations:
       secret.reloader.stakater.com/reload: unifi-dns-secret
+    # Sized from 30d peaks: 49Mi, CPU p95 2m.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
