@@ -36,6 +36,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: certificates-import
+      namespace: network
     - name: cert-manager
       namespace: cert-manager
   interval: 1h

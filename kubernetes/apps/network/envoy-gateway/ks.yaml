@@ -11,6 +11,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: certificates-import
+      namespace: network
   interval: 1h
   retryInterval: 1m
   timeout: 5m
@@ -21,7 +22,7 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: network
-  wait: false
+  wait: true
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1
@@ -35,6 +36,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: envoy-gateway
+      namespace: network
   interval: 1h
   retryInterval: 1m
   timeout: 5m
@@ -44,4 +46,4 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: true
+  wait: false

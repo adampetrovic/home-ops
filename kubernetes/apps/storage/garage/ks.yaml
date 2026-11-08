@@ -21,7 +21,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: false
+  wait: true
   interval: 30m
   retryInterval: 1m
   timeout: 5m
@@ -49,7 +49,7 @@ spec:
     name: flux-system
     namespace: flux-system
   # Backup movers are asynchronous; do not gate persistence on their lifecycle.
-  wait: false
+  wait: true
   interval: 30m
   retryInterval: 1m
   timeout: 5m

@@ -27,4 +27,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
-  wait: false
+  wait: true

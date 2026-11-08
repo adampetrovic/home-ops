@@ -29,6 +29,9 @@ metadata:
   namespace: kube-system
 spec:
   targetNamespace: kube-system
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: cilium-networkpolicies
   dependsOn:
     - name: cilium
       namespace: kube-system
@@ -38,7 +41,7 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  wait: true
+  wait: false
   interval: 30m
   retryInterval: 1m
   timeout: 5m
