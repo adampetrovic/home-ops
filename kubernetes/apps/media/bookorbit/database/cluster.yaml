@@ -6,6 +6,7 @@ metadata:
   name: bookorbit-postgres
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
 spec:
   instances: 1
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.11-1.1.1@sha256:bb7eb8442f76b1e74911f28585019a77022911f8cfa2ddcfb166ea6af85abd09
@@ -17,16 +18,8 @@ spec:
   superuserSecret:
     name: bookorbit-db-superuser-secret
   bootstrap:
-    initdb:
-      database: bookorbit
-      owner: bookorbit
-      secret:
-        name: bookorbit-db-secret
-      postInitApplicationSQL:
-        - CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
-        - CREATE EXTENSION IF NOT EXISTS pg_trgm
-        - CREATE EXTENSION IF NOT EXISTS unaccent
-        - CREATE EXTENSION IF NOT EXISTS vector
+    recovery:
+      source: source
   postgresql:
     parameters:
       max_connections: "100"

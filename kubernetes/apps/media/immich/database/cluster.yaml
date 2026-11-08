@@ -6,10 +6,12 @@ metadata:
   name: immich-postgres
   annotations:
     cnpg.io/skipEmptyWalArchiveCheck: "enabled"
+    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  instances: 1
+  instances: 2
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:17.11-1.1.1@sha256:bb7eb8442f76b1e74911f28585019a77022911f8cfa2ddcfb166ea6af85abd09
   primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
   storage:
     size: 10Gi
     storageClass: openebs-hostpath
@@ -45,11 +47,8 @@ spec:
         barmanObjectName: immich-garage
         serverName: immich-postgres
   bootstrap:
-    initdb:
-      database: immich
-      owner: immich
-      secret:
-        name: immich-db-secret
+    recovery:
+      source: source
   externalClusters:
     - name: source
       plugin:

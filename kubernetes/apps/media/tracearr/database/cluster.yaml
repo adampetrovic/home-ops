@@ -4,17 +4,20 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: tracearr-postgres
+  annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
+    kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
-  instances: 1
+  instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18.6-202611030838-minimal-trixie@sha256:26d15a12723510b0b416e8aec2bc65f2da7ac9b77ef3182a0911e4b8b991420a
   primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
   storage:
     size: 10Gi
     storageClass: openebs-hostpath
   bootstrap:
-    initdb:
-      postInitTemplateSQL:
-        - CREATE EXTENSION IF NOT EXISTS timescaledb
+    recovery:
+      source: source
   postgresql:
     extensions:
       - name: timescaledb
