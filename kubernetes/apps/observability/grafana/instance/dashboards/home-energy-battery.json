@@ -927,7 +927,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_charged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => {\n        hour = date.hour(t: r._time)\n        source = if hour >= 11 and hour < 14 then \"Solar (Free)\"\n            else if hour >= 0 and hour < 6 then \"Grid (EV Rate)\"\n            else \"Grid (Other)\"\n        return {_time: r._time, _field: source, _value: r._value}\n    })\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nplanSwitch = time(v: \"$${plan_switch_date}\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ntariffsSolarMax = dict.fromList(pairs: [\n    {key: \"peak\", value: $${solarmax_peak_tariff}},\n    {key: \"offpeak\", value: $${solarmax_offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${solarmax_evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${solarmax_superoffpeak_tariff}}\n])\ntariffsAt = (t) => if t >= planSwitch then tariffsSolarMax else tariffs\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffsAt(t: timeVal), key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffsAt(t: timeVal), key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffsAt(t: timeVal), key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffsAt(t: timeVal), key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_charged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => {\n        hour = date.hour(t: r._time)\n        source = if hour >= 11 and hour < 14 then \"Solar (Free)\"\n            else if hour >= 0 and hour < 6 then \"Grid (EV Rate)\"\n            else \"Grid (Other)\"\n        return {_time: r._time, _field: source, _value: r._value}\n    })\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])",
           "refId": "A"
         }
       ],
@@ -1025,7 +1025,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => {\n        tariff = getTariffName(timeVal: r._time)\n        return {_time: r._time, _field: tariff, _value: r._value}\n    })\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nplanSwitch = time(v: \"$${plan_switch_date}\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ntariffsSolarMax = dict.fromList(pairs: [\n    {key: \"peak\", value: $${solarmax_peak_tariff}},\n    {key: \"offpeak\", value: $${solarmax_offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${solarmax_evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${solarmax_superoffpeak_tariff}}\n])\ntariffsAt = (t) => if t >= planSwitch then tariffsSolarMax else tariffs\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffsAt(t: timeVal), key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffsAt(t: timeVal), key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffsAt(t: timeVal), key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffsAt(t: timeVal), key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => {\n        tariff = getTariffName(timeVal: r._time)\n        return {_time: r._time, _field: tariff, _value: r._value}\n    })\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")\n    |> keep(columns: [\"_time\", \"_field\", \"_value\"])",
           "refId": "A"
         }
       ],
@@ -1223,7 +1223,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nplanSwitch = time(v: \"$${plan_switch_date}\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ntariffsSolarMax = dict.fromList(pairs: [\n    {key: \"peak\", value: $${solarmax_peak_tariff}},\n    {key: \"offpeak\", value: $${solarmax_offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${solarmax_evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${solarmax_superoffpeak_tariff}}\n])\ntariffsAt = (t) => if t >= planSwitch then tariffsSolarMax else tariffs\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffsAt(t: timeVal), key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffsAt(t: timeVal), key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffsAt(t: timeVal), key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffsAt(t: timeVal), key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> aggregateWindow(every: 1d, fn: sum, createEmpty: false, timeSrc: \"_start\")",
           "refId": "A"
         }
       ],
@@ -1279,7 +1279,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false, timeSrc: \"_start\")",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nplanSwitch = time(v: \"$${plan_switch_date}\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ntariffsSolarMax = dict.fromList(pairs: [\n    {key: \"peak\", value: $${solarmax_peak_tariff}},\n    {key: \"offpeak\", value: $${solarmax_offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${solarmax_evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${solarmax_superoffpeak_tariff}}\n])\ntariffsAt = (t) => if t >= planSwitch then tariffsSolarMax else tariffs\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffsAt(t: timeVal), key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffsAt(t: timeVal), key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffsAt(t: timeVal), key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffsAt(t: timeVal), key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> aggregateWindow(every: 1mo, fn: sum, createEmpty: false, timeSrc: \"_start\")",
           "refId": "A"
         }
       ],
@@ -1331,7 +1331,7 @@
             "type": "influxdb",
             "uid": "$${DS_INFLUXDB}"
           },
-          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffs, key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffs, key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffs, key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffs, key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _field: getTariffName(timeVal: r._time),\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> group(columns: [\"_field\"])\n    |> sum()\n    |> group()",
+          "query": "import \"date\"\nimport \"timezone\"\nimport \"dict\"\noption location = timezone.location(name: \"Australia/Sydney\")\n\nplanSwitch = time(v: \"$${plan_switch_date}\")\n\ntariffs = dict.fromList(pairs: [\n    {key: \"peak\", value: $${peak_tariff}},\n    {key: \"offpeak\", value: $${offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${superoffpeak_tariff}}\n])\ntariffsSolarMax = dict.fromList(pairs: [\n    {key: \"peak\", value: $${solarmax_peak_tariff}},\n    {key: \"offpeak\", value: $${solarmax_offpeak_tariff}},\n    {key: \"evoffpeak\", value: $${solarmax_evoffpeak_tariff}},\n    {key: \"superoffpeak\", value: $${solarmax_superoffpeak_tariff}}\n])\ntariffsAt = (t) => if t >= planSwitch then tariffsSolarMax else tariffs\ngetPrice = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then dict.get(dict: tariffsAt(t: timeVal), key: \"evoffpeak\", default: 0.0)\n    else if hour >= 11 and hour < 14 then dict.get(dict: tariffsAt(t: timeVal), key: \"superoffpeak\", default: 0.0)\n    else if hour >= 15 and hour < 21 and isPeakSeason then dict.get(dict: tariffsAt(t: timeVal), key: \"peak\", default: 0.0)\n    else dict.get(dict: tariffsAt(t: timeVal), key: \"offpeak\", default: 0.0)\n}\n\ngetTariffName = (timeVal) => {\n    hour = date.hour(t: timeVal)\n    month = date.month(t: timeVal)\n    isPeakSeason = timeVal >= planSwitch or month >= 11 or month <= 3 or (month >= 6 and month <= 8)\n    return if hour >= 0 and hour < 6 then \"EV Off Peak\"\n    else if hour >= 11 and hour < 14 then \"Super Off Peak\"\n    else if hour >= 15 and hour < 21 and isPeakSeason then \"Peak\"\n    else \"Off Peak\"\n}\n\nfrom(bucket: \"$${sigenergy_bucket}\")\n    |> range(start: date.sub(d: 1h, from: v.timeRangeStart), stop: v.timeRangeStop)\n    |> filter(fn: (r) => r._measurement == \"kWh\" and r.entity_id == \"sigen_0_si_total_discharged_energy\" and r._field == \"value\")\n    |> aggregateWindow(every: 1h, fn: last, createEmpty: false, timeSrc: \"_start\")\n    |> difference(nonNegative: true)\n    |> range(start: date.truncate(t: v.timeRangeStart, unit: 1h), stop: v.timeRangeStop)\n    |> map(fn: (r) => ({\n        _time: r._time,\n        _field: getTariffName(timeVal: r._time),\n        _value: r._value * getPrice(timeVal: r._time)\n    }))\n    |> group(columns: [\"_field\"])\n    |> sum()\n    |> group()",
           "refId": "A"
         }
       ],
@@ -1969,7 +1969,8 @@
             "value": "0.6127",
             "selected": false
           }
-        ]
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
       },
       {
         "hide": 2,
@@ -1988,7 +1989,8 @@
             "value": "0.4081",
             "selected": false
           }
-        ]
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
       },
       {
         "hide": 2,
@@ -2007,7 +2009,8 @@
             "value": "0.08",
             "selected": false
           }
-        ]
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
       },
       {
         "hide": 2,
@@ -2026,7 +2029,8 @@
             "value": "0.00",
             "selected": false
           }
-        ]
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
       },
       {
         "hide": 2,
@@ -2045,7 +2049,8 @@
             "value": "0.028",
             "selected": false
           }
-        ]
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
       },
       {
         "hide": 2,
@@ -2062,6 +2067,147 @@
           {
             "text": "1.023",
             "value": "1.023",
+            "selected": false
+          }
+        ],
+        "description": "OVO EV Plan (before plan_switch_date)"
+      },
+      {
+        "description": "Start of CovaU SolarMax; earlier usage is priced at the OVO EV Plan rates",
+        "hide": 2,
+        "name": "plan_switch_date",
+        "query": "2026-12-11T00:00:00+11:00",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "2026-12-11T00:00:00+11:00",
+          "value": "2026-12-11T00:00:00+11:00",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "2026-12-11T00:00:00+11:00",
+            "value": "2026-12-11T00:00:00+11:00",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date)",
+        "hide": 2,
+        "name": "solarmax_peak_tariff",
+        "query": "0.6139",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "0.6139",
+          "value": "0.6139",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "0.6139",
+            "value": "0.6139",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date)",
+        "hide": 2,
+        "name": "solarmax_offpeak_tariff",
+        "query": "0.2802",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "0.2802",
+          "value": "0.2802",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "0.2802",
+            "value": "0.2802",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date)",
+        "hide": 2,
+        "name": "solarmax_evoffpeak_tariff",
+        "query": "0.165",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "0.165",
+          "value": "0.165",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "0.165",
+            "value": "0.165",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date); first 50 kWh/day",
+        "hide": 2,
+        "name": "solarmax_superoffpeak_tariff",
+        "query": "0.00",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "0.00",
+          "value": "0.00",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "0.00",
+            "value": "0.00",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date); 15c 6-9pm not modelled",
+        "hide": 2,
+        "name": "solarmax_feedin_tariff",
+        "query": "0.05",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "0.05",
+          "value": "0.05",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "0.05",
+            "value": "0.05",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "description": "CovaU SolarMax (from plan_switch_date)",
+        "hide": 2,
+        "name": "solarmax_daily_supply_charge",
+        "query": "1.52",
+        "skipUrlSync": true,
+        "type": "constant",
+        "current": {
+          "text": "1.52",
+          "value": "1.52",
+          "selected": false
+        },
+        "options": [
+          {
+            "text": "1.52",
+            "value": "1.52",
             "selected": false
           }
         ]
