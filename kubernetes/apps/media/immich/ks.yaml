@@ -32,6 +32,31 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: &app immich-cache
+  namespace: &namespace media
+spec:
+  targetNamespace: *namespace
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app
+  dependsOn:
+    - name: dragonfly-operator
+      namespace: database
+  path: ./kubernetes/apps/media/immich/cache
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  wait: true
+  interval: 30m
+  retryInterval: 1m
+  timeout: 5m
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/kustomize.toolkit.fluxcd.io/kustomization_v1.json
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: &app immich
   namespace: &namespace media
 spec:
@@ -44,8 +69,8 @@ spec:
       namespace: external-secrets
     - name: immich-db
       namespace: media
-    - name: dragonfly-cluster
-      namespace: database
+    - name: immich-cache
+      namespace: media
   path: ./kubernetes/apps/media/immich/app
   prune: true
   sourceRef:

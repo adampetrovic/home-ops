@@ -23,8 +23,8 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            k8s:io.kubernetes.pod.namespace: database
-            app: dragonfly
+            k8s:io.kubernetes.pod.namespace: media
+            app: immich-dragonfly
             role: master
       toPorts:
         - ports:
