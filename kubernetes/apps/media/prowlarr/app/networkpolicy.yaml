@@ -7,7 +7,7 @@ metadata:
 spec:
   description: >-
     Prowlarr skips its login for private addresses, so only the internal
-    gateway and the *arrs that search through it may reach it.
+    gateway and the apps that search through it may reach it.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: prowlarr
@@ -29,6 +29,14 @@ spec:
             k8s:io.kubernetes.pod.namespace: media
             app.kubernetes.io/name: lidarr
             app.kubernetes.io/controller: lidarr
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: qui
+            app.kubernetes.io/controller: qui
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: shelfmark
+            app.kubernetes.io/controller: shelfmark
       toPorts:
         - ports:
             - port: "80"
