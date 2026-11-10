@@ -20,7 +20,9 @@ spec:
   uninstall:
     keepHistory: false
   values:
-    installCRDs: true
+    crds:
+      enabled: true
+      keep: true
     dns01RecursiveNameservers: 1.1.1.1:53,9.9.9.9:53
     dns01RecursiveNameserversOnly: true
     podDnsPolicy: None
