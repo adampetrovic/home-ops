@@ -9,7 +9,7 @@ groups:
       # helps distinguish real outages from transient probe failures.
       - alert: WANDHCPRenewalMissing
         expr: |
-          count_over_time({hostname="cloudkey"} |~ "dhcp-client: Synchronizing eth4 DHCP lease"[20m]) == 0
+          absent_over_time({hostname="cloudkey"} |~ "dhcp-client: Synchronizing eth4 DHCP lease"[20m])
         for: 0s
         labels:
           severity: warning

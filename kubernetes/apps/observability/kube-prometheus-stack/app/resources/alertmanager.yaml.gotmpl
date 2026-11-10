@@ -54,7 +54,7 @@ inhibit_rules:
   # alerts. Uses WANDownBuffer which persists beyond WANDown to cover the
   # recovery window while pods restart, Flux re-reconciles, and targets
   # come back online. WANDown is also kept as a source so that inhibition
-  # starts immediately (WANDownBuffer has for: 0s, but belt-and-suspenders).
+  # starts as soon as WANDown fires, before WANDownBuffer clears its own 2m for.
   #
   # Flux: can't pull OCI artifacts without internet
   - source_matchers:
@@ -68,7 +68,6 @@ inhibit_rules:
       - alertname =~ "AlertmanagerFailedToSendAlerts|AlertmanagerClusterFailedToSendAlerts"
   # Pods/deployments/targets: services in ANY namespace may crash-loop or
   # become unavailable when internet is down (image pulls, cloud APIs, DNS).
-  # Previously restricted to namespace=network which let media alerts through.
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
