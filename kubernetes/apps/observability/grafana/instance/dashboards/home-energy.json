@@ -2169,18 +2169,18 @@
         "description": "Start of CovaU SolarMax; earlier usage is priced at the OVO EV Plan rates",
         "hide": 2,
         "name": "plan_switch_date",
-        "query": "2026-12-11T00:00:00+11:00",
+        "query": "2026-11-09T00:00:00+11:00",
         "skipUrlSync": true,
         "type": "constant",
         "current": {
-          "text": "2026-12-11T00:00:00+11:00",
-          "value": "2026-12-11T00:00:00+11:00",
+          "text": "2026-11-09T00:00:00+11:00",
+          "value": "2026-11-09T00:00:00+11:00",
           "selected": false
         },
         "options": [
           {
-            "text": "2026-12-11T00:00:00+11:00",
-            "value": "2026-12-11T00:00:00+11:00",
+            "text": "2026-11-09T00:00:00+11:00",
+            "value": "2026-11-09T00:00:00+11:00",
             "selected": false
           }
         ]
