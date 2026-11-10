@@ -68,7 +68,7 @@ A run that sits in `HealthChecking` is waiting on a check. The event message nam
 just talos upgrade-check
 ```
 
-This confirms every node runs the target version and is schedulable with no outdated taint. It also confirms Ceph is `HEALTH_OK` with no OSD flags left set, every CNPG cluster is fully ready, and no Kopiur schedule is still suspended or still carries the `tuppr-upgrade` field manager. LoadBalancer services with `externalTrafficPolicy: Local` must have ready endpoints, and nothing may be firing unsilenced. For BGP next-hop problems on the UCG, see "Post-Upgrade LoadBalancer/L2 Sanity Check" in `docs/agent/platform.md`.
+This confirms every node runs the target version and is schedulable with no outdated taint. It also confirms Ceph is `HEALTH_OK` with no OSD flags left set, every CNPG cluster is fully ready, and no Kopiur schedule is still suspended or still carries the `tuppr-upgrade` field manager. LoadBalancer services with `externalTrafficPolicy: Local` must have ready endpoints, and nothing may be firing unsilenced. For BGP next-hop problems on the UCG, see "Post-Upgrade LoadBalancer/BGP Sanity Check" in `docs/agent/platform.md`.
 
 ## When something goes wrong
 

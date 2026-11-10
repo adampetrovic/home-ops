@@ -109,7 +109,7 @@ fi
 echo "Upgrading Talos on node ${NODE} with ${TALOS_IMAGE} ..."
 talosctl --nodes "${NODE}" upgrade \
     --image="${TALOS_IMAGE}" \
-    --wait=true --timeout=10m --preserve=true
+    --wait=true --timeout=10m
 
 # talosctl health needs a control-plane node for its Kubernetes API checks.
 health_node="$(kubectl get nodes -o json | jq -r \

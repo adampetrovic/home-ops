@@ -26,6 +26,7 @@ mise trust
 
 The bootstrap scripts expect these tools in `PATH`:
 
+- `curl`
 - `flux`
 - `helm`
 - `helmfile`
@@ -132,14 +133,15 @@ The recipe performs these stages:
 3. `nodes` — render native Talos machine configs and apply them insecurely to maintenance-mode nodes, skipping nodes that are already configured.
 4. `k8s` — bootstrap etcd/Kubernetes on `k8s-node-1` and treat an existing etcd cluster as a successful rerun.
 5. `kubeconfig` — fetch kubeconfig to `${KUBECONFIG}`.
-6. `base` — wait for the API and node registration, apply prerequisite CRDs, then apply bootstrap namespaces and seed Secrets from `bootstrap/kustomize/home` via `op inject`.
-7. `apps` — sync bootstrap Helm releases with `bootstrap/helmfile/apps.yaml`:
+6. `base` — wait for the API and node registration, then apply prerequisite CRDs.
+7. `secrets` — apply bootstrap namespaces and seed Secrets from `bootstrap/kustomize/home` via `op inject`.
+8. `apps` — sync bootstrap Helm releases with `bootstrap/helmfile/apps.yaml`:
 
    ```text
    Cilium → CoreDNS → Spegel → cert-manager → External Secrets → 1Password Connect → Flux Operator → Flux Instance
    ```
 
-8. `verify-core` — run core post-bootstrap verification before reporting success.
+9. `verify-core` — run core post-bootstrap verification before reporting success.
 
 Flux then reconciles `kubernetes/flux/cluster/ks.yaml` from `main` and starts applying the full app graph.
 
@@ -156,9 +158,6 @@ helmfile --file bootstrap/helmfile/crds.yaml template --quiet \
   | yq ea 'select(.kind == "CustomResourceDefinition" and ((.spec.group | test("^gateway\\.networking\\.(x-)?k8s\\.io$")) | not))' - >/dev/null
 scripts/bootstrap-helmfile-parity.sh
 ```
-
-A live disaster-recovery or disposable-cluster drill is intentionally outside
-this implementation scope and should be scheduled separately.
 
 ## Verification
 

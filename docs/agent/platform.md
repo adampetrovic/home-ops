@@ -60,7 +60,7 @@ hubble observe --verdict DROPPED --from-label policy.petrovic.network/public-app
 
 Each node keeps only a small ring buffer of recent flows, so check soon after reproducing a problem. For long-term trends, Prometheus scrapes the `hubble_drop_total` and `hubble_policy_verdicts_total` metrics, labelled by source and destination workload and namespace.
 
-## Post-Upgrade LoadBalancer/L2 Sanity Check
+## Post-Upgrade LoadBalancer/BGP Sanity Check
 
 After any Talos or Kubernetes rollout, especially Tuppr upgrades, explicitly check north/south LoadBalancer services using `externalTrafficPolicy: Local`. `just talos upgrade-check` covers the in-cluster side (ready endpoints and unsilenced `LoadBalancerProbeFailed` alerts); the UCG next-hop check below is still manual. The upgrade process itself is described in `docs/UPGRADE.md`.
 
@@ -68,18 +68,13 @@ For BGP-advertised services such as `network/envoy-internal` (`10.0.88.200`) and
 
 The UCG side of the BGP peering (FRR config: local AS `64513`, cluster AS `64514`, one neighbor per node) is kept for reference in `docs/ucg-cilium-bgp.conf`. It is applied on the gateway by hand, not by Flux; update it when nodes are added or replaced.
 
-For Cilium L2 announcements, ensure the `cilium-l2announce-<namespace>-<service>` lease holder has at least one ready local endpoint for Services with `externalTrafficPolicy: Local`.
-
 Read-only checks:
 
 ```bash
 kubectl get svc -A --field-selector spec.type=LoadBalancer
-kubectl get leases -n kube-system | grep cilium-l2announce
 kubectl get endpointslice -n <namespace> -l kubernetes.io/service-name=<service> -o wide
 kubectl get pods -n <namespace> -o wide
 ```
-
-If a lease holder has no ready local endpoint, a targeted lease delete can force re-election, but confirm before running `kubectl delete lease ...` because it mutates cluster state.
 
 ## Talos Node Logging
 

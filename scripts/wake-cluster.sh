@@ -58,8 +58,8 @@ cat <<'EOF'
 Wake packets sent. Talos boots automatically (~60-90s per node).
 
 Next steps (see docs/POWER-SHUTDOWN.md step 11+):
-  1. Wait for the API:
-     until talosctl health --nodes 10.0.80.10 --wait-timeout=10m --server=false; do sleep 15; done
+  1. Wait for the API (not full talosctl health, which deadlocks while nodes are cordoned):
+     until kubectl get --raw=/readyz >/dev/null 2>&1; do sleep 15; done
   2. Wait for all nodes Ready:
      kubectl wait --for=condition=Ready nodes --all --timeout=10m
   3. Uncordon every node:

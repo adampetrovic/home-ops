@@ -1,4 +1,4 @@
-ta Planned Power Shutdown & Startup
+# Planned Power Shutdown & Startup
 
 Runbook for gracefully shutting down and restarting the entire cluster during a planned power outage.
 
@@ -102,9 +102,9 @@ kubectl get ns -o jsonpath='{.items[*].metadata.name}' \
 ### 6. Cordon all nodes
 
 Mark every node `unschedulable` so that on startup the kube-scheduler cannot pile every
-pending pod onto whichever node becomes `Ready` first. We've hit this before: the first node
-back hits the kubelet `maxPods=110` ceiling and the rest of the workloads stay `Pending`
-indefinitely until manually rescheduled.
+pending pod onto whichever node becomes `Ready` first. Otherwise the first node back hits the
+kubelet `maxPods=110` ceiling and the rest of the workloads stay `Pending` indefinitely until
+manually rescheduled.
 
 ```bash
 kubectl cordon k8s-node-1 k8s-node-2 k8s-node-3 k8s-node-4 k8s-node-5
@@ -145,32 +145,30 @@ Control plane nodes can hang during graceful shutdown because etcd blocks trying
 leadership as quorum shrinks. Use `--force` to bypass the cordon/drain and set a timeout so the
 command doesn't hang indefinitely. Shut down two non-leader nodes first, then the leader last.
 
-Identify the current etcd leader:
+Identify the current etcd leader. The leader is the row whose `MEMBER` matches the `LEADER`
+column:
 
 ```bash
-talosctl -n 10.0.80.10 etcd members | grep -i "learner\|true"
-# Or check which node responds fastest — the leader is usually the most responsive
+talosctl -n 10.0.80.10,10.0.80.11,10.0.80.12 etcd status
+LEADER=$(talosctl -n 10.0.80.10,10.0.80.11,10.0.80.12 etcd status | awk 'NR > 1 { for (i = 3; i <= NF; i++) if ($i == $2) print $1 }')
+echo "etcd leader: ${LEADER}"
 ```
 
-Shut down the **non-leader** control plane nodes first with `--force` and a timeout.
-After each, verify the node is actually unreachable before proceeding:
+Shut down the **non-leader** control plane nodes first with `--force` and a timeout, then the
+leader last. After each, verify the node is actually unreachable before proceeding:
 
 ```bash
-# First non-leader
-talosctl shutdown --nodes 10.0.80.11 --force --timeout 3m
-# Verify it's actually down
-until ! ping -c 1 -W 2 10.0.80.11 &>/dev/null; do echo "Waiting for 10.0.80.11 to power off..."; sleep 5; done
-echo "10.0.80.11 is down"
+for node in 10.0.80.10 10.0.80.11 10.0.80.12; do
+    [ "${node}" = "${LEADER}" ] && continue
+    talosctl shutdown --nodes "${node}" --force --timeout 3m
+    until ! ping -c 1 -W 2 "${node}" &>/dev/null; do echo "Waiting for ${node} to power off..."; sleep 5; done
+    echo "${node} is down"
+done
 
-# Second non-leader
-talosctl shutdown --nodes 10.0.80.12 --force --timeout 3m
-until ! ping -c 1 -W 2 10.0.80.12 &>/dev/null; do echo "Waiting for 10.0.80.12 to power off..."; sleep 5; done
-echo "10.0.80.12 is down"
-
-# Last control plane node (leader) — after this, kubectl will stop working
-talosctl shutdown --nodes 10.0.80.10 --force --timeout 3m
-until ! ping -c 1 -W 2 10.0.80.10 &>/dev/null; do echo "Waiting for 10.0.80.10 to power off..."; sleep 5; done
-echo "10.0.80.10 is down"
+# Leader last — after this, kubectl will stop working
+talosctl shutdown --nodes "${LEADER}" --force --timeout 3m
+until ! ping -c 1 -W 2 "${LEADER}" &>/dev/null; do echo "Waiting for ${LEADER} to power off..."; sleep 5; done
+echo "${LEADER} is down"
 ```
 
 > **⚠️ If a node hangs past the shutdown timeout, do NOT re-run `talosctl shutdown` on it.**
@@ -230,7 +228,7 @@ Power off any other relevant infrastructure:
 
 Bring up supporting infrastructure first, then wake all 5 nodes in parallel via WoL.
 Parallel boot keeps the "first node `Ready`" window short and pairs with the pre-shutdown
-cordon to avoid the scheduling cascade we hit previously.
+cordon to avoid a scheduling cascade onto the first node back.
 
 ### 10. Power on infrastructure
 

@@ -97,7 +97,7 @@ talosctl --nodes "$nodes" get services
    ```
 2. Check node/API health:
    ```bash
-   talosctl health --nodes "$(yq -r '.nodes | to_entries | map(.value) | join(",")' talos/inventory.yaml)" --server=false
+   talosctl health --nodes "$(bash talos/scripts/node-address.sh k8s-node-1)" --server=false
    ```
 3. If a node is unhealthy, inspect services and recent logs on that node.
 
@@ -116,7 +116,7 @@ talosctl --nodes "$nodes" get services
    ```bash
    just talos apply-node <node> try
    ```
-5. After apply/rollout, verify Talos health and Kubernetes LoadBalancer/L2/BGP sanity per `docs/agent/platform.md`.
+5. After apply/rollout, verify Talos health and Kubernetes LoadBalancer/BGP sanity per `docs/agent/platform.md`.
 
 ### Break-glass upgrade
 

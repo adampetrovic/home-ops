@@ -45,7 +45,7 @@ Kopiur:
 kubectl kopiur status -A
 kubectl kopiur doctor -A
 kubectl kopiur snapshot now -n <namespace> --policy <name> --wait
-kubectl kopiur snapshots -A
+kubectl kopiur snapshots list -A
 kubectl kopiur logs snapshot -n <namespace> <snapshot-name>
 ```
 

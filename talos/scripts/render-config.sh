@@ -37,7 +37,7 @@ if [[ ! -f "${ROLE_FILE}" ]]; then
     exit 66
 fi
 
-SCHEMATIC="$(${SCRIPT_DIR}/schematic-id.sh "${NODE}")"
+SCHEMATIC="$("${SCRIPT_DIR}/schematic-id.sh" "${NODE}")"
 
 if [[ "${ROLE}" == "controlplane" ]]; then
     if ! command -v op >/dev/null 2>&1; then

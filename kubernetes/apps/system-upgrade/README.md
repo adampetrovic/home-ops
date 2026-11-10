@@ -11,7 +11,7 @@ tuppr is a Kubernetes controller that watches two custom resources — `TalosUpg
 1. **Renovate** detects a new Talos or Kubernetes version and opens a PR bumping the version in `talosupgrade.yaml` or `kubernetesupgrade.yaml`
 2. **PR is merged** → GitHub webhook fires → Flux reconciles the new version into the cluster
 3. **tuppr detects version drift** between the CR and the running cluster
-4. **Health checks run** — Kopiur must not have in-progress backup/restore/maintenance work, Ceph must be `HEALTH_OK`
+4. **Health checks run** — Kopiur must not have in-progress backup/restore/maintenance work, every CNPG cluster must be fully ready, and Ceph must not be `HEALTH_ERR` or report a blocking health code. The full gate and hook behaviour is in `docs/UPGRADE.md`
 5. **Talos upgrades** proceed node-by-node: drain → upgrade → reboot → verify → uncordon → health check → next node
 6. **Kubernetes upgrades** run as a single operation against a control plane node via the Talos API
 
@@ -24,9 +24,10 @@ Before each node upgrade (Talos) or before starting (Kubernetes), tuppr evaluate
 | Check | Expression | Purpose |
 |-------|-----------|---------|
 | Kopiur | `Snapshot`, replication, active `Restore`, and manual `Maintenance` phases are not in-progress | Don't upgrade while backup/restore work is running; passive restore populators may remain `Pending` while awaiting a new PVC |
-| Rook-Ceph | `CephCluster` health `in ['HEALTH_OK']` | Don't upgrade while Ceph is degraded |
+| CloudNativePG | `Cluster` `readyInstances` equals `spec.instances` | Don't upgrade while a Postgres cluster is missing an instance |
+| Rook-Ceph | `CephCluster` health is not `HEALTH_ERR` and reports none of the blocking codes (`MON_DOWN`, `OSD_DOWN`, `PG_DEGRADED`, …) | Don't upgrade while Ceph is degraded |
 
-After a Talos node reboots, Ceph OSDs restart and health temporarily goes to `HEALTH_WARN`. tuppr waits for recovery before proceeding to the next node.
+After a Talos node reboots, Ceph OSDs restart and report `OSD_DOWN` and `PG_DEGRADED` until they rejoin. tuppr waits for those to clear before proceeding to the next node.
 
 ### Upgrade Order for Minor Versions
 
@@ -50,6 +51,7 @@ kubernetes/apps/system-upgrade/
     │   └── ocirepository.yaml            # OCI chart source
     └── upgrades/
         ├── kustomization.yaml
+        ├── rbac.yaml                     # Hook RBAC to suspend and resume Kopiur backups
         ├── talosupgrade.yaml             # TalosUpgrade CR — target Talos version
         └── kubernetesupgrade.yaml        # KubernetesUpgrade CR — target K8s version
 ```
@@ -79,7 +81,7 @@ allowedKubernetesNamespaces:
 kubectl get talosupgrade,kubernetesupgrade -n system-upgrade
 ```
 
-Output shows phase (`Pending` → `InProgress` → `Completed` / `Failed`) and current node.
+Output shows the phase (`Pending`, `HealthChecking`, `PreHook`, `Draining`, `Upgrading`, `Rebooting`, `PostHook`, `Completed`, `Failed` or `MaintenanceWindow`) and the current node.
 
 ### Watch the upgrade
 
@@ -123,13 +125,13 @@ kubectl logs -n system-upgrade -l app.kubernetes.io/name=talos-upgrade -f
 ### Prometheus metrics
 
 ```bash
-kubectl port-forward -n system-upgrade deployment/tuppr 8080:8080
-curl -s http://localhost:8080/metrics | grep tuppr_
+kubectl port-forward -n system-upgrade deployment/tuppr 8081:8081
+curl -s http://localhost:8081/metrics | grep tuppr_
 ```
 
 Key metrics:
-- `tuppr_talos_upgrade_phase` — 0=Pending, 1=InProgress, 2=Completed, 3=Failed
-- `tuppr_talos_upgrade_nodes_total` / `tuppr_talos_upgrade_nodes_completed`
+- `tuppr_talos_upgrade_phase`
+- `tuppr_talos_upgrade_nodes` / `tuppr_talos_upgrade_nodes_completed`
 - `tuppr_upgrade_job_duration_seconds`
 
 ## Troubleshooting

@@ -104,7 +104,7 @@ Optional substitutions and their defaults:
 
 ### First Kopiur backup in a namespace
 
-The backup component only works in namespaces that are already set up for Kopiur. Before adding it to an app, check the target namespace. This applies both to a brand-new namespace and to an existing namespace that has never had a backed-up app (for example `projects`, which only gained backups with `healthng`):
+The backup component only works in namespaces that are already set up for Kopiur. Before adding it to an app, check the target namespace. This applies both to a brand-new namespace and to an existing namespace that has never had a backed-up app:
 
 ```sh
 grep -n 'components/kopiur/secret' kubernetes/apps/<namespace>/kustomization.yaml

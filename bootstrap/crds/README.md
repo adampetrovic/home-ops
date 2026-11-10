@@ -25,6 +25,7 @@ owned by the Envoy Gateway chart, matching the upstream bootstrap pattern.
 | Multus `NetworkAttachmentDefinition` | `standalone.yaml` | Manual/Renovate update of the standalone Multus version |
 | CNPG Barman `ObjectStore` | `standalone.yaml` | Manual/Renovate update of the standalone Barman plugin version |
 | CloudNativePG | `bootstrap/helmfile/crds.yaml` | `database/cloudnative-pg` HelmRelease |
+| Kopiur | `bootstrap/helmfile/crds.yaml` | `kopiur-system/kopiur` HelmRelease |
 
 Bootstrap applies CRDs with server-side apply and `--force-conflicts`, but it
 must never uninstall CRDs during Helm release handoff or cleanup. Flux-managed

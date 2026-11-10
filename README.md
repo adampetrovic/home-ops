@@ -10,8 +10,8 @@ _A comprehensive Kubernetes-native home infrastructure platform_
 
 ![License](https://img.shields.io/github/license/adampetrovic/home-ops?color=blue&style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/adampetrovic/home-ops?style=flat-square)
-![Kubernetes](https://img.shields.io/badge/k8s-v1.37.1-blue?style=flat-square)
-![Talos](https://img.shields.io/badge/talos-v1.14.2-orange?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/k8s-v1.37.2-blue?style=flat-square)
+![Talos](https://img.shields.io/badge/talos-v1.14.5-orange?style=flat-square)
 
 </div>
 
@@ -47,8 +47,8 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 | Component | Details |
 |-----------|---------|
-| **OS** | [Talos Linux](https://talos.dev) v1.14.2 - Immutable, API-driven Linux |
-| **Kubernetes** | v1.37.1 - Latest stable Kubernetes |
+| **OS** | [Talos Linux](https://talos.dev) v1.14.5 - Immutable, API-driven Linux |
+| **Kubernetes** | v1.37.2 - Latest stable Kubernetes |
 | **CNI** | [Cilium](https://cilium.io) - eBPF-based networking and security |
 | **Ingress** | [Envoy Gateway](https://gateway.envoyproxy.io) - Gateway API-based ingress |
 | **Nodes** | 3x Control Plane + 2x Workers |
@@ -58,15 +58,15 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 
 | Device | Count | CPU | Cores | RAM | OS | Data | Purpose |
 |--------|-------|-----|-------|-----|---------|-----------|---------|
-| **Intel NUC12WSHi7** | 2 | i7-1265P | 12 (16 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
-| **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) |64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Intel NUC12WSHi7** | 2 | i7-1260P | 12 (16 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
+| **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Control Plane |
 | **Intel NUC11PAHi7** | 1 | i7-1165G7 | 4 (8 threads) | 64GB | 1TB SSD | 1TB NVMe | Kubernetes Worker Node |
 | **Minisforum MS-01** | 1 | i9-13900H | 14 (20 threads) | 96GB | 1TB NVMe | 2TB NVMe | Kubernetes Worker Node |
 | **UniFi UNAS Pro 8** | 1 | - | - | - | - | 6×16TB | NAS Storage |
 | **Synology DVA1622** | 1 | Atom C3508 | - | 4GB | - | 2×4TB | NVR/Security Cameras |
-| **UniFi UXG-Pro** | 1 | - | - | - | - | Gateway/Router |
-| **UniFi US-48-500W** | 1 | - | - | - | - | 48-Port PoE Switch |
-| **APC SMC1000I-2UC** | 1 | - | - | - | - | UPS Power Management |
+| **UniFi UXG-Pro** | 1 | - | - | - | - | - | Gateway/Router |
+| **UniFi US-48-500W** | 1 | - | - | - | - | - | 48-Port PoE Switch |
+| **APC SMC1000I-2UC** | 1 | - | - | - | - | - | UPS Power Management |
 
 ### 🌐 Network Topology
 
@@ -222,7 +222,7 @@ graph TD
 ```
 
 - **Zero-Trust Network**: All traffic encrypted and authenticated
-- **Multi-Factor Authentication**: TOTP, WebAuthn, and Duo support
+- **Multi-Factor Authentication**: TOTP and WebAuthn/passkeys
 - **Secrets Management**: Stored in 1Password and synced with External Secrets
 - **Certificate Management**: Automated TLS with Let's Encrypt
 - **Network Policies**: Microsegmentation with Cilium
@@ -300,7 +300,7 @@ op run -- just bootstrap verify-full    # Verify full GitOps/storage/app converg
 
 # Volume backup operations
 kubectl kopiur status -A                                      # Repository, policy, and in-flight backup status
-kubectl kopiur snapshots -A                                   # List Kopiur snapshot CRs
+kubectl kopiur snapshots list -A                              # List Kopiur snapshot CRs
 kubectl kopiur snapshot now -n <ns> --policy <policy> --wait  # Trigger and wait for a backup
 kubectl kopiur logs snapshot -n <ns> <snapshot>               # Stream mover logs for a backup
 

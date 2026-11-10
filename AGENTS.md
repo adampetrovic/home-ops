@@ -84,7 +84,7 @@ Read the relevant doc before making non-trivial changes:
 - Use `kubectl kopiur` for Kopiur backup status, snapshot, log, browse, maintenance, suspend/resume, and restore operations; read `.pi/skills/kopiur/SKILL.md` before using it.
 - CI checks are useful but not a default merge gate unless the user explicitly asks to wait.
 - GitHub PRs in this repo only allow rebase merges; use `gh pr merge --rebase --delete-branch` and do not try squash or merge commits.
-- After Talos or Kubernetes rollouts, verify LoadBalancer/BGP/L2 endpoint sanity for services using `externalTrafficPolicy: Local`.
+- After Talos or Kubernetes rollouts, verify LoadBalancer/BGP endpoint sanity for services using `externalTrafficPolicy: Local`.
 
 ## High-Priority Warnings
 
