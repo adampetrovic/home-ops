@@ -18,6 +18,7 @@ spec:
     crds: CreateReplace
     remediation:
       retries: -1
+      strategy: rollback
   values:
     manager:
       # The chart renders <hub>/intel-deviceplugin-operator:<tag>; leave tag empty so
