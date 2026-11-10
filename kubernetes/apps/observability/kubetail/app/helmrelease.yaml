@@ -25,8 +25,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-dashboard
-          tag: "0.17.0"
-          digest: sha256:d1b0a9a6aaef33b7593d84b2c0a5eb92a2877fd9bd9dfaaf8baa190d746ea0ed
+          tag: 0.17.0@sha256:8617f0a7f7039a3160906719e801c224b9d889008f2168e1c4a7bf36ec463664
         container:
           securityContext:
             allowPrivilegeEscalation: false
@@ -51,8 +50,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-api
-          tag: "0.8.2"
-          digest: sha256:c61d0b75f42a9f28fb847e48f8dc314ea318c6f9891a86d67fec93573c9b9705
+          tag: 0.8.2@sha256:8e6acd0da9ac6ec5cfe5caa41b6441e0bece2bbf962775e8bd2054568e3c912a
         container:
           securityContext:
             allowPrivilegeEscalation: false
@@ -68,8 +66,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-agent
-          tag: "0.7.1"
-          digest: sha256:45bfb342be220c84dd844b6a633bb42defac408e902693b4729eda2bd658b0b4
+          tag: 0.7.1@sha256:a5eee8cab215aa296b432e91c2f24fe984f572e51b6ade5240aecca483f39393
         container:
           securityContext:
             allowPrivilegeEscalation: false
@@ -85,9 +82,6 @@ spec:
           securityContext:
             fsGroup: 0
           tolerations:
-            - key: node-role.kubernetes.io/master
-              operator: Exists
-              effect: NoSchedule
             - key: node-role.kubernetes.io/control-plane
               operator: Exists
               effect: NoSchedule
