@@ -30,7 +30,7 @@ spec:
             image:
               repository: ghcr.io/home-operations/radarr
               tag: 7.0.2@sha256:69ea515df6e2a3ea1490cfa127ffaaf9597a9db84fffa2fa150a6fae98fe04cb
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: radarr-secret
             env:

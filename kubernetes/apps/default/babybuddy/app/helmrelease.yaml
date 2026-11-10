@@ -39,7 +39,7 @@ spec:
               REVERSE_PROXY_AUTH: "True"
               PROXY_HEADER: HTTP_REMOTE_USER
               SECURE_PROXY_SSL_HEADER: "True"
-            envFrom: &envFrom
+            envFrom:
               - secretRef:
                   name: babybuddy-secret
             # Sized from 30d peaks: 202Mi, CPU p95 8m.
