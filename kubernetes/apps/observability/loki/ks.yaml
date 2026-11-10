@@ -11,8 +11,8 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: external-secrets-stores
-      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
   path: ./kubernetes/apps/observability/loki/app
   prune: true
   sourceRef:

@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: cloudnative-pg
       namespace: database
+    - name: cloudnative-pg-barman-cloud
+      namespace: database
     - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/media/tracearr/database

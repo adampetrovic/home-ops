@@ -48,7 +48,6 @@ spec:
     kind: GitRepository
     name: flux-system
     namespace: flux-system
-  # Backup movers are asynchronous; do not gate persistence on their lifecycle.
   wait: true
   interval: 30m
   retryInterval: 1m
@@ -72,6 +71,8 @@ spec:
   dependsOn:
     - name: external-secrets-stores
       namespace: external-secrets
+    - name: garage
+      namespace: storage
   path: ./kubernetes/apps/storage/garage/webui
   postBuild:
     substitute:
