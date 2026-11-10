@@ -33,7 +33,6 @@ spec:
       - --gateway-name=envoy-external
       - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
       - --crd-source-kind=DNSEndpoint
-    logLevel: debug
     policy: sync
     sources: ["crd", "gateway-httproute"]
     txtPrefix: k8s.
