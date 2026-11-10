@@ -35,8 +35,6 @@ spec:
               repository: mirror.gcr.io/timberio/vector
               tag: 0.61.0-alpine@sha256:3bb7ed5152910ed51729e256937b1d8a4bf67ff624e9d565e8e5877bffd015c7
             env:
-              PROCFS_ROOT: /host/proc
-              SYSFS_ROOT: /host/sys
               VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION: "true"
               VECTOR_SELF_NODE_NAME:
                 valueFrom:

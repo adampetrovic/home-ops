@@ -81,7 +81,7 @@ spec:
       config-file:
         enabled: true
         type: configMap
-        name: mosquitto-configmap # overriden by kustomizeconfig
+        name: mosquitto-configmap
         advancedMounts:
           mosquitto:
             app:

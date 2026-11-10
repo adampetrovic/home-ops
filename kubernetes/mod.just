@@ -6,9 +6,9 @@ set shell := ['bash', '-euo', 'pipefail', '-c']
 
 repo_root := source_directory() + '/..'
 
-[doc('Delete pods with Evicted, Failed, or Succeeded status')]
+[doc('Delete Failed (including evicted) and Succeeded pods')]
 delete-failed-pods:
-    for phase in Evicted Failed Succeeded; do
+    for phase in Failed Succeeded; do
         kubectl delete pods --field-selector "status.phase=${phase}" -A --ignore-not-found=true
     done
 

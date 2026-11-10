@@ -70,9 +70,6 @@ spec:
         # 5m so genuine sustained packet loss still alerts. (RCA 2026-06-21)
         CephNodeNetworkPacketDrops:
           for: 5m
-    ingress:
-      dashboard:
-        ingressClassName: ""
     toolbox:
       enabled: true
 
