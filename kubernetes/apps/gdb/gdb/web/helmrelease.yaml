@@ -41,18 +41,13 @@ spec:
                   name: gdb-secret
             env:
               APP_ENV: production
-              APP_VERSION: 1.10.120
+              APP_VERSION: 1.10.127
               SERVER_HOST: 0.0.0.0
               SERVER_PORT: "8080"
               STASH_HOST: http://stash.gdb.svc.cluster.local:9999
               STASH_UPLOADER_URL: http://stash-uploader.gdb.svc.cluster.local:8080/upload
               STASH_UPLOADER_DETAILS_ENABLED: "true"
               STASH_UPLOAD_DIR: /data/g
-              STASH_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: gdb-secret
-                    key: STASH_API_KEY
               STASH_EXTERNAL_URL: https://stash.petrovic.network
               METRICS_ENABLED: "true"
               METRICS_LISTEN_ADDR: 0.0.0.0:9091
