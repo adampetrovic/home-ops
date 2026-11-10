@@ -152,7 +152,6 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
 - **NTPd** - Network time protocol server
 - **SMTP Relay** - Outbound email service
-- **Echo Server** - HTTP echo/debug server
 - **[UniFi OS Backup](https://github.com/mafredri/unifi-os-backup)** - Scheduled backups of UniFi OS consoles
 
 ### 📊 Observability & Monitoring

@@ -33,7 +33,6 @@
         "docker.io/khairul169/garage-webui",
         "ghcr.io/kubetail-org/helm-charts/kubetail",
         "quay.io/prometheuscommunity/smartctl-exporter",
-        "ghcr.io/mendhak/http-https-echo",
       ],
       matchUpdateTypes: ["minor", "patch"],
       automerge: true,
