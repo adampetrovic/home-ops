@@ -46,8 +46,6 @@ spec:
       namespace: external-secrets
     - name: rook-ceph-cluster
       namespace: rook-ceph
-    - name: lidarr-db
-      namespace: media
   path: ./kubernetes/apps/media/lidarr/app
   prune: true
   sourceRef:
