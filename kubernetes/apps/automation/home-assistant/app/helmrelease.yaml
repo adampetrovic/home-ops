@@ -34,7 +34,6 @@ spec:
               TZ: "Australia/Sydney"
               POSTGRES_HOST: postgres-rw.database.svc.cluster.local
               POSTGRES_DB: homeassistant
-              HASS_IP: 10.0.81.4
             envFrom:
               - secretRef:
                   name: home-assistant-secret
