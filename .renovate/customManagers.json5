@@ -41,8 +41,6 @@
       customType: "regex",
       description: "Process annotated dependencies",
       managerFilePatterns: [
-        "/(^|/).+\\.env$/",
-        "/(^|/).+\\.sh$/",
         "/(^|/).+\\.ya?ml(?:\\.j2)?$/",
       ],
       matchStrings: [
