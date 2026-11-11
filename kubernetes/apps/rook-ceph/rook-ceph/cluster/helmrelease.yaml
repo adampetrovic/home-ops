@@ -277,7 +277,7 @@ spec:
             erasureCoded:
               dataChunks: 2
               codingChunks: 1
-          preservePoolsOnDelete: true
+          preservePoolsOnDelete: false
           gateway:
             port: 80
             resources:
