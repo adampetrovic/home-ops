@@ -128,7 +128,6 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Homebox](https://github.com/sysadminsmedia/homebox)** - Home inventory management
 - **[Readeck](https://readeck.org)** - Read-it-later and bookmark archive
 - **[Hister](https://github.com/asciimoo/hister)** - Searchable index of browsing history
-- **[Logseq Sync](https://github.com/yshalsager/logseq-selfhost-sync)** - Self-hosted sync server for Logseq
 
 ### 🗄️ Database & Storage
 - **[CloudNative-PG](https://cloudnative-pg.io)** - PostgreSQL operator
