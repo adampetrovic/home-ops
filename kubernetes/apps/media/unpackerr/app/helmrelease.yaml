@@ -46,8 +46,12 @@ spec:
               UN_WEBSERVER_METRICS: 'true'
               UN_WEBSERVER_LISTEN_ADDR: 0.0.0.0:5656
               UN_WEBSERVER_UI_PASSWORD: webauth:Remote-User
-              # Envoy pods use this CIDR; NetworkPolicy limits ingress to envoy-internal.
+              # Envoy pods use this CIDR; NetworkPolicy admits only envoy-internal and Prometheus.
               UN_WEBSERVER_UPSTREAMS_0: 10.69.0.0/16
+              # /metrics needs an API key; this one may only read metrics.
+              UN_WEBSERVER_ROLES_metrics_PERMISSIONS_0: system:metrics:read
+              UN_WEBSERVER_API_KEYS_0_NAME: prometheus
+              UN_WEBSERVER_API_KEYS_0_ROLES_0: metrics
               UN_SONARR_0_URL: http://sonarr.media.svc.cluster.local
               UN_SONARR_0_PATHS_0: /downloads/complete/qbt/tv
               UN_RADARR_0_URL: http://radarr.media.svc.cluster.local
@@ -86,6 +90,11 @@ spec:
             path: /metrics
             interval: 1m
             scrapeTimeout: 10s
+            authorization:
+              type: Bearer
+              credentials:
+                name: unpackerr-secret
+                key: UN_WEBSERVER_API_KEYS_0_KEY
     route:
       app:
         hostnames:
