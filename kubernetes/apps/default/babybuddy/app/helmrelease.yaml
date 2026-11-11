@@ -35,7 +35,7 @@ spec:
               PUID: 1000
               PGID: 1000
               DB_ENGINE: django.db.backends.postgresql
-              DEBUG: 'True'
+              DEBUG: 'False'
               REVERSE_PROXY_AUTH: "True"
               PROXY_HEADER: HTTP_REMOTE_USER
               SECURE_PROXY_SSL_HEADER: "True"
