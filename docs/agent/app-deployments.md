@@ -141,6 +141,7 @@ PVCs that are deliberately outside Kopiur:
 - Never add raw Deployments, StatefulSets, DaemonSets, or CronJobs. For CronJobs, use `controllers.<name>.type: cronjob` in app-template.
 - Never check application source code into this repository. Application code belongs in its own source repo and must be deployed here as a pre-built container image.
 - Do not mount application source from ConfigMaps, build apps at container startup, or use generic language/runtime images as in-cluster build mechanisms.
+  The accepted exceptions are listed in `AGENTS.md`.
 - For app-template HelmReleases, use schema comment: `https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json`.
 - Always include `install.remediation.retries: -1` and `upgrade.remediation.strategy: rollback` unless the upstream chart has a documented reason not to.
 - Use YAML anchors (`&app`, `&port`, `*envFrom`) to reduce duplication.
