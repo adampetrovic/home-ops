@@ -12,6 +12,15 @@
     },
     {
       customType: "regex",
+      description: "Process git-sync commit pins",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "GITSYNC_REPO: (?<depName>https://\\S+)\\n\\s+GITSYNC_REF: (?<currentDigest>[a-f0-9]{40}) # (?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: "git-refs",
+    },
+    {
+      customType: "regex",
       description: "Process grafana-operator Grafana image references",
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
