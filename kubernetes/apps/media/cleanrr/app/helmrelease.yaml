@@ -44,7 +44,7 @@ spec:
               CLEANRR_LISTEN_ADDR: 0.0.0.0:8080
               CLEANRR_POLL_INTERVAL: 1m
               CLEANRR_MINIMUM_AGE: 30m
-              CLEANRR_DRY_RUN: "true"
+              CLEANRR_DRY_RUN: "false"
               CLEANRR_REMOVE_FROM_CLIENT: "false"
               CLEANRR_SERVERS__RADARR__URL: http://radarr.media.svc.cluster.local
               CLEANRR_SERVERS__SONARR__URL: http://sonarr.media.svc.cluster.local
