@@ -71,7 +71,7 @@ spec:
               AUTHELIA_NOTIFIER_SMTP_TLS_SERVER_NAME: smtp.petrovic.network
               AUTHELIA_NOTIFIER_SMTP_SENDER: Authelia <authelia@petrovic.network>
               AUTHELIA_SERVER_DISABLE_HEALTHCHECK: 'true'
-              AUTHELIA_SERVER_PORT: &port 80
+              AUTHELIA_SERVER_ADDRESS: tcp://0.0.0.0:80/
               AUTHELIA_TELEMETRY_METRICS_ADDRESS: tcp://0.0.0.0:8080
               AUTHELIA_TELEMETRY_METRICS_ENABLED: 'true'
               AUTHELIA_THEME: dark
@@ -95,7 +95,7 @@ spec:
                 spec:
                   httpGet:
                     path: /api/health
-                    port: *port
+                    port: &port 80
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
@@ -107,7 +107,7 @@ spec:
               - --config
               - /config/configuration.yml
               - --config.experimental.filters
-              - expand-env
+              - template
     service:
       app:
         controller: authelia
