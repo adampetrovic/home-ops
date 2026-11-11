@@ -10,6 +10,8 @@ resources:
   - ./httproute.yaml
   - ./prometheusrules
   - ./scrapeconfig.yaml
+components:
+  - ../../../../components/authelia-proxy
 configMapGenerator:
   - name: alertmanager-config-tpl
     files:

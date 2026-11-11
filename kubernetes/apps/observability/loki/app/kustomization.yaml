@@ -6,3 +6,5 @@ resources:
   - ./helmrelease.yaml
   - ./ocirepository.yaml
   - ./httproute.yaml
+components:
+  - ../../../../components/authelia-proxy
