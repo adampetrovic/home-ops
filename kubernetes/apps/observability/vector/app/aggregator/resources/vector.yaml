@@ -10,11 +10,6 @@ api:
 #
 
 sources:
-  journald_source:
-    type: vector
-    version: "2"
-    address: 0.0.0.0:6000
-
   kubernetes_source:
     type: vector
     version: "2"
@@ -109,19 +104,6 @@ transforms:
 #
 
 sinks:
-  journald:
-    inputs: ["journald_source"]
-    type: loki
-    dangerously_allow_unconfined_template_resolution: true
-    endpoint: http://loki.observability.svc.cluster.local:3100
-    encoding: { codec: json }
-    out_of_order_action: accept
-    remove_label_fields: true
-    remove_timestamp: true
-    labels:
-      hostname: '{{ host }}'
-      source: 'journald'
-
   # Home Assistant logs with parsed fields
   home_assistant:
     inputs: ["home_assistant_remap"]

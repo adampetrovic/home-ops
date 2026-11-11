@@ -50,8 +50,6 @@ spec:
         ports:
           http:
             port: 8686
-          journald:
-            port: 6000
           kubernetes:
             port: 6010
           syslog:

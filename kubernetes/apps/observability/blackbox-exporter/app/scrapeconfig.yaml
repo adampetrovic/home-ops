@@ -97,13 +97,6 @@ spec:
         vip: "10.0.88.8"
         port: "8686"
     - targets:
-        - "10.0.88.8:6000"
-      labels:
-        probe: bgp-loadbalancer
-        service: vector-aggregator
-        vip: "10.0.88.8"
-        port: "6000"
-    - targets:
         - "10.0.88.8:6010"
       labels:
         probe: bgp-loadbalancer
