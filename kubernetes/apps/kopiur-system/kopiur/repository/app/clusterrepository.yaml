@@ -126,7 +126,9 @@ spec:
   moverDefaults:
     cache:
       mode: Persistent
-      capacity: 5Gi
+      # Maintenance and snapshot deletion read the whole repository's index,
+      # so their caches outgrow the per-app ones (policies set their own size).
+      capacity: 10Gi
       storageClassName: ceph-block-cache
       contentCacheSizeMb: 512
       metadataCacheSizeMb: 1024
