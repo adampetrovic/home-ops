@@ -23,6 +23,8 @@ spec:
       max_connections: "600"
       shared_buffers: 512MB
       wal_compression: lz4
+      # Each forced WAL switch writes a full 16MiB segment; the CNPG default is 5min.
+      archive_timeout: 30min
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true

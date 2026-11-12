@@ -19,6 +19,8 @@ spec:
   postgresql:
     parameters:
       wal_compression: lz4
+      # Each forced WAL switch writes a full 16MiB segment; the CNPG default is 5min.
+      archive_timeout: 30min
   bootstrap:
     recovery:
       source: source
