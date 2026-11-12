@@ -33,6 +33,3 @@ spec:
     substitute:
       APP: *app
       KOPIUR_CAPACITY: 2Gi
-      KOPIUR_ACCESSMODES: ReadWriteMany
-      KOPIUR_STORAGECLASS: ceph-filesystem
-      KOPIUR_SNAPSHOTCLASS: csi-ceph-filesystem
