@@ -46,7 +46,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/kometateam/imagemaid
-              tag: v1.2.2@sha256:2a425468a2527860141edb5e1d1ac7c97ccc509bd7f3287212d95dbb18428ac3
+              tag: v1.3.0@sha256:82d5928bbc6c3e6b0c7e3ba2aa69b930f09b7c91ed4c89ff6d073ed2a1c49077
             env:
               PLEX_URL: http://plex.media.svc.cluster.local:32400
               PLEX_TOKEN:
