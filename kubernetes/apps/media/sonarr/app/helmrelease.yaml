@@ -84,6 +84,13 @@ spec:
           - name: envoy-internal
             namespace: network
     persistence:
+      # One mount of the whole share so imports from downloads can hardlink.
+      media:
+        type: nfs
+        server: nas.petrovic.network
+        path: /var/nfs/shared/media
+        globalMounts:
+          - path: /media
       config:
         enabled: true
         existingClaim: sonarr
