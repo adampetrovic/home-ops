@@ -95,22 +95,3 @@ spec:
       config:
         enabled: true
         existingClaim: radarr
-      downloads:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/downloads
-        globalMounts:
-          - path: /downloads
-      movies:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/movies
-        globalMounts:
-          - path: /movies
-
-      movies-kids:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/kids/movies
-        globalMounts:
-          - path: /kids

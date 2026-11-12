@@ -102,17 +102,5 @@ spec:
       config:
         enabled: true
         existingClaim: lidarr
-      music:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/music
-        globalMounts:
-          - path: /music
-      downloads:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/downloads
-        globalMounts:
-          - path: /downloads
       tmp:
         type: emptyDir

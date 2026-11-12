@@ -94,21 +94,3 @@ spec:
       config:
         enabled: true
         existingClaim: sonarr
-      tv:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/tv
-        globalMounts:
-          - path: /tv
-      tv-kids:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/kids/tv
-        globalMounts:
-          - path: /kids
-      downloads:
-        type: nfs
-        server: nas.petrovic.network
-        path: /var/nfs/shared/media/downloads
-        globalMounts:
-          - path: /downloads
