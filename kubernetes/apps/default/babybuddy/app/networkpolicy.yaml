@@ -6,8 +6,9 @@ metadata:
   name: babybuddy
 spec:
   description: >-
-    Baby Buddy trusts the Remote-User header, so only the internal gateway,
-    Home Assistant and Gatus may reach it.
+    Baby Buddy logs in whoever the Remote-User header names, so only the
+    internal gateway may send it. Home Assistant and Gatus may reach the app
+    directly, but Cilium's proxy strips any Remote-User header they send.
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: babybuddy
@@ -17,6 +18,11 @@ spec:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: network
             gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - fromEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: automation
             app.kubernetes.io/name: home-assistant
@@ -27,3 +33,11 @@ spec:
         - ports:
             - port: "8000"
               protocol: TCP
+          rules:
+            http:
+              # A header can't carry a control character, so this never
+              # matches and DELETE removes any Remote-User the peer sends.
+              - headerMatches:
+                  - name: Remote-User
+                    value: "\x01"
+                    mismatch: DELETE
