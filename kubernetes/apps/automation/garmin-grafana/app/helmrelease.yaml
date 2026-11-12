@@ -33,7 +33,7 @@ spec:
               repository: ghcr.io/arpanghosh8453/garmin-fetch-data
               tag: latest@sha256:b8259df2e0b82fc2a95cf5e927dfb05848f48f2d2cdddc550b89f0c9dee5f2fa
             env:
-              TZ: "${TZ}"
+              TZ: "Australia/Sydney"
               INFLUXDB_VERSION: "1"
               INFLUXDB_HOST: influxdb.observability.svc.cluster.local
               INFLUXDB_PORT: "8086"
