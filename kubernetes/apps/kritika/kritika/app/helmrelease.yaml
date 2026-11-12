@@ -1,0 +1,112 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kritika
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: kritika
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  values:
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
+    # The webhook route makes this pod internet-facing. It keeps its
+    # service-account token because it creates the runner Jobs; see the
+    # accepted exception in AGENTS.md.
+    podLabels:
+      policy.petrovic.network/public-app: "true"
+    database:
+      owner:
+        existingSecret: kritika-postgres-owner
+      app:
+        existingSecret: kritika-postgres-app
+    envFrom:
+      - secretRef:
+          name: kritika-secret
+    networkPolicy:
+      # Pinned so that CI, which has no cluster to ask, renders what Flux applies
+      type: cilium
+      # The chart's own rule for these ports allows every pod in the cluster.
+      # The public-app policy already allows the public internet, which covers
+      # GitHub, the Claude API and Authelia's public name.
+      egressPorts: []
+      postgres:
+        podSelector:
+          cnpg.io/cluster: kritika-postgres
+    runner:
+      podTemplate:
+        spec:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 1Gi
+    monitoring:
+      serviceMonitor:
+        enabled: true
+      prometheusRule:
+        enabled: true
+      dashboards:
+        enabled: true
+        grafanaOperator:
+          enabled: true
+          matchLabels:
+            app.kubernetes.io/name: grafana
+    config:
+      webUrl: https://kritika.petrovic.network
+      # Repositories without a dashboard choice stay off
+      enabled: false
+      auth:
+        oidc:
+          name: Authelia
+          issuer: https://auth.${SECRET_PUBLIC_DOMAIN}
+          clientId: kritika
+          clientSecret: { env: OIDC_CLIENT_SECRET }
+          scopes: [openid, profile, email, groups]
+          rolesClaim: groups
+          roleMappingExpr: '"admin" in roles ? "admin" : ""'
+      apps:
+        # The key is the webhook path: /hooks/github
+        github:
+          accounts: [adampetrovic]
+          clientId: { env: GITHUB_APP_CLIENT_ID }
+          privateKey: { env: GITHUB_APP_PRIVATE_KEY }
+          webhookSecret: { env: GITHUB_APP_WEBHOOK_SECRET }
+      providers:
+        anthropic:
+          type: anthropic
+          apiKey: { env: ANTHROPIC_API_KEY }
+      review:
+        model: anthropic/claude-sonnet-5-5
+      confidence:
+        model: anthropic/claude-haiku-5-5
+      comments:
+        # The repository is public and the dashboard is not
+        dashboard: false
+      # home-ops is public, so anyone can open a pull request against it.
+      # These lists are the admin's, which a .kritika.yaml cannot loosen.
+      trigger:
+        limit: 5
+        include:
+          - name: trusted-authors
+            expr: pr.author == "adampetrovic" || pr.author.startsWith("bot-adam")
+        exclude:
+          - { name: forks, expr: pr.fork }
+          - { name: drafts, expr: pr.draft }
+          - { name: skip-label, expr: 'pr.labels.exists(l, l.name == "skip-review")' }
+      agent:
+        tokens: 1000000
+      limits:
+        reviewsPerDay: 40
+        tokensPerMonth: 50000000

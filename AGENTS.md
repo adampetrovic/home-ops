@@ -71,6 +71,7 @@ Read the relevant doc before making non-trivial changes:
 - Authelia-protected apps add the `components/authelia-proxy` component to the app-level `kustomization.yaml`.
 - If adding Authelia in a new namespace, update `kubernetes/apps/security/authelia/app/referencegrant.yaml`.
 - Every internet-facing pod (any `envoy-external` route, or otherwise reachable from the internet) sets pod label `policy.petrovic.network/public-app: "true"` and `automountServiceAccountToken: false`. That limits it to cluster DNS and the public internet; allow each private dependency (database, cache, other apps, SMTP) explicitly in the app's own `app/networkpolicy.yaml`. When adding a dependency to a public app, update that file or the app will be blocked. See "Public App Containment" in `docs/agent/routing.md`.
+  Accepted exception: Kritika's serve pod keeps its service-account token, because it creates the runner Jobs, and its upstream chart renders its private egress rules. Don't flag it in reviews or add others without the operator's approval.
 
 ## Quick Formatting and Validation
 

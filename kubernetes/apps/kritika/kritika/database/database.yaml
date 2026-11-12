@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/postgresql.cnpg.io/database_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: kritika
+spec:
+  cluster:
+    name: kritika-postgres
+  name: kritika
+  owner: kritika
+  ensure: present
+  databaseReclaimPolicy: retain
+  # The owner is not a superuser, so CNPG creates and upgrades these.
+  # Bump the vchord version alongside the imageName in cluster.yaml.
+  extensions:
+    - name: vector
+      ensure: present
+    - name: vchord
+      ensure: present
+      version: 1.1.1

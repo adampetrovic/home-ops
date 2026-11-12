@@ -167,6 +167,8 @@ An app is public if any of its routes use `envoy-external` (any public domain, i
                  protocol: TCP
    ```
 
+Kritika is the one accepted exception. Its only public route is the webhook path `/hooks/github`, and its serve pod carries the label but keeps its service-account token, which it needs to create runner Jobs. Its upstream chart renders the private egress rules, to the Kubernetes API and `kritika-postgres`, in place of `app/networkpolicy.yaml`. The chart's `networkPolicy.egressPorts` stays empty, because the chart's rule for those ports allows every pod in the cluster.
+
 Rules for dependency policies:
 
 - Select destinations by pod labels, not IPs. Include `k8s:io.kubernetes.pod.namespace` for another namespace; omitting it means the app's own namespace.
