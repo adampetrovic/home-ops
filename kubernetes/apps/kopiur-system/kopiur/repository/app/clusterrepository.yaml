@@ -55,7 +55,7 @@ spec:
     cache:
       mode: Persistent
       capacity: 5Gi
-      storageClassName: ceph-block
+      storageClassName: ceph-block-cache
   maintenance:
     enabled: true
     namespace: kopiur-system
@@ -127,7 +127,7 @@ spec:
     cache:
       mode: Persistent
       capacity: 5Gi
-      storageClassName: ceph-block
+      storageClassName: ceph-block-cache
       contentCacheSizeMb: 512
       metadataCacheSizeMb: 1024
     podSecurityContext:

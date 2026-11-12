@@ -94,12 +94,12 @@ Optional substitutions and their defaults:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `KOPIUR_CAPACITY` | `5Gi` | Application PVC size; default mover cache capacity when not overridden |
-| `KOPIUR_CACHE_CAPACITY` | `KOPIUR_CAPACITY` (or `5Gi`) | Mover cache PVC size, independently of the application PVC |
+| `KOPIUR_CAPACITY` | `5Gi` | Application PVC size |
+| `KOPIUR_CACHE_CAPACITY` | `5Gi` | Mover cache PVC size. It depends on the repository's index, not the application PVC, so raise it only for a cache that fills |
 | `KOPIUR_ACCESSMODES` | `ReadWriteOnce` | PVC access mode |
 | `KOPIUR_STORAGECLASS` | `ceph-block` | PVC storage class |
 | `KOPIUR_SNAPSHOTCLASS` | `csi-ceph-blockpool` | VolumeSnapshotClass for snapshots and restores |
-| `KOPIUR_CACHE_STORAGECLASS` | `ceph-block` | Mover cache storage class |
+| `KOPIUR_CACHE_STORAGECLASS` | `ceph-block-cache` | Mover cache storage class; mounts with `discard` so freed cache blocks return to Ceph |
 | `KOPIUR_PUID` / `KOPIUR_PGID` | `568` | UID/GID the mover runs as; match the app's data ownership |
 
 ### First Kopiur backup in a namespace
