@@ -58,7 +58,6 @@ spec:
             app.kubernetes.io/name: grafana
     config:
       webUrl: https://kritika.petrovic.network
-      enabled: false
       auth:
         oidc:
           name: Authelia
