@@ -3,6 +3,12 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: plex-cache
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+    meta.helm.sh/release-name: plex
+    meta.helm.sh/release-namespace: media
 spec:
   accessModes:
     - ReadWriteOnce
