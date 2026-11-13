@@ -5,6 +5,8 @@
   {{- $sourcePath = "../../kubernetes/apps/observability/grafana/app/ocirepository.yaml" -}}
 {{- else if eq .Release.Name "cnpg" -}}
   {{- $sourcePath = "../../kubernetes/apps/database/cloudnative-pg/app/ocirepository.yaml" -}}
+{{- else if eq .Release.Name "external-dns" -}}
+  {{- $sourcePath = "../../kubernetes/apps/network/external-dns/external/ocirepository.yaml" -}}
 {{- end -}}
 {{- $oci := fromYaml (readFile $sourcePath) -}}
 chart: {{ $oci.spec.url }}

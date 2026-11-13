@@ -1,11 +1,6 @@
 ---
 # yamllint disable rule:line-length
 crds:
-  - name: external-dns-dnsendpoint
-    owner: external-dns
-    # renovate: datasource=github-releases depName=kubernetes-sigs/external-dns
-    version: v0.24.0
-    urlTemplate: https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/tags/{version}/config/crd/standard/dnsendpoints.externaldns.k8s.io.yaml
   - name: multus-network-attachment-definition
     owner: multus
     # renovate: datasource=github-releases depName=k8snetworkplumbingwg/network-attachment-definition-client

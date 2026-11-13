@@ -5,5 +5,7 @@
   {{- $helmReleasePath = "../../../kubernetes/apps/observability/grafana/app/helmrelease.yaml" -}}
 {{- else if eq .Release.Name "cnpg" -}}
   {{- $helmReleasePath = "../../../kubernetes/apps/database/cloudnative-pg/app/helmrelease.yaml" -}}
+{{- else if eq .Release.Name "external-dns" -}}
+  {{- $helmReleasePath = "../../../kubernetes/apps/network/external-dns/external/helmrelease.yaml" -}}
 {{- end -}}
 {{ (fromYaml (readFile $helmReleasePath)).spec.values | toYaml }}

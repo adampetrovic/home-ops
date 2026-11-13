@@ -15,6 +15,9 @@ releases:
   - name: envoy-gateway
     namespace: network
 
+  - name: external-dns
+    namespace: network
+
   - name: grafana-operator
     namespace: observability
 

@@ -21,7 +21,7 @@ owned by the Envoy Gateway chart, matching the upstream bootstrap pattern.
 | Prometheus Operator | `bootstrap/helmfile/crds.yaml` | `observability/kube-prometheus-stack` HelmRelease |
 | Grafana Operator | `bootstrap/helmfile/crds.yaml` | `observability/grafana` HelmRelease |
 | snapshot-controller | `bootstrap/helmfile/crds.yaml` | `kube-system/snapshot-controller` HelmRelease |
-| External DNS `DNSEndpoint` | `standalone.yaml` | Manual/Renovate update of the standalone External DNS version |
+| External DNS | `bootstrap/helmfile/crds.yaml` | `network/external-dns` HelmRelease |
 | Multus `NetworkAttachmentDefinition` | `standalone.yaml` | Manual/Renovate update of the standalone Multus version |
 | CNPG Barman `ObjectStore` | `standalone.yaml` | Manual/Renovate update of the standalone Barman plugin version |
 | CloudNativePG | `bootstrap/helmfile/crds.yaml` | `database/cloudnative-pg` HelmRelease |
