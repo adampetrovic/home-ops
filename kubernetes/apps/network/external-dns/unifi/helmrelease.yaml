@@ -6,6 +6,7 @@ metadata:
   name: &app unifi-internal-dns
 spec:
   interval: 30m
+  # Shares the OCIRepository that external-dns-external applies.
   chartRef:
     kind: OCIRepository
     name: external-dns
