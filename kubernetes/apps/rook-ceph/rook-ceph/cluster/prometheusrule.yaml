@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ceph-mon-rules
+spec:
+  groups:
+    - name: ceph-mon
+      rules:
+        - alert: CephMonHighWriteRate
+          annotations:
+            summary: >-
+              Ceph monitor {{ $labels.pod }} is writing {{ $value | humanize1024 }}B/day
+            description: >-
+              The mon store on {{ $labels.node }} shares the system disk with etcd.
+              Mons normally write under 10 GiB/day each; around 100 GiB/day wears
+              the SSD out years early. Check mon_compact_on_trim and the mon
+              store's compaction and trim activity in the mon log.
+          expr: |-
+            sum by (namespace, pod, node) (
+              rate(container_fs_writes_bytes_total{namespace="rook-ceph", container="mon"}[3h])
+            ) * 86400 > 25 * 2^30
+          for: 3h
+          labels:
+            severity: warning
