@@ -298,7 +298,7 @@ Always run `kubectl apply --dry-run=server` on new CNPG CRs. The datreeio schema
 
 ## Namespace Kustomization
 
-Each namespace directory has a `kustomization.yaml` that references `../../components/common` and lists app `ks.yaml` files:
+Each namespace directory has a `kustomization.yaml` that references `../../components/common` and lists app `ks.yaml` files. Add `../../components/app-template` when the namespace has an app-template release, and `../../components/ghcr` when a pod pulls private images with the `ghcr-private` secret:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -306,6 +306,7 @@ kind: Kustomization
 namespace: <namespace>
 components:
   - ../../components/common
+  - ../../components/app-template
 resources:
   - ./app-one/ks.yaml
   - ./app-two/ks.yaml

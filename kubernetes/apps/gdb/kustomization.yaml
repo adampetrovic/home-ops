@@ -5,6 +5,8 @@ kind: Kustomization
 namespace: gdb
 components:
   - ../../components/common
+  - ../../components/app-template
+  - ../../components/ghcr
   - ../../components/kopiur/secret
 resources:
   - ./gdb/ks.yaml

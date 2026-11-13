@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: security
 components:
   - ../../components/common
+  - ../../components/app-template
 resources:
   - ./authelia/ks.yaml
   - ./lldap/ks.yaml

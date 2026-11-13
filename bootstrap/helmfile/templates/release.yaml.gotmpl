@@ -1,6 +1,6 @@
 {{- $sourcePath := printf "../../kubernetes/apps/%s/%s/app/ocirepository.yaml" .Release.Namespace .Release.Name -}}
 {{- if eq .Release.Name "onepassword-connect" -}}
-  {{- $sourcePath = "../../kubernetes/components/common/repos/app-template/ocirepository.yaml" -}}
+  {{- $sourcePath = "../../kubernetes/components/app-template/ocirepository.yaml" -}}
 {{- else if eq .Release.Name "grafana-operator" -}}
   {{- $sourcePath = "../../kubernetes/apps/observability/grafana/app/ocirepository.yaml" -}}
 {{- else if eq .Release.Name "cnpg" -}}

@@ -5,6 +5,8 @@ kind: Kustomization
 namespace: network
 components:
   - ../../components/common
+  - ../../components/app-template
+  - ../../components/ghcr
   - ../../components/kopiur/secret
 resources:
   - ./adguard/ks.yaml

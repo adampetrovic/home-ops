@@ -5,6 +5,8 @@ kind: Kustomization
 namespace: projects
 components:
   - ../../components/common
+  - ../../components/app-template
+  - ../../components/ghcr
   - ../../components/kopiur/secret
 resources:
   - ./ccc-admin/ks.yaml
