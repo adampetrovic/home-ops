@@ -80,6 +80,14 @@ spec:
           pricing:
             claude-sonnet-5-5: { input: 2, output: 10, cacheRead: 0.1, cacheWrite: 2.5 }
             claude-haiku-5-5: { input: 0.1, output: 0.5, cacheRead: 0.01, cacheWrite: 0.125 }
+        openai:
+          type: openai
+          apiKey: { env: OPENAI_API_KEY }
+          pricing:
+            text-embedding-3-small: { input: 0.02 }
+      embedding:
+        model: openai/text-embedding-3-small
+        dims: 1536
       egress:
         allow: [release-assets.githubusercontent.com]
       review:
