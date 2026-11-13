@@ -11,6 +11,11 @@ spec:
   install:
     remediation:
       retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
   interval: 1h
   values:
     alertmanagerAddress: http://kube-prometheus-stack-alertmanager:9093

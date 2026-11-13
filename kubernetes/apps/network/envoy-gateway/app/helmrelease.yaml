@@ -14,6 +14,10 @@ spec:
       retries: -1
   upgrade:
     crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
   interval: 1h
   values:
     # Also used as the shutdown-manager image in the Envoy proxy pods.
