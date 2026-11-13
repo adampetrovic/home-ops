@@ -9,24 +9,19 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   instances: 2
-  # Bump the vchord version in database.yaml alongside this image
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18.6-1.1.1@sha256:c7672bc011351a587cc292a94aac7eeebb593ed2e120077bd9c9944c9467db93
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   storage:
     size: 10Gi
     storageClass: openebs-hostpath
-  # Kritika refuses an owner that is a superuser
   enableSuperuserAccess: false
   postgresql:
     parameters:
       wal_compression: lz4
-      # Each forced WAL switch writes a full 16MiB segment; the CNPG default is 5min.
       archive_timeout: 30min
     shared_preload_libraries:
       - "vchord.so"
-  # A rebuilt cluster restores from its own backups, and CNPG then sets the
-  # owner's password from this Secret
   bootstrap:
     recovery:
       source: source
@@ -34,7 +29,6 @@ spec:
       owner: kritika
       secret:
         name: kritika-postgres-owner
-  # Draining the primary's node switches over to a replica first
   enablePDB: true
   resources:
     requests:

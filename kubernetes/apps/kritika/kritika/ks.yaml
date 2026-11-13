@@ -46,7 +46,6 @@ spec:
       namespace: kritika
     - name: external-secrets-stores
       namespace: external-secrets
-    # Sign-in reaches Authelia at its public name, which CoreDNS resolves publicly
     - name: coredns
       namespace: kube-system
   path: ./kubernetes/apps/kritika/kritika/app

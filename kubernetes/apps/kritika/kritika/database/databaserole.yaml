@@ -7,8 +7,6 @@ metadata:
 spec:
   cluster:
     name: kritika-postgres
-  # Kritika's migrations grant this role what it needs. It must own nothing
-  # and stay without superuser or BYPASSRLS, or row-level security is off.
   name: kritika_app
   ensure: present
   login: true

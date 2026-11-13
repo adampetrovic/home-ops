@@ -21,8 +21,6 @@ kind: HTTPRoute
 metadata:
   name: kritika-webhook
 spec:
-  # GitHub delivers webhooks here. Only the webhook path is public; the
-  # dashboard stays on the internal gateway.
   parentRefs:
     - name: envoy-external
       namespace: network
