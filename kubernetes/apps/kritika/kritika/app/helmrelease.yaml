@@ -149,5 +149,5 @@ spec:
       agent:
         tokens: 1000000
       limits:
-        reviewsPerDay: 40
+        reviewsPerDay: 100
         tokensPerMonth: 50000000
