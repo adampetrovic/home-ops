@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: ghcr.io/adampetrovic/gdb-scraper
-              tag: 0.1.104@sha256:8184fe850c75a6109cfb4e38ba8812569f3ef331b74a1bd9f132a25faccfed33
+              tag: 0.1.106@sha256:ea568e8205c9ac45490e94118fd8ee33f9e8fc60e9f310832c3417b3295192f2
             command: [python, -m, scraper.jobrunner]
             envFrom:
               - secretRef:
