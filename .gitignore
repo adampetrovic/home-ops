@@ -15,7 +15,6 @@ talosconfig
 # claude
 .claude
 # pi
-.kstack
 .pi/subagent-schedules/
 **/.pi/todos/
 plans/
