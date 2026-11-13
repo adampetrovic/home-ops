@@ -35,10 +35,9 @@ spec:
                   name: radarr-secret
             env:
               TZ: "Australia/Sydney"
-              RADARR__INSTANCE_NAME: Radarr
-              RADARR__PORT: &port 80
-              RADARR__APPLICATION_URL: https://radarr.petrovic.network
-              RADARR__LOG_LEVEL: info
+              RADARR__APP__INSTANCENAME: Radarr
+              RADARR__SERVER__PORT: &port 80
+              RADARR__LOG__LEVEL: info
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

@@ -35,10 +35,9 @@ spec:
                   name: sonarr-secret
             env:
               TZ: "Australia/Sydney"
-              SONARR__INSTANCE_NAME: Sonarr
-              SONARR__PORT: &port 80
-              SONARR__APPLICATION_URL: https://sonarr.petrovic.network
-              SONARR__LOG_LEVEL: info
+              SONARR__APP__INSTANCENAME: Sonarr
+              SONARR__SERVER__PORT: &port 80
+              SONARR__LOG__LEVEL: info
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

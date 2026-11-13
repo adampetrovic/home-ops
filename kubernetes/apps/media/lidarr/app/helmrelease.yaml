@@ -35,10 +35,9 @@ spec:
                   name: lidarr-secret
             env:
               TZ: "Australia/Sydney"
-              LIDARR__INSTANCE_NAME: Lidarr
+              LIDARR__APP__INSTANCENAME: Lidarr
               LIDARR__SERVER__PORT: &port 80
-              LIDARR__APPLICATION_URL: https://lidarr.petrovic.network
-              LIDARR__LOG_LEVEL: info
+              LIDARR__LOG__LEVEL: info
               LIDARR__AUTH__METHOD: External
               LIDARR__AUTH__REQUIRED: DisabledForLocalAddresses
             securityContext:
