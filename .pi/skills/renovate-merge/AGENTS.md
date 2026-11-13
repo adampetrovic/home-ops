@@ -2,6 +2,15 @@
 
 These rules are mandatory for agents using the `renovate-merge` skill in `home-ops`.
 
+## Kritika's review never replaces the operator's approval
+
+Kritika reviews every Renovate PR and approves the low-risk ones, which then merge without this skill. Everything it holds needs the operator.
+
+- Merge a held PR only after the operator approved the presented plan for that PR and head SHA. Kritika's score, risk rating, or approval is evidence for the plan, never permission.
+- Do not merge a PR whose `Kritika / Review` status is failing, pending, or missing on its head commit. Get it reviewed, or hand it to the operator.
+- Stay inside the `main` ruleset: no `--admin`, and no auto-merge on a held PR.
+- Talos, Kubernetes, and the other pinned paths are always rated high and never approved by Kritika. A 5/5 score on one of them means the review found nothing; the isolation and approval rules below still apply in full.
+
 ## Talos Renovate PRs are isolated maintenance
 
 Do **not** include Talos Linux Renovate PRs in a bulk merge wave. Treat every Talos installer update as a single-purpose maintenance rollout because it reboots nodes and can affect Ceph, CNPG/Postgres, Cilium, Envoy/Gateway API, LoadBalancer routing, and Tuppr state.
