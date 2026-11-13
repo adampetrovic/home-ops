@@ -11,14 +11,9 @@ spec:
   groups:
     - name: wan
       rules:
-        # ── Recording rule: average WAN probe success ──────────────────
-        # Used by WANDownBuffer's min_over_time lookback. A recording rule
-        # avoids an expensive subquery re-evaluating the aggregation on
-        # every scrape of the alert rule.
         - record: wan:probe_success:avg
           expr: avg(probe_success{probe="wan"})
 
-        # ── WANDown: internet connectivity is fully down ───────────────
         - alert: WANDown
           annotations:
             summary: "Internet connectivity is down — all WAN probes failing"
@@ -27,19 +22,10 @@ spec:
           labels:
             severity: critical
 
-        # ── WANDownBuffer: outage in effect or recently recovered ──────
-        # Stays firing for up to 10 minutes after WAN recovers so that
-        # inhibit rules continue to suppress dependent alerts while pods
-        # restart, Flux re-reconciles, and targets come back online.
-        # Used as the inhibition source instead of WANDown directly.
-        # Requires 2m sustained failure (matching WANDown) to avoid
-        # false positives from transient probe blips.
-        # See also: WANDHCPRenewalMissing Loki alert for UCG-side
-        # corroboration of real ISP/physical layer outages.
         - alert: WANDownBuffer
           annotations:
             summary: "WAN outage active or recently recovered — suppressing dependent alerts"
-          expr: min_over_time(wan:probe_success:avg[10m]) == 0
-          for: 2m
+          # Holds for 10m after WANDown resolves, while dependent alerts settle.
+          expr: max_over_time(ALERTS{alertname="WANDown", alertstate="firing"}[10m]) == 1
           labels:
             severity: none
