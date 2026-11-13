@@ -18,7 +18,6 @@ configMapGenerator:
   - name: vector-aggregator-loki-rules
     files:
       - talos.yaml=./lokirule.yaml
-      - deprecations.yaml=./lokirule-deprecations.yaml
     options:
       labels:
         loki_rule: "true"
