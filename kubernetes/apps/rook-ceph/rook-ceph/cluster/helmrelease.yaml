@@ -29,7 +29,8 @@ spec:
     monitoring:
       enabled: true
       createPrometheusRules: true
-      # Reduce scrape overhead while testing active-manager memory growth.
+      # The mgr serves metrics from Python; scraping every 60s instead of the
+      # chart default of 10s keeps its load and memory down.
       interval: 60s
       # Disable false positive alerts for /var disk space warnings on Talos nodes
       # These alerts trigger incorrectly due to heavy container image/log usage in /var
@@ -85,7 +86,7 @@ spec:
           bluestore_slow_ops_warn_lifetime: "300"
           bluestore_slow_ops_warn_threshold: "5"
         mgr:
-          # Bound retained log entries while testing active-manager memory growth.
+          # Keep 100 recent log entries in mgr memory instead of 10000.
           log_max_recent: "100"
         mon:
           mon_compact_on_trim: "false"
@@ -110,8 +111,8 @@ spec:
             enabled: true
           - name: pg_autoscaler
             enabled: true
-          # Rook v1.20.6 disables this unstable module for Ceph v20.2.2-v20.2.4
-          # due to a manager memory leak (rook/rook#18213).
+          # Off, as in the chart default: the orchestrator module is unused here
+          # and leaked mgr memory in some Ceph releases (rook/rook#18213).
           - name: rook
             enabled: false
       network:
