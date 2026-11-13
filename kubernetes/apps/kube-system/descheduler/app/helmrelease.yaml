@@ -27,9 +27,12 @@ spec:
           pluginConfig:
             - name: DefaultEvictor
               args:
-                evictFailedBarePods: true
-                evictLocalStoragePods: true
-                evictSystemCriticalPods: true
+                # System-critical pods stay protected: they include the node-pinned
+                # Ceph mons and OSDs, which an eviction only restarts in place.
+                podProtections:
+                  defaultDisabled:
+                    - FailedBarePods
+                    - PodsWithLocalStorage
             - name: RemoveFailedPods
               args:
                 reasons:
