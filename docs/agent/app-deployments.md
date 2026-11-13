@@ -133,6 +133,8 @@ PVCs that are deliberately outside Kopiur:
 - Chart-managed observability storage for Prometheus, Alertmanager, Loki, and Grafana.
 - `data-adguard-1`, the AdGuard replica that syncs from the backed-up `data-adguard-0`.
 
+Define a volume that Kopiur doesn't back up in the app's app-template `persistence`, not in a separate `pvc.yaml`: `type: persistentVolumeClaim` with `accessMode`, `size`, `storageClass` and `retain: true`, so uninstalling the release keeps the claim. Backed-up volumes come from the Kopiur component, which creates the PVC together with its restore, policies and schedules.
+
 ## HelmRelease Conventions
 
 - All workloads must use HelmRelease. Application workloads normally use the bjw-s-labs `app-template` chart via the shared `app-template` OCIRepository.

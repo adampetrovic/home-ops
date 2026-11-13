@@ -102,6 +102,12 @@ spec:
           - path: /mosquitto/external_config
       data:
         enabled: true
-        existingClaim: mosquitto-cephfs
+        forceRename: mosquitto-cephfs
+        accessMode: ReadWriteMany
+        size: 1Gi
+        storageClass: ceph-filesystem
+        # Pins the existing volume; a PVC's spec can't change after creation.
+        volumeName: pvc-4f6746f4-ed9f-43bb-af2f-5338fb89c44d
+        retain: true
         globalMounts:
           - path: /mosquitto/data

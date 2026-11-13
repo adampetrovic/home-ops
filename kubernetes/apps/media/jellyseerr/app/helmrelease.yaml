@@ -96,7 +96,13 @@ spec:
           - path: /app/config
       cache:
         enabled: true
-        existingClaim: jellyseerr-cache
+        forceRename: jellyseerr-cache
+        accessMode: ReadWriteOnce
+        size: 10Gi
+        storageClass: ceph-block
+        # Pins the existing volume; a PVC's spec can't change after creation.
+        volumeName: pvc-9c3be840-e3f4-42f1-9615-cd5b7d70c88b
+        retain: true
         globalMounts:
           - path: /app/config/cache
       config-logs:

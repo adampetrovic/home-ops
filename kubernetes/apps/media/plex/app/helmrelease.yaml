@@ -183,7 +183,13 @@ spec:
                 readOnly: true
 
       plex-cache:
-        existingClaim: plex-cache
+        forceRename: plex-cache
+        accessMode: ReadWriteOnce
+        size: 80Gi
+        storageClass: ceph-block
+        # Pins the existing volume; a PVC's spec can't change after creation.
+        volumeName: pvc-f0775d2c-b3d5-4630-bcb0-5d32f8f62ac3
+        retain: true
         globalMounts:
           - path: /config/Library/Application Support/Plex Media Server/Cache
       tmp:
