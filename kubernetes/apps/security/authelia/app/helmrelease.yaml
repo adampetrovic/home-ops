@@ -82,6 +82,8 @@ spec:
               AUTHELIA_WEBAUTHN_SELECTION_CRITERIA_DISCOVERABILITY: required
               AUTHELIA_WEBAUTHN_SELECTION_CRITERIA_USER_VERIFICATION: required
               SECRET_PUBLIC_DOMAIN: ${SECRET_PUBLIC_DOMAIN}
+              # The environment variable outlives the CLI flag's experimental name.
+              X_AUTHELIA_CONFIG_FILTERS: template
             resources:
               requests:
                 cpu: 5m
@@ -106,8 +108,6 @@ spec:
             args:
               - --config
               - /config/configuration.yml
-              - --config.experimental.filters
-              - template
     service:
       app:
         controller: authelia
