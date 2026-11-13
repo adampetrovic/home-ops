@@ -29,12 +29,9 @@ spec:
     monitoring:
       enabled: true
       createPrometheusRules: true
-      # The mgr serves metrics from Python; scraping every 60s instead of the
-      # chart default of 10s keeps its load and memory down.
+      # The mgr's Python metrics module is expensive to scrape.
       interval: 60s
-      # Disable false positive alerts for /var disk space warnings on Talos nodes
-      # These alerts trigger incorrectly due to heavy container image/log usage in /var
-      # but don't reflect actual storage capacity issues since Ceph uses dedicated devices
+      # Fires on Talos /var usage, which Ceph doesn't use.
       prometheusRuleOverrides:
         CephNodeDiskspaceWarning:
           disabled: true
@@ -49,9 +46,7 @@ spec:
         # Upstream joins exporter and mgr metrics on job, so it can never match.
         CephPGImbalance:
           disabled: true
-        # Rook's upstream rule assumes Prometheus only scrapes cluster nodes.
-        # Scope it to the Talos node-exporter job so external node exporters such
-        # as UNAS cannot trigger a Ceph alert, and ignore transient microbursts.
+        # Scoped to cluster nodes so external exporters such as the UNAS can't trigger it.
         CephNodeNetworkPacketErrors:
           expr: |-
             (
@@ -65,18 +60,13 @@ spec:
               rate(node_network_transmit_errs_total{device!="lo",job="node-exporter"}[1m])
             ) >= 10
           for: 5m
-        # Ships with for:0, so it fires on any sub-second RX-drop microburst. On
-        # k8s-node-5 a ~90s qBittorrent small-packet swarm concentrating on a
-        # single i40e RX queue/CPU tripped it with zero Ceph impact (OSD latency
-        # ~1ms, health OK, switch port 0 drops). Require the drop ratio to persist
-        # 5m so genuine sustained packet loss still alerts. (RCA 2026-06-21)
+        # Ships with for: 0 and fires on sub-second RX-drop microbursts.
         CephNodeNetworkPacketDrops:
           for: 5m
     toolbox:
       enabled: true
 
     cephClusterSpec:
-      # https://rook.io/docs/rook/v1.10/Storage-Configuration/Advanced/ceph-configuration/#custom-cephconf-settings
       cephConfig:
         global:
           bdev_enable_discard: "true"
@@ -86,7 +76,6 @@ spec:
           bluestore_slow_ops_warn_lifetime: "300"
           bluestore_slow_ops_warn_threshold: "5"
         mgr:
-          # Keep 100 recent log entries in mgr memory instead of 10000.
           log_max_recent: "100"
         mon:
           mon_compact_on_trim: "false"
@@ -111,8 +100,6 @@ spec:
             enabled: true
           - name: pg_autoscaler
             enabled: true
-          # Off, as in the chart default: the orchestrator module is unused here
-          # and leaked mgr memory in some Ceph releases (rook/rook#18213).
           - name: rook
             enabled: false
       network:

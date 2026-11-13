@@ -4,7 +4,6 @@ kind: ServiceAccount
 metadata:
   name: tuppr-hooks
 ---
-# Lets the TalosUpgrade hooks suspend and resume Kopiur backups
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:

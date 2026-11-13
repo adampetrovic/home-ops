@@ -21,8 +21,7 @@ spec:
       strategy: rollback
   values:
     manager:
-      # The chart renders <hub>/intel-deviceplugin-operator:<tag>; leave tag empty so
-      # it follows the chart appVersion, which Renovate already bumps.
+      # No tag: the chart appVersion supplies it.
       image:
         hub: mirror.gcr.io/intel
       devices:

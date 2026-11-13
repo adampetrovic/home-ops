@@ -40,7 +40,6 @@ spec:
     hubble:
       enabled: true
       metrics:
-        # Workload-level contexts keep cardinality bounded across pod restarts.
         enabled:
           - drop:sourceContext=workload-name|reserved-identity;destinationContext=workload-name|reserved-identity;labelsContext=source_namespace,destination_namespace
           - policy:sourceContext=workload-name|reserved-identity;destinationContext=workload-name|reserved-identity;labelsContext=source_namespace,destination_namespace

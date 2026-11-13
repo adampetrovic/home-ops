@@ -42,7 +42,6 @@ spec:
             envFrom:
               - secretRef:
                   name: babybuddy-secret
-            # Sized from 30d peaks: 202Mi, CPU p95 8m.
             resources:
               requests:
                 cpu: 10m
@@ -51,8 +50,7 @@ spec:
                 memory: 512Mi
     service:
       app:
-        # Probed directly: the route sits behind Authelia, which answers
-        # before the request reaches the app.
+        # Probe the Service: the route is behind Authelia.
         annotations:
           gatus.home-operations.com/enabled: "true"
           gatus.home-operations.com/endpoint: |-

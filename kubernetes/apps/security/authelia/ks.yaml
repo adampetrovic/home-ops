@@ -40,7 +40,6 @@ spec:
   dependsOn:
     - name: dragonfly-operator
       namespace: database
-  # Operator-owned Dragonfly needs its own readiness stage before Authelia starts.
   path: ./kubernetes/apps/security/authelia/cache
   prune: true
   sourceRef:

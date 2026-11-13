@@ -152,9 +152,7 @@ spec:
               - type: RequestHeaderModifier
                 requestHeaderModifier:
                   set:
-                    # Envoy already appends X-Forwarded-For with the
-                    # real client IP. Add the remaining proxy context
-                    # Plex/Tracearr expect for geolocation.
+                    # Envoy already sets X-Forwarded-For.
                     - name: X-Forwarded-Proto
                       value: https
                     - name: X-Forwarded-Host
@@ -184,7 +182,6 @@ spec:
                 subPath: vector.yaml
                 readOnly: true
 
-      # Separate PVC for cache to avoid backing up cache files
       plex-cache:
         existingClaim: plex-cache
         globalMounts:

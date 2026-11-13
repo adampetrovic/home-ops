@@ -32,8 +32,6 @@ spec:
         - ports:
             - port: "80"
               protocol: TCP
-          # Reads, adding and updating series or movies, tags, and search
-          # commands. Everything else, including DELETE, is refused.
           rules:
             http:
               - method: "^GET$"

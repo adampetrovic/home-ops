@@ -26,7 +26,7 @@ spec:
             http:
               - method: "^POST$"
                 path: "^/loki/api/v1/push$"
-    # HDHomeRun tuner (HDHR-12338F2B): HTTP API on 80, video streams on 5004.
+    # HDHomeRun tuner
     - toCIDR:
         - 10.0.22.2/32
       toPorts:

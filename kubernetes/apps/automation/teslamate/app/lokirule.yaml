@@ -13,14 +13,6 @@ groups:
           app: "{{ $labels.app }}"
           summary: "{{ $labels.app }} has expired tokens. Sign in with new tokens from Tesla Auth app."
 
-      # Tesla API error storm. Counts ALL failed HTTP responses (4xx/5xx, level
-      # independent since 408s log at [info]). Normal is ~0 per 10m; the only
-      # spike in the last 7d was a ~14k-response 403 burst on 2026-06-14 (auth
-      # hiccup, fixed in the v4.x upgrade). A WAN outage does NOT trigger this
-      # (no HTTP responses when offline), but it is WAN-gated anyway via
-      # Alertmanager inhibition (WANDownBuffer). The 10m window matches that
-      # buffer's 10m post-recovery coverage. Lower 10 toward 5 for more
-      # sensitivity to small API-mood events.
       - alert: TeslaMateApiErrorStorm
         expr: |
           sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `-> (4\d\d|5\d\d)` [10m])) > 10
@@ -37,11 +29,7 @@ groups:
             Normal is ~0. Check Loki for the status codes; sustained 408s correlate
             with stale-asleep / missed drives, a 403 burst means an auth problem.
 
-      # Tesla API/car connectivity errors. TeslaMate also emits [error] logs for
-      # transient internal issues such as PostgreSQL admin shutdowns during CNPG
-      # rollouts; those are intentionally ignored here. API timeouts show up as
-      # TeslaApi.Error warning lines paired with "Error / :unknown", so match the
-      # API-specific line directly instead of generic error severity.
+      # Match the API error line, not [error]: TeslaMate logs [error] during CNPG switchovers.
       - alert: TeslaMateErrorLogs
         expr: |
           sum by (app) (count_over_time({app="teslamate"} | json | container_name="app" |~ `TeslaApi\.Error` [10m])) > 5

@@ -72,8 +72,7 @@ spec:
         ports:
           http:
             port: *port
-    # Guarded by the authelia-proxy component. Access is admin-only with two
-    # factors under Authelia's *.${SECRET_PUBLIC_DOMAIN} rule.
+    # Protected by the authelia-proxy component.
     route:
       app:
         annotations:
@@ -88,7 +87,6 @@ spec:
               - identifier: app
                 port: http
     persistence:
-      # nginx writes only its pid and temp files, all under /tmp.
       tmp:
         type: emptyDir
         globalMounts:

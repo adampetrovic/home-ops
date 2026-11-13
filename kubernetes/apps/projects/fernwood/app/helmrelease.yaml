@@ -92,8 +92,7 @@ spec:
           admin:
             port: 8081
     route:
-      # Public: opted out of the authelia-proxy component, which otherwise
-      # guards every route of the app.
+      # Public: opted out of the authelia-proxy component.
       app:
         annotations:
           gatus.home-operations.com/enabled: "true"

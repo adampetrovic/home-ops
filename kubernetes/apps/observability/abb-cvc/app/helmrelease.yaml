@@ -22,7 +22,7 @@ spec:
       abb-cvc:
         type: cronjob
         cronjob:
-          schedule: "0 6 * * *" # 06:00 AEST — ABB publishes previous day's graphs overnight
+          schedule: "0 6 * * *"
           timeZone: "Australia/Sydney"
           concurrencyPolicy: Forbid
           successfulJobsHistory: 3

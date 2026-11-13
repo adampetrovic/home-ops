@@ -27,8 +27,6 @@ spec:
           pluginConfig:
             - name: DefaultEvictor
               args:
-                # System-critical pods stay protected: they include the node-pinned
-                # Ceph mons and OSDs, which an eviction only restarts in place.
                 podProtections:
                   defaultDisabled:
                     - FailedBarePods

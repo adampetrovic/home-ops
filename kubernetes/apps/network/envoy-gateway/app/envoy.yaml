@@ -25,7 +25,6 @@ spec:
       envoyService:
         externalTrafficPolicy: Local
   shutdown:
-    # Bounds how long a draining node waits on long-lived connections
     drainTimeout: 60s
   telemetry:
     metrics:

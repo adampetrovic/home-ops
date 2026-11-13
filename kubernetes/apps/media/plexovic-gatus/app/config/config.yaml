@@ -32,7 +32,6 @@ endpoints:
       - type: telegram
         send-on-resolved: true
 
-  # plex - lightweight health check
   - name: Plex
     group: plex
     url: http://plex.media.svc.cluster.local:32400/identity
@@ -52,7 +51,6 @@ endpoints:
         failure-threshold: 3
         success-threshold: 2
 
-  # plex - library availability (less frequent, higher tolerance)
   - name: Plex Library
     group: plex
     url: http://plex.media.svc.cluster.local:32400/library/sections/1/all
@@ -74,7 +72,6 @@ endpoints:
         failure-threshold: 3
         success-threshold: 2
 
-  # downloaders
   - name: Sonarr - TV Downloader
     group: downloaders
     url: http://sonarr.media.svc.cluster.local/ping

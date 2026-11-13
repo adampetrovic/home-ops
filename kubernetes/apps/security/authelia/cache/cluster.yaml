@@ -1,7 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/dragonflydb.io/dragonfly_v1alpha1.json
-# Accepted operator-owned workload: the Dragonfly operator manages its StatefulSet.
-# Ephemeral, dedicated session cache; no data is migrated from the shared instance.
+# Operator-owned workload: an accepted exception to the HelmRelease rule.
 apiVersion: dragonflydb.io/v1alpha1
 kind: Dragonfly
 metadata:

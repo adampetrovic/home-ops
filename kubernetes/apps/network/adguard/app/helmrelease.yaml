@@ -62,9 +62,7 @@ spec:
               storageClass: ceph-block
               accessMode: ReadWriteOnce
               size: 5Gi
-              # Clone the primary restored PVC into additional StatefulSet ordinals on first creation.
-              # Kopiur protects data-adguard-0; adguardhome-sync repopulates
-              # data-adguard-1 from the primary replica.
+              # New replicas clone data-adguard-0; adguardhome-sync keeps them current.
               dataSource:
                 kind: PersistentVolumeClaim
                 name: data-adguard-0
@@ -101,7 +99,6 @@ spec:
                   failureThreshold: 3
               startup:
                 enabled: false
-            # Sized from 30d peaks: 225Mi, CPU p95 26m.
             resources:
               requests:
                 cpu: 30m
@@ -172,8 +169,7 @@ spec:
 
     service:
       app:
-        # Probed directly: the route sits behind Authelia, which answers
-        # before the request reaches the app.
+        # Probe the Service: the route is behind Authelia.
         annotations:
           gatus.home-operations.com/enabled: "true"
           gatus.home-operations.com/endpoint: |-

@@ -126,8 +126,7 @@ spec:
   moverDefaults:
     cache:
       mode: Persistent
-      # Maintenance and snapshot deletion read the whole repository's index,
-      # so their caches outgrow the per-app ones (policies set their own size).
+      # Maintenance reads the whole repository index, so it needs a larger cache.
       capacity: 10Gi
       storageClassName: ceph-block-cache
       contentCacheSizeMb: 512

@@ -34,7 +34,6 @@ spec:
       enabled: true
       servicemonitor:
         enabled: true
-    # Sized from 30d peaks: controller 38Mi, webhook 21Mi, cainjector 97Mi; CPU p95 under 2m.
     resources:
       requests:
         cpu: 10m

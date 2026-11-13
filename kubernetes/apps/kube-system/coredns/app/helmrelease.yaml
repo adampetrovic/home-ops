@@ -31,8 +31,7 @@ spec:
       name: kube-dns
       clusterIP: 10.96.0.10
     servers:
-      # OIDC clients must reach only the public auth endpoint, not a shared
-      # internal gateway. Bypass split-horizon DNS for this hostname alone.
+      # OIDC clients must resolve the public auth endpoint, not the internal gateway.
       - zones:
           - zone: auth.${SECRET_PUBLIC_DOMAIN}
             scheme: dns://
@@ -91,8 +90,7 @@ spec:
               ttl 30
           - name: autopath
             parameters: "@kubernetes"
-          # This cluster is IPv4-only; suppress external AAAA answers so
-          # workloads do not try unroutable IPv6 before falling back to IPv4.
+          # IPv4-only cluster: answer AAAA queries with nothing.
           - name: template
             parameters: IN AAAA .
             configBlock: |-

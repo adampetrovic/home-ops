@@ -13,8 +13,6 @@ groups:
           app: "{{ $labels.app }}"
           summary: "{{ $labels.app }} is unable to connect to postgres"
 
-      # A single timeout preceded unresponsive Alexa controls even while cloud
-      # status was connected. Window expiry means no recent errors, not recovery.
       - alert: HomeAssistantAlexaTimeout
         expr: |
           sum by (app) (count_over_time({app="home-assistant"} |~ "Timeout sending report to Alexa|hass_nabucasa[.]iot.*Timeout while waiting to receive message"[5m])) > 0

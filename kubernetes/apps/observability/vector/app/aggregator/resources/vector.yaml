@@ -5,10 +5,6 @@ api:
   enabled: true
   address: 0.0.0.0:8686
 
-#
-# Sources
-#
-
 sources:
   kubernetes_source:
     type: vector
@@ -25,17 +21,12 @@ sources:
     version: "2"
     address: 0.0.0.0:6030
 
-#
-# Transforms
-#
-
 transforms:
   syslog_remap:
     type: remap
     inputs: ["syslog_source"]
     source: |
-      # Global timezone setting doesn't apply to BSD syslog (RFC 3164)
-      # timestamps. Use receive time instead — syslog is near-real-time.
+      # BSD syslog timestamps carry no timezone, so use the receive time.
       .timestamp = now()
       .hostname = del(.host)
 
@@ -43,12 +34,9 @@ transforms:
     type: remap
     inputs: ["kubernetes_source"]
     source: |
-      # Standardize 'app' index
       .custom_app_name = .pod_labels."app.kubernetes.io/name" || .pod_labels.app || .pod_labels."k8s-app" || "unknown"
-      # Drop pod_labels
       del(.pod_labels)
 
-  # Route Kubernetes logs for special processing
   kubernetes_route:
     type: route
     inputs: ["kubernetes_remap"]
@@ -56,38 +44,30 @@ transforms:
       home_assistant: '.custom_app_name == "home-assistant"'
       other: '.custom_app_name != "home-assistant"'
 
-  # Parse Home Assistant logs
   home_assistant_remap:
     type: remap
     inputs: ["kubernetes_route.home_assistant"]
     source: |
-      # Remove ANSI color codes
       .message = replace!(.message, r'\x1b\[[0-9;]*m', "")
 
-      # Parse Home Assistant log format
       parsed, err = parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) (?P<level>\w+) \((?P<thread>[^)]+)\) \[(?P<component>[^\]]+)\] (?P<msg>.+)$')
 
       if err == null {
-        # Successfully parsed
         .timestamp_parsed = parsed.timestamp
         .level = parsed.level
         .thread = parsed.thread
         .component = parsed.component
         .msg = parsed.msg
 
-        # Further parse component into parts
         component_parts = split!(parsed.component, ".")
         .component_type = component_parts[0]
         .component_name = get(component_parts, [1]) ?? ""
         .component_submodule = get(component_parts, [2]) ?? ""
 
-        # Set severity based on log level
         .severity = downcase!(parsed.level)
 
-        # Clean up - remove the original message field to save space
         del(.message)
       } else {
-        # Failed to parse - keep original message, but populate Loki label fields.
         .parse_error = "failed_to_parse_home_assistant_log"
         .level = "unknown"
         .component_type = "unknown"
@@ -99,12 +79,7 @@ transforms:
     inputs: ["talos_source"]
     condition: 'downcase(to_string(.level) ?? "") != "debug"'
 
-#
-# Sinks
-#
-
 sinks:
-  # Home Assistant logs with parsed fields
   home_assistant:
     inputs: ["home_assistant_remap"]
     type: loki
@@ -123,7 +98,6 @@ sinks:
       component: '{{ component_type }}'
       component_name: '{{ component_name }}'
 
-  # All other Kubernetes logs
   kubernetes:
     inputs: ["kubernetes_route.other"]
     type: loki

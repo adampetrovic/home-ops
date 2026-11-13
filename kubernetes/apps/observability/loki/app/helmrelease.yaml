@@ -36,8 +36,8 @@ spec:
         reporting_enabled: false
       server:
         log_level: info
-        grpc_server_max_recv_msg_size: 10485760 # 10 MiB
-        grpc_server_max_send_msg_size: 10485760 # 10 MiB
+        grpc_server_max_recv_msg_size: 10485760
+        grpc_server_max_send_msg_size: 10485760
       commonConfig:
         replication_factor: 1
       compactor:
@@ -83,7 +83,6 @@ spec:
         enabled: true
         storageClass: ceph-block
         size: 50Gi
-      # Sized from peaks: 675Mi over 7d, 814Mi over 30d; CPU p95 27m.
       resources:
         requests:
           cpu: 30m
@@ -98,14 +97,12 @@ spec:
         tag: 1.31-alpine@sha256:b5047b9b76845eac124358373c6852377c52e4b05834a47647e955dd91cb8f1e
       ingress:
         enabled: false
-      # Sized from 30d peaks: 15Mi, CPU negligible.
       resources:
         requests:
           cpu: 10m
           memory: 32Mi
         limits:
           memory: 64Mi
-    # Disable other components for SingleBinary mode
     read:
       replicas: 0
     write:
@@ -130,7 +127,6 @@ spec:
       image:
         repository: ghcr.io/home-operations/k8s-sidecar
         tag: 2.14.3@sha256:cc81b13164b15474260b8721bb6a63da2212a704fb92b5496091aabae3038487
-      # Sized from 30d peaks: 81Mi, CPU p95 under 1m.
       resources:
         requests:
           cpu: 10m

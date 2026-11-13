@@ -13,8 +13,7 @@ spec:
       app.kubernetes.io/name: plexovic-gatus
       app.kubernetes.io/controller: gatus
   egress:
-    # Paths are matched with an optional query string so the rules hold
-    # whether or not Cilium includes it in the matched path.
+    # Paths allow a query string, which Cilium may or may not include.
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: plex
@@ -42,8 +41,7 @@ spec:
             http:
               - method: "^GET$"
                 path: "^/ping$"
-    # qBittorrent trusts private source IPs without a login, so only the
-    # version endpoint is reachable.
+    # qBittorrent trusts private IPs without a login, so allow only the version endpoint.
     - toEndpoints:
         - matchLabels:
             app.kubernetes.io/name: qbittorrent

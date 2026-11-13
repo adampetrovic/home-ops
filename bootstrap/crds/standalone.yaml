@@ -1,7 +1,5 @@
 ---
 # yamllint disable rule:line-length
-# Standalone CRD manifests that are required before Flux reconciles resources
-# that depend on them. Chart-owned CRDs are rendered from bootstrap/helmfile/crds.yaml.
 crds:
   - name: external-dns-dnsendpoint
     owner: external-dns

@@ -32,7 +32,6 @@ spec:
           enabled: true
           matchLabels:
             app.kubernetes.io/name: grafana
-    # Lets TalosUpgrade.spec.silences hold Alertmanager silences during a run
     silences:
       enabled: true
       alertmanager:

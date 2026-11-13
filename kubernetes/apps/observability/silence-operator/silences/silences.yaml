@@ -1,8 +1,6 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/observability.giantswarm.io/silence_v1alpha2.json
-# 1Password Connect PushSecrets with several entries for one item fail with a 400 on update
-# Bug https://github.com/external-secrets/external-secrets/issues/7053
-# Fix https://github.com/external-secrets/external-secrets/pull/7150
+# https://github.com/external-secrets/external-secrets/issues/7053
 apiVersion: observability.giantswarm.io/v1alpha2
 kind: Silence
 metadata:

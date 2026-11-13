@@ -72,7 +72,6 @@ spec:
               repository: registry.k8s.io/git-sync/git-sync
               tag: v4.8.0@sha256:a20644562fba94773e594885cb001aadb5a3172175f13ac1215e5b2033c9200e
             env:
-              # Upstream publishes no releases, so pin a master commit; Renovate proposes newer ones.
               GITSYNC_REPO: https://github.com/KBlixt/subcleaner
               GITSYNC_REF: f2022c522fc580edb7597ef53e17b1ba1801957a # master
               GITSYNC_PERIOD: 24h

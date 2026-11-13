@@ -57,13 +57,8 @@ spec:
               SIGENERGY2MQTT_PVOUTPUT_OUTPUT_HOUR: "23"
               SIGENERGY2MQTT_PVOUTPUT_VOLTAGE: "l/n-avg"
               SIGENERGY2MQTT_PVOUTPUT_LOG_LEVEL: "INFO"
-              # CovaU SolarMax tariff windows from 2026-11-09.
-              # Maps rates to sigenergy2mqtt's 4 tariff types:
-              #   off-peak      = Free        ($0.00 for the first 50 kWh/day, 11:00-14:00)
-              #   shoulder      = EV Off-Peak ($0.165, 00:00-06:00)
-              #   high-shoulder = Off-Peak    ($0.2802)
-              #   peak          = Peak        ($0.6139, 15:00-21:00, all year)
-              # NOTE: These windows must match your PVOutput Tariff Windows configuration.
+              # off-peak=Free, shoulder=EV Off-Peak, high-shoulder=Off-Peak, peak=Peak.
+              # Must match the tariff windows configured in PVOutput.
               SIGENERGY2MQTT_PVOUTPUT_PERIODS_JSON: >-
                 [{"plan":"CovaU SolarMax","from-date":"2026-11-09","default":"high-shoulder","periods":[{"type":"shoulder","start":"00:00","end":"06:00"},{"type":"high-shoulder","start":"06:00","end":"11:00"},{"type":"off-peak","start":"11:00","end":"14:00"},{"type":"high-shoulder","start":"14:00","end":"15:00"},{"type":"peak","start":"15:00","end":"21:00"},{"type":"high-shoulder","start":"21:00","end":"24:00"}]}]
 

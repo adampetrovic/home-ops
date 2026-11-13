@@ -58,7 +58,6 @@ spec:
               ADMIN_GROUP: admin
               DATABASE_PATH: /data/healthng.db
               PUBLIC_URL: https://healthng.${SECRET_PUBLIC_DOMAIN}
-              # In-cluster SMTP relay (plain, no auth).
               SMTP_HOST: smtp-relay.network.svc.cluster.local
               SMTP_PORT: "25"
               SMTP_TLS: none
@@ -97,8 +96,7 @@ spec:
           admin:
             port: 8081
     route:
-      # Public: opted out of the authelia-proxy component, which otherwise
-      # guards every route of the app.
+      # Public: opted out of the authelia-proxy component.
       app:
         annotations:
           gatus.home-operations.com/enabled: "true"

@@ -14,7 +14,7 @@ spec:
     - name: external-secrets-stores
       namespace: external-secrets
   path: ./kubernetes/apps/rook-ceph/rook-ceph/app
-  prune: false # never should be deleted
+  prune: false
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -43,7 +43,7 @@ spec:
     - name: snapshot-controller
       namespace: kube-system
   path: ./kubernetes/apps/rook-ceph/rook-ceph/cluster
-  prune: false # never should be deleted
+  prune: false
   sourceRef:
     kind: GitRepository
     name: flux-system

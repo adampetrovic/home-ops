@@ -12,13 +12,11 @@ spec:
   policy:
     rebootMode: powercycle
     placement: hard
-    # Tuppr drains the node itself (10m, retried) and waits for CSI volumes to
-    # detach before the reboot, so RBD claims don't hit Multi-Attach elsewhere
+    # Wait for CSI detach so RBD claims don't hit Multi-Attach on another node.
     waitForVolumeDetach: true
     timeout: 45m
   hooks:
     pre:
-      # Pause Kopiur so no backup starts on a node that is about to drain
       - name: suspend-backups
         image: &hookImage mirror.gcr.io/alpine/k8s:1.37.2@sha256:dcb7185e112a453aa72f426754849a97357727ef8f40168fb208c8cf59952042
         serviceAccountName: &hookServiceAccount tuppr-hooks

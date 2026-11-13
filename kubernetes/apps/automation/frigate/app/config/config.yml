@@ -133,7 +133,6 @@ cameras:
     detect:
       width: 704
       height: 576
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 3
       stationary:
         interval: 50
@@ -182,7 +181,7 @@ cameras:
       crop: True
   doorbell:
     ffmpeg:
-      # UniFi Protect exports the new doorbell via go2rtc as HEVC/portrait RTSPX.
+      # The doorbell stream is HEVC.
       hwaccel_args: preset-intel-qsv-h265
       inputs:
         - path: rtsp://go2rtc-streams.automation.svc.cluster.local:554/doorbell_lq
@@ -192,7 +191,6 @@ cameras:
     detect:
       width: 480
       height: 640
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 4
     objects:
       track:
@@ -205,7 +203,7 @@ cameras:
       bounding_box: True
       crop: False
     lpr:
-      enabled: False  # too low quality to pick up license plates
+      enabled: False
     mqtt:
       enabled: True
       timestamp: False
@@ -220,7 +218,6 @@ cameras:
     detect:
       width: 1280
       height: 720
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 3
     objects:
       track:
@@ -460,7 +457,6 @@ cameras:
             - detect
     detect:
       enabled: True
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 2
       stationary:
         interval: 50
@@ -469,8 +465,7 @@ cameras:
       threshold: 60
       contour_area: 30
     objects:
-      # No person tracking here: the home gym would trip it constantly, and
-      # door-path person safety is covered by the driveway camera instead.
+      # No person tracking: the home gym would trigger it constantly.
       track:
         - car
         - license_plate
@@ -480,9 +475,7 @@ cameras:
           threshold: 0.7
     zones:
       garage_bay:
-        # Clipped to the parking-spot floor (zone membership = bbox bottom-center)
-        # so the other car parked in the driveway, seen through the open door,
-        # is not counted. Coordinates hand-drawn in the Frigate UI zone editor.
+        # Clipped to the parking spot so the car parked outside isn't counted.
         coordinates: 0.251,0.427,0.47,0.18,0.808,0.336,0.74,0.763
         objects:
           - car
@@ -513,7 +506,6 @@ cameras:
     detect:
       width: 1280
       height: 720
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 3
     objects:
       track:
@@ -554,7 +546,6 @@ cameras:
     detect:
       width: 1280
       height: 720
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 3
     objects:
       track:
@@ -586,7 +577,6 @@ cameras:
     detect:
       width: 1280
       height: 720
-      # Non-critical camera: lower detect frame rate to reduce CPU.
       fps: 3
     objects:
       track:

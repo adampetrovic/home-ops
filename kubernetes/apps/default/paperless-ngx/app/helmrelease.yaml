@@ -54,8 +54,7 @@ spec:
               seccompProfile:
                 type: RuntimeDefault
             probes:
-              # The image's anonymous smbclient healthcheck assumes guest mapping;
-              # use the local daemon control channel with map-to-guest disabled.
+              # The image's healthcheck assumes guest access, which is disabled here.
               readiness: &sambaProbe
                 enabled: true
                 custom: true
@@ -87,8 +86,6 @@ spec:
               tag: 8.30.1@sha256:206a6c708fc6d05257367d9ac902d6c56c50d2e3284d0596ea000814ef97f22c
             env:
               - {name: DISABLE_GOOGLE_CHROME, value: '1'}
-            # 30d peak is 31Mi, but Gotenberg starts LibreOffice/Chromium lazily per
-            # conversion, so the limit leaves room for a conversion spike.
             resources:
               requests:
                 cpu: 10m
@@ -99,8 +96,7 @@ spec:
             image:
               repository: mirror.gcr.io/apache/tika
               tag: 3.3.3.0-full@sha256:6ef30abd65df4b6c478907904099d0245bdb0e0686f94fb9bc7493558442bb74
-            # 30d peak is 366Mi, CPU p95 4m. The image sets no -Xmx, so the JVM
-            # sizes its heap from the limit; keep headroom for large documents.
+            # The image sets no -Xmx, so the JVM sizes its heap from this limit.
             resources:
               requests:
                 cpu: 10m
@@ -133,8 +129,6 @@ spec:
               PAPERLESS_MEDIA_ROOT: /data/media
               PAPERLESS_EXPORT_DIR: /data/export
               PAPERLESS_CONSUMER_POLLING_INTERVAL: 10
-              # Paperless 3.x: unchanged size + mtime for 120s before consumption.
-              # This is a heuristic, not an SMB close/commit guarantee.
               PAPERLESS_CONSUMER_STABILITY_DELAY: 120
               PAPERLESS_CONSUMER_IGNORE_PATTERNS: '["^\\.DS_Store$", "^\\._.*"]'
               PAPERLESS_CONSUMER_IGNORE_DIRS: '["^\\.stfolder$", "^@eaDir$"]'
@@ -232,7 +226,7 @@ spec:
         enabled: true
         type: configMap
         name: paperless-post-consume
-        # directory mount (not subPath) so defaultMode applies → script stays executable
+        # A directory mount, not subPath, so defaultMode keeps the script executable.
         defaultMode: 0755
         advancedMounts:
           paperless-ngx:

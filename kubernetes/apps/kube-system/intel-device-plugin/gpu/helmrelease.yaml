@@ -21,9 +21,7 @@ spec:
     keepHistory: false
   values:
     name: intel-gpu-plugin
-    # The chart renders <hub>/intel-gpu-plugin:<tag>, and the operator webhook rejects
-    # tag@digest references, so only the registry is overridden; the tag follows the
-    # chart appVersion.
+    # No tag: the operator webhook rejects tag@digest, so the chart appVersion supplies it.
     image:
       hub: mirror.gcr.io/intel
     sharedDevNum: 4

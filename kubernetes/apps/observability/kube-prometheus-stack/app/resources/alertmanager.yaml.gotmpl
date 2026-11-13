@@ -23,17 +23,12 @@ route:
       continue: true
       matchers:
         - severity = "critical"
-    # WANDown → Home Assistant webhook for local push notifications.
-    # Telegram won't work during an outage (no internet), but HA can
-    # deliver notifications via local push over the WebSocket API
-    # without needing Apple/Google push services.
+    # Telegram is unreachable during a WAN outage; Home Assistant can still push locally.
     - receiver: homeassistant
       matchers:
         - alertname = "WANDown"
       continue: true
-    # Zigbee2MQTT coordinator alerts → Home Assistant webhook to
-    # power-cycle the Zigbee coordinator's UniFi PoE port. Keep repeat
-    # interval long; HA also enforces its own cooldown.
+    # Home Assistant power-cycles the coordinator's PoE port.
     - receiver: homeassistant-zigbee-recovery
       matchers:
         - alertname =~ "ZigbeeCoordinatorRadioStuck|ZigbeeCoordinatorUnreachable"
@@ -50,33 +45,18 @@ inhibit_rules:
       - alertname = "InfoInhibitor"
     target_matchers:
       - severity = "info"
-  # During WAN outage (and for 10 min after recovery), suppress downstream
-  # alerts. Uses WANDownBuffer which persists beyond WANDown to cover the
-  # recovery window while pods restart, Flux re-reconciles, and targets
-  # come back online. WANDown is also kept as a source so that inhibition
-  # starts as soon as WANDown fires, before WANDownBuffer clears its own 2m for.
-  #
-  # Flux: can't pull OCI artifacts without internet
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "KustomizationReconciliationFailure|KustomizationsBlockedOnDependency|FluxSourceReconciliationFailure|FluxInstanceNotReady"
-  # Alertmanager: can't reach Telegram API without internet
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "AlertmanagerFailedToSendAlerts|AlertmanagerClusterFailedToSendAlerts"
-  # Pods/deployments/targets: services in ANY namespace may crash-loop or
-  # become unavailable when internet is down (image pulls, cloud APIs, DNS).
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
       - alertname =~ "KubePodCrashLooping|KubeDeploymentReplicasMismatch|KubePodNotReady|TargetDown|GatusExternalEndpointDown"
-  # TeslaMate's log-rate alerts flood during a WAN outage (every Tesla API call
-  # fails with connection/DNS errors). Suppress them while WAN is down and through
-  # the recovery buffer. Their count_over_time windows are 10m to match
-  # WANDownBuffer's 10m post-recovery coverage, so outage noise ages out of the
-  # window before the buffer clears (no spurious post-recovery fire).
   - source_matchers:
       - alertname =~ "WANDown|WANDownBuffer"
     target_matchers:
@@ -102,7 +82,6 @@ receivers:
         bot_token: {{ .TELEGRAM_BOT_TOKEN }}
         parse_mode: "HTML"
         # Explicit newlines survive both ExternalSecret and Alertmanager rendering.
-        # Bound annotation text and show at most five resources per notification.
         message: |-
           {{ "{{-" }} define "__telegram_resource" {{ "-}}" }}
             {{ "{{-" }} if .Labels.namespace {{ "-}}" }}

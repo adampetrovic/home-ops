@@ -27,7 +27,6 @@ transforms:
       if match(message_str, r'^\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}') {
         parsed = parse_regex(message_str, r'^(?P<timestamp>\w{3} \d{2}, \d{4} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<thread_id>\d+)\] (?P<level>\w+) - (?P<msg>.*)$') ?? {}
 
-        # Convert timestamp to RFC3339 format for Loki
         if exists(parsed.timestamp) {
           .timestamp = parse_timestamp!(parsed.timestamp, "%b %d, %Y %H:%M:%S%.3f")
         }
@@ -39,7 +38,6 @@ transforms:
         .level = "info"
       }
 
-  # Filter to only keep DEBUG level and above
   plex_filtered:
     type: filter
     inputs: ["plex_parsed"]
@@ -60,5 +58,4 @@ sinks:
       namespace: "{{ namespace }}"
       pod: "{{ pod_name }}"
       level: "{{ level }}"
-      # Keep thread_id in the JSON payload, not as a Loki label, to avoid high cardinality.
       source: "plex-logs"

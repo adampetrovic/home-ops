@@ -1,8 +1,5 @@
 ---
-# Mosquitto is intentionally on CephFS/RWX rather than the default
-# Ceph RBD/RWO storage. The broker remains a singleton, but CephFS avoids
-# exclusive RBD attach/detach delays during Talos node drains or powercycles,
-# so retained MQTT state can be remounted on another node quickly.
+# CephFS, not RBD, so the singleton broker remounts on another node without detach delays.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

@@ -76,8 +76,7 @@ spec:
               capabilities:
                 drop: ["ALL"]
     service:
-      # The web UI trusts private source IPs without a login, so it stays
-      # in-cluster and LAN access goes through Envoy and Authelia.
+      # The web UI trusts private IPs without a login, so it stays behind Envoy and Authelia.
       app:
         forceRename: *app
         controller: qbittorrent

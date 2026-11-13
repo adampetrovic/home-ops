@@ -11,8 +11,7 @@ spec:
   owner: immich
   ensure: present
   databaseReclaimPolicy: retain
-  # immich connects without superuser, so it can't upgrade these itself.
-  # Bump the versions alongside the imageName in cluster.yaml.
+  # immich can't upgrade these without superuser; bump them with the imageName in cluster.yaml.
   extensions:
     - name: vector
       ensure: present

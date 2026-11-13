@@ -1,10 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.36.0-standalone-strict/storageclass-storage-v1.json
-# Kopiur mover caches live here rather than on ceph-block. Kopia evicts and
-# rewrites cache files on every hourly backup, and without `discard` ext4 never
-# hands the freed blocks back to RBD, so each cache eventually occupies its full
-# capacity in Ceph regardless of how little it holds. Mount options are fixed
-# when a volume is provisioned, so this needs its own class.
+# For Kopiur caches: without discard, rewritten cache files never free their RBD space.
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

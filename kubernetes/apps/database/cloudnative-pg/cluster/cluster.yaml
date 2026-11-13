@@ -23,15 +23,11 @@ spec:
       max_connections: "600"
       shared_buffers: 512MB
       wal_compression: lz4
-      # Each forced WAL switch writes a full 16MiB segment; the CNPG default is 5min.
       archive_timeout: 30min
-      # Postgres logs a full copy of each page the first time it changes after a
-      # checkpoint, so checkpointing less often shrinks WAL; the default is 5min.
       checkpoint_timeout: 15min
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true
-  # Draining the primary's node switches over to a replica first
   enablePDB: true
   resources:
     requests:
