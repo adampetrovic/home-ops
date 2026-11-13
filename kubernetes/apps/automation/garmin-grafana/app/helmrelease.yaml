@@ -23,7 +23,6 @@ spec:
   values:
     controllers:
       garmin-grafana:
-        replicas: 0
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
