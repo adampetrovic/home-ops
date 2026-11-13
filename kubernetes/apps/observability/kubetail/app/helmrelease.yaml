@@ -50,7 +50,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-api
-          tag: 0.8.2@sha256:8e6acd0da9ac6ec5cfe5caa41b6441e0bece2bbf962775e8bd2054568e3c912a
+          tag: 0.8.4@sha256:9f0b1b990154dc3d6e292211e536acf188650b80903774539844519685beb2fb
         container:
           securityContext:
             allowPrivilegeEscalation: false
