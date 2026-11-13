@@ -9,10 +9,13 @@ spec:
   chartRef:
     kind: OCIRepository
     name: external-dns
+  # This release owns the external-dns CRDs; unifi-internal-dns skips them.
   install:
+    crds: CreateReplace
     remediation:
       retries: -1
   upgrade:
+    crds: CreateReplace
     cleanupOnFail: true
     remediation:
       retries: 3

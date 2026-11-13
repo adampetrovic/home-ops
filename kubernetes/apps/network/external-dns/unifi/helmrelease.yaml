@@ -11,9 +11,11 @@ spec:
     kind: OCIRepository
     name: external-dns
   install:
+    crds: Skip
     remediation:
       retries: -1
   upgrade:
+    crds: Skip
     cleanupOnFail: true
     remediation:
       retries: 3
