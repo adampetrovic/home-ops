@@ -2,7 +2,6 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
     "config:recommended",
-    "docker:enableMajor",
     "helpers:pinGitHubActionDigests",
     "github>adampetrovic/home-ops//.renovate/autoMerge.json5",
     "github>adampetrovic/home-ops//.renovate/customManagers.json5",
@@ -12,18 +11,13 @@
     "github>adampetrovic/home-ops//.renovate/semanticCommits.json5",
     "github>adampetrovic/home-ops//.renovate/sourceUrls.json5",
     ":disableRateLimiting",
-    ":dependencyDashboard",
     ":semanticCommits",
     ":timezone(Australia/Sydney)",
   ],
-  dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  dependencyDashboard: {
+    title: "Renovate Dashboard 🤖",
+  },
   packageRules: [
-    {
-      description: "Keep Logseq sync upgrades manual until client compatibility and restores are verified",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/yshalsager/logseq-selfhost-sync"],
-      enabled: false,
-    },
     {
       description: "Hold Prowlarr below 3.0: the .NET 10 build segfaults in musl (Prowlarr/Prowlarr#2884)",
       matchDatasources: ["docker"],

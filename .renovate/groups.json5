@@ -101,9 +101,10 @@
       description: "Envoy Gateway Group: chart, controller image, and the Envoy proxy version it ships",
       groupName: "Envoy Gateway",
       matchDatasources: ["docker"],
-      // Both names, so the rule matches whether or not registryAliases rewrote the package name.
       matchPackageNames: [
-        "/^(docker\\.io|mirror\\.gcr\\.io)/envoyproxy/(gateway-helm|gateway|envoy)$/",
+        "docker.io/envoyproxy/gateway-helm",
+        "docker.io/envoyproxy/gateway",
+        "docker.io/envoyproxy/envoy",
       ],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
@@ -158,9 +159,8 @@
       description: "Rook-Ceph Group",
       groupName: "Rook-Ceph",
       matchDatasources: ["docker"],
-      // rook/ceph is the operator image pinned to the chart version. Both names, so the rule
-      // matches whether or not registryAliases rewrote the package name.
-      matchPackageNames: ["/rook-ceph/", "/rook-ceph-cluster/", "/^(docker\\.io|mirror\\.gcr\\.io)/rook/ceph$/"],
+      // docker.io/rook/ceph is the operator image, pinned to the chart version
+      matchPackageNames: ["ghcr.io/rook/rook-ceph", "ghcr.io/rook/rook-ceph-cluster", "docker.io/rook/ceph"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
@@ -170,15 +170,6 @@
       groupName: "Spegel",
       matchDatasources: ["docker"],
       matchPackageNames: ["/spegel/"],
-      group: {
-        commitMessageTopic: "{{{groupName}}} group",
-      },
-    },
-    {
-      description: "Vector Group",
-      groupName: "Vector",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["/vector/"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },

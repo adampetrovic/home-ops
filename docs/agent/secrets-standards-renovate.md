@@ -67,6 +67,7 @@ spec:
 
 - Standalone bootstrap CRD inventories use Renovate-managed `version` fields plus `urlTemplate`; bootstrap derives the consumed URL from the version.
 - Renovate config lives in `.renovaterc.json5` and `.renovate/`.
+- `matchPackageNames` matches a dependency's `packageName`, not the name written in Git. `registryAliases` maps `mirror.gcr.io` to `docker.io`, so rules name `mirror.gcr.io/foo/bar` as `docker.io/foo/bar`; PR titles still show the `mirror.gcr.io` name.
 - Semantic commits are enforced, for example `feat(container)!:`, `fix(helm):`, `chore(container):`.
 
 ### Auto-merge

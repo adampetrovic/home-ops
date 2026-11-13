@@ -1,13 +1,7 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  // Keep a hint until a later Renovate PR shows release notes resolve without it.
+  // Hints for images whose labels give Renovate no source, the wrong one, or no usable changelog.
   packageRules: [
-    {
-      description: "Use upstream release notes for BookOrbit",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/bookorbit/bookorbit"],
-      sourceUrl: "https://github.com/bookorbit/bookorbit",
-    },
     {
       description: "Use upstream release notes for code-server",
       matchDatasources: ["docker"],
@@ -51,12 +45,6 @@
       matchPackageNames: ["ghcr.io/home-operations/plex"],
       sourceUrl: "https://github.com/home-operations/containers",
       changelogUrl: "https://forums.plex.tv/t/plex-media-server/30447/713",
-    },
-    {
-      description: "Use upstream release notes for Atuin",
-      matchDatasources: ["docker"],
-      matchPackageNames: ["ghcr.io/atuinsh/atuin"],
-      sourceUrl: "https://github.com/atuinsh/atuin",
     },
     {
       description: "Use chart release notes for CoreDNS chart",
