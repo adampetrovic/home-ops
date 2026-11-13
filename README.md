@@ -64,7 +64,7 @@ The platform runs on a **high-availability Kubernetes cluster** powered by Talos
 | **Minisforum MS-01** | 1 | i9-13900H | 14 (20 threads) | 96GB | 1TB NVMe | 2TB NVMe | Kubernetes Worker Node |
 | **UniFi UNAS Pro 8** | 1 | - | - | - | - | 6×16TB | NAS Storage |
 | **Synology DVA1622** | 1 | Atom C3508 | - | 4GB | - | 2×4TB | NVR/Security Cameras |
-| **UniFi UXG-Pro** | 1 | - | - | - | - | - | Gateway/Router |
+| **UniFi Cloud Gateway** | 1 | - | - | - | - | - | Gateway/Router |
 | **UniFi US-48-500W** | 1 | - | - | - | - | - | 48-Port PoE Switch |
 | **APC SMC1000I-2UC** | 1 | - | - | - | - | - | UPS Power Management |
 
