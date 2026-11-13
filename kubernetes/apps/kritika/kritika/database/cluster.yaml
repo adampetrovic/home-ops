@@ -5,6 +5,7 @@ kind: Cluster
 metadata:
   name: kritika-postgres
   annotations:
+    cnpg.io/skipEmptyWalArchiveCheck: "enabled"
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   instances: 2
@@ -24,11 +25,11 @@ spec:
       archive_timeout: 30min
     shared_preload_libraries:
       - "vchord.so"
-  # No backup exists yet, so the first creation uses initdb. Switch to
-  # bootstrap.recovery, with the skipEmptyWalArchiveCheck annotation, once the
-  # first backup completes.
+  # A rebuilt cluster restores from its own backups, and CNPG then sets the
+  # owner's password from this Secret
   bootstrap:
-    initdb:
+    recovery:
+      source: source
       database: kritika
       owner: kritika
       secret:
@@ -49,6 +50,11 @@ spec:
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
-      parameters:
+      parameters: &parameters
         barmanObjectName: kritika-garage
         serverName: kritika-postgres
+  externalClusters:
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters: *parameters
