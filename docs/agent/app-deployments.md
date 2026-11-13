@@ -31,7 +31,6 @@ These are known and intentional. Do not "fix" them: renaming a Flux Kustomizatio
 - HelmRelease names that differ from their directory: `grafana-operator` (`observability/grafana`), `rook-ceph-operator` (`rook-ceph/rook-ceph/app`), `unifi-poller` (`observability/unpoller`), `unifi-internal-dns` and `external-dns` (`network/external-dns`), `onepassword-connect` (`external-secrets/external-secrets/stores`), `barman-cloud` (`database/cloudnative-pg/barman-cloud`).
 - Multi-stage Flux Kustomizations are named `<app>-<stage>`, for example `immich-db`, `rook-ceph-cluster`, and `grafana-instance`.
 - `prune: false` on `cilium`, `coredns`, `ceph-csi-drivers`, `rook-ceph`, and `rook-ceph-cluster` protects core infrastructure.
-- `network/envoy-gateway` pulls its chart from `oci://docker.io/envoyproxy/gateway-helm`. The `mirror.gcr.io` rule applies to container images, not chart sources.
 - Immich, Bookorbit, Tracearr, GDB, and Kritika run dedicated CloudNativePG clusters, so their connection strings use `<app>-postgres-rw.<namespace>.svc.cluster.local` instead of the shared `postgres-rw.database` cluster.
 - Jellyseerr and Plexovic Gatus are published on `${SECRET_PLEX_DOMAIN}` rather than `${SECRET_PUBLIC_DOMAIN}`.
 - `storage/garage/meta-bootstrap` is deliberately not registered with Flux; it is a recovery-only overlay, explained in its `kustomization.yaml` header.

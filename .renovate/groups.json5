@@ -101,10 +101,9 @@
       description: "Envoy Gateway Group: chart, controller image, and the Envoy proxy version it ships",
       groupName: "Envoy Gateway",
       matchDatasources: ["docker"],
+      // Both names, so the rule matches whether or not registryAliases rewrote the package name.
       matchPackageNames: [
-        "docker.io/envoyproxy/gateway-helm",
-        "docker.io/envoyproxy/gateway",
-        "docker.io/envoyproxy/envoy",
+        "/^(docker\\.io|mirror\\.gcr\\.io)/envoyproxy/(gateway-helm|gateway|envoy)$/",
       ],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
@@ -159,8 +158,9 @@
       description: "Rook-Ceph Group",
       groupName: "Rook-Ceph",
       matchDatasources: ["docker"],
-      // docker.io/rook/ceph is the operator image pinned to the chart version (mirror.gcr.io via registryAliases)
-      matchPackageNames: ["/rook-ceph/", "/rook-ceph-cluster/", "docker.io/rook/ceph"],
+      // rook/ceph is the operator image pinned to the chart version. Both names, so the rule
+      // matches whether or not registryAliases rewrote the package name.
+      matchPackageNames: ["/rook-ceph/", "/rook-ceph-cluster/", "/^(docker\\.io|mirror\\.gcr\\.io)/rook/ceph$/"],
       group: {
         commitMessageTopic: "{{{groupName}}} group",
       },
