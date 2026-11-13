@@ -37,6 +37,10 @@ spec:
                 key: api-key
           - name: LOG_LEVEL
             value: info
+          # ExternalDNS exits when a call outlasts its 15s budget but retries a 500,
+          # so retry stalled controller requests and answer 500 inside that budget.
+          - name: UNIFI_REQUEST_TIMEOUT
+            value: 4s
         livenessProbe:
           httpGet:
             path: /healthz
