@@ -30,7 +30,7 @@ spec:
       image:
         registry: mirror.gcr.io
         repository: grafana/loki
-        tag: 3.6.11@sha256:44148ad243c07957113baea950ee5ba9b0c8eff8d7e38ff3cc1c0af705790945
+        tag: 3.6.21@sha256:466037ae704c3c4403eeb3b7223e26711e7b55b06b0c0f7dcf6edcbe552419fb
       auth_enabled: false
       analytics:
         reporting_enabled: false
