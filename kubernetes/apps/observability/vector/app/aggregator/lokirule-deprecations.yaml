@@ -1,0 +1,23 @@
+---
+groups:
+  - name: deprecations
+    rules:
+      - alert: AppLogsDeprecationWarnings
+        expr: |
+          sum by (namespace, app) (
+            # Loki logs every query it runs, so skip lines that quote this rule.
+            count_over_time(
+              {source="kubernetes"} |~ "(?i)deprecat" != "(?i)deprecat" !~ "/loki/api/v1/query"
+              [24h]
+            )
+          ) > 0
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          summary: "{{ $labels.app }} in {{ $labels.namespace }} is logging deprecation warnings"
+          description: >-
+            {{ $labels.app }} logged {{ $value }} lines mentioning a deprecation in the
+            last 24 hours. Deprecated settings are usually removed a release or two later,
+            so fix them before a Renovate update does. See them in Grafana with
+            {source="kubernetes", namespace="{{ $labels.namespace }}", app="{{ $labels.app }}"} |~ "(?i)deprecat".
