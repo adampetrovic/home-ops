@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: unifi-internal-dns-rules
+spec:
+  groups:
+    - name: unifi-internal-dns
+      rules:
+        - alert: UnifiDnsApiFailing
+          annotations:
+            summary: >-
+              The UniFi controller failed {{ $value | humanize }} DNS record reads in 30 minutes
+            description: >-
+              The external-dns webhook gives up on a UniFi API call only after every retry
+              times out, so each failure is a sync that couldn't read the controller's DNS
+              records. Repeated failures usually mean the gateway is short of CPU or memory.
+              Check unpoller_device_cpu_utilization_ratio and
+              unpoller_device_memory_utilization_ratio for type="udm", and the UniFi Network
+              application on the gateway.
+          expr: |-
+            sum(increase(externaldns_webhook_unifi_api_errors_total[30m])) >= 3
+          labels:
+            severity: warning
