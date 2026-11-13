@@ -66,7 +66,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kubetail-org/kubetail-cluster-agent
-          tag: 0.7.1@sha256:a5eee8cab215aa296b432e91c2f24fe984f572e51b6ade5240aecca483f39393
+          tag: 0.7.3@sha256:11f286ed8d8e87277ddbabb558a2eb6e67fdd856f3c4b67b70584f40a2d509e3
         container:
           securityContext:
             allowPrivilegeEscalation: false
