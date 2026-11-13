@@ -68,3 +68,11 @@ spec:
 - Standalone bootstrap CRD inventories use Renovate-managed `version` fields plus `urlTemplate`; bootstrap derives the consumed URL from the version.
 - Renovate config lives in `.renovaterc.json5` and `.renovate/`.
 - Semantic commits are enforced, for example `feat(container)!:`, `fix(helm):`, `chore(container):`.
+
+### Auto-merge
+
+Renovate marks every patch, minor and digest update for auto-merge (`.renovate/autoMerge.json5`); majors stay manual. It merges nothing by itself: the `main` ruleset requires the `Kritika / Review` status and one approval, and Kritika approves an update only when its review is clean (score 5) and it rates the risk low.
+
+- Kritika rates risk from the version step and what depends on the dependency. The paths under `confidence.floors` in `kubernetes/apps/kritika/kritika/app/helmrelease.yaml` are always rated high, so updates there wait for the operator. Add a path there when an app must never auto-merge.
+- To keep one package manual whatever Kritika says, add a `packageRules` entry with `automerge: false`.
+- An update Kritika does not approve stays open with the reason in its review summary. Kritika never approves a pull request that changes `.kritika.yaml` or another file that configures it.

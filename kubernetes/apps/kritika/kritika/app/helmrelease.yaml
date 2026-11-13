@@ -96,8 +96,45 @@ spec:
           - mirror.gcr.io
       review:
         model: anthropic/claude-sonnet-5-5
+        approve:
+          when:
+            - name: renovate-updates
+              expr: >-
+                pr.author.startsWith("bot-adam") && pr.labels.exists(l, l.name in
+                ["type/patch", "type/minor", "type/digest", "renovate/grafana-dashboard"])
       confidence:
         model: anthropic/claude-haiku-5-5
+        threshold: 5
+        risk: low
+        gate:
+          when:
+            - name: renovate
+              expr: pr.headRef.startsWith("renovate/")
+        instructions: >-
+          The workflows under .github/workflows validate, label and run Renovate.
+          They deploy nothing, so rate updates to the actions they use as
+          standalone. A Grafana dashboard revision is a numbered re-export of one
+          dashboard, not a major version: rate it by what the dashboard serves.
+        floors:
+          high:
+            - talos/**
+            - bootstrap/**
+            - kubernetes/flux/**
+            - kubernetes/apps/flux-system/**
+            - kubernetes/apps/kube-system/cilium/**
+            - kubernetes/apps/kube-system/coredns/**
+            - kubernetes/apps/network/envoy-gateway/**
+            - kubernetes/apps/network/multus/**
+            - kubernetes/apps/external-secrets/**
+            - kubernetes/apps/cert-manager/**
+            - kubernetes/apps/security/**
+            - kubernetes/apps/rook-ceph/**
+            - kubernetes/apps/openebs-system/**
+            - kubernetes/apps/kopiur-system/**
+            - kubernetes/apps/system-upgrade/**
+            - kubernetes/apps/database/cloudnative-pg/**
+            - kubernetes/apps/**/database/cluster.yaml
+            - kubernetes/apps/kritika/**
       comments:
         dashboard: false
       trigger:
