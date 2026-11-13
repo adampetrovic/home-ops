@@ -82,6 +82,7 @@ spec:
                     - key: node-role.kubernetes.io/control-plane
                       operator: DoesNotExist
         externalUrl: https://prometheus.petrovic.network
+        serviceDiscoveryRole: EndpointSlice
         image:
           registry: quay.io
           repository: prometheus/prometheus
@@ -124,6 +125,9 @@ spec:
               sourceLabels:
                 - __meta_kubernetes_pod_node_name
               targetLabel: kubernetes_node
+    prometheusOperator:
+      kubeletEndpointsEnabled: false
+      kubeletEndpointSliceEnabled: true
     kubeStateMetrics:
       enabled: true
     kube-state-metrics:
