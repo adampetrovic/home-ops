@@ -3,7 +3,7 @@
   automerge: false,
   automergeType: "pr",
   automergeStrategy: "rebase",
-  platformAutomerge: false,
+  platformAutomerge: true,
   ignoreTests: false,
   rebaseWhen: "conflicted",
   packageRules: [
