@@ -36,6 +36,10 @@ spec:
               TZ: "Australia/Sydney"
               LOG_LEVEL: info
               PORT: &port 80
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
@@ -61,6 +65,7 @@ spec:
           securityContext:
             runAsUser: 568
             runAsGroup: 568
+            runAsNonRoot: true
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]

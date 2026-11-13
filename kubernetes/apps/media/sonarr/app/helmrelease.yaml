@@ -39,6 +39,10 @@ spec:
               SONARR__PORT: &port 80
               SONARR__APPLICATION_URL: https://sonarr.petrovic.network
               SONARR__LOG_LEVEL: info
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
@@ -67,6 +71,7 @@ spec:
           securityContext:
             runAsUser: 568
             runAsGroup: 568
+            runAsNonRoot: true
             fsGroup: 568
             fsGroupChangePolicy: OnRootMismatch
             supplementalGroups: [100]
@@ -94,3 +99,5 @@ spec:
       config:
         enabled: true
         existingClaim: sonarr
+      tmp:
+        type: emptyDir

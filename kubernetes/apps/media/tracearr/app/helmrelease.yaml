@@ -57,6 +57,10 @@ spec:
                 enabled: true
               readiness:
                 enabled: true
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 50m
@@ -98,3 +102,10 @@ spec:
           tracearr:
             app:
               - path: /data/backup
+      tmp:
+        type: emptyDir
+      # The image owns this directory as another uid, so the pod can't write to it.
+      image-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /app/data/image-cache

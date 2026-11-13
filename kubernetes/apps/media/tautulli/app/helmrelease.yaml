@@ -33,6 +33,10 @@ spec:
             env:
               TZ: "Australia/Sydney"
               TAUTULLI__PORT: &port 8181
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 10m
@@ -63,3 +67,5 @@ spec:
       config:
         enabled: true
         existingClaim: tautulli
+      tmp:
+        type: emptyDir

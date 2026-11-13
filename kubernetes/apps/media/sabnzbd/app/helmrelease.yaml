@@ -25,6 +25,7 @@ spec:
       securityContext:
         runAsUser: 568
         runAsGroup: 568
+        runAsNonRoot: true
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups: [100]
@@ -61,6 +62,10 @@ spec:
                 sabnzbd.media.svc.cluster,
                 sabnzbd.media.svc.cluster.local,
                 sabnzbd.petrovic.network
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 251m
@@ -112,3 +117,5 @@ spec:
         globalMounts:
           - path: /downloads
             subPath: downloads
+      tmp:
+        type: emptyDir
