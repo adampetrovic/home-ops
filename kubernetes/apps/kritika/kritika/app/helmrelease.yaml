@@ -20,9 +20,6 @@ spec:
   values:
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
-    # The webhook route makes this pod internet-facing. It keeps its
-    # service-account token because it creates the runner Jobs; see the
-    # accepted exception in AGENTS.md.
     podLabels:
       policy.petrovic.network/public-app: "true"
     database:
@@ -34,11 +31,7 @@ spec:
       - secretRef:
           name: kritika-secret
     networkPolicy:
-      # Pinned so that CI, which has no cluster to ask, renders what Flux applies
       type: cilium
-      # The chart's own rule for these ports allows every pod in the cluster.
-      # The public-app policy already allows the public internet, which covers
-      # GitHub, the Claude API and Authelia's public name.
       egressPorts: []
       postgres:
         podSelector:
@@ -65,7 +58,6 @@ spec:
             app.kubernetes.io/name: grafana
     config:
       webUrl: https://kritika.petrovic.network
-      # Repositories without a dashboard choice stay off
       enabled: false
       auth:
         oidc:
@@ -77,7 +69,6 @@ spec:
           rolesClaim: groups
           roleMappingExpr: '"admin" in roles ? "admin" : ""'
       apps:
-        # The key is the webhook path: /hooks/github
         github:
           accounts: [adampetrovic]
           clientId: { env: GITHUB_APP_CLIENT_ID }
@@ -87,15 +78,17 @@ spec:
         anthropic:
           type: anthropic
           apiKey: { env: ANTHROPIC_API_KEY }
+          pricing:
+            claude-sonnet-5-5: { input: 2, output: 10, cacheRead: 0.1, cacheWrite: 2.5 }
+            claude-haiku-5-5: { input: 0.1, output: 0.5, cacheRead: 0.01, cacheWrite: 0.125 }
+      egress:
+        allow: [release-assets.githubusercontent.com]
       review:
         model: anthropic/claude-sonnet-5-5
       confidence:
         model: anthropic/claude-haiku-5-5
       comments:
-        # The repository is public and the dashboard is not
         dashboard: false
-      # home-ops is public, so anyone can open a pull request against it.
-      # These lists are the admin's, which a .kritika.yaml cannot loosen.
       trigger:
         limit: 5
         include:

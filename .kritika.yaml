@@ -1,0 +1,33 @@
+---
+# yaml-language-server: $schema=https://kritika.home-operations.com/kritika.schema.json
+rules:
+  - id: repo-conventions
+    file: AGENTS.md
+  - id: renovate-release-notes
+    rule: >-
+      For a dependency update, read the release notes between the old and new
+      versions. Report breaking changes, required configuration or migration
+      steps, and changed defaults that affect how this repository uses the
+      dependency. Do not report an update as risky without naming what breaks.
+    when:
+      - expr: pr.headRef.startsWith("renovate/")
+
+context:
+  - path: docs/agent/app-deployments.md
+    description: Conventions for HelmReleases, Flux Kustomizations, PVCs, Kopiur backups and Postgres provisioning
+    paths: ["kubernetes/apps/**", "kubernetes/components/**"]
+  - path: docs/agent/routing.md
+    description: Gateway API routes, Authelia protection and public app network containment
+    paths: ["kubernetes/apps/**", "kubernetes/components/**"]
+  - path: docs/agent/secrets-standards-renovate.md
+    description: Secret handling, YAML formatting, schema validation and Renovate conventions
+  - path: docs/agent/platform.md
+    description: Talos, storage, networking, load balancers and the observability platform
+    paths: ["talos/**", "bootstrap/**", "kubernetes/apps/kube-system/**", "kubernetes/apps/rook-ceph/**", "kubernetes/apps/observability/**"]
+  - path: docs/UPGRADE.md
+    description: How Talos and Kubernetes upgrades run through Tuppr
+    paths: ["talos/**", "kubernetes/apps/system-upgrade/**"]
+
+tools:
+  # renovate: datasource=github-releases depName=home-operations/flate
+  aqua:home-operations/flate: v0.7.3
