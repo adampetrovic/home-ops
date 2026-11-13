@@ -37,14 +37,6 @@ spec:
       memory: 768Mi
     limits:
       memory: 2Gi
-  monitoring:
-    enablePodMonitor: true
-    podMonitorMetricRelabelings:
-      - sourceLabels: ["cluster"]
-        targetLabel: cnpg_cluster
-        action: replace
-      - regex: cluster
-        action: labeldrop
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
