@@ -40,7 +40,7 @@ spec:
           app:
             image:
               repository: ghcr.io/mafredri/unifi-os-backup
-              tag: main@sha256:65c3dd62a52a4afb08c7162e3861d6219a51492809992302698ee76ba85edcb4
+              tag: main@sha256:10f6c6f7930b20ac3923327fb68b46e3f1e5944e9a58115e36f70015a9c91dae
             env:
               TZ: Australia/Sydney
               LISTEN_ADDRESS: 0.0.0.0:8080
