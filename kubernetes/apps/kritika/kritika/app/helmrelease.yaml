@@ -92,11 +92,14 @@ spec:
         model: openai/text-embedding-3-small
         dims: 1536
       egress:
-        allow:
-          - release-assets.githubusercontent.com
-          - ghcr.io
-          - pkg-containers.githubusercontent.com
-          - mirror.gcr.io
+        allow: ["*"]
+        deny:
+          - 10.0.0.0/8
+          - 172.16.0.0/12
+          - 192.168.0.0/16
+          - 169.254.0.0/16
+          - "*.internal"
+          - "*.petrovic.network"
       review:
         model: anthropic/claude-sonnet-5-5
         approve: true
