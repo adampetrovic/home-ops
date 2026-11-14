@@ -31,13 +31,6 @@
       enabled: false,
     },
     {
-      description: "Ignore digest updates for images that already have version tags",
-      matchDatasources: ["docker"],
-      matchUpdateTypes: ["digest"],
-      matchCurrentValue: "/^.+$/",
-      enabled: false,
-    },
-    {
       description: "Postgres major versions need pg_upgrade or a dump/restore; keep CNPG cluster images within their major",
       matchDatasources: ["docker"],
       matchPackageNames: [
