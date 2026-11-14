@@ -115,7 +115,10 @@ spec:
             expr: >-
               pr.headRef.startsWith("renovate/") &&
               (pr.labels.exists(l, l.name == "type/digest") ||
-              pr.title.matches("[(] [0-9a-f]{7} → [0-9a-f]{7} [)]$"))
+              pr.title.startsWith("chore(container)"))
+            # A condition with paths is decided after the fetch, which leaves the
+            # skipped review and commit status that the main ruleset requires
+            paths: ["**"]
     resources:
       requests:
         cpu: 10m
