@@ -37,7 +37,9 @@ spec:
               repository: mirror.gcr.io/dpage/pgadmin4
               tag: 9.19@sha256:3591b3d02910dcd817dec6fcaa681c278ba6966945283dd0ea0042731c330c83
             env:
+              PGADMIN_CONFIG_AUTHENTICATION_SOURCES: "['oauth2']"
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+              PGADMIN_CONFIG_OAUTH2_AUTO_CREATE_USER: "True"
             envFrom:
               - secretRef:
                   name: pgadmin-secret
