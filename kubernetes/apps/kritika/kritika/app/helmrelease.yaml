@@ -113,6 +113,7 @@ spec:
           - name: digest-updates
             # Renovate adds labels after it opens the pull request, so match its digest title too
             expr: >-
+              pr.bot && pr.author.startsWith("bot-adam") &&
               pr.headRef.startsWith("renovate/") &&
               (pr.labels.exists(l, l.name == "type/digest") ||
               pr.title.startsWith("chore(container)"))
