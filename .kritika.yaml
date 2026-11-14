@@ -3,6 +3,20 @@
 rules:
   - id: repo-conventions
     file: AGENTS.md
+  - id: renovate-compare-versions
+    rule: >-
+      For a dependency update, compare the old and new versions before
+      judging it, as the reviewing-pull-requests skill describes. Read both
+      image or chart versions from the registry with crane for the source
+      repository and revision each was built from, then read the upstream
+      release notes or the diff between those revisions, covering every
+      intermediate release. When a chart version or HelmRelease values
+      change, render the HelmRelease with flate. Say in the summary what you
+      compared and which commands produced it. If a step could not be done,
+      name the step and why. Do not report an update as risky without naming
+      what breaks.
+    when:
+      - expr: pr.headRef.startsWith("renovate/")
 
 context:
   - path: docs/agent/app-deployments.md
@@ -28,3 +42,5 @@ skills:
 tools:
   # renovate: datasource=github-releases depName=home-operations/flate
   aqua:home-operations/flate: v0.7.3
+  # renovate: datasource=github-releases depName=google/go-containerregistry
+  aqua:google/go-containerregistry: v0.22.1
