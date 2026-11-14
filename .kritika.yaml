@@ -13,11 +13,15 @@ rules:
       When a chart version or HelmRelease values change, also run
       `flate build hr <name> --path kubernetes/apps/<namespace>
       --no-progress` and read the rendered output for what the change
-      touches. Then read the upstream release notes or the diff between the
-      two revisions, covering every intermediate release. The upstream diff
-      alone does not satisfy this rule. In the summary, list each command
-      run and what it showed. If a command failed or could not run, report
-      that as a finding that names the command and its error.
+      touches. Then fetch the upstream comparison yourself: the compare
+      view between the old and the new tag or revision in the source
+      repository those commands named, and the release notes of every
+      release in between. The release notes quoted in the pull request
+      description do not satisfy this, and neither does the upstream
+      comparison without the commands. In the summary, list each command
+      run and what it showed, and the upstream comparison read. If a
+      command or a fetch failed or could not run, report that as a finding
+      that names it and its error.
     when:
       - expr: pr.headRef.startsWith("renovate/")
 
