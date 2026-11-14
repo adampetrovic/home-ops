@@ -108,4 +108,4 @@ spec:
       image-cache:
         type: emptyDir
         globalMounts:
-          - path: /app/data/image-cache
+          - path: /data/tracearr/image-cache
