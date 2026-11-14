@@ -72,8 +72,10 @@ spec:
 
 ### Auto-merge
 
-Renovate marks every patch, minor and digest update for auto-merge (`.renovate/autoMerge.json5`); majors stay manual. It merges nothing by itself: the `main` ruleset requires the `Kritika / Review` status and one approval, and Kritika approves an update only when its review is clean (score 5) and it rates the risk low.
+Renovate auto-merges only the updates `.renovate/autoMerge.json5` names: GitHub Actions (patch, minor and digest, after a release-age wait), `kube-prometheus-stack` patch and minor updates (raised weekly, before 6am on Monday), digest updates of `home-operations` images, and Grafana dashboard revisions (`.renovate/grafanaDashboards.json5`). The operator merges everything else.
 
-- Kritika rates risk from the version step and what depends on the dependency. The paths under `confidence.floors` in `kubernetes/apps/kritika/kritika/app/helmrelease.yaml` are always rated high, so updates there wait for the operator. Add a path there when an app must never auto-merge.
-- To keep one package manual whatever Kritika says, add a `packageRules` entry with `automerge: false`.
-- An update Kritika does not approve stays open with the reason in its review summary. Kritika never approves a pull request that changes `.kritika.yaml` or another file that configures it.
+- The `main` ruleset requires the `Kritika / Review` and `Flux Local - Success` statuses. It requires no approval, so an auto-merge update merges as soon as both pass.
+- Kritika reviews every pull request except forks, and approves one when its review is clean. Its approval and its risk rating are advice: they merge nothing, and the status passes whatever the score.
+- Kritika never approves a pull request that changes `.kritika.yaml` or another file that configures it.
+- To auto-merge another package, add a `packageRules` entry with `automerge: true` to `.renovate/autoMerge.json5`.
+- Kritika's review procedure for updates is the `reviewing-pull-requests` skill under `.agents/skills/`, which `.kritika.yaml` loads into every review.

@@ -1,6 +1,6 @@
 # Codemode Recipes
 
-Submit each JavaScript block as raw codemode input, without markdown fences. These are read-only except the explicitly approved single-PR approve-and-merge recipe. Adapt resource names from the repository. **Do not execute merge examples during skill editing/testing.**
+Submit each JavaScript block as raw codemode input, without markdown fences. These are read-only except the explicitly approved single-PR merge recipe and the review-request recipe. Adapt resource names from the repository. **Do not execute merge examples during skill editing/testing.**
 
 ## Runtime and failure handling
 
@@ -77,9 +77,10 @@ for (let i = 0; i < prs.length; i += 4) {
     const sources = (body.match(/Review context · ([^<]*)</) || [])[1] || "none listed";
     const description = status?.description || "";
     let state;
-    if (!status || status.state === "pending" || status.state === "error" || /skipped|capped/i.test(description) || !body) state = "UNREVIEWED";
+    if (!status || status.state === "pending" || status.state === "error" || /skipped/i.test(description) || !body) state = "UNREVIEWED";
+    else if (p.autoMerge) state = "AUTO-MERGE";
     else if (p.kritikaApproved && status.state === "success") state = "APPROVED";
-    else if (status.state === "failure" || score < 5) state = "HELD-SCORE";
+    else if (status.state === "failure" || /below the threshold/i.test(notApproved || "")) state = "HELD-SCORE";
     else if (/risk is above/i.test(notApproved || "")) state = "HELD-RISK";
     else state = "HELD-POLICY";
     return {number: p.number, sha: p.sha, state, score, risk: risk[1] || null, reason: (risk[2] || "").slice(0, 900),
@@ -222,11 +223,11 @@ text({at:snapshot.at,errors,issues:issues.filter(x => !baseline || !previous.has
 
 After inspecting the initial snapshot, save `store("renovate.baseline", load("renovate.healthLatest"))` in a separate successful call. This snapshot **does not prove revision convergence or target versions**; run targeted Flux source/status and workload checks as the playbook requires. Ceph, backup activity, Talos versions, and BGP/LoadBalancer checks are additional component-specific reads.
 
-## Approved single-PR approve and merge
+## Approved single-PR merge
 
 Choose the next PR manually from the approved wave after its barrier has passed. The approval record is `{number, sha}` tied to the actual user reply. Replace `1234` with that selected number; do not execute this example literally.
 
-The `main` ruleset needs the operator's approval on the PR and a passing `Kritika / Review` status. The script posts that approval, then merges unless GitHub auto-merge will.
+The `main` ruleset needs passing `Kritika / Review` and `Flux Local - Success` statuses and no approval on the PR. The plan approval is the only gate, so the script refuses a PR without a stored one.
 
 ```js
 // @options: {"max_output_tokens": 1500, "timeout_ms": 180000}
@@ -234,40 +235,30 @@ const number = 1234;
 const approval = (load("renovate.approved") || []).find(x => x.number === number);
 if (!approval || !/^[a-f0-9]{40}$/.test(approval.sha)) throw new Error("No reviewed SHA approval");
 const r = await tools.bash({
-  command:`gh pr view ${number} --json state,headRefOid,isDraft,mergeable,autoMergeRequest,statusCheckRollup,reviews`,timeout:30
+  command:`gh pr view ${number} --json state,headRefOid,isDraft,mergeable,statusCheckRollup`,timeout:30
 });
 if (r.exit_code !== 0 || r.truncated) throw new Error("PR precheck failed");
 const p = JSON.parse(r.output);
 if (p.state !== "OPEN" || p.isDraft || p.mergeable !== "MERGEABLE" || p.headRefOid !== approval.sha)
   throw new Error("PR changed or is not mergeable; stop and re-review");
-const kritika = (p.statusCheckRollup || []).find(c => c.context === "Kritika / Review");
-if (kritika?.state !== "SUCCESS")
-  throw new Error(`Kritika / Review is ${kritika?.state || "missing"} on the head; the ruleset will refuse this merge`);
-// Nothing has changed yet: throwing above is safe. From here on, record instead of throwing.
-const alreadyApproved = (p.reviews || []).some(v => v.state === "APPROVED" && v.commit?.oid === approval.sha);
-const review = alreadyApproved ? {exit_code: 0, output: "already approved on this head"}
-  : await tools.bash({command:`gh pr review ${number} --approve`,timeout:60});
-const auto = !!p.autoMergeRequest;
-let merge = null;
-if (review.exit_code === 0 && !auto) {
-  merge = await tools.bash({
-    command:`gh pr merge ${number} --rebase --delete-branch --match-head-commit ${approval.sha}`,timeout:90
-  });
+for (const [name, pass] of [["Kritika / Review", c => c.state === "SUCCESS"], ["Flux Local - Success", c => c.conclusion === "SUCCESS"]]) {
+  const check = (p.statusCheckRollup || []).find(c => (c.context || c.name) === name);
+  if (!check || !pass(check))
+    throw new Error(`${name} is ${check?.state || check?.conclusion || "missing"} on the head; the ruleset will refuse this merge`);
 }
+// Nothing has changed yet: throwing above is safe. From here on, record instead of throwing.
+const merge = await tools.bash({
+  command:`gh pr merge ${number} --rebase --delete-branch --match-head-commit ${approval.sha}`,timeout:90
+});
 // Do not throw after mutation: persist uncertainty for recovery on the next call.
 const entry = {number,sha:approval.sha,at:new Date().toISOString(),
-  approved:review.exit_code === 0,mergedBy:auto ? "github-auto-merge" : "command",
-  commandSucceeded:auto ? null : merge?.exit_code === 0,needsVerification:true,
-  detail:(merge?.output || review.output || "").slice(0,1000)};
+  commandSucceeded:merge.exit_code === 0,needsVerification:true,
+  detail:(merge.output || "").slice(0,1000)};
 store("renovate.ledger", [...(load("renovate.ledger") || []),entry]);
 text(entry);
 ```
 
-In the **next** call, query `gh pr view <number> --json state,mergedAt,mergeCommit,headRefOid`, confirm MERGED and the reviewed head, and update the ledger with merge commit/time. With auto-merge, allow GitHub a short bounded wait before treating an OPEN state as a failure, and read `mergeStateStatus` to see what blocks it. If a tool rejects or the script is interrupted during mutation, query PR state before any retry; ledger absence does not mean no merge or approval happened. Only then select another PR, or begin the wave's reconciliation barrier.
-
-An approval is not undone by a failed merge. If the PR stays open, say so: an approved PR with auto-merge on will merge as soon as whatever blocks it clears.
-
-For a backlog PR that Kritika already approved, the same script applies: the existing approval on the head is detected and no second one is posted.
+In the **next** call, query `gh pr view <number> --json state,mergedAt,mergeCommit,headRefOid`, confirm MERGED and the reviewed head, and update the ledger with merge commit/time. If the PR is still OPEN, read `mergeStateStatus` to see what blocks it. If a tool rejects or the script is interrupted during mutation, query PR state before any retry; ledger absence does not mean no merge happened. Only then select another PR, or begin the wave's reconciliation barrier.
 
 ## Requesting Kritika reviews
 
@@ -285,7 +276,7 @@ store("renovate.reviewRequests", {at:new Date().toISOString(),done});
 text(done);
 ```
 
-A review takes a few minutes. Re-run the Kritika evidence recipe afterwards; a status that is still `success` with no new comment and no new score was capped or skipped.
+A review takes a few minutes. Re-run the Kritika evidence recipe afterwards; a status that is still `success` with no new comment and no new score was skipped.
 
 ## Auto-merged since the last check
 

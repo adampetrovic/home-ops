@@ -3,21 +3,6 @@
 rules:
   - id: repo-conventions
     file: AGENTS.md
-  - id: renovate-release-notes
-    rule: >-
-      For a dependency update, find out what changed between the old and new
-      versions before judging it. Inspect both image or chart versions in the
-      registry to get the source repository and revision each was built from,
-      then read the upstream release notes or the diff between those
-      revisions. Read how this repository uses the dependency: its
-      HelmRelease values, environment, mounted configuration, probes and the
-      apps that depend on it. Report breaking changes, required configuration
-      or migration steps, and changed defaults that affect that usage, and
-      name the manifest they affect. Say in the summary what you compared.
-      If the versions could not be compared, say which step failed. Do not
-      report an update as risky without naming what breaks.
-    when:
-      - expr: pr.headRef.startsWith("renovate/")
 
 context:
   - path: docs/agent/app-deployments.md
@@ -34,6 +19,11 @@ context:
   - path: docs/UPGRADE.md
     description: How Talos and Kubernetes upgrades run through Tuppr
     paths: ["talos/**", "kubernetes/apps/system-upgrade/**"]
+
+skills:
+  scope:
+    reviewing-pull-requests:
+      load: true
 
 tools:
   # renovate: datasource=github-releases depName=home-operations/flate
