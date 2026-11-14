@@ -29,7 +29,7 @@ for index in $(seq 0 $((release_count - 1))); do
     helmrelease_path="${ROOT_DIR}/kubernetes/apps/${namespace}/${name}/app/helmrelease.yaml"
 
     if [[ "${name}" == "onepassword-connect" ]]; then
-        oci_path="${ROOT_DIR}/kubernetes/components/common/repos/app-template/ocirepository.yaml"
+        oci_path="${ROOT_DIR}/kubernetes/components/app-template/ocirepository.yaml"
         helmrelease_path="${ROOT_DIR}/kubernetes/apps/external-secrets/external-secrets/stores/onepassword/helmrelease.yaml"
     fi
 
