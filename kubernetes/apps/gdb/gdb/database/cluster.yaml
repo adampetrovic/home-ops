@@ -20,7 +20,6 @@ spec:
     parameters:
       wal_compression: lz4
       archive_timeout: 30min
-      checkpoint_timeout: 15min
   bootstrap:
     recovery:
       source: source

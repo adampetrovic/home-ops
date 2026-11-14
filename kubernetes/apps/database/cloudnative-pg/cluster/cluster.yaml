@@ -24,7 +24,6 @@ spec:
       shared_buffers: 512MB
       wal_compression: lz4
       archive_timeout: 30min
-      checkpoint_timeout: 15min
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true

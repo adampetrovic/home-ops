@@ -30,7 +30,6 @@ spec:
       shared_buffers: 256MB
       wal_compression: lz4
       archive_timeout: 30min
-      checkpoint_timeout: 15min
       max_locks_per_transaction: "4096"
       timescaledb.license: "timescale"
       timescaledb.max_tuples_decompressed_per_dml_transaction: "0"
