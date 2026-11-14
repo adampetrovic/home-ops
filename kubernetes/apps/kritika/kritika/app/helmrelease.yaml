@@ -37,6 +37,8 @@ spec:
       postgres:
         podSelector:
           cnpg.io/cluster: kritika-postgres
+    gatewayCache:
+      enabled: true
     runner:
       podTemplate:
         spec:
@@ -46,6 +48,7 @@ spec:
               memory: 512Mi
             limits:
               memory: 2Gi
+          runtimeClassName: gvisor
     monitoring:
       serviceMonitor:
         enabled: true
