@@ -110,6 +110,12 @@ spec:
       trigger:
         exclude:
           - { name: forks, expr: pr.fork }
+          - name: digest-updates
+            # Renovate adds labels after it opens the pull request, so match its digest title too
+            expr: >-
+              pr.headRef.startsWith("renovate/") &&
+              (pr.labels.exists(l, l.name == "type/digest") ||
+              pr.title.matches("[(] [0-9a-f]{7} → [0-9a-f]{7} [)]$"))
     resources:
       requests:
         cpu: 10m
