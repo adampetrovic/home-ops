@@ -5,16 +5,19 @@ rules:
     file: AGENTS.md
   - id: renovate-compare-versions
     rule: >-
-      For a dependency update, compare the old and new versions before
-      judging it, as the reviewing-pull-requests skill describes. Read both
-      image or chart versions from the registry with crane for the source
-      repository and revision each was built from, then read the upstream
-      release notes or the diff between those revisions, covering every
-      intermediate release. When a chart version or HelmRelease values
-      change, render the HelmRelease with flate. Say in the summary what you
-      compared and which commands produced it. If a step could not be done,
-      name the step and why. Do not report an update as risky without naming
-      what breaks.
+      A dependency update is not reviewed until these commands have run.
+      For a container image, run `crane config --platform linux/amd64` on
+      the old and the new digest and compare their source and revision
+      labels. For a chart from an OCIRepository, run `crane config` on the
+      old and the new chart tag and compare version, appVersion and sources.
+      When a chart version or HelmRelease values change, also run
+      `flate build hr <name> --path kubernetes/apps/<namespace>
+      --no-progress` and read the rendered output for what the change
+      touches. Then read the upstream release notes or the diff between the
+      two revisions, covering every intermediate release. The upstream diff
+      alone does not satisfy this rule. In the summary, list each command
+      run and what it showed. If a command failed or could not run, report
+      that as a finding that names the command and its error.
     when:
       - expr: pr.headRef.startsWith("renovate/")
 
