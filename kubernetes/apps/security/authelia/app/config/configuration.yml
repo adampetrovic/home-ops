@@ -65,7 +65,7 @@ access_control:
 identity_providers:
   oidc:
     jwks:
-      - key_id: "563d32-rs256"
+      - key_id: "9fe2d8-rs256"
         algorithm: RS256
         use: sig
         key: |
