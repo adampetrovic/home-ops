@@ -33,7 +33,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/timberio/vector
-              tag: 0.61.0-alpine@sha256:3bb7ed5152910ed51729e256937b1d8a4bf67ff624e9d565e8e5877bffd015c7
+              tag: 0.62.0-alpine@sha256:149c77c09aabf16a3aa543abf9cea2e2152c1d9a7d4a45669fe7ad05f4ed8b27
             env:
               VECTOR_DANGEROUSLY_ALLOW_ENV_VAR_INTERPOLATION: "true"
               VECTOR_SELF_NODE_NAME:
