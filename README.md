@@ -147,7 +147,7 @@ The platform hosts **70+ applications** across multiple categories:
 - **[Cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)** - Secure tunnels to Cloudflare
 - **[External DNS](https://kubernetes-sigs.github.io/external-dns/)** - Automatic DNS record management (Cloudflare for external, UniFi for internal)
 - **[CoreDNS](https://coredns.io)** - Cluster DNS with conditional forwarding for internal domains
-- **[AdGuard Home](https://adguard.com/adguard-home)** - Network-wide ad blocking
+- **[Blocky](https://0xerr0r.github.io/blocky/)** - Network-wide ad blocking
 - **[Multus](https://github.com/k8snetworkplumbingwg/multus-cni)** - Multiple network interfaces
 - **NTPd** - Network time protocol server
 - **SMTP Relay** - Outbound email service
@@ -250,27 +250,27 @@ graph TD
 - **CNI**: Cilium with eBPF for high-performance networking (deployed without kube-proxy)
 - **Load Balancing**: Cilium LB IPAM for bare-metal LoadBalancer services
 - **Ingress**: Envoy Gateway with dual Gateways (internal + external) using the Kubernetes Gateway API
-- **DNS**: AdGuard Home for network-wide filtering, UniFi for internal DNS records, Cloudflare for external DNS, CoreDNS with conditional forwarding for in-cluster resolution
+- **DNS**: Blocky for network-wide filtering, UniFi for internal DNS records, Cloudflare for external DNS, CoreDNS with conditional forwarding for in-cluster resolution
 - **Multi-Homing**: Multus CNI for additional network interfaces (IoT VLAN access)
 - **Tunnel**: Cloudflared for secure external access through Cloudflare
 
-### Internal DNS with AdGuard Home
+### Internal DNS with Blocky
 
-See [full AdGuard DNS documentation](kubernetes/apps/network/adguard/README.md).
+Blocky answers plain DNS and DNS-over-TLS directly on the VIP. DNS-over-HTTPS on
+port 443 goes through `envoy-internal`, which forwards only `/dns-query`.
+Blocky's API and web UI are at `blocky.petrovic.network` behind Authelia.
 
 ```mermaid
 flowchart LR
     C["UniFi client"] --> U["UniFi LAN / VLAN"]
     U --> VIP["10.0.88.53\ndns.petrovic.network"]
-    VIP --> S["network/adguard-dns\nLoadBalancer Service"]
-    S --> A0["adguard-0"]
-    S --> A1["adguard-1"]
-    A0 --> R["Recursive upstream"]
-    A1 --> R
-    R --> Root["Root DNS"]
-    Root --> TLD["TLD DNS"]
-    TLD --> Auth["Authoritative DNS"]
-    T["Talos nodes\nno AdGuard dependency"] -.-> GW["UniFi gateway\n10.0.0.1"]
+    VIP -->|"53, 853"| S["network/blocky-dns\nLoadBalancer Service"]
+    VIP -->|"443"| E["network/blocky-doh\nenvoy-internal, /dns-query only"]
+    S --> B["blocky\n2 replicas"]
+    E --> B
+    B --> R["Cloudflare and Google\nDoH / DoT"]
+    B -->|"petrovic.network"| GW
+    T["Talos nodes\nno Blocky dependency"] -.-> GW["UniFi gateway\n10.0.0.1"]
     T -.-> CF["Cloudflare DNS\n1.1.1.1"]
 ```
 

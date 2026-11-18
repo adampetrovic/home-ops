@@ -6,10 +6,9 @@ namespace: network
 components:
   - ../../components/common
   - ../../components/app-template
-  - ../../components/ghcr
   - ../../components/kopiur/secret
 resources:
-  - ./adguard/ks.yaml
+  - ./blocky/ks.yaml
   - ./certificates/ks.yaml
   - ./cloudflared/ks.yaml
   - ./envoy-gateway/ks.yaml

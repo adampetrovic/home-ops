@@ -177,21 +177,21 @@ spec:
         - "10.0.88.53:443"
       labels:
         probe: bgp-loadbalancer
-        service: adguard-dns
+        service: blocky-doh
         vip: "10.0.88.53"
         port: "443"
     - targets:
         - "10.0.88.53:53"
       labels:
         probe: bgp-loadbalancer
-        service: adguard-dns
+        service: blocky-dns
         vip: "10.0.88.53"
         port: "53"
     - targets:
         - "10.0.88.53:853"
       labels:
         probe: bgp-loadbalancer
-        service: adguard-dns
+        service: blocky-dns
         vip: "10.0.88.53"
         port: "853"
   relabelings:
@@ -220,7 +220,7 @@ spec:
         - "10.0.88.53:53"
       labels:
         probe: bgp-loadbalancer
-        service: adguard-dns
+        service: blocky-dns
         vip: "10.0.88.53"
         port: "53"
         protocol: udp

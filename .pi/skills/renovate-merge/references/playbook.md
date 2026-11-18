@@ -76,7 +76,7 @@ Approval gates override risk labels. **Explicit approval is always required** fo
 | 2 Infrastructure | cert-manager, Flux, External Secrets/1Password, Rook-Ceph, OpenEBS |
 | 3 Data & backup | Kopiur (paired chart+image), CNPG, Dragonfly |
 | 4 Observability | Prometheus stack, Loki, Vector (all instances grouped), Grafana; Loki before Vector |
-| 5 Network | Envoy Gateway, Cloudflared, ExternalDNS, AdGuard, Authelia, LLDAP |
+| 5 Network | Envoy Gateway, Cloudflared, ExternalDNS, Blocky, Authelia, LLDAP |
 | 6 System | Descheduler, Reloader, Spegel, node-feature-discovery |
 | 7 Leaf applications | Media, automation, and other leaf apps |
 

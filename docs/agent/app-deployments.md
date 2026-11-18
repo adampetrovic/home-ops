@@ -131,7 +131,6 @@ PVCs that are deliberately outside Kopiur:
 - CloudNativePG clusters, which back up with barman-cloud (`objectstore.yaml` and `scheduledbackup.yaml` beside each `cluster.yaml`).
 - Cache volumes such as `plex-cache` and `jellyseerr-cache`.
 - Chart-managed observability storage for Prometheus, Alertmanager, Loki, and Grafana.
-- `data-adguard-1`, the AdGuard replica that syncs from the backed-up `data-adguard-0`.
 
 Define a volume that Kopiur doesn't back up in the app's app-template `persistence`, not in a separate `pvc.yaml`: `type: persistentVolumeClaim` with `accessMode`, `size`, `storageClass` and `retain: true`, so uninstalling the release keeps the claim. Backed-up volumes come from the Kopiur component, which creates the PVC together with its restore, policies and schedules.
 

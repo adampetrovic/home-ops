@@ -1,0 +1,81 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/0xERR0R/blocky/v0.36.0/docs/config.schema.json
+upstreams:
+  groups:
+    default:
+      - https://dns.cloudflare.com/dns-query
+      - tcp-tls:1dot1dot1dot1.cloudflare-dns.com:853
+      - https://dns.google/dns-query
+      - tcp-tls:dns.google:853
+  timeout: 3s
+bootstrapDns:
+  - tcp+udp:1.1.1.1
+  - tcp+udp:8.8.8.8
+  - tcp+udp:1.0.0.1
+  - tcp+udp:8.8.4.4
+conditional:
+  fallbackUpstream: false
+  mapping:
+    petrovic.network: 10.0.0.1
+    10.in-addr.arpa: 10.0.0.1
+clientLookup:
+  upstream: 10.0.0.1
+filtering:
+  queryTypes:
+    - ANY
+rateLimit:
+  enable: true
+  rate: 20
+  ipv4Prefix: 32
+  ipv6Prefix: 56
+blocking:
+  denylists:
+    ads:
+      - https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt
+      - https://v.firebog.net/hosts/static/w3kbl.txt
+      - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+      - https://adaway.org/hosts.txt
+      - https://v.firebog.net/hosts/AdguardDNS.txt
+      - https://v.firebog.net/hosts/Easylist.txt
+      - /run/secrets/blocky/denylist.txt
+  allowlists:
+    ads:
+      - |
+        # one entry per line; *.example.com also covers subdomains
+  clientGroupsBlock:
+    default:
+      - ads
+  blockType: zeroIp
+  blockTTL: 10s
+  loading:
+    strategy: blocking
+    refreshPeriod: 24h
+    downloads:
+      timeout: 60s
+caching:
+  minTime: 5m
+  maxTime: 1h
+  prefetching: true
+ports:
+  dns: 53
+  tls: 853
+  http: 4000
+certFile: /tls/tls.crt
+keyFile: /tls/tls.key
+prometheus:
+  enable: true
+  path: /metrics
+pprof:
+  enable: false
+queryLog:
+  type: console
+  fields:
+    - clientIP
+    - clientName
+    - question
+    - responseReason
+    - duration
+log:
+  level: info
+  format: json
+  target: stdout

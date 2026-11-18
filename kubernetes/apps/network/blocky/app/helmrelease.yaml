@@ -1,0 +1,173 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app blocky
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+      strategy: rollback
+  uninstall:
+    keepHistory: false
+  values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 100
+        fsGroup: 100
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      blocky:
+        type: deployment
+        replicas: 2
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/controller: *app
+                  app.kubernetes.io/name: *app
+        podDisruptionBudget:
+          minAvailable: 1
+        containers:
+          app:
+            image:
+              repository: ghcr.io/0xerr0r/blocky
+              tag: v0.36.0@sha256:191c0f1e688aa37698297ef4059e11a2b080299a878f5b31d6d32ace9d0c54b2
+            args:
+              - --config=/config/config.yaml
+            env:
+              TZ: Australia/Sydney
+            securityContext:
+              readOnlyRootFilesystem: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
+                add: [NET_BIND_SERVICE]
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [/app/blocky, healthcheck, --port, "53"]
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probe
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: [/app/blocky, healthcheck, --port, "53"]
+                  periodSeconds: 5
+                  timeoutSeconds: 5
+                  failureThreshold: 60
+            resources:
+              requests:
+                cpu: 25m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    service:
+      dns:
+        controller: *app
+        type: LoadBalancer
+        annotations:
+          external-dns.kubernetes.io/hostname: dns.petrovic.network
+          lbipam.cilium.io/ips: 10.0.88.53
+          # Shares the VIP with blocky-doh, which serves port 443 from envoy-internal.
+          lbipam.cilium.io/sharing-key: blocky
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+          tls-tcp:
+            port: 853
+            protocol: TCP
+      app:
+        controller: *app
+        ports:
+          http:
+            port: 4000
+    serviceMonitor:
+      app:
+        service:
+          identifier: app
+        endpoints:
+          - port: http
+            path: /metrics
+            interval: 30s
+            scrapeTimeout: 10s
+    route:
+      app:
+        hostnames:
+          - "blocky.petrovic.network"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: http
+      doh:
+        annotations:
+          # The dns Service publishes this name on the DNS VIP.
+          external-dns.kubernetes.io/controller: none
+        labels:
+          authelia.petrovic.network/bypass: "true"
+        hostnames:
+          - "dns.petrovic.network"
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /dns-query
+            backendRefs:
+              - identifier: app
+                port: http
+    persistence:
+      config:
+        type: configMap
+        name: blocky-config
+        globalMounts:
+          - path: /config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      denylist:
+        type: secret
+        name: blocky-secret
+        globalMounts:
+          - path: /run/secrets/blocky
+            readOnly: true
+      tls:
+        type: secret
+        name: tls-blocky
+        globalMounts:
+          - path: /tls
+            readOnly: true
