@@ -94,9 +94,9 @@ spec:
         type: LoadBalancer
         annotations:
           external-dns.kubernetes.io/hostname: dns.petrovic.network
-          lbipam.cilium.io/ips: 10.0.88.53
+          lbipam.cilium.io/ips: &vip 10.0.88.53
           # Shares the VIP with blocky-doh, which serves port 443 from envoy-internal.
-          lbipam.cilium.io/sharing-key: blocky
+          lbipam.cilium.io/sharing-key: &sharingKey blocky
         ports:
           dns-tcp:
             port: 53
@@ -112,6 +112,29 @@ spec:
         ports:
           http:
             port: 4000
+    rawResources:
+      # Puts envoy-internal on port 443 of the DNS VIP, so the doh route is the
+      # only path from that port to Blocky. A service entry cannot select
+      # another app's pods.
+      doh:
+        forceRename: blocky-doh
+        manifest:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            annotations:
+              lbipam.cilium.io/ips: *vip
+              lbipam.cilium.io/sharing-key: *sharingKey
+          spec:
+            type: LoadBalancer
+            ports:
+              - name: https
+                port: 443
+                protocol: TCP
+                targetPort: 10443
+            selector:
+              gateway.envoyproxy.io/owning-gateway-name: envoy-internal
+              gateway.envoyproxy.io/owning-gateway-namespace: network
     serviceMonitor:
       app:
         service:

@@ -7,7 +7,6 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./grafanadashboard.yaml
-  - ./service.yaml
 components:
   - ../../../../components/authelia-proxy
 configMapGenerator:
