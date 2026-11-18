@@ -35,7 +35,7 @@ spec:
                 protocol: TCP
             image:
               repository: ghcr.io/adampetrovic/gdb-web
-              tag: 1.13.2@sha256:eb3a86af90a26b8c0d293cf0d2a4d722e8bef257cc733c629886adcf41a27ae6
+              tag: 1.13.3@sha256:fb423a2fbe2dc01a5753a19bc77ab6adc0f7f682ede988c360e212d625677fd1
             envFrom:
               - secretRef:
                   name: gdb-secret
