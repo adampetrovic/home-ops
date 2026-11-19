@@ -27,4 +27,4 @@ skills:
 
 tools:
   # renovate: datasource=github-releases depName=home-operations/flate
-  aqua:home-operations/flate: v0.7.3
+  aqua:home-operations/flate: v0.8.0
