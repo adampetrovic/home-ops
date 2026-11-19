@@ -42,9 +42,14 @@ blocking:
     ads:
       - |
         # one entry per line; *.example.com also covers subdomains
+    adam-exceptions:
+      - /run/secrets/blocky/denylist.txt
   clientGroupsBlock:
     default:
       - ads
+    adam-brave:
+      - ads
+      - adam-exceptions
   blockType: zeroIp
   blockTTL: 10s
   loading:
