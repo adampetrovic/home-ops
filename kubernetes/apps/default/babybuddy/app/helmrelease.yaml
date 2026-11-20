@@ -28,7 +28,7 @@ spec:
           babybuddy:
             image:
               repository: ghcr.io/linuxserver/babybuddy
-              tag: 2.11.0@sha256:21e96f68fa47ba626475de14d446e97f11fc28a9cbb4132860ee2983425dea53
+              tag: 2.11.0@sha256:e0c9c6502c1b75ceb5e007b22a618bfe1ddc22aab15baef7e2ce0b1904461a32
             env:
               TZ: Australia/Sydney
               CSRF_TRUSTED_ORIGINS: https://baby.petrovic.network
