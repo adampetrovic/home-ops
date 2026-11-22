@@ -25,6 +25,13 @@ spec:
     features:
       credentialProjection:
         enabled: true
+    leaderElection:
+      # Renew every 10s, not 2s: each renewal is an etcd write.
+      timings:
+        leaseDurationSeconds: 60
+        renewDeadlineSeconds: 40
+        renewPeriodSeconds: 10
+        retryPeriodSeconds: 10
     monitoring:
       dashboards:
         enabled: true
