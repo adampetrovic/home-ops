@@ -71,6 +71,11 @@ spec:
     operator:
       replicas: 1
       rollOutPods: true
+      # Renew every 10s, not 2s: each renewal is an etcd write.
+      extraArgs:
+        - --leader-election-lease-duration=60s
+        - --leader-election-renew-deadline=40s
+        - --leader-election-retry-period=10s
       prometheus:
         enabled: true
         serviceMonitor:
