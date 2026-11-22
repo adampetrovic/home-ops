@@ -36,3 +36,8 @@ spec:
           kubernetes:
             deploy:
               type: GatewayNamespace
+            # Renew every 10s, not 2s: each renewal is an etcd write.
+            leaderElection:
+              leaseDuration: 60s
+              renewDeadline: 40s
+              retryPeriod: 10s
