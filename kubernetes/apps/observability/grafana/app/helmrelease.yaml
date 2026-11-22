@@ -20,5 +20,7 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    # One replica: a lease renewed every 2s only adds etcd writes.
+    leaderElect: false
     serviceMonitor:
       enabled: true
