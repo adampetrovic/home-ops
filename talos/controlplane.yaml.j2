@@ -18,6 +18,8 @@ cluster:
       crt: op://k8s/talsecret/CERTS_ETCD_CRT
       key: op://k8s/talsecret/CERTS_ETCD_KEY
     extraArgs:
+      # Commit the database once a second, not every 100ms: the WAL is still synced per write.
+      backend-batch-interval: 1s
       listen-metrics-urls: http://0.0.0.0:2381
     advertisedSubnets:
       - 10.0.80.0/21
