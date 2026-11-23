@@ -9,7 +9,7 @@ metadata:
     kustomize.toolkit.fluxcd.io/prune: disabled
 spec:
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgis:18.7-3.7.0-standard-bookworm@sha256:b4e37c903a215a2b8d888f532ad20a16f0fb0cd359f08ffbe194f2e094653ed9
+  imageName: ghcr.io/cloudnative-pg/postgis:18.7-3.7.0-standard-bookworm@sha256:42ed2b4109f0686f808ae45d4698a517be1bc3b5dbaf7e0689216c156fb2296d
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   storage:
