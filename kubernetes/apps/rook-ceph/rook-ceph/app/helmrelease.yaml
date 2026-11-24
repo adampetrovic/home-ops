@@ -28,7 +28,7 @@ spec:
     # the mgr sidecar and OSD prepare jobs.
     image:
       repository: mirror.gcr.io/rook/ceph
-      tag: v1.21.2@sha256:cc0f2d2cba5174d92ae3068bd8c5b9a6a6dea6f8a2321e3aa4f09630863c3942
+      tag: v1.21.3@sha256:3956e9b95a3c1803e5ae5db12d28b61f937faba753fcc50c3d068e08a1f0ecbe
     monitoring:
       enabled: true
     resources:
