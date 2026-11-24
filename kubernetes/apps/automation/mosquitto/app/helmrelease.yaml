@@ -31,7 +31,11 @@ spec:
               repository: public.ecr.aws/docker/library/eclipse-mosquitto
               tag: 2.0.23@sha256:6a332cc7a8dbe011cbc076180cbb76b37c6f0f55809682ea08e7980ef0112ad9
             command: ["/bin/sh", "-c"]
-            args: ["cp /tmp/secret/* /mosquitto/external_config/ && mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd && chmod 0600 /mosquitto/external_config/mosquitto_pwd"]
+            args:
+              - >-
+                cp /tmp/secret/* /mosquitto/external_config/
+                && mosquitto_passwd -U /mosquitto/external_config/mosquitto_pwd
+                && chmod 0600 /mosquitto/external_config/mosquitto_pwd
         containers:
           app:
             image:
