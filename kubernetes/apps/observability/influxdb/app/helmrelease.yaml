@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/library/influxdb
-              tag: 2.10.1@sha256:33f4eef7ca7859f3c24021c5fa20a4ca7d1d34f049bb011c32787a35cf096b85
+              tag: 2.10.1@sha256:94e98bf5a07587c91bac4f6059aa2ddc172cd246bbd296852a30654192a38a03
             env:
               TZ: "Australia/Sydney"
               INFLUXD_STORAGE_MAX_CONCURRENT_COMPACTIONS: "1"
