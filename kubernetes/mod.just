@@ -12,8 +12,8 @@ delete-failed-pods:
         kubectl delete pods --field-selector "status.phase=${phase}" -A --ignore-not-found=true
     done
 
-[doc('Lint YAML and build every Flux Kustomization path locally')]
-validate: lint build
+[doc('Lint YAML, build every Flux Kustomization path and render the cluster locally')]
+validate: lint build test
 
 [doc('Lint YAML in kubernetes/, bootstrap/ and .github/ with the repo .yamllint')]
 lint:
@@ -43,3 +43,13 @@ build:
         count=$((count + 1))
     done <<< "${paths}"
     printf 'kustomize build: %d paths ok\n' "${count}"
+
+[doc('Render every Flux Kustomization and HelmRelease offline with flate')]
+test:
+    cd "{{ repo_root }}"
+    flate test --path kubernetes/apps
+
+[doc('Diff the rendered cluster against a Git revision with flate')]
+diff base='origin/main':
+    cd "{{ repo_root }}"
+    flate diff --path kubernetes/apps --base "{{ base }}" --output diff

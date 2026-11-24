@@ -34,6 +34,10 @@ uvx check-jsonschema --schemafile <schema-url> <file>
 
 If validation fails, fix the manifest and re-run validation.
 
+## Render Validation
+
+When changing anything under `kubernetes/`, run `just kube test` before reporting completion. It renders every Kustomization and HelmRelease offline with flate, so it catches what a schema check cannot: a value the chart's schema rejects, a template that errors, a Kustomization that does not build. `just kube diff` shows what the change does to the rendered manifests. `docs/agent/operations.md` describes both.
+
 ## Shell Scripts
 
 - Use `#!/usr/bin/env bash`.
@@ -69,6 +73,7 @@ spec:
 - Renovate config lives in `.renovaterc.json5` and `.renovate/`.
 - `matchPackageNames` matches a dependency's `packageName`, not the name written in Git. `registryAliases` maps `mirror.gcr.io` to `docker.io`, so rules name `mirror.gcr.io/foo/bar` as `docker.io/foo/bar`; PR titles still show the `mirror.gcr.io` name.
 - Semantic commits are enforced, for example `feat(container)!:`, `fix(helm):`, `chore(container):`.
+- flate is pinned in three places: the action in `.github/workflows/flate.yaml`, `.mise.toml` and the `tools` of `.kritika.yaml`. The `flate` group in `.renovate/groups.json5` updates them in one pull request, which never auto-merges.
 
 ### Auto-merge
 
