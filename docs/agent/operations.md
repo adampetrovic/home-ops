@@ -36,8 +36,12 @@ Kubernetes:
 
 ```bash
 just kube delete-failed-pods
-just kube validate   # yamllint (kube lint) + kustomize build of every Flux Kustomization path (kube build)
+just kube validate   # yamllint (kube lint) + kustomize build of every Flux Kustomization path (kube build) + kube test
+just kube test       # flate renders every Kustomization and HelmRelease offline and fails on a render error
+just kube diff       # rendered diff of the working copy against origin/main; pass another revision to change the base
 ```
+
+`just kube test` and `just kube diff` run flate with `--path kubernetes/apps`. Pass the same path to any other flate command, for example `flate build hr radarr -n media --path kubernetes/apps`. That path leaves out `cluster-apps`, so nothing substitutes the `cluster-vars` Secret, which exists only in the cluster. In the rendered output a `${SECRET_*}` variable is therefore empty where the Kustomization has its own `postBuild.substitute`, and literal elsewhere.
 
 Kopiur:
 
@@ -69,8 +73,10 @@ CI checks are useful validation but are not a default merge gate. Do not wait fo
 
 Key checks:
 
-- `Flux Local - Test` renders HelmReleases/Kustomizations and validates output.
-- `Flux Local - Diff` shows rendered diff against main.
+- `Flate - Test` renders every Kustomization and HelmRelease with `flate test` and fails on a render error.
+- `Flate - Diff` renders the diff against the pull request's base, and `Flate - Comment` posts it on the pull request.
+- `Bootstrap - Helmfile Parity` checks that the bootstrap Helmfile matches the charts Flux deploys.
+- `Flux Local - Success` is the status the `main` ruleset requires. It passes when the test, diff and parity jobs pass or are skipped.
 
 Optional status check:
 

@@ -33,6 +33,17 @@
       },
     },
     {
+      description: "Keep flate on one release in the workflow, .mise.toml and Kritika's review tools",
+      groupName: "flate",
+      matchPackageNames: ["home-operations/flate"],
+      automerge: false,
+      // the workflow's action waits this long under the GitHub Actions rule; the other two wait with it
+      minimumReleaseAge: "3 days",
+      group: {
+        commitMessageTopic: "{{{groupName}}} group",
+      },
+    },
+    {
       description: "Barman Cloud Group",
       groupName: "Barman Cloud",
       matchDatasources: ["docker", "github-releases"],

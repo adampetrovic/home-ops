@@ -80,6 +80,7 @@ Read the relevant doc before making non-trivial changes:
 - Include schema comments where applicable.
 - Shell scripts use `#!/usr/bin/env bash`, `set -Eeuo pipefail`, and 4-space indentation.
 - For schema-backed YAML/JSON, run `uvx check-jsonschema --schemafile <schema-url> <file>` unless a project-specific validator is more appropriate.
+- After changing anything under `kubernetes/`, run `just kube test` to render the cluster offline with flate.
 
 ## Quick Operational Notes
 
