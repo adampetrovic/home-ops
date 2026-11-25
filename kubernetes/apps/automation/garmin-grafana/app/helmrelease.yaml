@@ -30,7 +30,7 @@ spec:
           app:
             image:
               repository: ghcr.io/arpanghosh8453/garmin-fetch-data
-              tag: latest@sha256:b8259df2e0b82fc2a95cf5e927dfb05848f48f2d2cdddc550b89f0c9dee5f2fa
+              tag: latest@sha256:c7d235d3ee92fb67d8179e32b1bb8ed5dd62969510f5c4010d96738bf88528e8
             env:
               TZ: "Australia/Sydney"
               INFLUXDB_VERSION: "1"
