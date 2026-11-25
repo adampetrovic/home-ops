@@ -106,9 +106,19 @@ just talos validate-all
 
 # System Disk Replacement
 
-Use this procedure when replacing only the Talos system disk of a healthy node. The node keeps its name, IP address and Ceph data disk, and is reinstalled onto the new disk.
+Use this procedure when replacing only the Talos system disk of a healthy node. The node is reinstalled onto the new disk and rejoins the cluster.
 
 Do not use the working-node procedure for this. Removing the OSD rebalances the Ceph data disk away and back for no benefit, and `talosctl reset` wipes the old system disk, which is the fallback if the new disk fails.
+
+## What to Expect
+
+| Stays the same | Changes |
+| --- | --- |
+| Node name, IP address and role | etcd member ID |
+| Node labels | Age of the Node object |
+| Ceph data disk and its OSD ID | CloudNativePG replicas on the node are re-cloned |
+
+The node is out of the cluster for about 20 minutes: about a minute to drain, the time the physical swap takes, and about three minutes from applying the config to `Ready`. The node needs no monitor or keyboard once it has booted from the USB stick; every later step can be followed remotely.
 
 ## What the System Disk Holds
 
@@ -118,14 +128,14 @@ Everything under `/var` goes with the old disk and is rebuilt from the rest of t
 | --- | --- |
 | Talos install and machine config | Reinstalled from the node template |
 | etcd member (control-plane nodes) | The node leaves etcd before the swap and joins as a new member |
-| Ceph monitor data in `/var/lib/rook` (control-plane nodes) | Rook restores the monitor once the node is back |
+| Ceph monitor data in `/var/lib/rook` (control-plane nodes) | The monitor copies its store back from the other two |
 | Ceph OSD directory in `/var/lib/rook` | Rebuilt from the data disk when the OSD pod starts |
 | `openebs-hostpath` volumes in `/var/openebs/local` | CloudNativePG re-clones a replica from its primary; any other volume is lost |
 | Container images | Pulled again |
 
 ## Prerequisites
 
-- All nodes `Ready`, Ceph `HEALTH_OK`, every CloudNativePG cluster fully ready, and `just talos upgrade-check` passing
+- All nodes `Ready`, Ceph `HEALTH_OK`, every CloudNativePG cluster fully ready, and `just talos upgrade-check` passing. A backup pod that has only just started can show as `Pending`; re-run the check.
 - A USB stick to boot the Talos installer from
 - 1Password access for rendering the machine config
 - No other node maintenance in progress: while a control-plane node is out, etcd and the Ceph monitors run on two of three
@@ -138,11 +148,24 @@ Everything under `/var` goes with the old disk and is rebuilt from the rest of t
 # Schematic ID for the node
 TALOS_SKIP_OP_INJECT=true talos/scripts/schematic-id.sh k8s-node-X
 
+# It must match the "schematic" row the running nodes report
+talosctl -n <any-node-ip> get extensions
+
 # Talos version: the tag of installer.image in talos/nodes/**/k8s-node-X.yaml.j2
-curl -fLO "https://factory.talos.dev/image/<schematic-id>/<version>/metal-amd64.iso"
+# The address redirects, so curl needs -L
+curl -fLo talos.iso "https://factory.talos.dev/image/<schematic-id>/<version>/metal-amd64.iso"
 ```
 
-Write the ISO to the USB stick.
+`metal-amd64.iso` is the right image while `talosctl -n <any-node-ip> get securitystate` reports `secureBoot: false`.
+
+Write the ISO to the USB stick. On macOS:
+
+```bash
+diskutil list external
+diskutil unmountDisk /dev/diskN
+sudo dd if=talos.iso of=/dev/rdiskN bs=4m
+diskutil eject /dev/diskN
+```
 
 ### Step 2: List the Node-Local Volumes
 
@@ -163,10 +186,19 @@ Each claim must belong to a CloudNativePG cluster that has another instance on a
 
 ```bash
 kubectl cordon k8s-node-X
+
+# Wait for running Kopiur backup pods (<app>-nfs-…, <app>-r2-…) on the node to finish
+kubectl get pods -A --field-selector spec.nodeName=k8s-node-X
+
 kubectl drain k8s-node-X --ignore-daemonsets --delete-emptydir-data --timeout=600s
 ```
 
-The drain moves any CloudNativePG primary to another instance. Replicas pinned to the node stay `Pending`. Pods that tolerate a cordon, such as Tuppr, can be scheduled straight back onto the node.
+The drain moves any CloudNativePG primary to another instance. Pods that tolerate a cordon, such as Tuppr, can be scheduled straight back onto the node.
+
+Expected after the drain, until the node is back:
+
+- The replicas from Step 2 and the node's `rook-ceph-osd` and `rook-ceph-mon` pods are `Pending`
+- Ceph is `HEALTH_WARN` with one OSD and one monitor down, and `CephOSDDownHigh` fires
 
 ### Step 4: Leave etcd (Control Plane Nodes Only)
 
@@ -177,6 +209,8 @@ talosctl -n <node-ip> etcd leave
 # Verify from another control-plane node: two members remain
 talosctl -n <other-control-plane-node> etcd members
 ```
+
+From here the old disk cannot simply be powered back on; see the fallback below.
 
 ### Step 5: Hold Ceph Rebalancing and Shut Down
 
@@ -194,42 +228,76 @@ kubectl delete node k8s-node-X
 Replace the system disk and keep the old one untouched until the node has rejoined. Boot from the USB stick into Talos maintenance mode, then check the node and its disks:
 
 ```bash
+# Answers only in maintenance mode
 talosctl -n <node-ip> version --insecure
+
 talosctl -n <node-ip> get disks --insecure
+talosctl -n <node-ip> get discoveredvolumes --insecure
 ```
 
-If the new disk's `MODEL` differs from the `diskSelector` in `talos/nodes/**/k8s-node-X.yaml.j2`, update the template with the exact string shown. Talos truncates SATA model names and reports no serial for SATA disks, so take the string from this output.
+If the new disk's `MODEL` differs from the `diskSelector` in `talos/nodes/**/k8s-node-X.yaml.j2`, update the template with the exact string shown. Talos truncates SATA model names and reports no serial for SATA disks, so take the string from this output. Rendering reads the working copy, so the edit does not have to be committed before the install.
+
+A used disk can carry partitions from a previous install. Wipe it so Talos sees a blank disk, naming the device from the output above. Never wipe the Ceph data disk, which shows as `bluestore`:
+
+```bash
+talosctl -n <node-ip> wipe disk <device> --insecure
+```
 
 ### Step 7: Install
 
 ```bash
 just talos validate k8s-node-X
-just talos apply-insecure-node k8s-node-X
+just --yes talos apply-insecure-node k8s-node-X
 ```
 
-Talos installs to the selected disk and reboots; remove the USB stick when it does. The node joins the existing cluster by itself. Never run `just talos bootstrap` here: it creates a new etcd cluster.
+Talos installs to the selected disk, reboots from it and joins the existing cluster by itself. Never run `just talos bootstrap` here: it creates a new etcd cluster.
+
+Follow it remotely:
+
+```bash
+# Answers once the node runs its installed config
+talosctl -n <node-ip> version
+
+kubectl get nodes -w
+talosctl -n <other-control-plane-node> etcd members
+```
+
+Remove the USB stick once the node is `Ready`. If it has not come back after a few minutes, remove the stick and power-cycle the node.
 
 ### Step 8: Rebuild Node-Local Data
 
-```bash
-# Node Ready, and three etcd members again on control-plane nodes
-kubectl get nodes -w
-talosctl -n <other-control-plane-node> etcd members
+The new Node object is schedulable as soon as it is `Ready`.
 
-# For each claim from Step 2: remove the instance whose data is gone
+The replicas from Step 2 are scheduled onto the node and fail with `FailedMount … path "/var/openebs/local/pvc-…" does not exist`. Remove each one:
+
+```bash
 kubectl cnpg destroy -n <namespace> <cluster> <instance-number>
 kubectl get clusters.postgresql.cnpg.io -A
 ```
 
-CloudNativePG creates a replacement instance under a new number and clones it from the primary. The scheduler picks its node.
+CloudNativePG creates a replacement instance under the lowest free number and clones it from the primary. The scheduler picks its node.
+
+The OSD starts by itself. Lift the rebalancing hold once it is up and every placement group is clean; this does not depend on the monitor:
 
 ```bash
-# OSD and monitor pods on the node
-kubectl -n rook-ceph get pods -o wide | grep k8s-node-X
-kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph status
-
-# Once all OSDs are up and three monitors are in quorum
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd stat
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph pg stat
 kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
+```
+
+On a control-plane node, check that the monitor rejoins quorum:
+
+```bash
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph status
+kubectl -n rook-ceph get pods -l app=rook-ceph-mon -o wide
+```
+
+While the Node object is absent, Rook tries to replace the monitor. It cannot place one, because monitors use host networking and each control-plane node holds one, so the operator logs `failed to failover mon` and a `rook-ceph-mon-<letter>-canary` pod stays `Pending`. Both stop once the monitor is back in quorum.
+
+If the monitor is still out of quorum a few minutes after the node is `Ready`, delete its pod. The new pod copies the store from the other monitors and rejoins:
+
+```bash
+kubectl -n rook-ceph delete pod -l app=rook-ceph-mon,ceph_daemon_id=<letter>
 ```
 
 ### Step 9: Verify
@@ -238,7 +306,18 @@ kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
 just talos upgrade-check
 ```
 
-Run the LoadBalancer/BGP check in `docs/agent/platform.md`, then commit the `diskSelector` change if there was one. The old disk can be wiped once every check passes.
+Ceph alerts take a few minutes to resolve after `HEALTH_OK`, so the check can fail on them at first.
+
+Run the LoadBalancer/BGP check in `docs/agent/platform.md`, then commit the `diskSelector` change if there was one.
+
+For a disk model that is new to the cluster, read its SMART data and confirm the wear alerts in `smart-rules.yaml` and the "Storage SMART Disk Data" dashboard match the wear attribute it reports:
+
+```bash
+kubectl -n observability get pods -o wide | grep smartctl-exporter
+kubectl -n observability exec <smartctl-exporter-pod-on-the-node> -- smartctl -x /dev/<device>
+```
+
+The old disk can be wiped once every check passes.
 
 ## Fallback to the Old Disk
 
