@@ -104,6 +104,152 @@ just talos validate-all
 
 ---
 
+# System Disk Replacement
+
+Use this procedure when replacing only the Talos system disk of a healthy node. The node keeps its name, IP address and Ceph data disk, and is reinstalled onto the new disk.
+
+Do not use the working-node procedure for this. Removing the OSD rebalances the Ceph data disk away and back for no benefit, and `talosctl reset` wipes the old system disk, which is the fallback if the new disk fails.
+
+## What the System Disk Holds
+
+Everything under `/var` goes with the old disk and is rebuilt from the rest of the cluster:
+
+| Data | Recovery |
+| --- | --- |
+| Talos install and machine config | Reinstalled from the node template |
+| etcd member (control-plane nodes) | The node leaves etcd before the swap and joins as a new member |
+| Ceph monitor data in `/var/lib/rook` (control-plane nodes) | Rook restores the monitor once the node is back |
+| Ceph OSD directory in `/var/lib/rook` | Rebuilt from the data disk when the OSD pod starts |
+| `openebs-hostpath` volumes in `/var/openebs/local` | CloudNativePG re-clones a replica from its primary; any other volume is lost |
+| Container images | Pulled again |
+
+## Prerequisites
+
+- All nodes `Ready`, Ceph `HEALTH_OK`, every CloudNativePG cluster fully ready, and `just talos upgrade-check` passing
+- A USB stick to boot the Talos installer from
+- 1Password access for rendering the machine config
+- No other node maintenance in progress: while a control-plane node is out, etcd and the Ceph monitors run on two of three
+
+## Procedure
+
+### Step 1: Build the Installer USB
+
+```bash
+# Schematic ID for the node
+TALOS_SKIP_OP_INJECT=true talos/scripts/schematic-id.sh k8s-node-X
+
+# Talos version: the tag of installer.image in talos/nodes/**/k8s-node-X.yaml.j2
+curl -fLO "https://factory.talos.dev/image/<schematic-id>/<version>/metal-amd64.iso"
+```
+
+Write the ISO to the USB stick.
+
+### Step 2: List the Node-Local Volumes
+
+```bash
+# openebs-hostpath claims pinned to the node
+kubectl get pv -o json | jq -r '.items[]
+  | select(.spec.storageClassName == "openebs-hostpath")
+  | select(.spec.nodeAffinity.required.nodeSelectorTerms[].matchExpressions[].values[] == "k8s-node-X")
+  | "\(.spec.claimRef.namespace)/\(.spec.claimRef.name)"'
+
+# Instance counts and current primaries
+kubectl get clusters.postgresql.cnpg.io -A
+```
+
+Each claim must belong to a CloudNativePG cluster that has another instance on a different node. Any other claim on the list loses its data, so move it or accept the loss before continuing. Keep the list for Step 8.
+
+### Step 3: Drain the Node
+
+```bash
+kubectl cordon k8s-node-X
+kubectl drain k8s-node-X --ignore-daemonsets --delete-emptydir-data --timeout=600s
+```
+
+The drain moves any CloudNativePG primary to another instance. Replicas pinned to the node stay `Pending`. Pods that tolerate a cordon, such as Tuppr, can be scheduled straight back onto the node.
+
+### Step 4: Leave etcd (Control Plane Nodes Only)
+
+```bash
+talosctl -n <node-ip> etcd forfeit-leadership
+talosctl -n <node-ip> etcd leave
+
+# Verify from another control-plane node: two members remain
+talosctl -n <other-control-plane-node> etcd members
+```
+
+### Step 5: Hold Ceph Rebalancing and Shut Down
+
+Rook holds off rebalancing for only 30 minutes after a drain, so set the flag for the whole swap:
+
+```bash
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd set noout
+
+talosctl -n <node-ip> shutdown
+kubectl delete node k8s-node-X
+```
+
+### Step 6: Swap the Disk and Boot the Installer
+
+Replace the system disk and keep the old one untouched until the node has rejoined. Boot from the USB stick into Talos maintenance mode, then check the node and its disks:
+
+```bash
+talosctl -n <node-ip> version --insecure
+talosctl -n <node-ip> get disks --insecure
+```
+
+If the new disk's `MODEL` differs from the `diskSelector` in `talos/nodes/**/k8s-node-X.yaml.j2`, update the template with the exact string shown. Talos truncates SATA model names and reports no serial for SATA disks, so take the string from this output.
+
+### Step 7: Install
+
+```bash
+just talos validate k8s-node-X
+just talos apply-insecure-node k8s-node-X
+```
+
+Talos installs to the selected disk and reboots; remove the USB stick when it does. The node joins the existing cluster by itself. Never run `just talos bootstrap` here: it creates a new etcd cluster.
+
+### Step 8: Rebuild Node-Local Data
+
+```bash
+# Node Ready, and three etcd members again on control-plane nodes
+kubectl get nodes -w
+talosctl -n <other-control-plane-node> etcd members
+
+# For each claim from Step 2: remove the instance whose data is gone
+kubectl cnpg destroy -n <namespace> <cluster> <instance-number>
+kubectl get clusters.postgresql.cnpg.io -A
+```
+
+CloudNativePG creates a replacement instance under a new number and clones it from the primary. The scheduler picks its node.
+
+```bash
+# OSD and monitor pods on the node
+kubectl -n rook-ceph get pods -o wide | grep k8s-node-X
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph status
+
+# Once all OSDs are up and three monitors are in quorum
+kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd unset noout
+```
+
+### Step 9: Verify
+
+```bash
+just talos upgrade-check
+```
+
+Run the LoadBalancer/BGP check in `docs/agent/platform.md`, then commit the `diskSelector` change if there was one. The old disk can be wiped once every check passes.
+
+## Fallback to the Old Disk
+
+If the new disk fails to install, put the old disk back. It boots with its existing machine config, but on a control-plane node its etcd data belongs to a member that has left the cluster. Wipe `/var` so the node rejoins as a new member, then continue from Step 8:
+
+```bash
+talosctl -n <node-ip> reset --system-labels-to-wipe EPHEMERAL --reboot --graceful=false
+```
+
+---
+
 # Dead Node
 
 Use this procedure when a node has died and needs hardware replacement while maintaining the same node identity.
