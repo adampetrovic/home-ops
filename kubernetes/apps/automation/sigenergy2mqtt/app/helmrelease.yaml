@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: mirror.gcr.io/seud0nym/sigenergy2mqtt
-              tag: 2026.11.11@sha256:c2d6c3a5ef844fc284d40a6d8b88e35cc7cbf388b617a22fbdf765ba8de1c4b3
+              tag: 2026.11.26@sha256:26556fcc11de9d3cd3531cce170fc40a62a90845780a9a30a88d3cfef52e016b
             env:
               TZ: "Australia/Sydney"
 
