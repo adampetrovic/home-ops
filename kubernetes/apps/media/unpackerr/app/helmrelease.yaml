@@ -54,8 +54,10 @@ spec:
               UN_WEBSERVER_API_KEYS_0_ROLES_0: metrics
               UN_SONARR_0_URL: http://sonarr.media.svc.cluster.local
               UN_SONARR_0_PATHS_0: /downloads/complete/qbt/tv
+              UN_SONARR_0_PATHS_1: /downloads/complete/qbt/tv-kids
               UN_RADARR_0_URL: http://radarr.media.svc.cluster.local
               UN_RADARR_0_PATHS_0: /downloads/complete/qbt/movies
+              UN_RADARR_0_PATHS_1: /downloads/complete/qbt/movies-kids
             probes:
               liveness:
                 enabled: true
